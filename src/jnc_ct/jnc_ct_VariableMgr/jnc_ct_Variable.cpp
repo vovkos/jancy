@@ -99,7 +99,7 @@ Variable::generateDocumentation(
 	else if (m_storageKind == StorageKind_Static && m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Type)
 		itemXml->append(" static='yes'");
 
-	if (m_ptrTypeFlags & PtrTypeFlag_Const)
+	if (m_ptrTypeFlags & ConstKind_Const)
 		itemXml->append(" const='yes'");
 
 	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());

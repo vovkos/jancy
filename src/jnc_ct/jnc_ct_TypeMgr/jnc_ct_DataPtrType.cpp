@@ -25,7 +25,6 @@ DataPtrType::createSignature(
 	uint_t bitOffset,
 	uint_t bitCount,
 	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
@@ -37,7 +36,8 @@ DataPtrType::createSignature(
 		"Rt"
 	};
 
-	size_t i = (typeKind - TypeKind_DataPtr) * 2 + ptrTypeKind;
+	size_t j = (flags >> PtrTypeFlag__PtrKindBit) & 3;
+	size_t i = (typeKind - TypeKind_DataPtr) * 2 + j;
 	ASSERT(i < countof(stringTable));
 
 	sl::String signature = stringTable[i];
@@ -72,9 +72,10 @@ DataPtrType::createItemString(size_t index) {
 			string += ptrTypeFlagString;
 		}
 
-		if (m_ptrTypeKind != DataPtrTypeKind_Normal) {
+		DataPtrKind ptrKind = getPtrKind();
+		if (ptrKind != DataPtrKind_Normal) {
 			string += ' ';
-			string += getDataPtrTypeKindString(m_ptrTypeKind);
+			string += getDataPtrKindString(ptrKind);
 		}
 
 		if (m_targetType->getTypeKind() == TypeKind_Array)
@@ -96,7 +97,7 @@ DataPtrType::createItemString(size_t index) {
 void
 DataPtrType::prepareLlvmType() {
 	m_llvmType =
-		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType(StdType_DataPtrStruct)->getLlvmType() :
+		getPtrKind() == DataPtrKind_Normal ? m_module->m_typeMgr.getStdType(StdType_DataPtrStruct)->getLlvmType() :
 		m_targetType->getTypeKind() != TypeKind_Void ? llvm::PointerType::get(m_targetType->getLlvmType(), 0) :
 		m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)->getLlvmType();
 }
@@ -104,7 +105,7 @@ DataPtrType::prepareLlvmType() {
 void
 DataPtrType::prepareLlvmDiType() {
 	m_llvmDiType =
-		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType(StdType_DataPtrStruct)->getLlvmDiType() :
+		getPtrKind() == DataPtrKind_Normal ? m_module->m_typeMgr.getStdType(StdType_DataPtrStruct)->getLlvmDiType() :
 		m_targetType->getTypeKind() != TypeKind_Void && (m_targetType->getFlags() & TypeFlag_LayoutReady) ?
 				m_module->m_llvmDiBuilder.createPointerType(m_targetType) :
 				m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)->getLlvmDiType();
@@ -115,7 +116,7 @@ DataPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 ) {
-	ASSERT(m_ptrTypeKind == DataPtrTypeKind_Normal);
+	ASSERT(getPtrKind() == DataPtrKind_Normal);
 
 	DataPtr* ptr = (DataPtr*)p;
 	if (!ptr->m_validator)
@@ -128,26 +129,26 @@ DataPtrType::markGcRoots(
 Type*
 DataPtrType::calcFoldedDualType(
 	bool isAlien,
-	uint_t ptrFlags
+	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
 
-	Type* targetType = m_targetType->getActualTypeIfDual(isAlien, ptrFlags);
-	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_AutoConst);
+	Type* targetType = m_targetType->getActualTypeIfDual(isAlien, constKind);
+	uint_t flags = m_flags & PtrTypeFlag__All & ~(ConstKind_ReadOnly | ConstKind_AutoConst);
 
-	if ((m_flags & PtrTypeFlag_ReadOnly) && isAlien)
-		flags |= PtrTypeFlag_Const;
-	else if (m_flags & PtrTypeFlag_AutoConst)
-		flags |= ptrFlags;
+	if ((m_flags & ConstKind_ReadOnly) && isAlien)
+		flags |= ConstKind_Const;
+	else if (m_flags & ConstKind_AutoConst)
+		flags |= constKind;
 
-	return targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, flags);
+	return targetType->getDataPtrType(m_typeKind, flags);
 }
 
 Type*
 DataPtrType::mergeAutoConstTypes(Type* constType0) {
 	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
 	DataPtrType* constType = (DataPtrType*)constType0;
-	if (constType->getTypeKind() != TypeKind_DataPtr || m_ptrTypeKind != constType->m_ptrTypeKind)
+	if (constType->getTypeKind() != TypeKind_DataPtr || getPtrKind() != constType->getPtrKind())
 		return NULL;
 
 	Type* targetType = m_targetType->mergeAutoConstTypes(constType->m_targetType);
@@ -163,7 +164,7 @@ DataPtrType::getTargetValueString(
 	const void* p,
 	const char* formatSpec
 ) {
-	if (m_flags & !(PtrTypeFlag_BigEndian | PtrTypeFlag_BitField))
+	if (!(m_flags & (PtrTypeFlag_BigEndian | PtrTypeFlag_BitField)))
 		return m_targetType->getValueString(p, formatSpec);
 
 	uint64_t n = 0;

@@ -95,14 +95,14 @@ Value::getLeanDataPtrValidator() const {
 inline
 void
 Value::setLeanDataPtrValidator(LeanDataPtrValidator* validator) {
-	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
+	ASSERT(isDataPtrType(m_type, DataPtrKind_Lean));
 	m_leanDataPtrValidator = validator;
 }
 
 inline
 void
 Value::setLeanDataPtrValidator(const Value& originValue) {
-	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
+	ASSERT(isDataPtrType(m_type, DataPtrKind_Lean));
 
 	if (originValue.m_leanDataPtrValidator)
 		m_leanDataPtrValidator = originValue.m_leanDataPtrValidator;
@@ -121,7 +121,7 @@ Value::setLeanDataPtrValidator(
 	const Value& rangeBeginValue,
 	size_t rangeLength
 ) {
-	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
+	ASSERT(isDataPtrType(m_type, DataPtrKind_Lean));
 
 	rc::Ptr<LeanDataPtrValidator> validator = AXL_RC_NEW(LeanDataPtrValidator);
 	validator->m_originValue = originValue;

@@ -77,7 +77,7 @@ Attribute::prepareValue(bool isDynamic) {
 			return false;
 		}
 
-		result = m_value.getFunction()->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin)->ensureLayout();
+		result = m_value.getFunction()->getType()->getFunctionPtrType(FunctionPtrKind_Thin)->ensureLayout();
 		if (!result)
 			return false;
 
@@ -116,7 +116,7 @@ Attribute::prepareVariant() {
 		if (size <= jnc::Variant::DataSize)
 			memcpy(&m_variant.m_data, m_value.getConstData(), size);
 		else {
-			m_variant.m_type = m_value.getType()->getDataPtrType_c(jnc::TypeKind_DataRef);
+			m_variant.m_type = m_value.getType()->getDataPtrType(jnc::TypeKind_DataRef, DataPtrKind_Thin);
 			m_variant.m_p = m_value.getConstData();
 		}
 
@@ -140,7 +140,7 @@ Attribute::prepareVariant() {
 		Function* function = m_value.getFunction();
 		ASSERT(function->getStorageKind() == StorageKind_Static);
 
-		m_variant.m_type = (jnc::Type*)function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin);
+		m_variant.m_type = (jnc::Type*)function->getType()->getFunctionPtrType(FunctionPtrKind_Thin);
 		m_variant.m_p = function->getMachineCode();
 		break;
 		}

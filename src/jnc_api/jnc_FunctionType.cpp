@@ -44,6 +44,22 @@ jnc_getFunctionTypeFlagString(jnc_FunctionTypeFlag flag) {
 		"undefined-function-flag";
 }
 
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_getFunctionPtrKindString(jnc_FunctionPtrKind ptrKind) {
+	static const char* stringTable[jnc_FunctionPtrKind__Count] = {
+		"normal", // FunctionPtrKind_Normal = 0,
+		"weak",   // FunctionPtrKind_Weak,
+		"thin",   // FunctionPtrKind_Thin,
+	};
+
+	size_t i = ptrKind >> jnc_PtrTypeFlag__PtrKindBit;
+	return i < countof(stringTable) ?
+		stringTable[i] :
+		"undefined-function-ptr-kind";
+}
+
 //..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
@@ -74,10 +90,9 @@ jnc_FunctionPtrType*
 jnc_FunctionType_getFunctionPtrType(
 	jnc_FunctionType* type,
 	jnc_TypeKind typeKind,
-	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getFunctionPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
+	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getFunctionPtrTypeFunc(type, typeKind, flags);
 }
 
 JNC_EXTERN_C
@@ -89,9 +104,9 @@ jnc_FunctionType_getShortType(jnc_FunctionType* type) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-jnc_FunctionPtrTypeKind
-jnc_FunctionPtrType_getPtrTypeKind(jnc_FunctionPtrType* type) {
-	return jnc_g_dynamicExtensionLibHost->m_functionPtrTypeFuncTable->m_getPtrTypeKindFunc(type);
+jnc_FunctionPtrKind
+jnc_FunctionPtrType_getPtrKind(jnc_FunctionPtrType* type) {
+	return jnc_g_dynamicExtensionLibHost->m_functionPtrTypeFuncTable->m_getPtrKindFunc(type);
 }
 
 JNC_EXTERN_C
@@ -165,9 +180,9 @@ jnc_FunctionTypeOverload_getOverload(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_FunctionPtrTypeKind
-jnc_FunctionPtrType_getPtrTypeKind(jnc_FunctionPtrType* type) {
-	return type->getPtrTypeKind();
+jnc_FunctionPtrKind
+jnc_FunctionPtrType_getPtrKind(jnc_FunctionPtrType* type) {
+	return type->getPtrKind();
 }
 
 JNC_EXTERN_C
@@ -183,10 +198,9 @@ jnc_FunctionPtrType*
 jnc_FunctionType_getFunctionPtrType(
 	jnc_FunctionType* type,
 	jnc_TypeKind typeKind,
-	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return type->getFunctionPtrType(typeKind, ptrTypeKind, flags);
+	return type->getFunctionPtrType(typeKind, flags);
 }
 
 JNC_EXTERN_C

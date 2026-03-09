@@ -74,22 +74,18 @@ public:
 	ClassPtrType*
 	getClassPtrType(
 		TypeKind typeKind,
-		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	ClassPtrType*
-	getClassPtrType(
-		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
-		uint_t flags = 0
-	) {
-		return getClassPtrType(TypeKind_ClassPtr, ptrTypeKind, flags);
+	getClassPtrType(uint_t flags = 0) {
+		return getClassPtrType(TypeKind_ClassPtr, flags);
 	}
 
 	virtual
 	Type*
 	getThisArgType(uint_t ptrTypeFlags) {
-		return (Type*)getClassPtrType(ClassPtrTypeKind_Normal, ptrTypeFlags);
+		return (Type*)getClassPtrType(ptrTypeFlags);
 	}
 
 	const OpaqueClassTypeInfo*
@@ -217,6 +213,8 @@ protected:
 	bool
 	prepareForOperatorNew();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 ClassType::ClassType() {

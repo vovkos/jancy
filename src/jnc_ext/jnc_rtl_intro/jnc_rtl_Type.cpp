@@ -80,7 +80,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DataPtrType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<DataPtrType, ct::DataPtrType*>))
-	JNC_MAP_CONST_PROPERTY("m_ptrTypeKind", &DataPtrType::getPtrTypeKind)
+	JNC_MAP_CONST_PROPERTY("m_ptrKind", &DataPtrType::getPtrKind)
 	JNC_MAP_CONST_PROPERTY("m_targetType", &DataPtrType::getTargetType)
 	JNC_MAP_CONST_PROPERTY("m_bitOffset", &DataPtrType::getBitOffset)
 	JNC_MAP_CONST_PROPERTY("m_bitCount", &DataPtrType::getBitCount)

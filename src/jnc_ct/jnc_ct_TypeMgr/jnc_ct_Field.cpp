@@ -21,7 +21,6 @@ namespace ct {
 DataPtrType*
 Field::getDataPtrType(
 	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	ASSERT(!m_bitCount == !(flags & PtrTypeFlag_BitField));
@@ -32,13 +31,11 @@ Field::getDataPtrType(
 			m_bitOffset,
 			m_bitCount,
 			typeKind,
-			ptrTypeKind,
 			flags
 		) :
 		m_module->m_typeMgr.getDataPtrType(
 			m_type,
 			typeKind,
-			ptrTypeKind,
 			flags
 		);
 }
@@ -78,10 +75,15 @@ Field::generateDocumentation(
 	else if (m_storageKind == StorageKind_Tls)
 		itemXml->append(" tls='yes'");
 
-	if (m_ptrTypeFlags & PtrTypeFlag_Const)
+	ConstKind constKind = getConstKindFromFlags(m_ptrTypeFlags);
+	switch (constKind) {
+	case ConstKind_Const:
 		itemXml->append(" const='yes'");
-	else if (m_ptrTypeFlags & PtrTypeFlag_ReadOnly)
+		break;
+	case ConstKind_ReadOnly:
 		itemXml->append(" readonly='yes'");
+		break;
+	}
 
 	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 	itemXml->append(m_type->getDoxyTypeString());

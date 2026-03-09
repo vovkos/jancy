@@ -86,7 +86,7 @@ AsyncLauncherFunction::compile() {
 		ASSERT(result);
 	}
 
-	Type* argType = promiseType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
+	Type* argType = promiseType->getClassPtrType(PtrTypeFlag_Safe);
 	uint_t flags = m_type->getFlags() & FunctionTypeFlag_AsyncErrorCode;
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(&argType, 1, flags);
 

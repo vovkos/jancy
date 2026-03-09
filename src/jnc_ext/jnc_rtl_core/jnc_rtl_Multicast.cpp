@@ -117,7 +117,7 @@ MulticastImpl::getSnapshot() {
 
 	snapshot->m_ptr = gcHeap->allocateArray(targetType, m_count);
 
-	if (targetType->getPtrTypeKind() != FunctionPtrTypeKind_Weak) {
+	if (targetType->getPtrKind() != FunctionPtrKind_Weak) {
 		size_t targetTypeSize = targetType->getSize();
 		snapshot->m_count = m_count;
 		memcpy(snapshot->m_ptr.m_p, m_ptr.m_p, m_count * targetTypeSize);

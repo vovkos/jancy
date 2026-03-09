@@ -23,7 +23,6 @@ sl::String
 PropertyPtrType::createSignature(
 	PropertyType* propertyType,
 	TypeKind typeKind,
-	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
@@ -35,7 +34,8 @@ PropertyPtrType::createSignature(
 		"Rt"
 	};
 
-	size_t i = (typeKind - TypeKind_PropertyPtr) * 2 + ptrTypeKind;
+	size_t j = (flags >> PtrTypeFlag__PtrKindBit) & 3;
+	size_t i = (typeKind - TypeKind_PropertyPtr) * 2 + j;
 	ASSERT(i < countof(stringTable));
 
 	sl::String signature = stringTable[i];
@@ -58,9 +58,10 @@ PropertyPtrType::createItemString(size_t index) {
 			string += ptrTypeFlagString;
 		}
 
-		if (m_ptrTypeKind != PropertyPtrTypeKind_Normal) {
+		PropertyPtrKind ptrKind = getPtrKind();
+		if (ptrKind != PropertyPtrKind_Normal) {
 			string += ' ';
-			string += getPropertyPtrTypeKindString(m_ptrTypeKind);
+			string += getPropertyPtrKindString(ptrKind);
 		}
 
 		sl::StringRef modifierString = m_targetType->getTypeModifierString();
@@ -90,16 +91,16 @@ PropertyPtrType::createItemString(size_t index) {
 
 void
 PropertyPtrType::prepareLlvmType() {
-	m_llvmType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
+	m_llvmType = getPtrKind() != PropertyPtrKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_PropertyPtrStruct)->getLlvmType() :
-		m_targetType->getVtableStructType()->getDataPtrType_c()->getLlvmType();
+		m_targetType->getVtableStructType()->getDataPtrType(DataPtrKind_Thin)->getLlvmType();
 }
 
 void
 PropertyPtrType::prepareLlvmDiType() {
-	m_llvmDiType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
+	m_llvmDiType = getPtrKind() != PropertyPtrKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_PropertyPtrStruct)->getLlvmDiType() :
-		m_targetType->getVtableStructType()->getDataPtrType_c()->getLlvmDiType();
+		m_targetType->getVtableStructType()->getDataPtrType(DataPtrKind_Thin)->getLlvmDiType();
 }
 
 void
@@ -107,14 +108,15 @@ PropertyPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 ) {
-	ASSERT(m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak);
+	PropertyPtrKind ptrKind = getPtrKind();
+	ASSERT(ptrKind == PropertyPtrKind_Normal || ptrKind == PropertyPtrKind_Weak);
 
 	PropertyPtr* ptr = (PropertyPtr*)p;
 	if (!ptr->m_closure)
 		return;
 
 	Box* box = ptr->m_closure->m_box;
-	if (m_ptrTypeKind == PropertyPtrTypeKind_Normal)
+	if (ptrKind == PropertyPtrKind_Normal)
 		gcHeap->markClass(box);
 	else if (isClassType(box->m_type, ClassTypeKind_PropertyClosure))
 		gcHeap->weakMarkClosureClass(box);
@@ -152,7 +154,7 @@ Type*
 PropertyPtrType::mergeAutoConstTypes(Type* constType0) {
 	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
 	PropertyPtrType* constType = (PropertyPtrType*)constType0;
-	if (constType->getTypeKind() == TypeKind_PropertyPtr && m_ptrTypeKind == constType->m_ptrTypeKind)
+	if (constType->getTypeKind() != TypeKind_PropertyPtr || getPtrKind() != constType->getPtrKind())
 		return NULL;
 
 	PropertyType* targetType = (PropertyType*)m_targetType->mergeAutoConstTypes(constType->m_targetType);
@@ -160,7 +162,7 @@ PropertyPtrType::mergeAutoConstTypes(Type* constType0) {
 		return NULL;
 
 	ASSERT(targetType->getTypeKind() == TypeKind_Property);
-	return m_module->m_typeMgr.getPropertyPtrType(targetType, m_typeKind, m_ptrTypeKind, m_flags);
+	return m_module->m_typeMgr.getPropertyPtrType(targetType, m_typeKind, m_flags & PtrTypeFlag__All);
 }
 
 //..............................................................................

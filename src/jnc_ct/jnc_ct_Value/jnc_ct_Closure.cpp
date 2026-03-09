@@ -168,7 +168,7 @@ Closure::getClosureType(Type* type) {
 
 FunctionPtrType*
 Closure::getFunctionClosureType(Function* function) {
-	return getFunctionClosureType(function->getType()->getFunctionPtrType(TypeKind_FunctionRef, FunctionPtrTypeKind_Thin));
+	return getFunctionClosureType(function->getType()->getFunctionPtrType(TypeKind_FunctionRef, FunctionPtrKind_Thin));
 }
 
 bool
@@ -227,11 +227,7 @@ Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
 		argArray
 	);
 
-	return closureType->getFunctionPtrType(
-		ptrType->getTypeKind(),
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
+	return closureType->getFunctionPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag__All);
 }
 
 PropertyPtrType*
@@ -288,11 +284,7 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType) {
 		type->getFlags() & PropertyTypeFlag__All
 	);
 
-	return closureType->getPropertyPtrType(
-		ptrType->getTypeKind(),
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
+	return closureType->getPropertyPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag__All);
 }
 
 //..............................................................................

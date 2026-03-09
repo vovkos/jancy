@@ -31,7 +31,7 @@ OperatorMgr::getClassVtable(
 	m_module->m_llvmIrBuilder.createBitCast(opValue, m_module->m_typeMgr.getStdType(StdType_IfaceHdrPtr), &ptrValue);
 	m_module->m_llvmIrBuilder.createGep2(ptrValue, m_module->m_typeMgr.getStdType(StdType_IfaceHdr), 0, NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createLoad(ptrValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
-	m_module->m_llvmIrBuilder.createBitCast(ptrValue, vtableType->getDataPtrType_c(), resultValue);
+	m_module->m_llvmIrBuilder.createBitCast(ptrValue, vtableType->getDataPtrType(DataPtrKind_Thin), resultValue);
 	return true;
 }
 
@@ -80,7 +80,7 @@ OperatorMgr::getVirtualMethod(
 
 	m_module->m_llvmIrBuilder.createLoad(
 		ptrValue,
-		function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin),
+		function->getType()->getFunctionPtrType(FunctionPtrKind_Thin),
 		resultValue
 	);
 
@@ -126,11 +126,11 @@ OperatorMgr::getVirtualProperty(
 
 	m_module->m_llvmIrBuilder.createBitCast(
 		ptrValue,
-		prop->getType()->getVtableStructType()->getDataPtrType_c(),
+		prop->getType()->getVtableStructType()->getDataPtrType(DataPtrKind_Thin),
 		&ptrValue
 	);
 
-	resultValue->overrideType(ptrValue, prop->getType()->getPropertyPtrType(PropertyPtrTypeKind_Thin));
+	resultValue->overrideType(ptrValue, prop->getType()->getPropertyPtrType(PropertyPtrKind_Thin));
 	resultValue->setClosure(closure);
 	return true;
 }

@@ -113,14 +113,14 @@ AutoConstType::calcLayout() {
 Type*
 AutoConstType::calcFoldedDualType(
 	bool isAlien,
-	uint_t ptrFlags
+	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
 
 	// we can't simply return m_originalType because underlying llvm type is from m_constType
 	// so we create an adapter that's llvm-compatible and then casted to m_originalType during prepareOperand
 
-	return (ptrFlags & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst)) ?
+	return constKind ?
 		m_constType :
 		m_module->m_typeMgr.getAutoConstType(m_originalType, m_constType, 0);
 }

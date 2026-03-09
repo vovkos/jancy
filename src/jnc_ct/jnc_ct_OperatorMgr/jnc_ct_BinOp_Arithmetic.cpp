@@ -53,7 +53,7 @@ dataPtrIncrementOperator(
 	bool result;
 
 	DataPtrType* opType = (DataPtrType*)opValue1.getType();
-	DataPtrType* resultType = opType->getUnCheckedPtrType();
+	DataPtrType* resultType = opType->getUnsafePtrType();
 	Type* targetType = opType->getTargetType();
 	if (targetType->getStdType() == StdType_AbstractData) {
 		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");
@@ -65,10 +65,11 @@ dataPtrIncrementOperator(
 		return true;
 	}
 
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
+	DataPtrKind ptrKind = opType->getPtrKind();
 
 	if (opValue1.getValueKind() == ValueKind_Const &&
-		opValue2.getValueKind() == ValueKind_Const) {
+		opValue2.getValueKind() == ValueKind_Const
+	) {
 		Value deltaValue;
 		result = module->m_operatorMgr.castOperator(opValue2, TypeKind_IntPtr, &deltaValue);
 		if (!result)
@@ -76,22 +77,22 @@ dataPtrIncrementOperator(
 
 		intptr_t delta = deltaValue.getIntPtr() * targetType->getSize();
 
-		if (ptrTypeKind == DataPtrTypeKind_Thin) {
+		if (ptrKind == DataPtrKind_Thin) {
 			char* p = *(char**)opValue1.getConstData() + delta;
 			resultValue->createConst(&p, opValue1.getType());
 		} else {
-			ASSERT(ptrTypeKind == DataPtrTypeKind_Normal); // lean is compile-time-only
-
+			ASSERT(ptrKind == DataPtrKind_Normal); // lean is compile-time-only
 			DataPtr ptr = *(DataPtr*)opValue1.getConstData();
 			ptr.m_p = (char*)ptr.m_p + delta;
 			resultValue->createConst(&ptr, opValue1.getType());
 		}
-	} else if (ptrTypeKind == DataPtrTypeKind_Thin) {
+	} else if (ptrKind == DataPtrKind_Thin)
 		module->m_llvmIrBuilder.createGep(opValue1, targetType, opValue2, resultType, resultValue);
-	} else if (ptrTypeKind == DataPtrTypeKind_Lean) {
+	else if (ptrKind == DataPtrKind_Lean) {
 		module->m_llvmIrBuilder.createGep(opValue1, targetType, opValue2, resultType, resultValue);
 		resultValue->setLeanDataPtr(resultValue->getLlvmValue(), resultType, opValue1);
-	} else { // DataPtrTypeKind_Normal
+	} else {
+		ASSERT(ptrKind == DataPtrKind_Normal);
 		size_t size = targetType->getSize();
 		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 

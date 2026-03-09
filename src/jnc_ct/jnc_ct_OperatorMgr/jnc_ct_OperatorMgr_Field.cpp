@@ -136,7 +136,7 @@ OperatorMgr::getFieldPtrImpl(
 
 		Field* field = unionCoord->m_type->getFieldByIndex(llvmIndex[llvmIndexDelta]);
 		containerType = field->getType();
-		Type* type = containerType->getDataPtrType_c();
+		Type* type = containerType->getDataPtrType(DataPtrKind_Thin);
 
 		m_module->m_llvmIrBuilder.createBitCast(opValue, type, &opValue);
 
@@ -184,39 +184,22 @@ OperatorMgr::getStructField(
 	if (opValueKind == ValueKind_Const) {
 		Type* type = opValue.getType();
 		if (!(type->getTypeKindFlags() & TypeKindFlag_Ptr)) {
-			resultValue->createConst(
-				(char*)opValue.getConstData() + coord->m_offset,
-				field->getType()
-			);
+			char* p = (char*)opValue.getConstData() + coord->m_offset;
+			resultValue->createConst(p, field->getType());
 		} else {
 			ASSERT(type->getTypeKindFlags() & TypeKindFlag_DataPtr);
-
 			DataPtrType* ptrType = (DataPtrType*)type;
-			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
+			DataPtrKind ptrKind = ptrType->getPtrKind();
+			DataPtrType* resultType = field->getDataPtrType(TypeKind_DataRef, type->getFlags() & PtrTypeFlag__All);
 
-			if (ptrTypeKind == DataPtrTypeKind_Normal) {
+			if (ptrKind == DataPtrKind_Normal) {
 				DataPtr ptr = *(DataPtr*)opValue.getConstData();
 				ptr.m_p = (char*)ptr.m_p + field->getOffset();
-				resultValue->createConst(
-					&ptr,
-					field->getDataPtrType(
-						TypeKind_DataRef,
-						DataPtrTypeKind_Normal,
-						type->getFlags() & PtrTypeFlag__All
-					)
-				);
+				resultValue->createConst(&ptr, resultType);
 			} else {
-				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
-				char* p = *(char**)opValue.getConstData();
-				p += field->getOffset();
-				resultValue->createConst(
-					&p,
-					field->getDataPtrType(
-						TypeKind_DataRef,
-						DataPtrTypeKind_Thin,
-						type->getFlags() & PtrTypeFlag__All
-					)
-				);
+				ASSERT(ptrKind == DataPtrKind_Thin);
+				char* p = *(char**)opValue.getConstData() + field->getOffset();
+				resultValue->createConst(&p, resultType);
 			}
 		}
 
@@ -246,27 +229,22 @@ OperatorMgr::getStructField(
 	DataPtrType* opType = (DataPtrType*)opValue.getType();
 	coord->m_llvmIndexArray.insert(0, 0);
 
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
+	DataPtrKind ptrKind = opType->getPtrKind();
 	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
 	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlag_Const;
+		ptrTypeFlags &= ~(PtrTypeFlag__ConstKindMask & ~ConstKind_ReadOnly);
 
 	DataPtrType* resultType;
 
 	if (!m_module->hasCodeGen()) {
-		resultType = field->getDataPtrType(
-			TypeKind_DataRef,
-			ptrTypeKind,
-			ptrTypeFlags
-		);
+		resultType = field->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 		resultValue->setType(resultType);
 		return true;
 	}
 
-	if (ptrTypeKind == DataPtrTypeKind_Thin) {
+	if (ptrKind == DataPtrKind_Thin) {
 		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
-			DataPtrTypeKind_Thin,
 			ptrTypeFlags
 		);
 
@@ -275,19 +253,18 @@ OperatorMgr::getStructField(
 	}
 
 	Value ptrValue;
-	if (ptrTypeKind == DataPtrTypeKind_Lean) {
+	if (ptrKind == DataPtrKind_Lean)
 		getFieldPtrImpl(opValue, containerType, coord, NULL, &ptrValue);
-	} else {
+	else {
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast(ptrValue, opType->getTargetType()->getDataPtrType_c(), &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(ptrValue, opType->getTargetType()->getDataPtrType(DataPtrKind_Thin), &ptrValue);
 		getFieldPtrImpl(ptrValue, containerType, coord, NULL, &ptrValue);
 	}
 
 	if (opType->getTargetType()->getFlags() & TypeFlag_Pod) {
 		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
-			DataPtrTypeKind_Lean,
-			ptrTypeFlags
+			ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
 		);
 
 		resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), resultType, opValue);
@@ -299,8 +276,7 @@ OperatorMgr::getStructField(
 		ptrTypeFlags |= PtrTypeFlag_Safe;
 		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
-			DataPtrTypeKind_Lean,
-			ptrTypeFlags
+			ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
 		);
 
 		resultValue->setLeanDataPtr(
@@ -336,35 +312,34 @@ OperatorMgr::getUnionField(
 
 	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
 	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlag_Const;
+		ptrTypeFlags &= ~(PtrTypeFlag__ConstKindMask & ~ConstKind_ReadOnly);
 
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
+	DataPtrKind ptrKind = opType->getPtrKind();
+	switch (ptrKind) {
+		DataPtrType* ptrType;
 
-	DataPtrType* ptrType = field->getDataPtrType(
-		TypeKind_DataRef,
-		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
-		ptrTypeFlags
-	);
-
-	if (ptrTypeKind == DataPtrTypeKind_Thin) {
+	case DataPtrKind_Thin:
+		ptrType = field->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, resultValue);
-	} else if (ptrTypeKind == DataPtrTypeKind_Lean) {
+		break;
+
+	case DataPtrKind_Lean:
+		ptrType = field->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, resultValue);
 
 		if (opValue.getValueKind() == ValueKind_Variable)
 			resultValue->setLeanDataPtrValidator(opValue);
 		else
 			resultValue->setLeanDataPtrValidator(opValue.getLeanDataPtrValidator());
-	} else {
-		Value ptrValue;
-		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast(opValue, field->getType()->getDataPtrType_c(), &ptrValue);
+		break;
 
-		resultValue->setLeanDataPtr(
-			ptrValue.getLlvmValue(),
-			ptrType,
-			opValue
-		);
+	default:
+		ASSERT(ptrKind == DataPtrKind_Normal);
+		Value ptrValue;
+		ptrType = field->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean);
+		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, &ptrValue);
+		resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), ptrType, opValue);
 	}
 
 	return true;
@@ -388,19 +363,17 @@ OperatorMgr::getClassField(
 
 	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags() | PtrTypeFlag_Safe) & PtrTypeFlag__All;
 	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlag_Const;
+		ptrTypeFlags &= ~(PtrTypeFlag__ConstKindMask & ~ConstKind_ReadOnly);
 
 	if (!m_module->hasCodeGen()) {
 		Type* resultType = field->getType()->getTypeKind() == TypeKind_Class ?
 			(Type*)((ClassType*)field->getType())->getClassPtrType(
 				TypeKind_ClassRef,
-				ClassPtrTypeKind_Normal,
 				ptrTypeFlags
 			) :
 			field->getDataPtrType(
 				TypeKind_DataRef,
-				DataPtrTypeKind_Lean,
-				ptrTypeFlags
+				ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
 			);
 
 		resultValue->setType(resultType);
@@ -427,7 +400,6 @@ OperatorMgr::getClassField(
 	if (field->getType()->getTypeKind() == TypeKind_Class) {
 		ClassPtrType* ptrType = ((ClassType*)field->getType())->getClassPtrType(
 			TypeKind_ClassRef,
-			ClassPtrTypeKind_Normal,
 			ptrTypeFlags
 		);
 
@@ -435,8 +407,7 @@ OperatorMgr::getClassField(
 	} else {
 		DataPtrType* ptrType = field->getDataPtrType(
 			TypeKind_DataRef,
-			DataPtrTypeKind_Lean,
-			ptrTypeFlags
+			ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
 		);
 
 		resultValue->setLeanDataPtr(
@@ -486,20 +457,15 @@ OperatorMgr::getPropertyField(
 	ASSERT(parentType);
 
 	Type* parentPtrType;
-	if (parentType->getTypeKind() == TypeKind_Class) {
-		parentPtrType = ((ClassType*)parentType)->getClassPtrType(
-			ClassPtrTypeKind_Normal,
-			parentValueType->getFlags() & PtrTypeFlag__All
-		);
-	} else {
-		DataPtrTypeKind ptrTypeKind = (parentValueType->getTypeKindFlags() & TypeKindFlag_DataPtr) ?
-			((DataPtrType*)parentValueType)->getPtrTypeKind() :
-			DataPtrTypeKind_Normal;
+	uint_t ptrTypeFlags = parentValueType->getFlags() & PtrTypeFlag__All;
 
-		parentPtrType = parentType->getDataPtrType(
-			ptrTypeKind,
-			parentValueType->getFlags() & PtrTypeFlag__All
-		);
+	if (parentType->getTypeKind() == TypeKind_Class)
+		parentPtrType = ((ClassType*)parentType)->getClassPtrType(ptrTypeFlags);
+	else {
+		if (!(parentValueType->getTypeKindFlags() & TypeKindFlag_DataPtr))
+			ptrTypeFlags &= ~PtrTypeFlag__PtrKindMask;
+
+		parentPtrType = parentType->getDataPtrType(ptrTypeFlags);
 	}
 
 	return

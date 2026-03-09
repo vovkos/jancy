@@ -35,11 +35,11 @@ OperatorMgr::createClosureObject(
 
 	FunctionType* srcFunctionType;
 	if (opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr) {
-		ASSERT(((FunctionPtrType*)opValue.getType())->getPtrTypeKind() == FunctionPtrTypeKind_Thin);
+		ASSERT(((FunctionPtrType*)opValue.getType())->getPtrKind() == FunctionPtrKind_Thin);
 		srcFunctionType = ((FunctionPtrType*)opValue.getType())->getTargetType();
 	} else {
 		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-		ASSERT(((PropertyPtrType*)opValue.getType())->getPtrTypeKind() == PropertyPtrTypeKind_Thin);
+		ASSERT(((PropertyPtrType*)opValue.getType())->getPtrKind() == PropertyPtrKind_Thin);
 		srcFunctionType = ((PropertyPtrType*)opValue.getType())->getTargetType()->getGetterType();
 	}
 

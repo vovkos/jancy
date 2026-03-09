@@ -208,7 +208,7 @@ AsyncSequencerFunction::replaceAllocas() {
 
 	Value bufferValue;
 	m_module->m_llvmIrBuilder.setInsertPoint(&*it);
-	m_module->m_llvmIrBuilder.createBitCast(llvmPromiseValue, byteType->getDataPtrType_c(), &bufferValue);
+	m_module->m_llvmIrBuilder.createBitCast(llvmPromiseValue, byteType->getDataPtrType(DataPtrKind_Thin), &bufferValue);
 
 	size_t offset = m_promiseType->m_ifaceStructType->m_size;
 

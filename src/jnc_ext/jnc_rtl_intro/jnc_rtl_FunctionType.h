@@ -83,10 +83,9 @@ public:
 	JNC_CDECL
 	getFunctionPtrType(
 		TypeKind typeKind,
-		FunctionPtrTypeKind ptrTypeKind,
 		uint_t flags
 	) {
-		return (FunctionPtrType*)rtl::getType(m_item->getFunctionPtrType(typeKind, ptrTypeKind, flags));
+		return (FunctionPtrType*)rtl::getType(m_item->getFunctionPtrType(typeKind, flags));
 	}
 };
 
@@ -97,10 +96,10 @@ public:
 	FunctionPtrType(ct::FunctionPtrType* type):
 		TypeBase(type) {}
 
-	FunctionPtrTypeKind
+	FunctionPtrKind
 	JNC_CDECL
-	getPtrTypeKind() {
-		return m_item->getPtrTypeKind();
+	getPtrKind() {
+		return m_item->getPtrKind();
 	}
 
 	FunctionType*

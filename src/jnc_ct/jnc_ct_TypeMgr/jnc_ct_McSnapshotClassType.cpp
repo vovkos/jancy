@@ -65,7 +65,7 @@ McSnapshotClassType::compileCallMethod(Function* function) {
 	for (size_t i = 1; i < argCount; i++)
 		argValueList.insertTail(argValueArray[i]);
 
-	Type* ptrType = m_targetType->getDataPtrType_c();
+	Type* ptrType = m_targetType->getDataPtrType(DataPtrKind_Thin);
 
 	Value ptrVariable;
 	Value ptrValue;

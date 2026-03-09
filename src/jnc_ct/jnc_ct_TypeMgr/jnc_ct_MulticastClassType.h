@@ -36,7 +36,6 @@ protected:
 	McSnapshotClassType* m_snapshotType;
 	Field* m_fieldArray[MulticastFieldKind__Count];
 	Function* m_methodArray[MulticastMethodKind__Count];
-
 	ClassPtrTypeTuple* m_eventClassPtrTypeTuple;
 
 public:

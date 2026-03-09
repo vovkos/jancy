@@ -35,7 +35,7 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 		if (returnType->getSize() <= sizeof(uint64_t)) {
 			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
 		} else {
-			returnType = returnType->getDataPtrType_c();
+			returnType = returnType->getDataPtrType(DataPtrKind_Thin);
 
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
@@ -55,7 +55,7 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 			rwi[j] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64)->getLlvmType();
 			hasCoercedArgs = true;
 		} else {
-			rwi[j] = type->getDataPtrType_c()->getLlvmType();
+			rwi[j] = type->getDataPtrType(DataPtrKind_Thin)->getLlvmType();
 			hasCoercedArgs = true;
 		}
 	}
@@ -87,7 +87,7 @@ CdeclCallConv_msc64::call(
 	Value tmpReturnValue;
 
 	if (returnType->getFlags() & TypeFlag_StructRet) {
-		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
+		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType(DataPtrKind_Thin), &tmpReturnValue);
 		if (returnType->getSize() > sizeof(uint64_t))
 			argValueList->insertHead(tmpReturnValue);
 	}
@@ -109,7 +109,7 @@ CdeclCallConv_msc64::call(
 
 				Value tmpValue, tmpValue2;
 				m_module->m_llvmIrBuilder.createAlloca(coerceType, NULL, &tmpValue);
-				m_module->m_llvmIrBuilder.createBitCast(tmpValue, type->getDataPtrType_c(), &tmpValue2);
+				m_module->m_llvmIrBuilder.createBitCast(tmpValue, type->getDataPtrType(DataPtrKind_Thin), &tmpValue2);
 				m_module->m_llvmIrBuilder.createStore(*it, tmpValue2);
 				m_module->m_llvmIrBuilder.createLoad(tmpValue, coerceType, &tmpValue);
 				*it = tmpValue;
@@ -127,7 +127,7 @@ CdeclCallConv_msc64::call(
 	if (returnType->getFlags() & TypeFlag_StructRet) {
 		if (returnType->getSize() <= sizeof(uint64_t)) {
 			Value tmpValue;
-			Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64)->getDataPtrType_c();
+			Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64)->getDataPtrType(DataPtrKind_Thin);
 			m_module->m_llvmIrBuilder.createBitCast(tmpReturnValue, type, &tmpValue);
 			m_module->m_llvmIrBuilder.createStore(*resultValue, tmpValue);
 		}
@@ -157,7 +157,7 @@ CdeclCallConv_msc64::ret(
 
 		Value tmpValue, tmpValue2;
 		m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
-		m_module->m_llvmIrBuilder.createBitCast(tmpValue, returnType->getDataPtrType_c(), &tmpValue2);
+		m_module->m_llvmIrBuilder.createBitCast(tmpValue, returnType->getDataPtrType(DataPtrKind_Thin), &tmpValue2);
 		m_module->m_llvmIrBuilder.createStore(value, tmpValue2);
 		m_module->m_llvmIrBuilder.createLoad(tmpValue, type, &tmpValue);
 		return m_module->m_llvmIrBuilder.createRet(tmpValue);
@@ -201,7 +201,7 @@ CdeclCallConv_msc64::getArgValue(
 	Value value;
 	m_module->m_llvmIrBuilder.createAlloca(int64Type, NULL, &value);
 	m_module->m_llvmIrBuilder.createStore(llvmValue, value);
-	m_module->m_llvmIrBuilder.createBitCast(value, type->getDataPtrType_c(), &value);
+	m_module->m_llvmIrBuilder.createBitCast(value, type->getDataPtrType(DataPtrKind_Thin), &value);
 	m_module->m_llvmIrBuilder.createLoad(value, type, &value);
 
 	return value;
@@ -267,7 +267,7 @@ CdeclCallConv_msc64::createArgVariables(Function* function) {
 				Value tmpValue;
 				m_module->m_llvmIrBuilder.createAlloca(int64Type, NULL, &tmpValue);
 				m_module->m_llvmIrBuilder.createStore(llvmArgValue, tmpValue);
-				m_module->m_llvmIrBuilder.createBitCast(tmpValue, type->getDataPtrType_c(), &tmpValue);
+				m_module->m_llvmIrBuilder.createBitCast(tmpValue, type->getDataPtrType(DataPtrKind_Thin), &tmpValue);
 				m_module->m_llvmIrBuilder.createLoad(tmpValue, type, &tmpValue);
 				m_module->m_llvmIrBuilder.createStore(tmpValue, argVariable);
 			}

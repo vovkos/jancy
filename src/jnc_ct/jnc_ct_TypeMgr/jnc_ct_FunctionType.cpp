@@ -121,11 +121,11 @@ FunctionType::resolveImports() {
 Type*
 FunctionType::calcFoldedDualType(
 	bool isAlien,
-	uint_t ptrFlags
+	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
 
-	Type* returnType = m_returnType->getActualTypeIfDual(isAlien, ptrFlags);
+	Type* returnType = m_returnType->getActualTypeIfDual(isAlien, constKind);
 
 	size_t count = m_argArray.getCount();
 	sl::Array<FunctionArg*> argArray;
@@ -136,7 +136,7 @@ FunctionType::calcFoldedDualType(
 		FunctionArg* arg = m_argArray[i];
 		Type* argType = arg->getType();
 		rwi[i] = (argType->getFlags() & TypeFlag_Dual) ?
-			m_module->m_typeMgr.cloneFunctionArgOverrideType(arg, argType->foldDualType(isAlien, ptrFlags)) :
+			m_module->m_typeMgr.cloneFunctionArgOverrideType(arg, argType->foldDualType(isAlien, constKind)) :
 			arg;
 	}
 

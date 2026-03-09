@@ -31,7 +31,7 @@ Cast_Variant::cast(
 	if (opValue.getType()->getSize() <= Variant::DataSize || m_module->isConstOperatorOnly())
 		return constCastImpl(opValue, type, resultValue);
 
-	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, PtrTypeFlag_Const);
+	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, ConstKind_Const);
 	return llvmCast(constVar, type, resultValue);
 }
 
@@ -54,11 +54,7 @@ Cast_Variant::constCast(
 		if (!variant->m_dataPtr.m_p)
 			return false;
 
-		opType = opType->getDataPtrType(
-			TypeKind_DataRef,
-			DataPtrTypeKind_Normal,
-			PtrTypeFlag_Const | PtrTypeFlag_Safe
-		);
+		opType = opType->getDataPtrType(TypeKind_DataRef, ConstKind_Const | PtrTypeFlag_Safe);
 	}
 
 	variant->m_type = opType;
@@ -79,11 +75,10 @@ Cast_Variant::llvmCast(
 
 	Type* opType = rawOpValue.getType();
 	if ((opType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
-		((DataPtrType*)opType)->getPtrTypeKind() == DataPtrTypeKind_Lean) {
+		((DataPtrType*)opType)->getPtrKind() == DataPtrKind_Lean) {
 		opType = ((DataPtrType*)opType)->getTargetType()->getDataPtrType(
 			opType->getTypeKind(),
-			DataPtrTypeKind_Normal,
-			opType->getFlags() & PtrTypeFlag__All
+			opType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask
 		);
 
 		m_module->m_operatorMgr.castOperator(rawOpValue, opType, &opValue);
@@ -96,14 +91,9 @@ Cast_Variant::llvmCast(
 
 		Value ptrValue;
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast(ptrValue, opType->getDataPtrType_c(), &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(ptrValue, opType->getDataPtrType(DataPtrKind_Thin), &ptrValue);
 		m_module->m_llvmIrBuilder.createStore(rawOpValue, ptrValue);
-
-		opType = opType->getDataPtrType(
-			TypeKind_DataRef,
-			DataPtrTypeKind_Normal,
-			PtrTypeFlag_Const | PtrTypeFlag_Safe
-		);
+		opType = opType->getDataPtrType(TypeKind_DataRef, ConstKind_Const | PtrTypeFlag_Safe);
 	}
 
 	Value opTypeValue(&opType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
@@ -111,7 +101,7 @@ Cast_Variant::llvmCast(
 	Value castValue;
 
 	m_module->m_llvmIrBuilder.createAlloca(type, NULL, &variantValue);
-	m_module->m_llvmIrBuilder.createBitCast(variantValue, opType->getDataPtrType_c(), &castValue);
+	m_module->m_llvmIrBuilder.createBitCast(variantValue, opType->getDataPtrType(DataPtrKind_Thin), &castValue);
 	m_module->m_llvmIrBuilder.createStore(opValue, castValue);
 	m_module->m_llvmIrBuilder.createLoad(variantValue, type, &variantValue);
 	m_module->m_llvmIrBuilder.createInsertValue(variantValue, opTypeValue, VariantField_Type, type, resultValue);
@@ -145,7 +135,7 @@ Cast_FromVariant::constCast(
 	if ((variant->m_type->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
 		(type->getTypeKindFlags() & TypeKindFlag_FunctionPtr) &&
 		(((ClassPtrType*)variant->m_type)->getTargetType()->getStdType() == StdType_Function) &&
-		((FunctionPtrType*)type)->getPtrTypeKind() == FunctionPtrTypeKind_Thin
+		((FunctionPtrType*)type)->getPtrKind() == FunctionPtrKind_Thin
 	) {
 		struct RtlFunction: jnc::IfaceHdr {
 			Function* m_function;
@@ -186,7 +176,7 @@ Cast_FromVariant::llvmCast(
 	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 	Value tmpValue;
 
-	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &tmpValue);
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType(DataPtrKind_Thin), &tmpValue);
 	Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicCastVariant);
 	bool result = m_module->m_operatorMgr.callOperator(function, opValue, typeValue, tmpValue);
 	if (!result)

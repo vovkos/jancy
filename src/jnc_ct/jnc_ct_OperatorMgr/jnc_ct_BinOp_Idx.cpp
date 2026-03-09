@@ -109,26 +109,24 @@ BinOp_Idx::arrayIndexOperator(
 			ASSERT(type->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
 			DataPtrType* ptrType = (DataPtrType*)type;
-			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
-
-			if (ptrTypeKind == DataPtrTypeKind_Normal) {
+			DataPtrKind ptrKind = ptrType->getPtrKind();
+			if (ptrKind == DataPtrKind_Normal) {
 				DataPtr ptr = *(DataPtr*)opValue1.getConstData();
 				ptr.m_p = (char*)ptr.m_p + elementOffset;
 				resultValue->createConst(
 					&ptr,
 					elementType->getDataPtrType(
 						TypeKind_DataRef,
-						DataPtrTypeKind_Normal,
 						type->getFlags() & PtrTypeFlag__All
 					)
 				);
 			} else {
-				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
+				ASSERT(ptrKind == DataPtrKind_Thin);
 				char* p = *(char**)opValue1.getConstData();
 				p += elementOffset;
 				resultValue->createConst(
 					&p,
-					elementType->getDataPtrType_c(
+					elementType->getDataPtrType(
 						TypeKind_DataRef,
 						type->getFlags() & PtrTypeFlag__All
 					)
@@ -161,45 +159,46 @@ BinOp_Idx::arrayIndexOperator(
 				err::setFormatStringError("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString().sz());
 				return false;
 			}
-		} else {
+		} else
 			ptrTypeFlags &= ~PtrTypeFlag_Safe;
-		}
 	}
 
 	Value ptrValue;
-	DataPtrTypeKind ptrTypeKind = opType1->getPtrTypeKind();
+	DataPtrKind ptrKind = opType1->getPtrKind();
 	DataPtrType* ptrType;
 
 	if (!m_module->hasCodeGen()) {
-		switch (ptrTypeKind) {
-		case DataPtrTypeKind_Thin:
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
+		switch (ptrKind) {
+		case DataPtrKind_Thin:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 			break;
 
-		case DataPtrTypeKind_Lean:
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+		case DataPtrKind_Lean:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 			break;
 
-		default: // DataPtrTypeKind_Normal
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+		default:
+			ASSERT(ptrKind == DataPtrKind_Normal);
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean);
 		}
 
 		resultValue->setType(ptrType);
 	} else {
-		switch (ptrTypeKind) {
-		case DataPtrTypeKind_Thin:
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
+		switch (ptrKind) {
+		case DataPtrKind_Thin:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 			m_module->m_llvmIrBuilder.createGep2(opValue1, arrayType, opValue2, ptrType, resultValue);
 			break;
 
-		case DataPtrTypeKind_Lean:
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+		case DataPtrKind_Lean:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 			m_module->m_llvmIrBuilder.createGep2(opValue1, arrayType, opValue2, ptrType, resultValue);
 			resultValue->setLeanDataPtrValidator(opValue1.getLeanDataPtrValidator());
 			break;
 
-		default: // DataPtrTypeKind_Normal
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+		default:
+			ASSERT(ptrKind == DataPtrKind_Normal);
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean);
 			m_module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
 			m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
 			m_module->m_llvmIrBuilder.createGep(ptrValue, elementType, opValue2, ptrType, resultValue);

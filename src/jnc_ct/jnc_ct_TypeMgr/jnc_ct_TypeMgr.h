@@ -542,9 +542,9 @@ public:
 	ClassType*
 	getMulticastType(
 		FunctionType* functionType,
-		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal
+		FunctionPtrKind ptrKind = FunctionPtrKind_Normal
 	) {
-		return getMulticastType(getFunctionPtrType(functionType, ptrTypeKind));
+		return getMulticastType(getFunctionPtrType(functionType));
 	}
 
 	ClassType*
@@ -594,7 +594,6 @@ public:
 		uint_t bitOffset,
 		uint_t bitCount,
 		TypeKind typeKind,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
@@ -602,68 +601,60 @@ public:
 	getDataPtrType(
 		Type* targetType,
 		TypeKind typeKind,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	DataPtrType*
 	getDataPtrType(
 		Type* targetType,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return getDataPtrType(targetType, 0, 0, TypeKind_DataPtr, ptrTypeKind, flags);
+		return getDataPtrType(targetType, 0, 0, TypeKind_DataPtr, flags);
 	}
 
 	ClassPtrType*
 	getClassPtrType(
 		ClassType* targetType,
 		TypeKind typeKind,
-		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	ClassPtrType*
 	getClassPtrType(
 		ClassType* targetType,
-		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return getClassPtrType(targetType, TypeKind_ClassPtr, ptrTypeKind, flags);
+		return getClassPtrType(targetType, TypeKind_ClassPtr, flags);
 	}
 
 	FunctionPtrType*
 	getFunctionPtrType(
 		FunctionType* targetType,
 		TypeKind typeKind,
-		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	FunctionPtrType*
 	getFunctionPtrType(
 		FunctionType* targetType,
-		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return getFunctionPtrType(targetType, TypeKind_FunctionPtr, ptrTypeKind, flags);
+		return getFunctionPtrType(targetType, TypeKind_FunctionPtr, flags);
 	}
 
 	PropertyPtrType*
 	getPropertyPtrType(
 		PropertyType* targetType,
 		TypeKind typeKind,
-		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	PropertyPtrType*
 	getPropertyPtrType(
 		PropertyType* targetType,
-		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return getPropertyPtrType(targetType, TypeKind_PropertyPtr, ptrTypeKind, flags);
+		return getPropertyPtrType(targetType, TypeKind_PropertyPtr, flags);
 	}
 
 	StructType*
@@ -724,7 +715,7 @@ public:
 	foldDualType(
 		Type* type,
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	);
 
 protected:

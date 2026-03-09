@@ -23,7 +23,6 @@ sl::String
 ClassPtrType::createSignature(
 	ClassType* classType,
 	TypeKind typeKind,
-	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
@@ -33,7 +32,8 @@ ClassPtrType::createSignature(
 		"Rw"
 	};
 
-	size_t i = (typeKind - TypeKind_ClassPtr) * 2 + ptrTypeKind;
+	size_t j = (flags >> PtrTypeFlag__PtrKindBit) & 1;
+	size_t i = (typeKind - TypeKind_ClassPtr) * 2 + j;
 	ASSERT(i < countof(stringTable));
 
 	sl::String signature = stringTable[i];
@@ -55,9 +55,10 @@ ClassPtrType::createItemString(size_t index) {
 			string += ptrTypeFlagString;
 		}
 
-		if (m_ptrTypeKind != ClassPtrTypeKind_Normal) {
+		ClassPtrKind ptrKind = getPtrKind();
+		if (ptrKind != ClassPtrKind_Normal) {
 			string += ' ';
-			string += getClassPtrTypeKindString(m_ptrTypeKind);
+			string += getClassPtrKindString(ptrKind);
 		}
 
 		string += m_typeKind == TypeKind_ClassRef ? "&" : "*";
@@ -90,7 +91,7 @@ ClassPtrType::markGcRoots(
 	if (!iface)
 		return;
 
-	if (m_ptrTypeKind == ClassPtrTypeKind_Weak)
+	if (getPtrKind() == ClassPtrKind_Weak)
 		gcHeap->weakMark(iface->m_box);
 	else
 		gcHeap->markClass(iface->m_box);
@@ -99,23 +100,23 @@ ClassPtrType::markGcRoots(
 Type*
 ClassPtrType::calcFoldedDualType(
 	bool isAlien,
-	uint_t ptrFlags
+	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
-	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_AutoConst | PtrTypeFlag_EventX);
+	uint_t flags = m_flags & PtrTypeFlag__All & ~(ConstKind_ReadOnly | ConstKind_AutoConst | PtrTypeFlag_EventX);
 
 	if (isAlien) {
-		if (m_flags & PtrTypeFlag_ReadOnly)
-			flags |= PtrTypeFlag_Const;
-		else if (m_flags & PtrTypeFlag_AutoConst)
-			flags |= ptrFlags;
+		if (m_flags & ConstKind_ReadOnly)
+			flags |= ConstKind_Const;
+		else if (m_flags & ConstKind_AutoConst)
+			flags |= constKind;
 
 		if (m_flags & PtrTypeFlag_EventX)
 			flags |= PtrTypeFlag_Event;
-	} else if (m_flags & PtrTypeFlag_AutoConst)
-		flags |= ptrFlags;
+	} else if (m_flags & ConstKind_AutoConst)
+		flags |= constKind;
 
-	return m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, flags);
+	return m_targetType->getClassPtrType(m_typeKind, flags);
 }
 
 Type*
@@ -123,7 +124,7 @@ ClassPtrType::mergeAutoConstTypes(Type* constType0) {
 	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
 	ClassPtrType* constType = (ClassPtrType*)constType0;
 	if (constType->getTypeKind() != TypeKind_ClassPtr ||
-		m_ptrTypeKind != constType->m_ptrTypeKind ||
+		getPtrKind() != constType->getPtrKind() ||
 		!m_targetType->isEqual(constType->m_targetType)
 	)
 		return NULL;

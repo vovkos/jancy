@@ -34,7 +34,7 @@ CallConv_gcc32::prepareFunctionType(FunctionType* functionType) {
 	llvmArgTypeArray.setCount(argCount);
 	sl::Array<llvm::Type*>::Rwi rwi = llvmArgTypeArray;
 
-	rwi[0] = returnType->getDataPtrType_c()->getLlvmType();
+	rwi[0] = returnType->getDataPtrType(DataPtrKind_Thin)->getLlvmType();
 
 	for (size_t i = 0, j = 1; j < argCount; i++, j++)
 		rwi[j] = argArray[i]->getType()->getLlvmType();
@@ -72,7 +72,7 @@ CallConv_gcc32::call(
 		return CallConv::call(calleeValue, functionType, argValueList, resultValue);
 
 	Value tmpReturnValue;
-	m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
+	m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType(DataPtrKind_Thin), &tmpReturnValue);
 	argValueList->insertHead(tmpReturnValue);
 
 	llvm::CallInst* llvmInst = m_module->m_llvmIrBuilder.createCall(
@@ -100,7 +100,7 @@ CallConv_gcc32::ret(
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
 
 	Value returnPtrValue;
-	returnPtrValue.setLlvmValue(&*llvmArg, returnType->getDataPtrType_c());
+	returnPtrValue.setLlvmValue(&*llvmArg, returnType->getDataPtrType(DataPtrKind_Thin));
 	m_module->m_llvmIrBuilder.createStore(value, returnPtrValue);
 	return m_module->m_llvmIrBuilder.createRet();
 }

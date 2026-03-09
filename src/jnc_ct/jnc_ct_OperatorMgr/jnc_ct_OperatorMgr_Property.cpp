@@ -57,17 +57,16 @@ OperatorMgr::getPropertyVtable(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
-	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
-
-	switch (ptrTypeKind) {
-	case PropertyPtrTypeKind_Normal:
+	PropertyPtrKind ptrKind = ptrType->getPtrKind();
+	switch (ptrKind) {
+	case PropertyPtrKind_Normal:
 		break;
 
-	case PropertyPtrTypeKind_Weak:
+	case PropertyPtrKind_Weak:
 		err::setFormatStringError("cannot invoke weak '%s'", ptrType->getTypeString().sz());
 		return false;
 
-	case PropertyPtrTypeKind_Thin:
+	case PropertyPtrKind_Thin:
 		if (opValue.getValueKind() == ValueKind_Property)
 			return getPropertyVtable(opValue.getProperty(), opValue.getClosure(), resultValue);
 
@@ -80,8 +79,8 @@ OperatorMgr::getPropertyVtable(
 
 	PropertyType* propertyType = ptrType->getTargetType();
 	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType();
-	Type* vtableType = stdObjectMemberPropertyType->getVtableStructType()->getDataPtrType_c();
-	Type* resultType = propertyType->getVtableStructType()->getDataPtrType_c();
+	Type* vtableType = stdObjectMemberPropertyType->getVtableStructType()->getDataPtrType(DataPtrKind_Thin);
+	Type* resultType = propertyType->getVtableStructType()->getDataPtrType(DataPtrKind_Thin);
 	Type* closureType = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr);
 
 	Value closureValue;
@@ -137,7 +136,7 @@ OperatorMgr::getPropertyGetter(
 		return false;
 
 	size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 1 : 0;
-	FunctionPtrType* getterPtrType = propertyType->getGetterType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
+	FunctionPtrType* getterPtrType = propertyType->getGetterType()->getFunctionPtrType(FunctionPtrKind_Thin | PtrTypeFlag_Safe);
 
 	if (!m_module->hasCodeGen())
 		resultValue->setType(getterPtrType);
@@ -173,7 +172,7 @@ OperatorMgr::getPropertySetter(
 	if (propertyType->isConst()) {
 		err::setFormatStringError("const '%s' has no setter", propertyType->getTypeString().sz());
 		return false;
-	} else if (ptrType->getFlags() & PtrTypeFlag_Const) {
+	} else if (ptrType->getFlags() & ConstKind_Const) {
 		err::setError("'set' is inaccessible via 'const' property pointer");
 		return false;
 	}
@@ -205,7 +204,7 @@ OperatorMgr::getPropertySetter(
 	}
 
 	FunctionType* setterType = setterTypeOverload->getOverload(i);
-	FunctionPtrType* setterPtrType = setterType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
+	FunctionPtrType* setterPtrType = setterType->getFunctionPtrType(FunctionPtrKind_Thin | PtrTypeFlag_Safe);
 
 	Value vtableValue;
 	result = getPropertyVtable(opValue, &vtableValue);
@@ -262,7 +261,7 @@ OperatorMgr::getPropertyBinder(
 	if (!result)
 		return false;
 
-	FunctionPtrType* binderPtrType = propertyType->getBinderType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
+	FunctionPtrType* binderPtrType = propertyType->getBinderType()->getFunctionPtrType(FunctionPtrKind_Thin | PtrTypeFlag_Safe);
 
 	if (!m_module->hasCodeGen()) {
 		resultValue->setType(binderPtrType);
@@ -323,7 +322,7 @@ OperatorMgr::getPropertyAutoGetValueType(const Value& opValue) {
 		((Field*)autoGetValue)->getType() :
 		((Variable*)autoGetValue)->getType();
 
-	return type->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean);
+	return type->getDataPtrType(TypeKind_DataRef, DataPtrKind_Lean);
 }
 
 bool

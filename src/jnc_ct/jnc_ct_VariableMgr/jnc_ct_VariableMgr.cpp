@@ -67,7 +67,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 		variable = createVariable(
 			StorageKind_Tls,
 			"jnc.g_sjljFrame",
-			m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c()
+			m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType(DataPtrKind_Thin)
 		);
 		break;
 
@@ -75,7 +75,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 		variable = createVariable(
 			StorageKind_Tls,
 			"jnc.g_gcShadowStackTop",
-			m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType_c()
+			m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType(DataPtrKind_Thin)
 		);
 		break;
 
@@ -83,7 +83,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 		variable = createVariable(
 			StorageKind_Static,
 			"jnc.g_gcSafePointTrigger",
-			m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getDataPtrType_c()
+			m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getDataPtrType(DataPtrKind_Thin)
 		);
 		break;
 
@@ -321,7 +321,7 @@ VariableMgr::finalizeDisposableVariable(Variable* variable) {
 	Type* ptrType = variable->m_type->getTypeKind() == TypeKind_Class ?
 		(Type*)((ClassType*)variable->m_type)->getClassPtrType() :
 		(variable->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) ?
-			variable->m_type->getDataPtrType_c() :
+			variable->m_type->getDataPtrType(DataPtrKind_Thin) :
 			variable->m_type->getDataPtrType();
 
 	Variable* ptrVariable = createSimpleStackVariable("disposable_variable_ptr", ptrType);
@@ -531,7 +531,7 @@ VariableMgr::allocateHeapVariable(Variable* variable) {
 
 		m_module->m_llvmIrBuilder.createExtractValue(ptrValue, 0, NULL, &variableValue);
 		m_module->m_llvmIrBuilder.createExtractValue(ptrValue, 1, NULL, &validatorValue);
-		m_module->m_llvmIrBuilder.createBitCast(variableValue, variable->m_type->getDataPtrType_c(), &variableValue);
+		m_module->m_llvmIrBuilder.createBitCast(variableValue, variable->m_type->getDataPtrType(DataPtrKind_Thin), &variableValue);
 		variable->m_llvmValue = variableValue.getLlvmValue();
 
 		LeanDataPtrValidator* validator = variable->getLeanDataPtrValidator();
@@ -645,7 +645,7 @@ VariableMgr::createMutableAutoConstVariable(const Value& value) {
 		m_module->m_gcShadowStackMgr.markGcRoot(variable, originalType);
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast(variable, constType->getDataPtrType_c(), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast(variable, constType->getDataPtrType(DataPtrKind_Thin), &ptrValue);
 	m_module->m_llvmIrBuilder.createStore(ptrValue, value);
 	return variable;
 }
@@ -705,7 +705,7 @@ VariableMgr::getRegexMatchVariable() {
 	// RegexState.m_match, and RegexState lives for the duration of the current scope
 
 	ClassType* matchType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexMatch);
-	ClassPtrType* ptrType = matchType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Const);
+	ClassPtrType* ptrType = matchType->getClassPtrType(ConstKind_Const);
 	Variable* variable = createSimpleStackVariable("regexMatch", ptrType);
 	variable->m_parentNamespace = scope;
 	scope->m_regexMatchVariable = variable;

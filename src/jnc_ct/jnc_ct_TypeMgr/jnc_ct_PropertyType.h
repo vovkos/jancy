@@ -100,16 +100,12 @@ public:
 	PropertyPtrType*
 	getPropertyPtrType(
 		TypeKind typeKind,
-		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	PropertyPtrType*
-	getPropertyPtrType(
-		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
-		uint_t flags = 0
-	) {
-		return getPropertyPtrType(TypeKind_PropertyPtr, ptrTypeKind, flags);
+	getPropertyPtrType(uint_t flags = 0) {
+		return getPropertyPtrType(TypeKind_PropertyPtr, flags);
 	}
 
 	StructType*
@@ -178,7 +174,7 @@ protected:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	);
 };
 

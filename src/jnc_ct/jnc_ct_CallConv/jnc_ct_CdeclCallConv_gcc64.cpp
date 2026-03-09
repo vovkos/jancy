@@ -53,7 +53,7 @@ CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType) {
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
 			typeRwi = llvmArgTypeArray;
-			typeRwi[0] = returnType->getDataPtrType_c()->getLlvmType();
+			typeRwi[0] = returnType->getDataPtrType(DataPtrKind_Thin)->getLlvmType();
 			j = 1;
 			argRegCount--;
 
@@ -78,7 +78,7 @@ CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType) {
 			if (argRegCount)
 				argRegCount--;
 		} else if (size > sizeof(uint64_t) * 2 || argRegCount < regCount) { // pass on stack
-			llvmType = type->getDataPtrType_c()->getLlvmType();
+			llvmType = type->getDataPtrType(DataPtrKind_Thin)->getLlvmType();
 			flagRwi[i] = ArgFlag_ByVal;
 			hasByValArgs = true;
 		} else { // coerce
@@ -160,7 +160,7 @@ CdeclCallConv_gcc64::call(
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
 		returnType->getSize() > sizeof(uint64_t) * 2) { // return in memory
-		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
+		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType(DataPtrKind_Thin), &tmpReturnValue);
 		argValueList->insertHead(tmpReturnValue);
 		argRegCount--;
 		byValIdx++;

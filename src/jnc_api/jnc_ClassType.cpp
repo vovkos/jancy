@@ -27,14 +27,15 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind) {
-	static const char* stringTable[jnc_ClassPtrTypeKind__Count] = {
-		"strong", // ClassPtrTypeKind_Normal = 0,
-		"weak",   // ClassPtrTypeKind_Weak,
+jnc_getClassPtrKindString(jnc_ClassPtrKind ptrKind) {
+	static const char* stringTable[jnc_ClassPtrKind__Count] = {
+		"strong", // ClassPtrKind_Normal = 0,
+		"weak",   // ClassPtrKind_Weak,
 	};
 
-	return (size_t)ptrTypeKind < jnc_ClassPtrTypeKind__Count ?
-		stringTable[ptrTypeKind] :
+	size_t i = ptrKind >> jnc_PtrTypeFlag__PtrKindBit;
+	return i < jnc_ClassPtrKind__Count ?
+		stringTable[i] :
 		"undefined-class-ptr-kind";
 }
 
@@ -59,18 +60,17 @@ jnc_ClassPtrType*
 jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
 	jnc_TypeKind typeKind,
-	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
+	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc(type, typeKind, flags);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-jnc_ClassPtrTypeKind
-jnc_ClassPtrType_getPtrTypeKind(jnc_ClassPtrType* type) {
-	return jnc_g_dynamicExtensionLibHost->m_classPtrTypeFuncTable->m_getPtrTypeKindFunc(type);
+jnc_ClassPtrKind
+jnc_ClassPtrType_getPtrKind(jnc_ClassPtrType* type) {
+	return jnc_g_dynamicExtensionLibHost->m_classPtrTypeFuncTable->m_getPtrKindFunc(type);
 }
 
 JNC_EXTERN_C
@@ -135,19 +135,18 @@ jnc_ClassPtrType*
 jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
 	jnc_TypeKind typeKind,
-	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return type->getClassPtrType(typeKind, ptrTypeKind, flags);
+	return type->getClassPtrType(typeKind, flags);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_ClassPtrTypeKind
-jnc_ClassPtrType_getPtrTypeKind(jnc_ClassPtrType* type) {
-	return type->getPtrTypeKind();
+jnc_ClassPtrKind
+jnc_ClassPtrType_getPtrKind(jnc_ClassPtrType* type) {
+	return type->getPtrKind();
 }
 
 JNC_EXTERN_C

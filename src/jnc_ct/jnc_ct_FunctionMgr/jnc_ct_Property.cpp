@@ -51,7 +51,7 @@ Property::create(PropertyType* type) {
 		getter->m_flags |= getterFlags;
 
 		if (m_parentType)
-			getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
+			getter->m_thisArgTypeFlags = ConstKind_Const;
 
 		result = addMethod(getter);
 		if (!result)
@@ -117,7 +117,7 @@ Property::setOnChanged(
 	Function* binder = createAccessor(FunctionKind_Binder, binderType);
 
 	if (m_parentType)
-		binder->m_thisArgTypeFlags = PtrTypeFlag_Const;
+		binder->m_thisArgTypeFlags = ConstKind_Const;
 
 	return addMethod(binder);
 }
@@ -188,7 +188,7 @@ Property::setAutoGetValue(
 	getter->m_storageKind = getAccessorStorageKind();
 
 	if (m_parentType)
-		getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
+		getter->m_thisArgTypeFlags = ConstKind_Const;
 
 	return addMethod(getter);
 }

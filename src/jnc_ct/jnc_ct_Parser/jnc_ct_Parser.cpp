@@ -1802,7 +1802,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 		}
 
 		if (prop->m_parentType)
-			getter->m_thisArgTypeFlags = thisArgTypeFlags | PtrTypeFlag_Const;
+			getter->m_thisArgTypeFlags = thisArgTypeFlags | ConstKind_Const;
 
 		result = prop->addMethod(getter);
 		if (!result)
@@ -3127,13 +3127,12 @@ Parser::lookupIdentifier(
 
 		// field in a dynamic layout
 
-		uint_t ptrTypeFlags = field->getPtrTypeFlags() | PtrTypeFlag_Const;
+		uint_t ptrTypeFlags = field->getPtrTypeFlags() | ConstKind_Const;
 		ASSERT(!(ptrTypeFlags & PtrTypeFlag_BitField)); // bitfields produce dynamic sections
 
 		DataPtrType* ptrType = m_module->m_typeMgr.getDataPtrType(
 			field->getType(),
 			TypeKind_DataRef,
-			DataPtrTypeKind_Normal,
 			ptrTypeFlags
 		);
 
@@ -3161,7 +3160,7 @@ Parser::lookupIdentifier(
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, offsetValue) &&
 			m_module->m_operatorMgr.castOperator(
 				ptrValue,
-				field->getType()->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const),
+				field->getType()->getDataPtrType(ConstKind_Const),
 				value
 			);
 
@@ -3189,7 +3188,7 @@ Parser::lookupIdentifier(
 		DynamicLayoutStmt* stmt = findDynamicLayoutStmt();
 		ASSERT(stmt);
 
-		Type* ptrType = section->getType()->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+		Type* ptrType = section->getType()->getDataPtrType(ConstKind_Const);
 		Value ptrValue;
 		size_t bitCount = section->getBitCount();
 
@@ -3552,7 +3551,7 @@ Parser::finalizeLiteral(
 		);
 	}
 
-	DataPtrType* resultType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Lean);
+	DataPtrType* resultType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrKind_Lean);
 
 	if (!m_module->hasCodeGen()) {
 		resultValue->setType(resultType);
@@ -3796,7 +3795,7 @@ Parser::initializeDynamicLayoutStmt(
 		m_module->ensureDynamicLayoutRequired() &&
 		m_module->m_operatorMgr.castOperator(
 			layoutValue0,
-			layoutType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			layoutType->getClassPtrType(PtrTypeFlag_Safe),
 			&layoutValue
 		);
 

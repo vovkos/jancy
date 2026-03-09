@@ -39,28 +39,24 @@ UnOp_Addr::getResultType(const Value& opValue) {
 	case TypeKind_DataRef:
 		return t.m_dataPtrType->getTargetType()->getDataPtrType(
 			TypeKind_DataPtr,
-			t.m_dataPtrType->getPtrTypeKind(),
 			t.m_dataPtrType->getFlags() & PtrTypeFlag__All
 		);
 
 	case TypeKind_ClassRef:
 		return t.m_classPtrType->getTargetType()->getClassPtrType(
 			TypeKind_ClassPtr,
-			t.m_classPtrType->getPtrTypeKind(),
 			t.m_classPtrType->getFlags() & PtrTypeFlag__All
 		);
 
 	case TypeKind_FunctionRef:
 		return t.m_functionPtrType->getTargetType()->getFunctionPtrType(
 			TypeKind_FunctionPtr,
-			t.m_functionPtrType->getPtrTypeKind(),
 			t.m_functionPtrType->getFlags() & PtrTypeFlag__All
 		);
 
 	case TypeKind_PropertyRef:
 		return t.m_propertyPtrType->getTargetType()->getPropertyPtrType(
 			TypeKind_PropertyPtr,
-			t.m_propertyPtrType->getPtrTypeKind(),
 			t.m_propertyPtrType->getFlags() & PtrTypeFlag__All
 		);
 
@@ -100,28 +96,24 @@ UnOp_Indir::getResultType(const Value& opValue) {
 	case TypeKind_DataPtr:
 		return t.m_dataPtrType->getTargetType()->getDataPtrType(
 			TypeKind_DataRef,
-			t.m_dataPtrType->getPtrTypeKind(),
 			t.m_dataPtrType->getFlags() & PtrTypeFlag__All
 		);
 
 	case TypeKind_ClassPtr:
 		return t.m_classPtrType->getTargetType()->getClassPtrType(
 			TypeKind_ClassRef,
-			t.m_classPtrType->getPtrTypeKind(),
 			t.m_classPtrType->getFlags() & PtrTypeFlag__All
 		);
 
 	case TypeKind_FunctionPtr:
 		return t.m_functionPtrType->getTargetType()->getFunctionPtrType(
 			TypeKind_FunctionRef,
-			t.m_functionPtrType->getPtrTypeKind(),
 			t.m_functionPtrType->getFlags() & PtrTypeFlag__All
 		);
 
 	case TypeKind_PropertyPtr:
 		return t.m_propertyPtrType->getTargetType()->getPropertyPtrType(
 			TypeKind_PropertyRef,
-			t.m_propertyPtrType->getPtrTypeKind(),
 			t.m_propertyPtrType->getFlags() & PtrTypeFlag__All
 		);
 

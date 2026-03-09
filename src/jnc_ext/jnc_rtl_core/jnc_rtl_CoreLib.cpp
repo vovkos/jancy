@@ -996,7 +996,7 @@ mapMulticastMethods(
 	Module* module,
 	const MulticastClassType* multicastType
 ) {
-	static void* multicastMethodTable[FunctionPtrTypeKind__Count][MulticastMethodKind__Count - 1] = {
+	static void* multicastMethodTable[FunctionPtrKind__Count][MulticastMethodKind__Count - 1] = {
 		{
 			(void*)multicastClear,
 			(void*)multicastSet,
@@ -1020,15 +1020,15 @@ mapMulticastMethods(
 		},
 	};
 
-	FunctionPtrTypeKind ptrTypeKind = multicastType->getTargetType()->getPtrTypeKind();
-	ASSERT(ptrTypeKind < FunctionPtrTypeKind__Count);
+	size_t j = multicastType->getTargetType()->getPtrKind() >> PtrTypeFlag__PtrKindBit;
+	ASSERT(j < FunctionPtrKind__Count);
 
 	Function* function = multicastType->getDestructor();
 	module->m_jit->mapFunction(function, (void*)multicastDestruct);
 
 	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++) {
 		function = multicastType->getMethod((MulticastMethodKind)i);
-		module->m_jit->mapFunction(function, multicastMethodTable[ptrTypeKind][i]);
+		module->m_jit->mapFunction(function, multicastMethodTable[j][i]);
 	}
 }
 

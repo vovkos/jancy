@@ -182,16 +182,36 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getDataPtrTypeKindString(jnc_DataPtrTypeKind ptrTypeKind) {
-	static const char* stringTable[jnc_DataPtrTypeKind__Count] = {
-		"normal", // DataPtrTypeKind_Normal = 0,
-		"lean",   // DataPtrTypeKind_Lean,
-		"thin",   // DataPtrTypeKind_Thin,
+jnc_getDataPtrKindString(jnc_DataPtrKind ptrKind) {
+	static const char* stringTable[jnc_DataPtrKind__Count] = {
+		"normal", // DataPtrKind_Normal = 0,
+		"lean",   // DataPtrKind_Lean,
+		"thin",   // DataPtrKind_Thin,
 	};
 
-	return (size_t)ptrTypeKind < jnc_DataPtrTypeKind__Count ?
-		stringTable[ptrTypeKind] :
+	size_t i = ptrKind >> jnc_PtrTypeFlag__PtrKindBit;
+	return i < jnc_DataPtrKind__Count ?
+		stringTable[i] :
 		"undefined-data-ptr-kind";
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_getConstKindString(jnc_ConstKind constKind) {
+	static const char* stringTable[jnc_ConstKind__Count] = {
+		"non-const",  // jnc_ConstKind_None  = 0,
+		"const",      // jnc_ConstKind_Const,
+		"const?",     // jnc_ConstKind_MaybeConst,
+		"autoconst-x" // jnc_ConstKind_AutoConstX,
+		"autoconst",  // jnc_ConstKind_AutoConst,
+		"readonly",   // jnc_ConstKind_ReadOnly,
+	};
+
+	size_t i = constKind >> jnc_PtrTypeFlag__ConstKindBit;
+	return i < jnc_ConstKind__Count ?
+		stringTable[i] :
+		"undefined-const-kind";
 }
 
 //..............................................................................
@@ -241,10 +261,9 @@ jnc_Type_getBitFieldDataPtrType(
 	uint_t bitOffset,
 	uint_t bitCount,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getBitFieldDataPtrTypeFunc(type, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getBitFieldDataPtrTypeFunc(type, bitOffset, bitCount, typeKind, flags);
 }
 
 JNC_EXTERN_C
@@ -252,10 +271,9 @@ jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getDataPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getDataPtrTypeFunc(type, typeKind, flags);
 }
 
 JNC_EXTERN_C
@@ -281,9 +299,9 @@ jnc_Type_markGcRoots(
 }
 
 JNC_EXTERN_C
-jnc_DataPtrTypeKind
-jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type) {
-	return jnc_g_dynamicExtensionLibHost->m_dataPtrTypeFuncTable->m_getPtrTypeKindFunc(type);
+jnc_DataPtrKind
+jnc_DataPtrType_getPtrKind(jnc_DataPtrType* type) {
+	return jnc_g_dynamicExtensionLibHost->m_dataPtrTypeFuncTable->m_getPtrKindFunc(type);
 }
 
 JNC_EXTERN_C
@@ -375,10 +393,9 @@ jnc_Type_getBitFieldDataPtrType(
 	uint_t bitOffset,
 	uint_t bitCount,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return type->getDataPtrType(bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+	return type->getDataPtrType(bitOffset, bitCount, typeKind, flags);
 }
 
 JNC_EXTERN_C
@@ -387,10 +404,9 @@ jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return type->getDataPtrType(typeKind, ptrTypeKind, flags);
+	return type->getDataPtrType(typeKind, flags);
 }
 
 JNC_EXTERN_C
@@ -422,9 +438,9 @@ jnc_Type_markGcRoots(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_DataPtrTypeKind
-jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type) {
-	return type->getPtrTypeKind();
+jnc_DataPtrKind
+jnc_DataPtrType_getPtrKind(jnc_DataPtrType* type) {
+	return type->getPtrKind();
 }
 
 JNC_EXTERN_C

@@ -87,7 +87,7 @@ protected:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	);
 
 	virtual

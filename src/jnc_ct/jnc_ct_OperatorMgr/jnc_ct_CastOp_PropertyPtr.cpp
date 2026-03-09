@@ -51,7 +51,7 @@ Cast_PropertyPtr_FromDataPtr::llvmCast(
 		return llvmCast_DirectThunk(opValue.getVariable(), dstPtrType, resultValue);
 	}
 
-	if (dstPtrType->getPtrTypeKind() == PropertyPtrTypeKind_Thin) {
+	if (dstPtrType->getPtrKind() == PropertyPtrKind_Thin) {
 		setCastError(opValue, type);
 		return false;
 	}
@@ -141,7 +141,7 @@ Cast_PropertyPtr_FromFat::llvmCast(
 	PropertyPtrType* srcPtrType = (PropertyPtrType*)opValue.getType();
 	PropertyType* srcPropertyType = srcPtrType->getTargetType();
 
-	PropertyPtrType* thinPtrType = srcPropertyType->getStdObjectMemberPropertyType()->getPropertyPtrType(PropertyPtrTypeKind_Thin);
+	PropertyPtrType* thinPtrType = srcPropertyType->getStdObjectMemberPropertyType()->getPropertyPtrType(PropertyPtrKind_Thin);
 
 	Value pfnValue;
 	Value closureValue;
@@ -304,7 +304,7 @@ Cast_PropertyPtr_Thin2Fat::llvmCast_FullClosure(
 	bool result = m_module->m_operatorMgr.createClosureObject(
 		opValue,
 		dstPtrType->getTargetType(),
-		dstPtrType->getPtrTypeKind() == PropertyPtrTypeKind_Weak,
+		dstPtrType->getPtrKind() == PropertyPtrKind_Weak,
 		&closureValue
 	);
 
@@ -342,7 +342,7 @@ Cast_PropertyPtr_Weak2Normal::llvmCast(
 	Value* resultValue
 ) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr && ((PropertyPtrType*)type)->getPtrTypeKind() == PropertyPtrTypeKind_Normal);
+	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr && ((PropertyPtrType*)type)->getPtrKind() == PropertyPtrKind_Normal);
 
 	BasicBlock* initialBlock = m_module->m_controlFlowMgr.getCurrentBlock();
 	BasicBlock* strengthenBlock = m_module->m_controlFlowMgr.createBlock("strengthen");
@@ -392,7 +392,7 @@ Cast_PropertyPtr_Weak2Normal::llvmCast(
 	Value intermediateValue;
 	m_module->m_llvmIrBuilder.createPhi(valueArray, blockArray, 3, &intermediateValue);
 
-	PropertyPtrType* intermediateType = ((PropertyPtrType*)opValue.getType())->getUnWeakPtrType();
+	PropertyPtrType* intermediateType = ((PropertyPtrType*)opValue.getType())->getNonWeakPtrType();
 	intermediateValue.overrideType(intermediateType);
 	return m_module->m_operatorMgr.castOperator(intermediateValue, type, resultValue);}
 
@@ -451,7 +451,7 @@ Cast_PropertyPtr_Thin2Weak::llvmCast(
 		return false;
 	}
 
-	PropertyPtrType* intermediateType = ((PropertyPtrType*)type)->getTargetType()->getPropertyPtrType(PropertyPtrTypeKind_Normal);
+	PropertyPtrType* intermediateType = ((PropertyPtrType*)type)->getTargetType()->getPropertyPtrType(PropertyPtrKind_Normal);
 	bool result = m_module->m_operatorMgr.castOperator(opValue, intermediateType, resultValue);
 	if (!result)
 		return false;
@@ -466,13 +466,17 @@ Cast_PropertyPtr_Thin2Weak::llvmCast(
 Cast_PropertyPtr::Cast_PropertyPtr() {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
-	m_operatorTable[PropertyPtrTypeKind_Normal][PropertyPtrTypeKind_Normal] = &m_fromFat;
-	m_operatorTable[PropertyPtrTypeKind_Normal][PropertyPtrTypeKind_Weak]   = &m_fromFat;
-	m_operatorTable[PropertyPtrTypeKind_Weak][PropertyPtrTypeKind_Normal]   = &m_weak2Normal;
-	m_operatorTable[PropertyPtrTypeKind_Weak][PropertyPtrTypeKind_Weak]     = &m_fromFat;
-	m_operatorTable[PropertyPtrTypeKind_Thin][PropertyPtrTypeKind_Normal]   = &m_thin2Fat;
-	m_operatorTable[PropertyPtrTypeKind_Thin][PropertyPtrTypeKind_Weak]     = &m_thin2Fat;
-	m_operatorTable[PropertyPtrTypeKind_Thin][PropertyPtrTypeKind_Thin]     = &m_thin2Thin;
+	// PropertyPtrKind_Normal - [0]
+	// PropertyPtrKind_Weak   - [1]
+	// PropertyPtrKind_Thin   - [2]
+
+	m_operatorTable[0][0] = &m_fromFat;
+	m_operatorTable[0][1] = &m_fromFat;
+	m_operatorTable[1][0] = &m_weak2Normal;
+	m_operatorTable[1][1] = &m_fromFat;
+	m_operatorTable[2][0] = &m_thin2Fat;
+	m_operatorTable[2][1] = &m_thin2Fat;
+	m_operatorTable[2][2] = &m_thin2Thin;
 }
 
 bool
@@ -491,7 +495,7 @@ Cast_PropertyPtr::constCast(
 	PropertyPtrType* dstType = (PropertyPtrType*)type;
 	PropertyPtrType* srcType = (PropertyPtrType*)opValue.getType();
 
-	if (dstType->getPtrTypeKind() != srcType->getPtrTypeKind() ||
+	if (dstType->getPtrKind() != srcType->getPtrKind() ||
 		!dstType->getTargetType()->isEqual(srcType->getTargetType()) ||
 		(dstType->getFlags() & PtrTypeFlag_Safe) &&
 		!(srcType->getFlags() & PtrTypeFlag_Safe))
@@ -510,8 +514,6 @@ Cast_PropertyPtr::getCastOperator(
 	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
 	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
-	PropertyPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind();
-	ASSERT((size_t)dstPtrTypeKind < PropertyPtrTypeKind__Count);
 
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
 	switch (srcTypeKind) {
@@ -519,9 +521,11 @@ Cast_PropertyPtr::getCastOperator(
 		return &m_fromDataPtr;
 
 	case TypeKind_PropertyPtr: {
-		PropertyPtrTypeKind srcPtrTypeKind = ((PropertyPtrType*)opValue.getType())->getPtrTypeKind();
-		ASSERT((size_t)srcPtrTypeKind < PropertyPtrTypeKind__Count);
-		return m_operatorTable[srcPtrTypeKind][dstPtrTypeKind];
+		size_t i = ((PropertyPtrType*)opValue.getType())->getPtrKind() >> PtrTypeFlag__PtrKindBit;
+		size_t j = dstPtrType->getPtrKind() >> PtrTypeFlag__PtrKindBit;
+		ASSERT(i < PropertyPtrKind__Count && j < PropertyPtrKind__Count);
+
+		return m_operatorTable[i][j];
 		}
 
 	default:
@@ -543,12 +547,7 @@ Cast_PropertyRef::getCastKind(
 		return CastKind_None;
 
 	PropertyPtrType* ptrType = (PropertyPtrType*)type;
-	PropertyPtrType* intermediateDstType = ptrType->getTargetType()->getPropertyPtrType(
-		TypeKind_PropertyPtr,
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
+	PropertyPtrType* intermediateDstType = ptrType->getTargetType()->getPropertyPtrType(ptrType->getFlags() & PtrTypeFlag__All);
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
 
@@ -561,12 +560,7 @@ Cast_PropertyRef::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_PropertyRef);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*)type;
-	PropertyPtrType* intermediateType = ptrType->getTargetType()->getPropertyPtrType(
-		TypeKind_PropertyPtr,
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
+	PropertyPtrType* intermediateType = ptrType->getTargetType()->getPropertyPtrType(ptrType->getFlags() & PtrTypeFlag__All);
 	Value intermediateValue;
 
 	return

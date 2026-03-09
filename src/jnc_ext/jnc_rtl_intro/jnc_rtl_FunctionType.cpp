@@ -67,7 +67,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(FunctionPtrType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<FunctionPtrType, ct::FunctionPtrType*>))
-	JNC_MAP_CONST_PROPERTY("m_ptrTypeKind", &FunctionPtrType::getPtrTypeKind)
+	JNC_MAP_CONST_PROPERTY("m_ptrKind", &FunctionPtrType::getPtrKind)
 	JNC_MAP_CONST_PROPERTY("m_targetType", &FunctionPtrType::getTargetType)
 JNC_END_TYPE_FUNCTION_MAP()
 

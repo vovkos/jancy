@@ -51,7 +51,7 @@ Cast_StringBase::getCastKind(
 		isCharArrayRefType(opValue.getType())
 	);
 
-	return isDataPtrType(opValue.getType(), DataPtrTypeKind_Thin) ?
+	return isDataPtrType(opValue.getType(), DataPtrKind_Thin) ?
 		CastKind_None :
 		CastKind_Implicit;
 }
@@ -64,17 +64,12 @@ Cast_StringBase::preparePtr(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
 	DataPtrType* opType = (DataPtrType*)opValue.getType();
-	if (opType->getPtrTypeKind() == DataPtrTypeKind_Normal) {
+	if (opType->getPtrKind() == DataPtrKind_Normal) {
 		*resultValue = opValue;
 		return true;
 	}
 
-	opType = opType->getTargetType()->getDataPtrType(
-		opType->getTypeKind(),
-		DataPtrTypeKind_Normal,
-		PtrTypeFlag_Const
-	);
-
+	opType = opType->getTargetType()->getDataPtrType(opType->getTypeKind(), ConstKind_Const);
 	return m_module->m_operatorMgr.castOperator(opValue, opType, resultValue);
 }
 
@@ -164,7 +159,7 @@ Cast_String_FromArray::cast(
 	if (m_module->isConstOperatorOnly())
 		return constCastImpl(opValue, type, resultValue);
 
-	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, PtrTypeFlag_Const);
+	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, ConstKind_Const);
 	return llvmCast(constVar, type, resultValue);
 }
 

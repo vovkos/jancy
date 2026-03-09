@@ -22,19 +22,20 @@ class ClassPtrType: public Type {
 	friend class TypeMgr;
 
 protected:
-	ClassPtrTypeKind m_ptrTypeKind;
 	ClassType* m_targetType;
 
 public:
 	ClassPtrType();
 
-	ClassPtrTypeKind
-	getPtrTypeKind() {
-		return m_ptrTypeKind;
+	ClassPtrKind
+	getPtrKind() {
+		return getClassPtrKindFromFlags(m_flags);
 	}
 
 	ConstKind
-	getConstKind();
+	getConstKind() {
+		return getConstKindFromFlags(m_flags);
+	}
 
 	ClassType*
 	getTargetType() {
@@ -42,44 +43,37 @@ public:
 	}
 
 	ClassPtrType*
-	getCheckedPtrType() {
+	getSafePtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, (m_flags & PtrTypeFlag__All) | PtrTypeFlag_Safe) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnCheckedPtrType() {
+	getUnsafePtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnConstPtrType() {
-		return (m_flags & PtrTypeFlag_Const) ?
-			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Const)) :
+	getNonConstPtrType() {
+		return (m_flags & PtrTypeFlag__ConstKindMask) ?
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__ConstKindMask) :
 			this;
 	}
 
 	ClassPtrType*
 	getNormalPtrType() {
-		return (m_ptrTypeKind != ClassPtrTypeKind_Normal) ?
-			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
+		return getPtrKind() != ClassPtrKind_Normal ?
+			m_targetType->getClassPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
 	ClassPtrType*
 	getWeakPtrType() {
-		return (m_ptrTypeKind != ClassPtrTypeKind_Weak) ?
-			m_targetType->getClassPtrType(ClassPtrTypeKind_Weak, m_flags & PtrTypeFlag__All) :
-			this;
-	}
-
-	ClassPtrType*
-	getUnWeakPtrType() {
-		return (m_ptrTypeKind == ClassPtrTypeKind_Weak) ?
-			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
+		return getPtrKind() != ClassPtrKind_Weak ?
+			m_targetType->getClassPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | ClassPtrKind_Weak) :
 			this;
 	}
 
@@ -88,7 +82,6 @@ public:
 	createSignature(
 		ClassType* classType,
 		TypeKind typeKind,
-		ClassPtrTypeKind ptrTypeKind,
 		uint_t flags
 	);
 
@@ -110,7 +103,7 @@ public:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	);
 
 	virtual
@@ -121,7 +114,7 @@ protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
+		m_signature = createSignature(m_targetType, m_typeKind, m_flags);
 		m_flags |= TypeFlag_SignatureFinal;
 	}
 
@@ -149,7 +142,6 @@ protected:
 inline
 ClassPtrType::ClassPtrType() {
 	m_typeKind = TypeKind_ClassPtr;
-	m_ptrTypeKind = ClassPtrTypeKind_Normal;
 	m_targetType = NULL;
 	m_size = sizeof(void*);
 	m_alignment = sizeof(void*);
@@ -158,7 +150,7 @@ ClassPtrType::ClassPtrType() {
 //..............................................................................
 
 struct ClassPtrTypeTuple: sl::ListLink {
-	ClassPtrType* m_ptrTypeArray[2][2][6][2][2]; // ref x kind x const/const?/autoconst/readonly/event x volatile x checked
+	ClassPtrType* m_ptrTypeArray[2][ClassPtrKind__Count][ConstKind__Count][2][2]; // ref x ptrkind x constkind/event x volatile x safe
 };
 
 //..............................................................................

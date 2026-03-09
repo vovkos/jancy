@@ -72,24 +72,24 @@ typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;
 
 //..............................................................................
 
-enum jnc_ClassPtrTypeKind {
-	jnc_ClassPtrTypeKind_Normal = 0,
-	jnc_ClassPtrTypeKind_Weak,
-	jnc_ClassPtrTypeKind__Count,
+enum jnc_ClassPtrKind {
+	jnc_ClassPtrKind_Normal = 0x000000,
+	jnc_ClassPtrKind_Weak   = 0x100000,
+	jnc_ClassPtrKind__Count = 2,
 };
 
-typedef enum jnc_ClassPtrTypeKind jnc_ClassPtrTypeKind;
+typedef enum jnc_ClassPtrKind jnc_ClassPtrKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
-jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind);
+jnc_getClassPtrKindString(jnc_ClassPtrKind ptrKind);
 
 JNC_INLINE
-jnc_FunctionPtrTypeKind
-jnc_FunctionPtrTypeKindFromFlags(uint_t flags) {
-	return (jnc_FunctionPtrTypeKind)((flags & jnc_PtrTypeFlag__PtrKindMask) >> jnc_PtrTypeFlag__PtrKindBit);
+jnc_ClassPtrKind
+jnc_getClassPtrKindFromFlags(uint_t flags) {
+	return (jnc_ClassPtrKind)jnc_getPtrKindFromFlags(flags);
 }
 
 //..............................................................................
@@ -107,7 +107,6 @@ jnc_ClassPtrType*
 jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
 	jnc_TypeKind typeKind,
-	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 );
 
@@ -129,18 +128,14 @@ struct jnc_ClassType: jnc_DerivableType {
 	jnc_ClassPtrType*
 	getClassPtrType(
 		jnc_TypeKind typeKind,
-		jnc_ClassPtrTypeKind ptrTypeKind = jnc_ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return jnc_ClassType_getClassPtrType(this, typeKind, ptrTypeKind, flags);
+		return jnc_ClassType_getClassPtrType(this, typeKind, flags);
 	}
 
 	jnc_ClassPtrType*
-	getClassPtrType(
-		jnc_ClassPtrTypeKind ptrTypeKind = jnc_ClassPtrTypeKind_Normal,
-		uint_t flags = 0
-	) {
-		return jnc_ClassType_getClassPtrType(this, jnc_TypeKind_ClassPtr, ptrTypeKind, flags);
+	getClassPtrType(uint_t flags = 0) {
+		return jnc_ClassType_getClassPtrType(this, jnc_TypeKind_ClassPtr, flags);
 	}
 };
 
@@ -149,8 +144,8 @@ struct jnc_ClassType: jnc_DerivableType {
 //..............................................................................
 
 JNC_EXTERN_C
-jnc_ClassPtrTypeKind
-jnc_ClassPtrType_getPtrTypeKind(jnc_ClassPtrType* type);
+jnc_ClassPtrKind
+jnc_ClassPtrType_getPtrKind(jnc_ClassPtrType* type);
 
 JNC_EXTERN_C
 jnc_ClassType*
@@ -161,9 +156,9 @@ jnc_ClassPtrType_getTargetType(jnc_ClassPtrType* type);
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_ClassPtrType: jnc_Type {
-	jnc_ClassPtrTypeKind
-	getPtrTypeKind() {
-		return jnc_ClassPtrType_getPtrTypeKind(this);
+	jnc_ClassPtrKind
+	getPtrKind() {
+		return jnc_ClassPtrType_getPtrKind(this);
 	}
 
 	jnc_ClassType*
@@ -395,19 +390,25 @@ const ClassTypeFlag
 
 //..............................................................................
 
-typedef jnc_ClassPtrTypeKind ClassPtrTypeKind;
+typedef jnc_ClassPtrKind ClassPtrKind;
 
-const ClassPtrTypeKind
-	ClassPtrTypeKind_Normal  = jnc_ClassPtrTypeKind_Normal,
-	ClassPtrTypeKind_Weak    = jnc_ClassPtrTypeKind_Weak,
-	ClassPtrTypeKind__Count  = jnc_ClassPtrTypeKind__Count;
+const ClassPtrKind
+	ClassPtrKind_Normal  = jnc_ClassPtrKind_Normal,
+	ClassPtrKind_Weak    = jnc_ClassPtrKind_Weak,
+	ClassPtrKind__Count  = jnc_ClassPtrKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 const char*
-getClassPtrTypeKindString(ClassPtrTypeKind ptrTypeKind) {
-	return jnc_getClassPtrTypeKindString(ptrTypeKind);
+getClassPtrKindString(ClassPtrKind ptrKind) {
+	return jnc_getClassPtrKindString(ptrKind);
+}
+
+inline
+ClassPtrKind
+getClassPtrKindFromFlags(uint_t flags) {
+	return jnc_getClassPtrKindFromFlags(flags);
 }
 
 //..............................................................................

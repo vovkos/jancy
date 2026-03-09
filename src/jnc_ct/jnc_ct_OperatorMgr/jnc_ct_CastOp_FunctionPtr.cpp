@@ -103,8 +103,8 @@ Cast_FunctionPtr_FromDataPtr::getCastKind(
 	DataPtrType* srcType = (DataPtrType*)opValue.getType();
 
 	return
-		srcType->getPtrTypeKind() != DataPtrTypeKind_Thin ? CastKind_None :
-		dstType->getPtrTypeKind() != FunctionPtrTypeKind_Thin ? CastKind_None :
+		srcType->getPtrKind() != DataPtrKind_Thin ? CastKind_None :
+		dstType->getPtrKind() != FunctionPtrKind_Thin ? CastKind_None :
 		dstType->getTargetType()->getTypeKind() == TypeKind_Void ? CastKind_ImplicitCrossFamily :
 		CastKind_Explicit;
 }
@@ -121,8 +121,8 @@ Cast_FunctionPtr_FromDataPtr::llvmCast(
 	FunctionPtrType* dstType = (FunctionPtrType*)type;
 	DataPtrType* srcType = (DataPtrType*)opValue.getType();
 
-	if (srcType->getPtrTypeKind() != DataPtrTypeKind_Thin ||
-		dstType->getPtrTypeKind() != FunctionPtrTypeKind_Thin) {
+	if (srcType->getPtrKind() != DataPtrKind_Thin ||
+		dstType->getPtrKind() != FunctionPtrKind_Thin) {
 		setCastError(opValue, type);
 		return false;
 	}
@@ -176,7 +176,7 @@ Cast_FunctionPtr_FromFat::llvmCast(
 	FunctionPtrType* srcPtrType = (FunctionPtrType*)opValue.getType();
 	FunctionType* srcFunctionType = srcPtrType->getTargetType();
 
-	FunctionPtrType* thinPtrType = srcFunctionType->getStdObjectMemberMethodType()->getFunctionPtrType(FunctionPtrTypeKind_Thin);
+	FunctionPtrType* thinPtrType = srcFunctionType->getStdObjectMemberMethodType()->getFunctionPtrType(FunctionPtrKind_Thin);
 
 	Value pfnValue;
 	Value closureValue;
@@ -203,7 +203,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast(
 	Value* resultValue
 ) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
-	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr && ((FunctionPtrType*)type)->getPtrTypeKind() == FunctionPtrTypeKind_Normal);
+	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr && ((FunctionPtrType*)type)->getPtrKind() == FunctionPtrKind_Normal);
 
 	BasicBlock* initialBlock = m_module->m_controlFlowMgr.getCurrentBlock();
 	BasicBlock* strengthenBlock = m_module->m_controlFlowMgr.createBlock("strengthen");
@@ -253,7 +253,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast(
 	Value intermediateValue;
 	m_module->m_llvmIrBuilder.createPhi(valueArray, blockArray, 3, &intermediateValue);
 
-	FunctionPtrType* intermediateType = ((FunctionPtrType*)opValue.getType())->getUnWeakPtrType();
+	FunctionPtrType* intermediateType = ((FunctionPtrType*)opValue.getType())->getNonWeakPtrType();
 	intermediateValue.overrideType(intermediateType);
 	return m_module->m_operatorMgr.castOperator(intermediateValue, type, resultValue);
 }
@@ -411,7 +411,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_FullClosure(
 	bool result = m_module->m_operatorMgr.createClosureObject(
 		opValue,
 		dstPtrType->getTargetType(),
-		dstPtrType->getPtrTypeKind() == FunctionPtrTypeKind_Weak,
+		dstPtrType->getPtrKind() == FunctionPtrKind_Weak,
 		&closureValue
 	);
 
@@ -514,13 +514,17 @@ areCompatibleFunctionTypes(
 Cast_FunctionPtr::Cast_FunctionPtr() {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
-	m_operatorTable[FunctionPtrTypeKind_Normal][FunctionPtrTypeKind_Normal] = &m_fromFat;
-	m_operatorTable[FunctionPtrTypeKind_Normal][FunctionPtrTypeKind_Weak]   = &m_fromFat;
-	m_operatorTable[FunctionPtrTypeKind_Weak][FunctionPtrTypeKind_Normal]   = &m_weak2Normal;
-	m_operatorTable[FunctionPtrTypeKind_Weak][FunctionPtrTypeKind_Weak]     = &m_fromFat;
-	m_operatorTable[FunctionPtrTypeKind_Thin][FunctionPtrTypeKind_Normal]   = &m_thin2Fat;
-	m_operatorTable[FunctionPtrTypeKind_Thin][FunctionPtrTypeKind_Weak]     = &m_thin2Fat;
-	m_operatorTable[FunctionPtrTypeKind_Thin][FunctionPtrTypeKind_Thin]     = &m_thin2Thin;
+	// FunctionPtrKind_Normal - [0]
+	// FunctionPtrKind_Weak   - [1]
+	// FunctionPtrKind_Thin   - [2]
+
+	m_operatorTable[0][0] = &m_fromFat;
+	m_operatorTable[0][1] = &m_fromFat;
+	m_operatorTable[1][0] = &m_weak2Normal;
+	m_operatorTable[1][1] = &m_fromFat;
+	m_operatorTable[2][0] = &m_thin2Fat;
+	m_operatorTable[2][1] = &m_thin2Fat;
+	m_operatorTable[2][2] = &m_thin2Thin;
 }
 
 bool
@@ -539,7 +543,7 @@ Cast_FunctionPtr::constCast(
 	FunctionPtrType* dstType = (FunctionPtrType*)type;
 	FunctionPtrType* srcType = (FunctionPtrType*)opValue.getType();
 
-	if (dstType->getPtrTypeKind() != srcType->getPtrTypeKind() ||
+	if (dstType->getPtrKind() != srcType->getPtrKind() ||
 		!areCompatibleFunctionTypes(srcType->getTargetType(), dstType->getTargetType()) ||
 		(dstType->getFlags() & PtrTypeFlag_Safe) && !(srcType->getFlags() & PtrTypeFlag_Safe))
 		return false;
@@ -579,13 +583,10 @@ Cast_FunctionPtr::getCastOperator(
 		return NULL;
 	}
 
-	FunctionPtrTypeKind srcPtrTypeKind = ((FunctionPtrType*)srcType)->getPtrTypeKind();
-	FunctionPtrTypeKind dstPtrTypeKind = ((FunctionPtrType*)type)->getPtrTypeKind();
-
-	ASSERT((size_t)srcPtrTypeKind < FunctionPtrTypeKind__Count);
-	ASSERT((size_t)dstPtrTypeKind < FunctionPtrTypeKind__Count);
-
-	return m_operatorTable[srcPtrTypeKind][dstPtrTypeKind];
+	size_t i = ((FunctionPtrType*)srcType)->getPtrKind() >> PtrTypeFlag__PtrKindBit;
+	size_t j = ((FunctionPtrType*)type)->getPtrKind() >> PtrTypeFlag__PtrKindBit;
+	ASSERT(i < FunctionPtrKind__Count && j < FunctionPtrKind__Count);
+	return m_operatorTable[i][j];
 }
 
 //..............................................................................
@@ -602,12 +603,7 @@ Cast_FunctionRef::getCastKind(
 		return CastKind_None;
 
 	FunctionPtrType* ptrType = (FunctionPtrType*)type;
-	FunctionPtrType* intermediateDstType = ptrType->getTargetType()->getFunctionPtrType(
-		TypeKind_FunctionPtr,
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
+	FunctionPtrType* intermediateDstType = ptrType->getTargetType()->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag__All);
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
 
@@ -620,12 +616,7 @@ Cast_FunctionRef::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_FunctionRef);
 
 	FunctionPtrType* ptrType = (FunctionPtrType*)type;
-	FunctionPtrType* intermediateType = ptrType->getTargetType()->getFunctionPtrType(
-		TypeKind_FunctionPtr,
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
+	FunctionPtrType* intermediateType = ptrType->getTargetType()->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag__All);
 	Value intermediateValue;
 
 	return

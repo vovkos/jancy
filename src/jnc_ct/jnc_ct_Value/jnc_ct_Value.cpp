@@ -273,7 +273,7 @@ getLlvmConstantFunc_dataPtr(
 	Type* type,
 	const void* p
 ) {
-	return ((DataPtrType*)type)->getPtrTypeKind() == DataPtrTypeKind_Normal ?
+	return ((DataPtrType*)type)->getPtrKind() == DataPtrKind_Normal ?
 		LlvmPodStruct::get((StructType*)type->getModule()->m_typeMgr.getStdType(StdType_DataPtrStruct), p) :
 		getLlvmConstantFunc_ptr(type, p);
 }
@@ -283,7 +283,7 @@ getLlvmConstantFunc_functionPtr(
 	Type* type,
 	const void* p
 ) {
-	return ((FunctionPtrType*)type)->getPtrTypeKind() != FunctionPtrTypeKind_Thin ?
+	return ((FunctionPtrType*)type)->getPtrKind() != FunctionPtrKind_Thin ?
 		LlvmPodStruct::get((StructType*)type->getModule()->m_typeMgr.getStdType(StdType_FunctionPtrStruct), p) :
 		getLlvmConstantFunc_ptr(type, p);
 }
@@ -293,7 +293,7 @@ getLlvmConstantFunc_propertyPtr(
 	Type* type,
 	const void* p
 ) {
-	return ((PropertyPtrType*)type)->getPtrTypeKind() != PropertyPtrTypeKind_Thin ?
+	return ((PropertyPtrType*)type)->getPtrKind() != PropertyPtrKind_Thin ?
 		LlvmPodStruct::get((StructType*)type->getModule()->m_typeMgr.getStdType(StdType_PropertyPtrStruct), p) :
 		getLlvmConstantFunc_ptr(type, p);
 }
@@ -396,8 +396,7 @@ Value::setFunction(
 
 	FunctionPtrType* resultType = functionType->getFunctionPtrType(
 		TypeKind_FunctionRef,
-		FunctionPtrTypeKind_Thin,
-		PtrTypeFlag_Safe
+		FunctionPtrKind_Thin | PtrTypeFlag_Safe
 	);
 
 	if (!function->getModule()->hasCodeGen()) {
@@ -444,8 +443,7 @@ Value::trySetProperty(Property* prop) {
 	m_property = prop;
 	m_type = prop->getType()->getPropertyPtrType(
 		TypeKind_PropertyRef,
-		PropertyPtrTypeKind_Thin,
-		PtrTypeFlag_Safe
+		PropertyPtrKind_Thin | PtrTypeFlag_Safe
 	);
 
 	// don't assign LlvmValue (property LlvmValue is only needed for pointers)

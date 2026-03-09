@@ -137,20 +137,18 @@ public:
 		uint_t bitOffset,
 		uint_t bitCount,
 		TypeKind typeKind,
-		DataPtrTypeKind ptrTypeKind,
 		uint_t flags
 	) {
-		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(bitOffset, bitCount, typeKind, ptrTypeKind, flags));
+		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(bitOffset, bitCount, typeKind, flags));
 	}
 
 	DataPtrType*
 	JNC_CDECL
 	getDataPtrType_1(
 		TypeKind typeKind,
-		DataPtrTypeKind ptrTypeKind,
 		uint_t flags
 	) {
-		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(typeKind, ptrTypeKind, flags));
+		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(typeKind, flags));
 	}
 
 protected:
@@ -190,10 +188,10 @@ public:
 	DataPtrType(ct::DataPtrType* type):
 		TypeBase(type) {}
 
-	DataPtrTypeKind
+	DataPtrKind
 	JNC_CDECL
-	getPtrTypeKind() {
-		return m_item->getPtrTypeKind();
+	getPtrKind() {
+		return m_item->getPtrKind();
 	}
 
 	Type*

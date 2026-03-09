@@ -38,7 +38,7 @@ bitflag enum ClassTypeFlags {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ClassPtrTypeKind {
+enum ClassPtrKind {
 	Normal = 0,
 	Weak,
 	_Count,
@@ -55,7 +55,6 @@ opaque class ClassType: DerivableType {
 
 	ClassPtrType* getClassPtrType(
 		TypeKind typeKind = TypeKind.ClassPtr,
-		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
 	)  const;
 
@@ -65,7 +64,7 @@ opaque class ClassType: DerivableType {
 //..............................................................................
 
 opaque class ClassPtrType: Type {
-	ClassPtrTypeKind const property m_ptrTypeKind;
+	ClassPtrKind const property m_ptrKind;
 	ClassType* const property m_targetType;
 
 	construct(intptr p);

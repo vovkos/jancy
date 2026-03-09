@@ -302,7 +302,7 @@ ControlFlowMgr::regexSwitchStmt_Condition(
 
 		result = m_module->m_operatorMgr.castOperator(
 			value1,
-			regexStateType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			regexStateType->getClassPtrType(PtrTypeFlag_Safe),
 			&stmt->m_regexStateValue
 		);
 	}

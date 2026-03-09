@@ -267,7 +267,7 @@ VariableMgr::getStaticLiteralVariable(const sl::StringRef& string) {
 
 	Value value;
 	value.setCharArray(string, m_module);
-	Variable* variable = createSimpleStaticVariable("literal", value.getType(), value, PtrTypeFlag_Const);
+	Variable* variable = createSimpleStaticVariable("literal", value.getType(), value, ConstKind_Const);
 	it->m_value = variable;
 	return variable;
 }
@@ -284,7 +284,7 @@ VariableMgr::getStaticLiteralVariable(
 
 	Value value;
 	value.setCharArray(p, size, m_module);
-	Variable* variable = createSimpleStaticVariable("literal", value.getType(), value, PtrTypeFlag_Const);
+	Variable* variable = createSimpleStaticVariable("literal", value.getType(), value, ConstKind_Const);
 	it->m_value = variable;
 	return variable;
 }

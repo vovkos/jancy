@@ -554,29 +554,27 @@ Type::getDataPtrType(
 	uint_t bitOffset,
 	uint_t bitCount,
 	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return m_module->m_typeMgr.getDataPtrType(this, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getDataPtrType(this, bitOffset, bitCount, typeKind, flags);
 }
 
 inline
 DataPtrType*
 Type::getDataPtrType(
 	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return m_module->m_typeMgr.getDataPtrType(this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getDataPtrType(this, typeKind, flags);
 }
 
 inline
 Type*
 Type::foldDualType(
 	bool isAlien,
-	uint_t ptrFlags
+	ConstKind constKind
 ) {
-	return m_module->m_typeMgr.foldDualType(this, isAlien, ptrFlags);
+	return m_module->m_typeMgr.foldDualType(this, isAlien, constKind);
 }
 
 inline
@@ -602,10 +600,9 @@ inline
 FunctionPtrType*
 FunctionType::getFunctionPtrType(
 	TypeKind typeKind,
-	FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return m_module->m_typeMgr.getFunctionPtrType(this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getFunctionPtrType(this, typeKind, flags);
 }
 
 inline
@@ -643,10 +640,9 @@ inline
 PropertyPtrType*
 PropertyType::getPropertyPtrType(
 	TypeKind typeKind,
-	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return m_module->m_typeMgr.getPropertyPtrType(this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getPropertyPtrType(this, typeKind, flags);
 }
 
 inline
@@ -696,10 +692,9 @@ inline
 ClassPtrType*
 ClassType::getClassPtrType(
 	TypeKind typeKind,
-	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	return m_module->m_typeMgr.getClassPtrType(this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getClassPtrType(this, typeKind, flags);
 }
 
 //..............................................................................

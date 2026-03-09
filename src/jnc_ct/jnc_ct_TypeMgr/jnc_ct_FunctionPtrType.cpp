@@ -20,15 +20,16 @@ namespace ct {
 //..............................................................................
 
 const char*
-getFunctionPtrTypeKindString(FunctionPtrTypeKind ptrTypeKind) {
-	static const char* stringTable[FunctionPtrTypeKind__Count] = {
-		"closure",  // FunctionPtrTypeKind_Normal = 0,
-		"weak",     // FunctionPtrTypeKind_Weak,
-		"thin",     // FunctionPtrTypeKind_Thin,
+getFunctionPtrKindString(FunctionPtrKind ptrKind) {
+	static const char* stringTable[FunctionPtrKind__Count] = {
+		"closure",  // FunctionPtrKind_Normal = 0,
+		"weak",     // FunctionPtrKind_Weak,
+		"thin",     // FunctionPtrKind_Thin,
 	};
 
-	return (size_t)ptrTypeKind < FunctionPtrTypeKind__Count ?
-		stringTable[ptrTypeKind] :
+	size_t i = ptrKind >> jnc_PtrTypeFlag__PtrKindBit;
+	return i < FunctionPtrKind__Count ?
+		stringTable[i] :
 		"undefined-function-ptr-kind";
 }
 
@@ -38,7 +39,6 @@ sl::String
 FunctionPtrType::createSignature(
 	FunctionType* functionType,
 	TypeKind typeKind,
-	FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
@@ -50,7 +50,8 @@ FunctionPtrType::createSignature(
 		"Rt"
 	};
 
-	size_t i = (typeKind - TypeKind_FunctionPtr) * 2 + ptrTypeKind;
+	size_t j = (flags >> PtrTypeFlag__PtrKindBit) & 3;
+	size_t i = (typeKind - TypeKind_FunctionPtr) * 2 + j;
 	ASSERT(i < countof(stringTable));
 
 	sl::String signature = stringTable[i];
@@ -70,8 +71,9 @@ FunctionPtrType::getTypeModifierString() {
 		string += ' ';
 	}
 
-	if (m_ptrTypeKind != FunctionPtrTypeKind_Normal) {
-		string += getFunctionPtrTypeKindString(m_ptrTypeKind);
+	FunctionPtrKind ptrKind = getPtrKind();
+	if (ptrKind != FunctionPtrKind_Normal) {
+		string += getFunctionPtrKindString(ptrKind);
 		string += ' ';
 	}
 
@@ -114,14 +116,14 @@ FunctionPtrType::createItemString(size_t index) {
 
 void
 FunctionPtrType::prepareLlvmType() {
-	m_llvmType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
+	m_llvmType = getPtrKind() != FunctionPtrKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_FunctionPtrStruct)->getLlvmType() :
 		llvm::PointerType::get(m_targetType->getLlvmType(), 0);
 }
 
 void
 FunctionPtrType::prepareLlvmDiType() {
-	m_llvmDiType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
+	m_llvmDiType = getPtrKind() != FunctionPtrKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_FunctionPtrStruct)->getLlvmDiType() :
 		(m_targetType->getFlags() & TypeFlag_LayoutReady) ?
 			m_module->m_llvmDiBuilder.createPointerType(m_targetType) :
@@ -133,14 +135,15 @@ FunctionPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 ) {
-	ASSERT(m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak);
+	FunctionPtrKind ptrKind = getPtrKind();
+	ASSERT(ptrKind == FunctionPtrKind_Normal || ptrKind == FunctionPtrKind_Weak);
 
 	FunctionPtr* ptr = (FunctionPtr*)p;
 	if (!ptr->m_closure)
 		return;
 
 	Box* box = ptr->m_closure->m_box;
-	if (m_ptrTypeKind == FunctionPtrTypeKind_Normal)
+	if (ptrKind == FunctionPtrKind_Normal)
 		gcHeap->markClass(box);
 	else if (isClassType(box->m_type, ClassTypeKind_FunctionClosure))
 		gcHeap->weakMarkClosureClass(box);
@@ -178,7 +181,7 @@ Type*
 FunctionPtrType::mergeAutoConstTypes(Type* constType0) {
 	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
 	FunctionPtrType* constType = (FunctionPtrType*)constType0;
-	if (constType->getTypeKind() != TypeKind_FunctionPtr || m_ptrTypeKind != constType->m_ptrTypeKind)
+	if (constType->getTypeKind() != TypeKind_FunctionPtr || getPtrKind() != constType->getPtrKind())
 		return NULL;
 
 	FunctionType* targetType = (FunctionType*)m_targetType->mergeAutoConstTypes(constType->m_targetType);
@@ -186,7 +189,7 @@ FunctionPtrType::mergeAutoConstTypes(Type* constType0) {
 		return NULL;
 
 	ASSERT(targetType->getTypeKind() == TypeKind_Function);
-	return m_module->m_typeMgr.getFunctionPtrType(targetType, m_typeKind, m_ptrTypeKind, m_flags);
+	return m_module->m_typeMgr.getFunctionPtrType(targetType, m_typeKind, m_flags & PtrTypeFlag__All);
 }
 
 //..............................................................................

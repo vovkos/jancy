@@ -61,7 +61,7 @@ EXPORTS
 	jnc_AttributeBlock_getAttribute
 	jnc_AttributeBlock_getAttributeCount
 	jnc_AttributeBlock_ensureAttributeValuesReady
-	jnc_DataPtrType_getPtrTypeKind
+	jnc_DataPtrType_getPtrKind
 	jnc_DataPtrType_getTargetType
 	jnc_DataPtrType_getBitOffset
 	jnc_DataPtrType_getBitCount
@@ -78,7 +78,7 @@ EXPORTS
 	jnc_Type_ensureNoImports
 	jnc_Type_isEqual
 	jnc_Type_markGcRoots
-	jnc_getDataPtrTypeKindString
+	jnc_getDataPtrKindString
 	jnc_getPtrTypeFlagString_v
 	jnc_BaseTypeSlot_getOffset
 	jnc_BaseTypeSlot_getVtableIndex
@@ -109,7 +109,7 @@ EXPORTS
 	jnc_ArrayType_getElementType
 	jnc_FunctionArg_getDefaultValueString_v
 	jnc_FunctionArg_hasDefaultValue
-	jnc_FunctionPtrType_getPtrTypeKind
+	jnc_FunctionPtrType_getPtrKind
 	jnc_FunctionPtrType_getTargetType
 	jnc_FunctionType_getArg
 	jnc_FunctionType_getArgCount
@@ -126,13 +126,13 @@ EXPORTS
 	jnc_ClassType_getClassPtrType
 	jnc_ClassType_getClassTypeKind
 	jnc_ClassType_getIfaceStructType
-	jnc_ClassPtrType_getPtrTypeKind
+	jnc_ClassPtrType_getPtrKind
 	jnc_ClassPtrType_getTargetType
 	jnc_McSnapshotClassType_getMethod
 	jnc_McSnapshotClassType_getTargetType
 	jnc_MulticastClassType_getMethod
 	jnc_MulticastClassType_getTargetType
-	jnc_getClassPtrTypeKindString
+	jnc_getClassPtrKindString
 	jnc_Template_getDerivableTypeKind
 	jnc_Template_getDeclType
 	jnc_Template_getArgCount

@@ -62,10 +62,9 @@ public:
 	JNC_CDECL
 	getPropertyPtrType(
 		TypeKind typeKind,
-		PropertyPtrTypeKind ptrTypeKind,
 		uint_t flags = 0
 	) {
-		return (PropertyPtrType*)rtl::getType(m_item->getPropertyPtrType(typeKind, ptrTypeKind, flags));
+		return (PropertyPtrType*)rtl::getType(m_item->getPropertyPtrType(typeKind, flags));
 	}
 };
 
@@ -76,10 +75,10 @@ public:
 	PropertyPtrType(ct::PropertyPtrType* type):
 		TypeBase(type) {}
 
-	PropertyPtrTypeKind
+	PropertyPtrKind
 	JNC_CDECL
-	getPtrTypeKind() {
-		return m_item->getPtrTypeKind();
+	getPtrKind() {
+		return m_item->getPtrKind();
 	}
 
 	PropertyType*

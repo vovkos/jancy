@@ -151,12 +151,12 @@ bitflag enum PtrTypeFlags {
 	AutoGet    = 0x02000000, // data ptr only
 	BigEndian  = 0x04000000, // data ptr only
 	BitField   = 0x08000000, // data ptr only
-	ThinThis   = 0x10000000, // function only (converts to DataPtrTypeKind_Thin)
+	ThinThis   = 0x10000000, // function only (converts to DataPtrKind_Thin)
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DataPtrTypeKind {
+enum DataPtrKind {
 	Normal = 0,
 	Lean,
 	Thin,
@@ -186,13 +186,11 @@ opaque class Type: ModuleItem {
 		uint_t bitOffset,
 		uint_t bitCount,
 		TypeKind typeKind = TypeKind.DataPtr,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
 	) const;
 
 	DataPtrType* getDataPtrType(
 		TypeKind typeKind = TypeKind.DataPtr,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
 	) const;
 
@@ -218,7 +216,7 @@ opaque class NamedType:
 //..............................................................................
 
 opaque class DataPtrType: Type {
-	DataPtrTypeKind const property m_ptrTypeKind;
+	DataPtrKind const property m_ptrKind;
 	Type* const property m_targetType;
 	uint_t const property m_bitOffset; // PtrTypeFlags.BitField only
 	uint_t const property m_bitCount;  // PtrTypeFlags.BitField only

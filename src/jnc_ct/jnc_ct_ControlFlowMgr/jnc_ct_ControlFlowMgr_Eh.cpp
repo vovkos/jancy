@@ -614,7 +614,7 @@ ControlFlowMgr::preCreateSjljFrameArray() {
 
 	ASSERT(!m_sjljFrameArrayValue);
 	Type* type = m_module->m_typeMgr.getStdType(StdType_SjljFrame);
-	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &m_sjljFrameArrayValue);
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType(DataPtrKind_Thin), &m_sjljFrameArrayValue);
 	Variable* variable = m_module->m_variableMgr.getStdVariable(StdVariable_SjljFrame);
 	m_module->m_llvmIrBuilder.createLoad(variable, variable->getType(), &m_prevSjljFrameValue);
 	setCurrentBlock(prevBlock);
@@ -640,7 +640,7 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 
 	Value sjljFrameArrayValue;
 	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca(arrayType, NULL, &sjljFrameArrayValue);
-	m_module->m_llvmIrBuilder.createBitCast(sjljFrameArrayValue, type->getDataPtrType_c(), &sjljFrameArrayValue);
+	m_module->m_llvmIrBuilder.createBitCast(sjljFrameArrayValue, type->getDataPtrType(DataPtrKind_Thin), &sjljFrameArrayValue);
 
 #if (_JNC_CPU_AMD64)
 #	if (LLVM_VERSION_MAJOR < 10)

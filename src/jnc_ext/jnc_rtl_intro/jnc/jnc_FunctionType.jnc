@@ -28,7 +28,7 @@ bitflag enum FunctionTypeFlags {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum FunctionPtrTypeKind {
+enum FunctionPtrKind {
 	Normal = 0,
 	Weak,
 	Thin,
@@ -59,7 +59,6 @@ opaque class FunctionType: Type {
 
 	FunctionPtrType* getFunctionPtrType(
 		TypeKind typeKind = TypeKind.FunctionPtr,
-		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
 	) const;
 }
@@ -67,7 +66,7 @@ opaque class FunctionType: Type {
 //..............................................................................
 
 opaque class FunctionPtrType: Type {
-	FunctionPtrTypeKind const property m_ptrTypeKind;
+	FunctionPtrKind const property m_ptrKind;
 	FunctionType* const property m_targetType;
 
 	construct(intptr p);

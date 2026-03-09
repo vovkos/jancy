@@ -288,11 +288,7 @@ public:
 	DataPtrType*
 	prepareArrayRefType(DataPtrType* type)  {
 		ASSERT(type->getTargetType()->getTypeKind() == TypeKind_Array);
-		return ((ArrayType*)type->getTargetType())->getElementType()->getDataPtrType(
-			TypeKind_DataPtr,
-			type->getPtrTypeKind(),
-			type->getFlags() & PtrTypeFlag__All
-		);
+		return ((ArrayType*)type->getTargetType())->getElementType()->getDataPtrType(TypeKind_DataPtr, type->getFlags() & PtrTypeFlag__All);
 	}
 
 	void
@@ -1262,7 +1258,7 @@ public:
 		return getPropertyThinPtr(
 			prop,
 			closure,
-			prop->getType()->getPropertyPtrType(PropertyPtrTypeKind_Thin),
+			prop->getType()->getPropertyPtrType(PropertyPtrKind_Thin),
 			resultValue
 		);
 	}

@@ -54,7 +54,7 @@ Cast_ClassPtr::getCastKind(
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
 	ClassPtrType* dstType = (ClassPtrType*)type;
 
-	CastKind constCastKind = getConstCastKind(srcType->getFlags(), dstType->getFlags());
+	CastKind constCastKind = getConstCastKind(srcType->getConstKind(), dstType->getConstKind());
 	if (!constCastKind)
 		return CastKind_None; // const vs non-const mismatch
 
@@ -131,8 +131,8 @@ Cast_ClassPtr::llvmCast(
 	ClassPtrType* srcType = (ClassPtrType*)rawOpValue.getType();
 	ClassPtrType* dstType = (ClassPtrType*)type;
 
-	if (srcType->getPtrTypeKind() == ClassPtrTypeKind_Weak &&
-		dstType->getPtrTypeKind() != ClassPtrTypeKind_Weak) {
+	if (srcType->getPtrKind() == ClassPtrKind_Weak &&
+		dstType->getPtrKind() != ClassPtrKind_Weak) {
 		Function* strengthen = m_module->m_functionMgr.getStdFunction(StdFunc_StrengthenClassPtr);
 
 		m_module->m_llvmIrBuilder.createBitCast(opValue, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &opValue);
@@ -234,12 +234,7 @@ Cast_ClassRef::getCastKind(
 		return CastKind_None;
 
 	ClassPtrType* ptrType = (ClassPtrType*)type;
-	ClassPtrType* intermediateDstType = ptrType->getTargetType()->getClassPtrType(
-		TypeKind_ClassPtr,
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
+	ClassPtrType* intermediateDstType = ptrType->getTargetType()->getClassPtrType(ptrType->getFlags() & PtrTypeFlag__All);
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
 
@@ -252,12 +247,7 @@ Cast_ClassRef::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_ClassRef);
 
 	ClassPtrType* ptrType = (ClassPtrType*)type;
-	ClassPtrType* intermediateType = ptrType->getTargetType()->getClassPtrType(
-		TypeKind_ClassPtr,
-		ptrType->getPtrTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
+	ClassPtrType* intermediateType = ptrType->getTargetType()->getClassPtrType(ptrType->getFlags() & PtrTypeFlag__All);
 	Value intermediateValue;
 
 	return

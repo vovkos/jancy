@@ -67,10 +67,10 @@ LeanDataPtrValidator::createValidator() {
 	} else {
 		if (originType->getTargetType()->getStdType() == StdType_DataPtrValidator) {
 			originValidatorValue = m_originValue;
-		} else if (originType->getPtrTypeKind() == DataPtrTypeKind_Lean) {
+		} else if (originType->getPtrKind() == DataPtrKind_Lean) {
 			originValidatorValue = m_originValue.getLeanDataPtrValidator()->getValidatorValue();
 		} else {
-			ASSERT(originType->getPtrTypeKind() == DataPtrTypeKind_Normal);
+			ASSERT(originType->getPtrKind() == DataPtrKind_Normal);
 			module->m_llvmIrBuilder.createExtractValue(
 				m_originValue,
 				1,

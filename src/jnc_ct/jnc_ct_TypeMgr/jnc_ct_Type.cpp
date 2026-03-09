@@ -80,22 +80,18 @@ getLlvmTypeString(llvm::Type* llvmType) {
 const char*
 getPtrTypeFlagString(PtrTypeFlag flag) {
 	static const char* stringTable[] = {
-		"safe",       // PtrTypeFlag_Safe       = 0x00010000
-		"const",      // PtrTypeFlag_Const      = 0x00020000
-		"const?",     // PtrTypeFlag_MaybeConst = 0x00040000
-		"autoconst",  // PtrTypeFlag_AutoConst  = 0x00080000
-		"readonly",   // PtrTypeFlag_ReadOnly   = 0x00100000
-		"volatile",   // PtrTypeFlag_Volatile   = 0x00200000
-		"event",      // PtrTypeFlag_Event      = 0x00400000
-		"event-x",    // PtrTypeFlag_EventX     = 0x00800000
-		"bindable",   // PtrTypeFlag_Bindable   = 0x01000000
-		"autoget",    // PtrTypeFlag_AutoGet    = 0x02000000
-		"bigendian",  // PtrTypeFlag_BigEndian  = 0x04000000
-		"bitfield",   // PtrTypeFlag_BitField   = 0x08000000
-		"thin",       // PtrTypeFlag_ThinThis   = 0x10000000
+		"volatile",   // PtrTypeFlag_Volatile  = 0x00200000
+		"safe",       // PtrTypeFlag_Safe      = 0x00400000
+		"event",      // PtrTypeFlag_Event     = 0x00800000
+		"event-x",    // PtrTypeFlag_EventX    = 0x01000000
+		"bindable",   // PtrTypeFlag_Bindable  = 0x02000000
+		"autoget",    // PtrTypeFlag_AutoGet   = 0x04000000
+		"bigendian",  // PtrTypeFlag_BigEndian = 0x08000000
+		"bitfield",   // PtrTypeFlag_BitField  = 0x10000000
+		"thin",       // PtrTypeFlag_ThinThis  = 0x20000000
 	};
 
-	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> 16));
+	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> PtrTypeFlag__FlagBit));
 	return i < countof(stringTable) ?
 		stringTable[i] :
 		"undefined-ptr-type-flag";
@@ -103,14 +99,19 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 
 sl::StringRef
 getPtrTypeFlagString(uint_t flags) {
-	flags &= PtrTypeFlag__All;
+	flags &= PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask;
 	if (!flags)
 		return sl::StringRef();
+
+	ConstKind constKind = getConstKindFromFlags(flags);
+	flags &= ~PtrTypeFlag__ConstKindMask;
+	if (!flags)
+		return getConstKindString(constKind);
 
 	PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
 	sl::StringRef string0 = getPtrTypeFlagString(flag);
 	flags &= ~flag;
-	if (!flags)
+	if (!flags && !constKind)
 		return string0;
 
 	sl::String string = string0;
@@ -121,6 +122,11 @@ getPtrTypeFlagString(uint_t flags) {
 		flags &= ~flag;
 	}
 
+	if (constKind) {
+		string += ' ';
+		string += getConstKindString(constKind);
+	}
+
 	return string;
 }
 
@@ -129,32 +135,48 @@ getPtrTypeFlagSignature(PtrTypeFlag flag) {
 	// possible conflicts with primitive type signatures are OK
 
 	static const char* stringTable[] = {
-		"s",  // PtrTypeFlag_Safe       = 0x00010000
-		"c",  // PtrTypeFlag_Const      = 0x00020000
-		"m",  // PtrTypeFlag_MaybeConst = 0x00040000
-		"i",  // PtrTypeFlag_AutoConst  = 0x00080000
-		"r",  // PtrTypeFlag_ReadOnly   = 0x00100000
-		"v",  // PtrTypeFlag_Volatile   = 0x00200000
-		"e",  // PtrTypeFlag_Event      = 0x00400000
-		"d",  // PtrTypeFlag_EventX     = 0x00800000
-		"b",  // PtrTypeFlag_Bindable   = 0x01000000
-		"a",  // PtrTypeFlag_AutoGet    = 0x02000000
-		"n",  // PtrTypeFlag_BigEndian  = 0x04000000
-		"f",  // PtrTypeFlag_BitField   = 0x08000000
-		"h",  // PtrTypeFlag_ThinThis   = 0x10000000
+		"v",  // PtrTypeFlag_Volatile  = 0x00400000
+		"s",  // PtrTypeFlag_Safe      = 0x00800000
+		"e",  // PtrTypeFlag_Event     = 0x01000000
+		"d",  // PtrTypeFlag_EventX    = 0x02000000
+		"b",  // PtrTypeFlag_Bindable  = 0x04000000
+		"a",  // PtrTypeFlag_AutoGet   = 0x08000000
+		"n",  // PtrTypeFlag_BigEndian = 0x10000000
+		"f",  // PtrTypeFlag_BitField  = 0x20000000
+		"h",  // PtrTypeFlag_ThinThis  = 0x40000000
 	};
 
-	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> 16));
-	return i < countof(stringTable) ?
-		stringTable[i] :
-		"?";
+	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> PtrTypeFlag__FlagBit));
+	ASSERT(i < countof(stringTable));
+	return stringTable[i];
+}
+
+const char*
+getConstKindSignature(ConstKind constKind) {
+	static const char* stringTable[] = {
+	    "w",  // ConstKind_None
+	    "c",  // ConstKind_Const
+	    "m",  // ConstKind_MaybeConst
+	    "x",  // ConstKind_AutoConstX
+        "u",  // ConstKind_AutoConst
+	    "r",  // ConstKind_ReadOnly
+	};
+
+	size_t i = constKind >> PtrTypeFlag__ConstKindBit;
+	ASSERT(i && i < countof(stringTable));
+	return stringTable[i];
 }
 
 sl::StringRef
 getPtrTypeFlagSignature(uint_t flags) {
-	flags &= PtrTypeFlag__All;
+	flags &= PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask;
 	if (!flags)
 		return sl::StringRef();
+
+	ConstKind constKind = getConstKindFromFlags(flags);
+	flags &= ~PtrTypeFlag__ConstKindMask;
+	if (!flags)
+		return getConstKindSignature(constKind);
 
 	PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
 	sl::StringRef string0 = sl::StringRef(getPtrTypeFlagSignature(flag), 1);
@@ -167,6 +189,11 @@ getPtrTypeFlagSignature(uint_t flags) {
 		flag = getFirstFlag<PtrTypeFlag>(flags);
 		string.append(getPtrTypeFlagSignature(flag), 1);
 		flags &= ~flag;
+	}
+
+	if (constKind) {
+		string += ' ';
+		string += getConstKindString(constKind);
 	}
 
 	return string;
@@ -185,14 +212,14 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 	if (modifiers & TypeModifier_BigEndian)
 		flags |= PtrTypeFlag_BigEndian;
 
-	if (modifiers & TypeModifier_Const)
-		flags |= PtrTypeFlag_Const;
+	if (modifiers & TypeModifier_ReadOnly)
+		flags |= ConstKind_ReadOnly;
+	else if (modifiers & TypeModifier_Const)
+		flags |= ConstKind_Const;
 	else if (modifiers & TypeModifier_MaybeConst)
-		flags |= PtrTypeFlag_MaybeConst;
+		flags |= ConstKind_MaybeConst;
 	else if (modifiers & TypeModifier_AutoConst)
-		flags |= PtrTypeFlag_AutoConst;
-	else if (modifiers & TypeModifier_ReadOnly)
-		flags |= PtrTypeFlag_ReadOnly;
+		flags |= ConstKind_AutoConst;
 
 	if (modifiers & TypeModifier_Event)
 		flags |= PtrTypeFlag_Event;
@@ -791,16 +818,8 @@ getDirectRefType(
 	uint_t ptrTypeFlags
 ) {
 	return type->getTypeKind() == TypeKind_Class ?
-		(Type*)((ClassType*)type)->getClassPtrType(
-			TypeKind_ClassRef,
-			ClassPtrTypeKind_Normal,
-			ptrTypeFlags
-		) :
-		(Type*)type->getDataPtrType(
-			TypeKind_DataRef,
-			DataPtrTypeKind_Lean,
-			ptrTypeFlags
-		);
+		(Type*)((ClassType*)type)->getClassPtrType(TypeKind_ClassRef, ptrTypeFlags) :
+		(Type*)type->getDataPtrType(TypeKind_DataRef, ptrTypeFlags | DataPtrKind_Lean);
 }
 
 //..............................................................................
@@ -869,13 +888,13 @@ isWeakPtrType(Type* type) {
 	TypeKind typeKind = type->getTypeKind();
 	switch (typeKind) {
 	case TypeKind_ClassPtr:
-		return ((ClassPtrType*)type)->getPtrTypeKind() == ClassPtrTypeKind_Weak;
+		return ((ClassPtrType*)type)->getPtrKind() == ClassPtrKind_Weak;
 
 	case TypeKind_FunctionPtr:
-		return ((FunctionPtrType*)type)->getPtrTypeKind() == FunctionPtrTypeKind_Weak;
+		return ((FunctionPtrType*)type)->getPtrKind() == FunctionPtrKind_Weak;
 
 	case TypeKind_PropertyPtr:
-		return ((PropertyPtrType*)type)->getPtrTypeKind() == PropertyPtrTypeKind_Weak;
+		return ((PropertyPtrType*)type)->getPtrKind() == PropertyPtrKind_Weak;
 
 	default:
 		return false;

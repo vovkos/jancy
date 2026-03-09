@@ -343,7 +343,7 @@ protected:
 	Cast_DataPtr_Lean2Thin m_lean2Thin;
 	Cast_DataPtr_Thin2Thin m_thin2Thin;
 
-	CastOperator* m_operatorTable[DataPtrTypeKind__Count][DataPtrTypeKind__Count];
+	CastOperator* m_operatorTable[DataPtrKind__Count][DataPtrKind__Count];
 
 public:
 	Cast_DataPtr();

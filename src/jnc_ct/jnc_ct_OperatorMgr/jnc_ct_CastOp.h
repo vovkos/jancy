@@ -38,8 +38,8 @@ enum CastKind {
 
 CastKind
 getConstCastKind(
-	uint_t srcFlags,
-	uint_t dstFlags
+	ConstKind srcConstKind,
+	ConstKind dstConstKind
 );
 
 err::Error

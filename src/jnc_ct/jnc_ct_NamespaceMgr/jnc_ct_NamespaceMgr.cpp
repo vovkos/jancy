@@ -189,7 +189,7 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("TypeKindFlags", introImport) &&
 		jncNspace->addItem("TypeFlags", introImport) &&
 		jncNspace->addItem("PtrTypeFlags", introImport) &&
-		jncNspace->addItem("DataPtrTypeKind", introImport) &&
+		jncNspace->addItem("DataPtrKind", introImport) &&
 		jncNspace->addItem("Type", introImport) &&
 		jncNspace->addItem("DataPtrType", introImport) &&
 		jncNspace->addItem("NamedType", introImport) &&
@@ -199,12 +199,12 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("ArrayType", introImport) &&
 		jncNspace->addItem("BitFieldType", introImport) &&
 		jncNspace->addItem("FunctionTypeFlags", introImport) &&
-		jncNspace->addItem("FunctionPtrTypeKind", introImport) &&
+		jncNspace->addItem("FunctionPtrKind", introImport) &&
 		jncNspace->addItem("FunctionArg", introImport) &&
 		jncNspace->addItem("FunctionType", introImport) &&
 		jncNspace->addItem("FunctionPtrType", introImport) &&
 		jncNspace->addItem("PropertyTypeFlags", introImport) &&
-		jncNspace->addItem("PropertyPtrTypeKind", introImport) &&
+		jncNspace->addItem("PropertyPtrKind", introImport) &&
 		jncNspace->addItem("PropertyType", introImport) &&
 		jncNspace->addItem("PropertyPtrType", introImport) &&
 		jncNspace->addItem("EnumTypeFlags", introImport) &&
@@ -212,7 +212,7 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("EnumType", introImport) &&
 		jncNspace->addItem("ClassTypeKind", introImport) &&
 		jncNspace->addItem("ClassTypeFlags", introImport) &&
-		jncNspace->addItem("ClassPtrTypeKind", introImport) &&
+		jncNspace->addItem("ClassPtrKind", introImport) &&
 		jncNspace->addItem("ClassType", introImport) &&
 		jncNspace->addItem("ClassPtrType", introImport) &&
 		jncNspace->addItem("StructTypeKind", introImport) &&
@@ -254,7 +254,7 @@ NamespaceMgr::createOrphan(
 
 	uint_t modifiers = declarator->getTypeModifiers();
 	if (modifiers & TypeModifier_Const)
-		orphan->m_thisArgTypeFlags |= PtrTypeFlag_Const;
+		orphan->m_thisArgTypeFlags |= ConstKind_Const;
 
 	if (modifiers & TypeModifier_Thin)
 		orphan->m_thisArgTypeFlags |= PtrTypeFlag_ThinThis;

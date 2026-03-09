@@ -482,7 +482,6 @@ jnc_Type_GetBitFieldDataPtrTypeFunc(
 	uint_t bitOffset,
 	uint_t bitCount,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 );
 
@@ -491,7 +490,6 @@ jnc_DataPtrType*
 jnc_Type_GetDataPtrTypeFunc(
 	jnc_Type* type,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 );
 
@@ -653,7 +651,6 @@ jnc_FunctionPtrType*
 jnc_FunctionType_GetFunctionPtrTypeFunc(
 	jnc_FunctionType* type,
 	jnc_TypeKind typeKind,
-	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 );
 
@@ -797,7 +794,6 @@ jnc_ClassPtrType*
 jnc_ClassType_GetClassPtrTypeFunc(
 	jnc_ClassType* type,
 	jnc_TypeKind typeKind,
-	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 );
 
@@ -861,7 +857,7 @@ struct jnc_McSnapshotClassTypeFuncTable {
 // DataPtrType
 
 typedef
-jnc_DataPtrTypeKind
+jnc_DataPtrKind
 jnc_DataPtrType_GetPtrTypeKindFunc(jnc_DataPtrType* type);
 
 typedef
@@ -880,7 +876,7 @@ jnc_DataPtrType_GetBitCountFunc(jnc_DataPtrType* type);
 
 struct jnc_DataPtrTypeFuncTable {
 	size_t m_size;
-	jnc_DataPtrType_GetPtrTypeKindFunc* m_getPtrTypeKindFunc;
+	jnc_DataPtrType_GetPtrTypeKindFunc* m_getPtrKindFunc;
 	jnc_DataPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 	jnc_DataPtrType_GetBitOffsetFunc* m_getBitOffsetFunc;
 	jnc_DataPtrType_GetBitCountFunc* m_getBitCountFunc;
@@ -891,7 +887,7 @@ struct jnc_DataPtrTypeFuncTable {
 // ClassPtrType
 
 typedef
-jnc_ClassPtrTypeKind
+jnc_ClassPtrKind
 jnc_ClassPtrType_GetPtrTypeKindFunc(jnc_ClassPtrType* type);
 
 typedef
@@ -900,7 +896,7 @@ jnc_ClassPtrType_GetTargetTypeFunc(jnc_ClassPtrType* type);
 
 struct jnc_ClassPtrTypeFuncTable {
 	size_t m_size;
-	jnc_ClassPtrType_GetPtrTypeKindFunc* m_getPtrTypeKindFunc;
+	jnc_ClassPtrType_GetPtrTypeKindFunc* m_getPtrKindFunc;
 	jnc_ClassPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
 
@@ -909,7 +905,7 @@ struct jnc_ClassPtrTypeFuncTable {
 // FunctionPtrType
 
 typedef
-jnc_FunctionPtrTypeKind
+jnc_FunctionPtrKind
 jnc_FunctionPtrType_GetPtrTypeKindFunc(jnc_FunctionPtrType* type);
 
 typedef
@@ -920,7 +916,7 @@ jnc_FunctionPtrType_GetTargetTypeFunc(jnc_FunctionPtrType* type);
 
 struct jnc_FunctionPtrTypeFuncTable {
 	size_t m_size;
-	jnc_FunctionPtrType_GetPtrTypeKindFunc* m_getPtrTypeKindFunc;
+	jnc_FunctionPtrType_GetPtrTypeKindFunc* m_getPtrKindFunc;
 	jnc_FunctionPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
 

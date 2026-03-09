@@ -119,7 +119,7 @@ getLlvmTypeString(llvm::Type* llvmType);
 //..............................................................................
 
 struct DualTypeTuple: sl::ListLink {
-	Type* m_typeArray[2][5]; // alien-friend x container-const/const?/autoconst
+	Type* m_typeArray[2][ConstKind__Count]; // alien-friend x container-const/const?/autoconst
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -267,15 +267,15 @@ public:
 	Type*
 	getActualTypeIfDual(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	) {
-		return (m_flags & TypeFlag_Dual) ? foldDualType(isAlien, ptrFlags) : this;
+		return (m_flags & TypeFlag_Dual) ? foldDualType(isAlien, constKind) : this;
 	}
 
 	Type*
 	foldDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	);
 
 	ArrayType*
@@ -286,31 +286,18 @@ public:
 		uint_t bitOffset,
 		uint_t bitCount,
 		TypeKind typeKind,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	DataPtrType*
 	getDataPtrType(
 		TypeKind typeKind,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	DataPtrType*
-	getDataPtrType(
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
-		uint_t flags = 0
-	) {
-		return getDataPtrType(TypeKind_DataPtr, ptrTypeKind, flags);
-	}
-
-	DataPtrType*
-	getDataPtrType_c(
-		TypeKind typeKind = TypeKind_DataPtr,
-		uint_t flags = 0
-	) {
-		return getDataPtrType(typeKind, DataPtrTypeKind_Thin, flags);
+	getDataPtrType(uint_t flags = 0) {
+		return getDataPtrType(TypeKind_DataPtr, flags);
 	}
 
 	FunctionArg*
@@ -402,7 +389,7 @@ protected:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	) {
 		ASSERT(false);
 		return this;
@@ -594,16 +581,6 @@ protected:
 };
 
 //..............................................................................
-
-inline
-uint_t
-getConstPtrFlagIdx(uint_t ptrFlags) {
-	// PtrTypeFlag_Const      = 0x00020000, // class, data ptr
-	// PtrTypeFlag_MaybeConst = 0x00040000, // class, data ptr
-	// PtrTypeFlag_AutoConst  = 0x00080000, // class & data ptr (dual)
-
-	return (ptrFlags >> 17) & 7;
-} // returns 0 .. 4 (3 unused)
 
 Type*
 getSimpleType(

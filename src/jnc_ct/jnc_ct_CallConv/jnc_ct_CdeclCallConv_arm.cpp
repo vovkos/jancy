@@ -73,7 +73,7 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
 			typeRwi = llvmArgTypeArray;
-			typeRwi[0] = returnType->getDataPtrType_c()->getLlvmType();
+			typeRwi[0] = returnType->getDataPtrType(DataPtrKind_Thin)->getLlvmType();
 			j = 1;
 
 			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
@@ -95,7 +95,7 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 			if ((type->getTypeKindFlags() & TypeKindFlag_Integer) && type->getSize() < sizeof(int))
 				hasIntExtArgs = true;
 		} else if (type->getSize() > m_argCoerceSizeLimit) { // pass on stack
-			llvmType = type->getDataPtrType_c()->getLlvmType();
+			llvmType = type->getDataPtrType(DataPtrKind_Thin)->getLlvmType();
 			flagRwi[i] = ArgFlag_ByVal;
 			hasByValArgs = true;
 		} else { // coerce
@@ -158,7 +158,7 @@ CdeclCallConv_arm::call(
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
 		returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
-		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
+		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType(DataPtrKind_Thin), &tmpReturnValue);
 		argValueList->insertHead(tmpReturnValue);
 	}
 
@@ -172,7 +172,7 @@ CdeclCallConv_arm::call(
 
 		if (type->getSize() > m_argCoerceSizeLimit) { // pass on stack
 			Value tmpValue;
-			m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(TypeKind_DataRef), &tmpValue);
+			m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType(TypeKind_DataRef, DataPtrKind_Thin), &tmpValue);
 			m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
 			*it = tmpValue;
 		} else { // coerce

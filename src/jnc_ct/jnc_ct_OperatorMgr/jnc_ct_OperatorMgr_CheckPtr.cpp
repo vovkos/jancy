@@ -63,11 +63,11 @@ OperatorMgr::checkDataPtrRange(const Value& value) {
 	ASSERT(value.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
 	DataPtrType* type = (DataPtrType*)value.getType();
-	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
+	DataPtrKind ptrKind = type->getPtrKind();
 
-	if (m_module->m_operatorMgr.isUnsafeRgn() ||
-		(type->getFlags() & PtrTypeFlag_Safe) ||
-		ptrTypeKind == DataPtrTypeKind_Thin
+	if ((type->getFlags() & PtrTypeFlag_Safe) ||
+		ptrKind == DataPtrKind_Thin ||
+		m_module->m_operatorMgr.isUnsafeRgn()
 	)
 		return true;
 
@@ -76,11 +76,11 @@ OperatorMgr::checkDataPtrRange(const Value& value) {
 	Value ptrValue;
 	Value validatorValue;
 
-	if (ptrTypeKind == DataPtrTypeKind_Normal) {
+	if (ptrKind == DataPtrKind_Normal) {
 		m_module->m_llvmIrBuilder.createExtractValue(value, 0, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createExtractValue(value, 1, NULL, &validatorValue);
 	} else {
-		ASSERT(ptrTypeKind == DataPtrTypeKind_Lean);
+		ASSERT(ptrKind == DataPtrKind_Lean);
 
 		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 
@@ -145,7 +145,7 @@ OperatorMgr::checkNullPtr(const Value& value) {
 	Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable(StdVariable_NullPtrCheckSink);
 
 	Value tmpValue;
-	m_module->m_llvmIrBuilder.createBitCast(value, nullPtrCheckSink->getType()->getDataPtrType_c(), &tmpValue);
+	m_module->m_llvmIrBuilder.createBitCast(value, nullPtrCheckSink->getType()->getDataPtrType(DataPtrKind_Thin), &tmpValue);
 	m_module->m_llvmIrBuilder.createLoad(tmpValue, nullPtrCheckSink->getType(), &tmpValue);
 	m_module->m_llvmIrBuilder.createStore(tmpValue, nullPtrCheckSink);
 }

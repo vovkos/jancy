@@ -257,7 +257,7 @@ FunctionMgr::createThisValue() {
 		} else {
 			Type* byteType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
 			Value ptrValue;
-			m_module->m_llvmIrBuilder.createBitCast(thisArgValue, byteType->getDataPtrType_c(), &ptrValue);
+			m_module->m_llvmIrBuilder.createBitCast(thisArgValue, byteType->getDataPtrType(DataPtrKind_Thin), &ptrValue);
 			m_module->m_llvmIrBuilder.createGep(ptrValue, byteType, (int32_t)function->m_thisArgDelta, NULL, &ptrValue);
 			m_module->m_llvmIrBuilder.createBitCast(ptrValue, function->m_thisType, &m_thisValue);
 		}
@@ -655,7 +655,7 @@ FunctionMgr::replaceFieldVariableAllocas(Function* function) {
 		m_module->m_llvmIrBuilder.createLoad(userDataValue, userDataField->getType(), &userDataValue);
 		m_module->m_llvmIrBuilder.createBitCast(
 			userDataValue,
-			userDataType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			userDataType->getClassPtrType(PtrTypeFlag_Safe),
 			&userDataValue
 		);
 
@@ -926,14 +926,14 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		break;
 
 	case StdFunc_GetTls:
-		returnType = m_module->m_variableMgr.getTlsStructType()->getDataPtrType(DataPtrTypeKind_Thin);
+		returnType = m_module->m_variableMgr.getTlsStructType()->getDataPtrType(DataPtrKind_Thin);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
 		function = createInternalFunction("jnc.getTls", functionType);
 		break;
 
 	case StdFunc_SetJmp:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
-		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c();
+		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType(DataPtrKind_Thin);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
 		function = createInternalFunction("jnc.setJmp", functionType);
 		function->getLlvmFunction()->addFnAttr(llvm::Attribute::ReturnsTwice);
@@ -941,7 +941,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_SaveSignalInfo:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c();
+		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType(DataPtrKind_Thin);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
 		function = createInternalFunction("jnc.saveSignalInfo", functionType);
 		break;
@@ -1012,7 +1012,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_VariantMemberProperty_get:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
-		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant)->getDataPtrType(ConstKind_Const);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(jnc_StdType_CharConstThinPtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
 		function = createInternalFunction("jnc.variantMemberProperty.get", functionType);
@@ -1029,7 +1029,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_VariantIndexProperty_get:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
-		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant)->getDataPtrType(ConstKind_Const);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
 		function = createInternalFunction("jnc.variantIndexProperty.get", functionType);
@@ -1046,7 +1046,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_StringConstruct:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String)->getDataPtrType_c();
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String)->getDataPtrType(DataPtrKind_Thin);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.createUserFunctionType(returnType, argTypeArray, 3);
@@ -1094,10 +1094,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_StringRefSz:
 		returnType = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
-		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String)->getDataPtrType_c(
-			TypeKind_DataPtr,
-			PtrTypeFlag_Const
-		);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String)->getDataPtrType(DataPtrKind_Thin | ConstKind_Const);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
 		function = createInternalFunction("jnc.stringRefSz", functionType);
 		break;
@@ -1126,7 +1123,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_SetGcShadowStackFrameMap:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType_c();
+		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType(DataPtrKind_Thin);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);

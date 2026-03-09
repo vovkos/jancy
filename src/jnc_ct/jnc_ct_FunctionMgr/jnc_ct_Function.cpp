@@ -53,9 +53,11 @@ Function::createItemString(size_t index) {
 	synopsis += m_type->getShortType()->getTypeStringSuffix();
 	m_type->getReturnType()->getTypeStringSuffix();
 
-	uint_t ptrFlags = m_type->getThisArgType()->getFlags();
-	if (ptrFlags & PtrTypeFlag_Const)
-		synopsis += " const";
+	ConstKind thisConstKind = getConstKindFromFlags(m_type->getThisArgType()->getFlags());
+	if (thisConstKind) {
+		synopsis += ' ';
+		synopsis += getConstKindString(thisConstKind);
+	}
 
 	return synopsis;
 }
@@ -272,7 +274,7 @@ Function::generateDocumentation(
 	if (m_storageKind == StorageKind_Static && m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Type)
 		itemXml->append(" static='yes'");
 
-	if (isMember() && (m_thisArgTypeFlags & PtrTypeFlag_Const))
+	if (isMember() && (m_thisArgTypeFlags & ConstKind_Const))
 		itemXml->append(" const='yes'");
 
 	if (isVirtual())

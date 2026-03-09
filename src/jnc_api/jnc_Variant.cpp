@@ -163,7 +163,7 @@ jnc_Variant_create(
 
 	memcpy(ptr.m_p, p, size);
 
-	variant->m_type = type->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+	variant->m_type = type->getDataPtrType(TypeKind_DataRef, ConstKind_Const);
 	variant->m_dataPtr = ptr;
 	return true;
 }
@@ -396,7 +396,7 @@ jnc_Variant_setMember(
 		opValue.createConst(variant, variant->m_type);
 	} else {
 		ASSERT(variant->m_type->getSize() <= Variant::DataSize);
-		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
+		opValue.createConst(&variant, variant->m_type->getDataPtrType(TypeKind_DataRef, DataPtrKind_Thin));
 	}
 
 	ct::Module* module = variant->m_type->getModule();
@@ -430,7 +430,7 @@ jnc_Variant_getElement(
 		opValue.createConst(variant, variant->m_type);
 	} else {
 		ASSERT(variant->m_type->getSize() <= Variant::DataSize);
-		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
+		opValue.createConst(&variant, variant->m_type->getDataPtrType(TypeKind_DataRef, DataPtrKind_Thin));
 	}
 
 	ct::Module* module = variant->m_type->getModule();
@@ -467,7 +467,7 @@ jnc_Variant_setElement(
 		opValue.createConst(variant, variant->m_type);
 	} else {
 		ASSERT(variant->m_type->getSize() <= Variant::DataSize);
-		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
+		opValue.createConst(&variant, variant->m_type->getDataPtrType(TypeKind_DataRef, DataPtrKind_Thin));
 	}
 
 	ct::Module* module = variant->m_type->getModule();
@@ -674,8 +674,8 @@ format_dataPtr(
 	if (ptrType->getTargetType()->getTypeKind() != jnc::TypeKind_Char)
 		return format_ptr(string, fmtSpecifier, p, type);
 
-	jnc::DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
-	if (ptrTypeKind == jnc::DataPtrTypeKind_Normal)
+	jnc::DataPtrKind ptrKind = ptrType->getPtrKind();
+	if (ptrKind == jnc::DataPtrKind_Normal)
 		return formatCharPtr(string, fmtSpecifier, *(const jnc::DataPtr*)p);
 
 	const char* c = *(char**)p;

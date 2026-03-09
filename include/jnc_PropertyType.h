@@ -57,25 +57,25 @@ jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag);
 
 //..............................................................................
 
-enum jnc_PropertyPtrTypeKind {
-	jnc_PropertyPtrTypeKind_Normal = 0,
-	jnc_PropertyPtrTypeKind_Weak,
-	jnc_PropertyPtrTypeKind_Thin,
-	jnc_PropertyPtrTypeKind__Count,
+enum jnc_PropertyPtrKind {
+	jnc_PropertyPtrKind_Normal = 0x000000,
+	jnc_PropertyPtrKind_Weak   = 0x100000,
+	jnc_PropertyPtrKind_Thin   = 0x200000,
+	jnc_PropertyPtrKind__Count = 3,
 };
 
-typedef enum jnc_PropertyPtrTypeKind jnc_PropertyPtrTypeKind;
+typedef enum jnc_PropertyPtrKind jnc_PropertyPtrKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
-jnc_getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind);
+jnc_getPropertyPtrKindString(jnc_PropertyPtrKind ptrKind);
 
 JNC_INLINE
-jnc_PropertyPtrTypeKind
-jnc_getPropertyPtrTypeKindFromFlags(uint_t flags) {
-	return (jnc_PropertyPtrTypeKind)jnc_getPtrKindFromFlags(flags);
+jnc_PropertyPtrKind
+jnc_getPropertyPtrKindFromFlags(uint_t flags) {
+	return (jnc_PropertyPtrKind)jnc_getPtrKindFromFlags(flags);
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -103,20 +103,26 @@ getPropertyTypeFlagString(jnc_PropertyTypeFlag flag) {
 
 //..............................................................................
 
-typedef jnc_PropertyPtrTypeKind PropertyPtrTypeKind;
+typedef jnc_PropertyPtrKind PropertyPtrKind;
 
-const PropertyPtrTypeKind
-	PropertyPtrTypeKind_Normal = jnc_PropertyPtrTypeKind_Normal,
-	PropertyPtrTypeKind_Weak   = jnc_PropertyPtrTypeKind_Weak,
-	PropertyPtrTypeKind_Thin   = jnc_PropertyPtrTypeKind_Thin,
-	PropertyPtrTypeKind__Count = jnc_PropertyPtrTypeKind__Count;
+const PropertyPtrKind
+	PropertyPtrKind_Normal = jnc_PropertyPtrKind_Normal,
+	PropertyPtrKind_Weak   = jnc_PropertyPtrKind_Weak,
+	PropertyPtrKind_Thin   = jnc_PropertyPtrKind_Thin,
+	PropertyPtrKind__Count = jnc_PropertyPtrKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 const char*
-getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind) {
-	return jnc_getPropertyPtrTypeKindString(ptrTypeKind);
+getPropertyPtrKindString(jnc_PropertyPtrKind ptrKind) {
+	return jnc_getPropertyPtrKindString(ptrKind);
+}
+
+inline
+PropertyPtrKind
+getPropertyPtrKindFromFlags(uint_t flags) {
+	return jnc_getPropertyPtrKindFromFlags(flags);
 }
 
 //..............................................................................

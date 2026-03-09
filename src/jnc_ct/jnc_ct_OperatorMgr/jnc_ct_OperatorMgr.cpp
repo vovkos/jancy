@@ -314,32 +314,23 @@ getConditionalOperandType(const Value& value) {
 		if (type->getTypeKindFlags() & TypeKindFlag_FunctionPtr)
 			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(
 				type->getTypeKind(),
-				FunctionPtrTypeKind_Normal
+				FunctionPtrKind_Normal
 			);
 		else {
 			ASSERT(type->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 			type = ((PropertyPtrType*)type)->getTargetType()->getPropertyPtrType(
 				type->getTypeKind(),
-				PropertyPtrTypeKind_Normal
+				PropertyPtrKind_Normal
 			);
 		}
 	} else {
 		switch (type->getTypeKind()) {
 		case TypeKind_Array:
-			type = ((ArrayType*)type)->getElementType()->getDataPtrType(
-				DataPtrTypeKind_Normal,
-				value.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
-			);
+			type = ((ArrayType*)type)->getElementType()->getDataPtrType(value.getValueKind() == ValueKind_Const ? ConstKind_Const : 0);
 			break;
-		case TypeKind_FunctionRef: {
-			FunctionPtrType* ptrType = (FunctionPtrType*)type;
-			type = ptrType->getTargetType()->getFunctionPtrType(
-				TypeKind_FunctionPtr,
-				ptrType->getPtrTypeKind(),
-				ptrType->getFlags() & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)
-			);
+		case TypeKind_FunctionRef:
+			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(type->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag_Safe);
 			break;
-			}
 		}
 	}
 
@@ -395,12 +386,11 @@ OperatorMgr::getConditionalOperatorResultType(
 	// if it's a lean data pointer, turn it into a normal one
 
 	if ((resultType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
-		((DataPtrType*)resultType)->getPtrTypeKind() == DataPtrTypeKind_Lean
+		((DataPtrType*)resultType)->getPtrKind() == DataPtrKind_Lean
 	)
 		resultType = ((DataPtrType*)resultType)->getTargetType()->getDataPtrType(
 			resultType->getTypeKind(),
-			DataPtrTypeKind_Normal,
-			resultType->getFlags() & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)
+			resultType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag_Safe
 		);
 	else if (
 		(resultType->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
@@ -408,8 +398,7 @@ OperatorMgr::getConditionalOperatorResultType(
 	)
 		resultType = ((ClassPtrType*)resultType)->getTargetType()->getClassPtrType(
 			resultType->getTypeKind(),
-			ClassPtrTypeKind_Normal,
-			resultType->getFlags() & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)
+			resultType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag_Safe
 		);
 
 	return resultType;
@@ -474,12 +463,12 @@ OperatorMgr::forceCast(
 		Value tmpValue;
 		m_module->m_llvmIrBuilder.createAlloca(srcType, NULL, &tmpValue);
 		m_module->m_llvmIrBuilder.createStore(value, tmpValue);
-		m_module->m_llvmIrBuilder.createBitCast(tmpValue, dstType->getDataPtrType_c(), &tmpValue);
+		m_module->m_llvmIrBuilder.createBitCast(tmpValue, dstType->getDataPtrType(DataPtrKind_Thin), &tmpValue);
 		m_module->m_llvmIrBuilder.createLoad(tmpValue, dstType, resultValue);
 	} else {
 		Value tmpValue, tmpValue2;
 		m_module->m_llvmIrBuilder.createAlloca(dstType, NULL, &tmpValue);
-		m_module->m_llvmIrBuilder.createBitCast(tmpValue, srcType->getDataPtrType_c(), &tmpValue2);
+		m_module->m_llvmIrBuilder.createBitCast(tmpValue, srcType->getDataPtrType(DataPtrKind_Thin), &tmpValue2);
 		m_module->m_llvmIrBuilder.createStore(value, tmpValue2);
 		m_module->m_llvmIrBuilder.createLoad(tmpValue, dstType, resultValue);
 	}
@@ -595,7 +584,7 @@ OperatorMgr::findCastOperator(
 		return NULL;
 
 	Function* castOperator = ((DerivableType*)opType)->findCastOperator(type, castKind);
-	return castOperator && (castOperator->getThisArgType()->getFlags() & PtrTypeFlag_Const) ?
+	return castOperator && (castOperator->getThisArgType()->getFlags() & ConstKind_Const) ?
 		castOperator :
 		NULL;
 }
@@ -626,8 +615,9 @@ OperatorMgr::dynamicCastDataPtr(
 		return false;
 	}
 
-	if ((opValue.getType()->getFlags() & PtrTypeFlag_Const) &&
-		!(type->getFlags() & PtrTypeFlag_Const)) {
+	if ((opValue.getType()->getFlags() & ConstKind_Const) &&
+		!(type->getFlags() & ConstKind_Const)
+	) {
 		setCastError(opValue, type);
 		return false;
 	}
@@ -635,7 +625,7 @@ OperatorMgr::dynamicCastDataPtr(
 	Value ptrValue;
 	bool result = castOperator(
 		opValue,
-		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const),
+		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void)->getDataPtrType(ConstKind_Const),
 		&ptrValue
 	);
 
@@ -670,8 +660,9 @@ OperatorMgr::dynamicCastClassPtr(
 		return false;
 	}
 
-	if ((opValue.getType()->getFlags() & PtrTypeFlag_Const) &&
-		!(type->getFlags() & PtrTypeFlag_Const)) {
+	if ((opValue.getType()->getFlags() & ConstKind_Const) &&
+		!(type->getFlags() & ConstKind_Const)
+	) {
 		setCastError(opValue, type);
 		return false;
 	}
@@ -1427,13 +1418,7 @@ OperatorMgr::prepareOperand_classRef(
 	if (!(opFlags & OpFlag_KeepClassRef)) {
 		ClassPtrType* ptrType = (ClassPtrType*)type;
 		ClassType* targetType = ptrType->getTargetType();
-		value->overrideType(
-			targetType->getClassPtrType(
-				TypeKind_ClassPtr,
-				ptrType->getPtrTypeKind(),
-				ptrType->getFlags() & PtrTypeFlag__All
-			)
-		);
+		value->overrideType(targetType->getClassPtrType(ptrType->getFlags() & PtrTypeFlag__All));
 	}
 
 	return true;
@@ -1447,12 +1432,7 @@ OperatorMgr::prepareOperand_functionRef(
 	if (!(opFlags & OpFlag_KeepFunctionRef)) {
 		FunctionPtrType* ptrType = (FunctionPtrType*)value->getType();
 		FunctionType* targetType = ptrType->getTargetType();
-		value->overrideType(
-			targetType->getFunctionPtrType(
-				ptrType->getPtrTypeKind(),
-				ptrType->getFlags() & PtrTypeFlag__All
-			)
-		);
+		value->overrideType(targetType->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag__All));
 	}
 
 	return true;
@@ -1801,20 +1781,14 @@ OperatorMgr::prepareArrayRef(
 ) {
 	ASSERT(isArrayRefType(value.getType()));
 	DataPtrType* ptrType = (DataPtrType*)value.getType();
-	DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
-
+	DataPtrKind ptrKind = ptrType->getPtrKind();
 	ArrayType* arrayType = (ArrayType*)ptrType->getTargetType();
-	DataPtrType* resultType = arrayType->getElementType()->getDataPtrType(
-		TypeKind_DataPtr,
-		ptrTypeKind,
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
-	if (value.getValueKind() == ValueKind_Const || ptrTypeKind == DataPtrTypeKind_Normal) {
+	DataPtrType* resultType = arrayType->getElementType()->getDataPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	if (value.getValueKind() == ValueKind_Const || ptrKind == DataPtrKind_Normal)
 		resultValue->overrideType(value, resultType);
-	} else if (ptrTypeKind != DataPtrTypeKind_Lean) {
+	else if (ptrKind != DataPtrKind_Lean)
 		m_module->m_llvmIrBuilder.createGep2(value, arrayType, 0, resultType, resultValue);
-	} else {
+	else {
 		// get validator first (resultValue can point to value)
 		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator();
 		m_module->m_llvmIrBuilder.createGep2(value, arrayType, 0, resultType, resultValue);

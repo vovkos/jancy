@@ -207,25 +207,28 @@ typedef enum jnc_TypeFlag jnc_TypeFlag;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_PtrTypeFlag {
-	jnc_PtrTypeFlag_PtrKind_0      = 0x00010000,
-	jnc_PtrTypeFlag_PtrKind_1      = 0x00020000,
-	jnc_PtrTypeFlag__PtrKindBit    = 16,
-	jnc_PtrTypeFlag__PtrKindMask   = 0x00030000,
-	jnc_PtrTypeFlag_ConstKind_0    = 0x00040000, // class & data ptr
-	jnc_PtrTypeFlag_ConstKind_1    = 0x00080000, // class & data ptr
-	jnc_PtrTypeFlag_ConstKind_2    = 0x00100000, // class & data ptr
-	jnc_PtrTypeFlag__ConstKindBit  = 18,
-	jnc_PtrTypeFlag__ConstKindMask = 0x001c0000, // class & data ptr
-	jnc_PtrTypeFlag_Volatile       = 0x00200000, // class & data ptr
-	jnc_PtrTypeFlag_Safe           = 0x00400000, // all ptr
-	jnc_PtrTypeFlag_Event          = 0x00800000, // multicast-class only
-	jnc_PtrTypeFlag_EventX         = 0x01000000, // multicast-class only (internal, dual)
-	jnc_PtrTypeFlag_Bindable       = 0x02000000, // multicast-class only
-	jnc_PtrTypeFlag_AutoGet        = 0x04000000, // data ptr only
-	jnc_PtrTypeFlag_BigEndian      = 0x08000000, // data ptr only
-	jnc_PtrTypeFlag_BitField       = 0x10000000, // data ptr only
-	jnc_PtrTypeFlag_ThinThis       = 0x20000000, // 'this' arg only
-	jnc_PtrTypeFlag__All           = 0x2fff0000,
+	jnc_PtrTypeFlag_ConstKind_0    = 0x00010000, // class & data ptr
+	jnc_PtrTypeFlag_ConstKind_1    = 0x00020000, // class & data ptr
+	jnc_PtrTypeFlag_ConstKind_2    = 0x00040000, // class & data ptr
+	jnc_PtrTypeFlag_ConstKind_3    = 0x00080000, // unused
+	jnc_PtrTypeFlag_PtrKind_0      = 0x00100000,
+	jnc_PtrTypeFlag_PtrKind_1      = 0x00200000,
+	jnc_PtrTypeFlag_Volatile       = 0x00400000, // class & data ptr
+	jnc_PtrTypeFlag_Safe           = 0x00800000, // all ptr
+	jnc_PtrTypeFlag_Event          = 0x01000000, // multicast-class only
+	jnc_PtrTypeFlag_EventX         = 0x02000000, // multicast-class only (internal, dual)
+	jnc_PtrTypeFlag_Bindable       = 0x04000000, // multicast-class only
+	jnc_PtrTypeFlag_AutoGet        = 0x08000000, // data ptr only
+	jnc_PtrTypeFlag_BigEndian      = 0x10000000, // data ptr only
+	jnc_PtrTypeFlag_BitField       = 0x20000000, // data ptr only
+	jnc_PtrTypeFlag_ThinThis       = 0x40000000, // 'this' arg only
+
+	jnc_PtrTypeFlag__ConstKindBit  = 16,
+	jnc_PtrTypeFlag__ConstKindMask = 0x000f0000, // class & data ptr
+	jnc_PtrTypeFlag__PtrKindBit    = 20,
+	jnc_PtrTypeFlag__PtrKindMask   = 0x00300000,
+	jnc_PtrTypeFlag__FlagBit       = 22,
+	jnc_PtrTypeFlag__All           = 0x7fff0000,
 };
 
 typedef enum jnc_PtrTypeFlag jnc_PtrTypeFlag;
@@ -239,18 +242,20 @@ jnc_getPtrTypeFlagString_v(uint_t flags);
 JNC_INLINE
 uint_t
 jnc_getPtrKindFromFlags(uint_t flags) {
-	return (flags & jnc_PtrTypeFlag__PtrKindMask) >> jnc_PtrTypeFlag__PtrKindBit;
+	return flags & jnc_PtrTypeFlag__PtrKindMask;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_ConstKind {
-	jnc_ConstKind_None  = 0,    // non-const, i.e. mutable (default)
-	jnc_ConstKind_Const,
-	jnc_ConstKind_ReadOnly,     // dual
-	jnc_ConstKind_MaybeConst,
-	jnc_ConstKind_AutoConst,    // dual
-	jnc_ConstKind_AutoConstX,   // internal, non-dual
+	jnc_ConstKind_None       = 0x000000, // non-const, i.e. mutable (default)
+	jnc_ConstKind_Const      = 0x010000, // single bit, easy to check
+	jnc_ConstKind_MaybeConst = 0x020000,
+	jnc_ConstKind_AutoConstX = 0x030000, // internal, non-dual
+    jnc_ConstKind_AutoConst  = 0x040000, // dual
+	jnc_ConstKind_ReadOnly   = 0x050000, // dual
+    jnc_ConstKind_FirstDual  = jnc_ConstKind_AutoConst,
+	jnc_ConstKind__Count     = 6,
 };
 
 typedef enum jnc_ConstKind jnc_ConstKind;
@@ -259,12 +264,12 @@ typedef enum jnc_ConstKind jnc_ConstKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getConstKindString_v(jnc_ConstKind constKind);
+jnc_getConstKindString(jnc_ConstKind constKind);
 
 JNC_INLINE
 jnc_ConstKind
 jnc_getConstKindFromFlags(uint_t flags) {
-	return (jnc_ConstKind)((flags & jnc_PtrTypeFlag__ConstKindMask) >> jnc_PtrTypeFlag__ConstKindBit);
+	return (jnc_ConstKind)(flags & jnc_PtrTypeFlag__ConstKindMask);
 }
 
 //..............................................................................
@@ -388,20 +393,26 @@ typedef enum jnc_StdType jnc_StdType;
 
 // data ptr
 
-enum jnc_DataPtrTypeKind {
-	jnc_DataPtrTypeKind_Normal = 0,
-	jnc_DataPtrTypeKind_Lean   = jnc_PtrTypeFlag_PtrKind_0,
-	jnc_DataPtrTypeKind_Thin,
-	jnc_DataPtrTypeKind__Count,
+enum jnc_DataPtrKind {
+	jnc_DataPtrKind_Normal = 0x000000,
+	jnc_DataPtrKind_Lean   = 0x100000,
+	jnc_DataPtrKind_Thin   = 0x200000,
+	jnc_DataPtrKind__Count = 3,
 };
 
-typedef enum jnc_DataPtrTypeKind jnc_DataPtrTypeKind;
+typedef enum jnc_DataPtrKind jnc_DataPtrKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
-jnc_getDataPtrTypeKindString(jnc_DataPtrTypeKind ptrTypeKind);
+jnc_getDataPtrKindString(jnc_DataPtrKind ptrKind);
+
+JNC_INLINE
+jnc_DataPtrKind
+jnc_getDataPtrKindFromFlags(uint_t flags) {
+	return (jnc_DataPtrKind)jnc_getPtrKindFromFlags(flags);
+}
 
 //..............................................................................
 
@@ -453,7 +464,6 @@ jnc_Type_getBitFieldDataPtrType(
 	uint_t bitOffset,
 	uint_t bitCount,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 );
 
@@ -462,7 +472,6 @@ jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
 	jnc_TypeKind typeKind,
-	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 );
 
@@ -527,27 +536,22 @@ struct jnc_Type: jnc_ModuleItem {
 		uint_t bitOffset,
 		uint_t bitCount,
 		jnc_TypeKind typeKind,
-		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return jnc_Type_getBitFieldDataPtrType(this, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+		return jnc_Type_getBitFieldDataPtrType(this, bitOffset, bitCount, typeKind, flags);
 	}
 
 	jnc_DataPtrType*
 	getDataPtrType(
 		jnc_TypeKind typeKind,
-		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return jnc_Type_getDataPtrType(this, typeKind, ptrTypeKind, flags);
+		return jnc_Type_getDataPtrType(this, typeKind, flags);
 	}
 
 	jnc_DataPtrType*
-	getDataPtrType(
-		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
-		uint_t flags = 0
-	) {
-		return jnc_Type_getDataPtrType(this, jnc_TypeKind_DataPtr, ptrTypeKind, flags);
+	getDataPtrType(uint_t flags = 0) {
+		return jnc_Type_getDataPtrType(this, jnc_TypeKind_DataPtr, flags);
 	}
 
 	bool
@@ -583,8 +587,8 @@ struct jnc_NamedType: jnc_Type {
 //..............................................................................
 
 JNC_EXTERN_C
-jnc_DataPtrTypeKind
-jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type);
+jnc_DataPtrKind
+jnc_DataPtrType_getPtrKind(jnc_DataPtrType* type);
 
 JNC_EXTERN_C
 jnc_Type*
@@ -603,9 +607,9 @@ jnc_DataPtrType_getBitCount(jnc_DataPtrType* type);
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_DataPtrType: jnc_Type {
-	jnc_DataPtrTypeKind
-	getPtrTypeKind() {
-		return jnc_DataPtrType_getPtrTypeKind(this);
+	jnc_DataPtrKind
+	getPtrKind() {
+		return jnc_DataPtrType_getPtrKind(this);
 	}
 
 	jnc_Type*
@@ -665,11 +669,11 @@ JNC_INLINE
 bool_t
 jnc_isDataPtrType(
 	jnc_Type* type,
-	jnc_DataPtrTypeKind kind
+	jnc_DataPtrKind ptrKind
 ) {
 	return
 		(jnc_Type_getTypeKindFlags(type) & jnc_TypeKindFlag_DataPtr) &&
-		jnc_DataPtrType_getPtrTypeKind(((jnc_DataPtrType*)type)) == kind;
+		jnc_DataPtrType_getPtrKind(((jnc_DataPtrType*)type)) == ptrKind;
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -798,13 +802,9 @@ typedef jnc_PtrTypeFlag PtrTypeFlag;
 const PtrTypeFlag
 	PtrTypeFlag_PtrKind_0      = jnc_PtrTypeFlag_PtrKind_0,
 	PtrTypeFlag_PtrKind_1      = jnc_PtrTypeFlag_PtrKind_1,
-	PtrTypeFlag__PtrKindBit    = jnc_PtrTypeFlag__PtrKindBit,
-	PtrTypeFlag__PtrKindMask   = jnc_PtrTypeFlag__PtrKindMask,
 	PtrTypeFlag_ConstKind_0    = jnc_PtrTypeFlag_ConstKind_0,
 	PtrTypeFlag_ConstKind_1    = jnc_PtrTypeFlag_ConstKind_1,
 	PtrTypeFlag_ConstKind_2    = jnc_PtrTypeFlag_ConstKind_2,
-	PtrTypeFlag__ConstKindBit  = jnc_PtrTypeFlag__ConstKindBit,
-	PtrTypeFlag__ConstKindMask = jnc_PtrTypeFlag__ConstKindMask,
 	PtrTypeFlag_Volatile       = jnc_PtrTypeFlag_Volatile,
 	PtrTypeFlag_Safe           = jnc_PtrTypeFlag_Safe,
 	PtrTypeFlag_Event          = jnc_PtrTypeFlag_Event,
@@ -814,7 +814,26 @@ const PtrTypeFlag
 	PtrTypeFlag_BigEndian      = jnc_PtrTypeFlag_BigEndian,
 	PtrTypeFlag_BitField       = jnc_PtrTypeFlag_BitField,
 	PtrTypeFlag_ThinThis       = jnc_PtrTypeFlag_ThinThis,
+	PtrTypeFlag__PtrKindBit    = jnc_PtrTypeFlag__PtrKindBit,
+	PtrTypeFlag__PtrKindMask   = jnc_PtrTypeFlag__PtrKindMask,
+	PtrTypeFlag__ConstKindBit  = jnc_PtrTypeFlag__ConstKindBit,
+	PtrTypeFlag__ConstKindMask = jnc_PtrTypeFlag__ConstKindMask,
+	PtrTypeFlag__FlagBit       = jnc_PtrTypeFlag__FlagBit,
 	PtrTypeFlag__All           = jnc_PtrTypeFlag__All;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const char*
+getPtrTypeFlagString_v(uint_t flags) {
+	return jnc_getPtrTypeFlagString_v(flags);
+}
+
+inline
+uint_t
+getPtrKindFromFlags(uint_t flags) {
+	return jnc_getPtrKindFromFlags(flags);
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -823,10 +842,24 @@ typedef jnc_ConstKind ConstKind;
 const ConstKind
 	ConstKind_None       = jnc_ConstKind_None,
 	ConstKind_Const      = jnc_ConstKind_Const,
-	ConstKind_ReadOnly   = jnc_ConstKind_ReadOnly,
 	ConstKind_MaybeConst = jnc_ConstKind_MaybeConst,
+	ConstKind_AutoConstX = jnc_ConstKind_AutoConstX,
 	ConstKind_AutoConst  = jnc_ConstKind_AutoConst,
-	ConstKind_AutoConstX = jnc_ConstKind_AutoConstX;
+	ConstKind_ReadOnly   = jnc_ConstKind_ReadOnly,
+	ConstKind_FirstDual  = jnc_ConstKind_FirstDual,
+	ConstKind__Count     = jnc_ConstKind__Count;
+
+inline
+const char*
+getConstKindString(ConstKind constKind) {
+	return jnc_getConstKindString(constKind);
+}
+
+inline
+ConstKind
+getConstKindFromFlags(uint_t flags) {
+	return jnc_getConstKindFromFlags(flags);
+}
 
 //..............................................................................
 
@@ -936,26 +969,26 @@ const StdType
 
 //..............................................................................
 
-typedef jnc_DataPtrTypeKind DataPtrTypeKind;
+typedef jnc_DataPtrKind DataPtrKind;
 
-const DataPtrTypeKind
-	DataPtrTypeKind_Normal = jnc_DataPtrTypeKind_Normal,
-	DataPtrTypeKind_Lean   = jnc_DataPtrTypeKind_Lean,
-	DataPtrTypeKind_Thin   = jnc_DataPtrTypeKind_Thin,
-	DataPtrTypeKind__Count = jnc_DataPtrTypeKind__Count;
+const DataPtrKind
+	DataPtrKind_Normal = jnc_DataPtrKind_Normal,
+	DataPtrKind_Lean   = jnc_DataPtrKind_Lean,
+	DataPtrKind_Thin   = jnc_DataPtrKind_Thin,
+	DataPtrKind__Count = jnc_DataPtrKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 const char*
-getDataPtrTypeKindString(DataPtrTypeKind ptrTypeKind) {
-	return jnc_getDataPtrTypeKindString(ptrTypeKind);
+getDataPtrKindString(DataPtrKind ptrKind) {
+	return jnc_getDataPtrKindString(ptrKind);
 }
 
 inline
-const char*
-getPtrTypeFlagString_v(uint_t flags) {
-	return jnc_getPtrTypeFlagString_v(flags);
+DataPtrKind
+getDataPtrKindFromFlags(uint_t flags) {
+	return jnc_getDataPtrKindFromFlags(flags);
 }
 
 //..............................................................................
@@ -982,7 +1015,7 @@ inline
 bool
 isDataPtrType(
 	Type* type,
-	DataPtrTypeKind kind
+	DataPtrKind kind
 ) {
 	return jnc_isDataPtrType(type, kind) != 0;
 }

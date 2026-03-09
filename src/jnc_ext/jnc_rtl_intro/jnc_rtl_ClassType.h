@@ -51,10 +51,9 @@ public:
 	JNC_CDECL
 	getClassPtrType(
 		TypeKind typeKind,
-		ClassPtrTypeKind ptrTypeKind,
 		uint_t flags
 	) {
-		return (ClassPtrType*)rtl::getType(m_item->getClassPtrType(typeKind, ptrTypeKind, flags));
+		return (ClassPtrType*)rtl::getType(m_item->getClassPtrType(typeKind, flags));
 	}
 
 	IfaceHdr*
@@ -68,10 +67,10 @@ public:
 	ClassPtrType(ct::ClassPtrType* type):
 		TypeBase(type) {}
 
-	ClassPtrTypeKind
+	ClassPtrKind
 	JNC_CDECL
-	getPtrTypeKind() {
-		return m_item->getPtrTypeKind();
+	getPtrKind() {
+		return m_item->getPtrKind();
 	}
 
 	ClassType*

@@ -113,7 +113,7 @@ CodeTip::getArgumentTipText(
 	bool isConst = false;
 	FunctionType* shortType = type->getShortType();
 	if (shortType != type) { // a member function
-		isConst = type->getArgCount() && (type->getArg(0)->getType()->getFlags() & PtrTypeFlag_Const);
+		isConst = type->getArgCount() && (type->getArg(0)->getType()->getFlags() & ConstKind_Const);
 		type = shortType;
 
 		if (argumentIdx)

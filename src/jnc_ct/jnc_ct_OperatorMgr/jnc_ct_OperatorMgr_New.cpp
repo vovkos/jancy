@@ -200,9 +200,8 @@ OperatorMgr::construct(
 	sl::BoxList<Value>* argList
 ) {
 	Type* type = opValue.getType();
-	TypeKind ptrTypeKind = type->getTypeKind();
-
-	switch (ptrTypeKind) {
+	TypeKind typeKind = type->getTypeKind();
+	switch (typeKind) {
 	case TypeKind_DataRef:
 	case TypeKind_DataPtr:
 		type = ((DataPtrType*)type)->getTargetType();
@@ -258,9 +257,9 @@ OperatorMgr::initialize(
 ) {
 	Value value = rawValue;
 	if (rawValue.getType()->getTypeKind() == TypeKind_DataRef)
-		value.overrideType(((DataPtrType*)rawValue.getType())->getUnConstPtrType());
+		value.overrideType(((DataPtrType*)rawValue.getType())->getNonConstPtrType());
 	else if (rawValue.getType()->getTypeKind() == TypeKind_ClassRef)
-		value.overrideType(((ClassPtrType*)rawValue.getType())->getUnConstPtrType());
+		value.overrideType(((ClassPtrType*)rawValue.getType())->getNonConstPtrType());
 
 	bool hasConstructor = !constructorTokenList->isEmpty();
 	bool hasInitializer = !initializerTokenList->isEmpty();

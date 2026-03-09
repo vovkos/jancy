@@ -23,7 +23,7 @@ bitflag enum PropertyTypeFlags {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum PropertyPtrTypeKind {
+enum PropertyPtrKind {
 	Normal = 0,
 	Weak,
 	Thin,
@@ -43,7 +43,6 @@ opaque class PropertyType: Type {
 
 	PropertyPtrType* getPropertyPtrType(
 		TypeKind typeKind = TypeKind.PropertyPtr,
-		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
 	) const;
 }
@@ -51,7 +50,7 @@ opaque class PropertyType: Type {
 //..............................................................................
 
 opaque class PropertyPtrType: Type {
-	PropertyPtrTypeKind const property m_ptrTypeKind;
+	PropertyPtrKind const property m_ptrKind;
 	PropertyType* const property m_targetType;
 
 	construct(intptr p);

@@ -180,7 +180,7 @@ GcShadowStackMgr::preCreateFrame() {
 	m_frameVariable = m_module->m_variableMgr.createSimpleStackVariable("gcShadowStackFrame", type);
 
 	type = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
-	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &m_gcRootArrayValue);
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType(DataPtrKind_Thin), &m_gcRootArrayValue);
 
 	// m_gcRootArrayValue will be replaced later
 }
@@ -203,8 +203,8 @@ GcShadowStackMgr::finalizeFrame() {
 	Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u)->getArrayType(m_gcRootCount);
 
 	Value gcRootArrayValue;
-	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &gcRootArrayValue);
-	type = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)->getDataPtrType_c();
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType(DataPtrKind_Thin), &gcRootArrayValue);
+	type = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)->getDataPtrType(DataPtrKind_Thin);
 	m_module->m_llvmIrBuilder.createBitCast(gcRootArrayValue, type, &gcRootArrayValue);
 
 	// fixup all uses of gc root array

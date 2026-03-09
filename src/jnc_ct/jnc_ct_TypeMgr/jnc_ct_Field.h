@@ -85,9 +85,13 @@ public:
 	DataPtrType*
 	getDataPtrType(
 		TypeKind typeKind,
-		DataPtrTypeKind ptrTypeKind,
-		uint_t flags
+		uint_t flags = 0
 	);
+
+	DataPtrType*
+	getDataPtrType(uint_t flags = 0) {
+		return getDataPtrType(TypeKind_DataPtr, flags);
+	}
 
 	virtual
 	Type*

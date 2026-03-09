@@ -20,45 +20,50 @@ namespace ct {
 
 CastKind
 getConstCastKind(
-	uint_t srcFlags,
-	uint_t dstFlags
+	ConstKind srcConstKind,
+	ConstKind dstConstKind
 ) {
-	static CastKind castKindTable[5][5] = {
+	static CastKind castKindTable[ConstKind__Count][ConstKind__Count] = {
 		{	// 0 - mutable
 			CastKind_Implicit,           // 0 - mutable
 			CastKind_ImplicitCrossConst, // 1 - const
 			CastKind_ImplicitCrossConst, // 2 - const?
-			CastKind_None,               // 3 - invalid
+			CastKind_ImplicitCrossConst, // 3 - autoconstx
 			CastKind_ImplicitCrossConst, // 4 - autoconst
 		},
 		{	// 1 - const
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
-			CastKind_None,               // 3 - invalid
-			CastKind_None,               // 4 - autoconst
+			CastKind_None,               // 3 - autoconstx
+			CastKind_None,               // 3 - autoconst
 		},
 		{	// 2 - const?
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
-			CastKind_None,               // 3 - invalid
+			CastKind_Implicit,           // 4 - autoconstx
 			CastKind_Implicit,           // 4 - autoconst
-		},
-		{	// 3 - invalid
 		},
 		{	// 4 - autoconst
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
-			CastKind_None,               // 3 - invalid
+			CastKind_Implicit,           // 4 - autoconstx
+			CastKind_Implicit,           // 4 - autoconst
+		},
+		{	// 4 - autoconst
+			CastKind_None,               // 0 - mutable
+			CastKind_Implicit,           // 1 - const
+			CastKind_Implicit,           // 2 - const?
+			CastKind_Implicit,           // 4 - autoconstx
 			CastKind_Implicit,           // 4 - autoconst
 		},
 	};
 
-	size_t srcIdx = getConstPtrFlagIdx(srcFlags);
-	size_t dstIdx = getConstPtrFlagIdx(dstFlags);
-	ASSERT(srcIdx < countof(castKindTable) && dstIdx < countof(castKindTable));
+	size_t srcIdx = srcConstKind >> PtrTypeFlag__ConstKindBit;
+	size_t dstIdx = dstConstKind >> PtrTypeFlag__ConstKindBit;
+	ASSERT(srcIdx < ConstKind__Count && dstIdx < ConstKind__Count);
 	return castKindTable[srcIdx][dstIdx];
 }
 

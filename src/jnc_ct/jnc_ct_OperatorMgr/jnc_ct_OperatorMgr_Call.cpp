@@ -101,17 +101,11 @@ OperatorMgr::getCdeclVarArgType(Type* type) {
 			break;
 
 		case TypeKind_ClassRef:
-			type = ((ClassPtrType*)type)->getTargetType()->getClassPtrType(
-				((ClassPtrType*)type)->getPtrTypeKind(),
-				type->getFlags() & PtrTypeFlag__All
-			);
+			type = ((ClassPtrType*)type)->getTargetType()->getClassPtrType(type->getFlags() & PtrTypeFlag__All);
 			break;
 
 		case TypeKind_FunctionRef:
-			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(
-				((FunctionPtrType*)type)->getPtrTypeKind(),
-				type->getFlags() & PtrTypeFlag__All
-			);
+			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(type->getFlags() & PtrTypeFlag__All);
 			break;
 
 		case TypeKind_PropertyRef:
@@ -127,11 +121,11 @@ OperatorMgr::getCdeclVarArgType(Type* type) {
 			break;
 
 		case TypeKind_Array:
-			type = ((ArrayType*)type)->getElementType()->getDataPtrType_c(TypeKind_DataPtr, PtrTypeFlag_Const);
+			type = ((ArrayType*)type)->getElementType()->getDataPtrType(DataPtrKind_Thin | ConstKind_Const);
 			break;
 
 		case TypeKind_DataPtr:
-			type = ((DataPtrType*)type)->getTargetType()->getDataPtrType_c(TypeKind_DataPtr, PtrTypeFlag_Const);
+			type = ((DataPtrType*)type)->getTargetType()->getDataPtrType(DataPtrKind_Thin | ConstKind_Const);
 			break;
 
 		case TypeKind_String:
@@ -305,7 +299,7 @@ OperatorMgr::callOperator(
 
 	Type* opType = opValue.getType();
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr) ||
-		((FunctionPtrType*)opType)->getPtrTypeKind() == FunctionPtrTypeKind_Weak
+		((FunctionPtrType*)opType)->getPtrKind() == FunctionPtrKind_Weak
 	) {
 		err::setFormatStringError("cannot call '%s'", opType->getTypeString().sz());
 		return false;
@@ -540,7 +534,7 @@ OperatorMgr::callClosureFunctionPtr(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	FunctionType* functionType = ((FunctionPtrType*)opValue.getType())->getTargetType();
 	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType();
-	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType(FunctionPtrTypeKind_Thin);
+	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType(FunctionPtrKind_Thin);
 
 	Value pfnValue;
 	Value ifaceValue;

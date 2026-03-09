@@ -98,22 +98,15 @@ TypeMgr::getStdType(StdType stdType) {
 	Type* type;
 	switch (stdType) {
 	case StdType_ByteThinPtr:
-		type = getPrimitiveType(TypeKind_Byte)->getDataPtrType_c();
+		type = getPrimitiveType(TypeKind_Byte)->getDataPtrType(DataPtrKind_Thin);
 		break;
 
 	case StdType_CharConstThinPtr:
-		type = getPrimitiveType(TypeKind_Char)->getDataPtrType_c(
-			TypeKind_DataPtr,
-			PtrTypeFlag_Const
-		);
+		type = getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrKind_Thin | ConstKind_Const);
 		break;
 
 	case StdType_CharConstPtr:
-		type = getPrimitiveType(TypeKind_Char)->getDataPtrType(
-			TypeKind_DataPtr,
-			DataPtrTypeKind_Normal,
-			PtrTypeFlag_Const
-		);
+		type = getPrimitiveType(TypeKind_Char)->getDataPtrType(ConstKind_Const);
 		break;
 
 	case StdType_IfaceHdr:
@@ -121,7 +114,7 @@ TypeMgr::getStdType(StdType stdType) {
 		break;
 
 	case StdType_IfaceHdrPtr:
-		type = getStdType(StdType_IfaceHdr)->getDataPtrType_c();
+		type = getStdType(StdType_IfaceHdr)->getDataPtrType(DataPtrKind_Thin);
 		break;
 
 	case StdType_Box:
@@ -129,7 +122,7 @@ TypeMgr::getStdType(StdType stdType) {
 		break;
 
 	case StdType_BoxPtr:
-		type = getStdType(StdType_Box)->getDataPtrType_c();
+		type = getStdType(StdType_Box)->getDataPtrType(DataPtrKind_Thin);
 		break;
 
 	case StdType_DataBox:
@@ -137,7 +130,7 @@ TypeMgr::getStdType(StdType stdType) {
 		break;
 
 	case StdType_DataBoxPtr:
-		type = getStdType(StdType_DataBox)->getDataPtrType_c();
+		type = getStdType(StdType_DataBox)->getDataPtrType(DataPtrKind_Thin);
 		break;
 
 	case StdType_DetachedDataBox:
@@ -145,7 +138,7 @@ TypeMgr::getStdType(StdType stdType) {
 		break;
 
 	case StdType_DetachedDataBoxPtr:
-		type = getStdType(StdType_DetachedDataBox)->getDataPtrType_c();
+		type = getStdType(StdType_DetachedDataBox)->getDataPtrType(DataPtrKind_Thin);
 		break;
 
 	case StdType_DataPtrValidator:
@@ -153,7 +146,7 @@ TypeMgr::getStdType(StdType stdType) {
 		break;
 
 	case StdType_DataPtrValidatorPtr:
-		type = getStdType(StdType_DataPtrValidator)->getDataPtrType_c();
+		type = getStdType(StdType_DataPtrValidator)->getDataPtrType(DataPtrKind_Thin);
 		break;
 
 	case StdType_DataPtrStruct:
@@ -205,7 +198,7 @@ TypeMgr::getStdType(StdType stdType) {
 		break;
 
 	case StdType_SimpleEventPtr:
-		type = ((ClassType*)getStdType(StdType_SimpleMulticast))->getClassPtrType(ClassPtrTypeKind_Normal);
+		type = ((ClassType*)getStdType(StdType_SimpleMulticast))->getClassPtrType(ClassPtrKind_Normal);
 		break;
 
 	case StdType_Binder:
@@ -213,11 +206,11 @@ TypeMgr::getStdType(StdType stdType) {
 		break;
 
 	case StdType_PromisePtr:
-		type = ((ClassType*)getStdType(StdType_Promise))->getClassPtrType(ClassPtrTypeKind_Normal);
+		type = ((ClassType*)getStdType(StdType_Promise))->getClassPtrType(ClassPtrKind_Normal);
 		break;
 
 	case StdType_SchedulerPtr:
-		type = ((ClassType*)getStdType(StdType_Scheduler))->getClassPtrType(ClassPtrTypeKind_Normal);
+		type = ((ClassType*)getStdType(StdType_Scheduler))->getClassPtrType(ClassPtrKind_Normal);
 		break;
 
 	case StdType_ReactorBase:
@@ -526,7 +519,7 @@ TypeMgr::getSimpleFunctionArg(
 	// this x const x volatile
 
 	size_t i1 = storageKind == StorageKind_This;
-	size_t i2 = (ptrTypeFlags & PtrTypeFlag_Const) != 0;
+	size_t i2 = (ptrTypeFlags & ConstKind_Const) != 0;
 	size_t i3 = (ptrTypeFlags & PtrTypeFlag_Volatile) != 0;
 
 	if (tuple->m_argArray[i1][i2][i3])
@@ -753,7 +746,7 @@ TypeMgr::getPropertyType(
 	if (flags & PropertyTypeFlag_Bindable) {
 		FunctionType* binderType = (FunctionType*)getStdType(StdType_Binder);
 		if (getterType->isMemberMethodType())
-			binderType = binderType->getMemberMethodType(getterType->getThisTargetType(), PtrTypeFlag_Const);
+			binderType = binderType->getMemberMethodType(getterType->getThisTargetType(), ConstKind_Const);
 
 		type->m_binderType = binderType;
 	}
@@ -826,7 +819,7 @@ TypeMgr::getMemberPropertyType(
 	FunctionType* getterType = getMemberMethodType(
 		parentType,
 		propertyType->m_getterType,
-		PtrTypeFlag_Const
+		ConstKind_Const
 	);
 
 	size_t setterTypeOverloadCount = propertyType->m_setterType.getOverloadCount();
@@ -917,7 +910,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 	Function* method;
 	FunctionType* methodType;
 
-	bool isThin = functionPtrType->getPtrTypeKind() == FunctionPtrTypeKind_Thin;
+	bool isThin = functionPtrType->getPtrKind() == FunctionPtrKind_Thin;
 
 	// destructor
 
@@ -974,7 +967,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	McSnapshotClassType* snapshotType = createInternalClassType<McSnapshotClassType>("!McSnapshot");
 	snapshotType->m_parentNamespace = type;
-	snapshotType->m_targetType = functionPtrType->getUnWeakPtrType();
+	snapshotType->m_targetType = functionPtrType->getNonWeakPtrType();
 	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
 	// fields
@@ -1081,7 +1074,7 @@ TypeMgr::getFunctionClosureClassType(
 	type->m_flags |= TypeFlag_SignatureFinal;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
-	type->createField("m_target", targetType->getFunctionPtrType(FunctionPtrTypeKind_Thin));
+	type->createField("m_target", targetType->getFunctionPtrType(FunctionPtrKind_Thin));
 
 	sl::String argFieldName;
 	for (size_t i = 0; i < argCount; i++) {
@@ -1130,7 +1123,7 @@ TypeMgr::getPropertyClosureClassType(
 	type->m_flags |= TypeFlag_SignatureFinal;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
-	type->createField("m_target", targetType->getPropertyPtrType(PropertyPtrTypeKind_Thin));
+	type->createField("m_target", targetType->getPropertyPtrType(PropertyPtrKind_Thin));
 
 	sl::String argFieldName;
 
@@ -1189,12 +1182,11 @@ TypeMgr::getDataPtrType(
 	uint_t bitOffset,
 	uint_t bitCount,
 	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	ASSERT(bitCount && (flags & PtrTypeFlag_BitField)); // otherwise, should go to the original getDataPtrType overload
 
-	sl::String signature = DataPtrType::createSignature(targetType, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+	sl::String signature = DataPtrType::createSignature(targetType, bitOffset, bitCount, typeKind, flags);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
 		ASSERT(it->m_value->m_signature == signature);
@@ -1207,8 +1199,7 @@ TypeMgr::getDataPtrType(
 	DataPtrType* type = new DataPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
-	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof(DataPtr) : sizeof(void*);
+	type->m_size = getDataPtrKindFromFlags(flags) == DataPtrKind_Normal ? sizeof(DataPtr) : sizeof(void*);
 	type->m_targetType = targetType;
 	type->m_bitOffset = bitOffset;
 	type->m_bitCount = bitCount;
@@ -1229,10 +1220,8 @@ DataPtrType*
 TypeMgr::getDataPtrType(
 	Type* targetType,
 	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	ASSERT((size_t)ptrTypeKind < DataPtrTypeKind__Count);
 	ASSERT(targetType->getTypeKind() != TypeKind_ImportTypeName); // getModType<ImportPtrType>() should be used
 	ASSERT(targetType->getTypeKind() != TypeKind_TemplateTypeName);  // getModType<TemplatePtrType>() should be used
 	ASSERT(targetType->getTypeKind() != TypeKind_TemplateArg); // getModType<TemplatePtrType>() should be used
@@ -1242,44 +1231,35 @@ TypeMgr::getDataPtrType(
 	uint_t targetTypeFlags = targetType->getFlags();
 	flags |= targetTypeFlags & (TypeFlag_Import | TypeFlag_Dual);
 
-	if (ptrTypeKind == DataPtrTypeKind_Normal)
+	DataPtrKind ptrKind = getDataPtrKindFromFlags(flags);
+	ConstKind constKind = getConstKindFromFlags(flags);
+
+	if (ptrKind == DataPtrKind_Normal)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	DataPtrTypeTuple* tuple = getDataPtrTypeTuple(targetType, flags);
 
-	// ref x ptrkind x const/const?/autoconst/readonly x volatile x safe
+	// ref x ptrkind x constkind x volatile x safe
 
 	size_t i1 = typeKind == TypeKind_DataRef;
-	size_t i2 = ptrTypeKind;
-	size_t i3;
+	size_t i2 = ptrKind >> PtrTypeFlag__PtrKindBit;
+	size_t i3 = constKind >> PtrTypeFlag__ConstKindBit;
 	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 1 : 0;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
 
-	if (flags & PtrTypeFlag_Const) {
-		i3 = 1;
-		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
-	} else if (flags & PtrTypeFlag_MaybeConst) {
-		i3 = 2;
-		flags &= ~(PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
-	} else if (flags & PtrTypeFlag_AutoConst) {
-		i3 = 3;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ReadOnly);
-		flags |= TypeFlag_Dual;
-	} else if (flags & PtrTypeFlag_ReadOnly) {
-		i3 = 4;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst);
-		flags |= TypeFlag_Dual;
-	} else
-		i3 = 0;
+	ASSERT(i2 < DataPtrKind__Count);
+	ASSERT(i3 < ConstKind__Count);
 
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
+	if (constKind >= ConstKind_FirstDual)
+		flags |= TypeFlag_Dual;
+
 	DataPtrType* type = new DataPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
-	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof(DataPtr) : sizeof(void*);
+	type->m_size = ptrKind == DataPtrKind_Normal ? sizeof(DataPtr) : sizeof(void*);
 	type->m_targetType = targetType;
 	type->m_flags = flags;
 
@@ -1297,62 +1277,47 @@ ClassPtrType*
 TypeMgr::getClassPtrType(
 	ClassType* targetType,
 	TypeKind typeKind,
-	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	ASSERT((size_t)ptrTypeKind < ClassPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 	ASSERT(!(targetType->getFlags() & TypeFlag_Dual));
 
 	flags |= TypeFlag_GcRoot | TypeFlag_LayoutReady;
 
+	ClassPtrKind ptrKind = getClassPtrKindFromFlags(flags);
+	ConstKind constKind = getConstKindFromFlags(flags);
+
 	ClassPtrTypeTuple* tuple;
 
-	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_EventX)) {
-		ASSERT(targetType->getClassTypeKind() == ClassTypeKind_Multicast);
-		tuple = getEventClassPtrTypeTuple((MulticastClassType*)targetType);
-	} else {
-		tuple = getClassPtrTypeTuple(targetType);= 5;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
-		flags |= TypeFlag_Dual;
-	}
-
-	// ref x ptrkind x const x volatile x checked
+	// ref x ptrkind x constkind x volatile x checked
 
 	size_t i1 = typeKind == TypeKind_ClassRef;
-	size_t i2 = ptrTypeKind;
+	size_t i2 = ptrKind >> PtrTypeFlag__PtrKindBit;
 	size_t i3;
 	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 1 : 0;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
 
-	if (flags & PtrTypeFlag_Const) {
-		i3 = 1;
-		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_EventX);
-	} else if (flags & PtrTypeFlag_MaybeConst) {
-		i3 = 2;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_EventX);
-	} else if (flags & PtrTypeFlag_AutoConst) {
-		i3 = 3;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_EventX);
-		flags |= TypeFlag_Dual;
-	} else if (flags & PtrTypeFlag_ReadOnly) {
-		i3 = 4;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_EventX);
-		flags |= TypeFlag_Dual;
-	} else if (flags & PtrTypeFlag_EventX) {
-		i3 = 5;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
-		flags |= TypeFlag_Dual;
-	} else
-		i3 = 0;
+	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_EventX)) {
+		ASSERT(targetType->getClassTypeKind() == ClassTypeKind_Multicast);
+		tuple = getEventClassPtrTypeTuple((MulticastClassType*)targetType);
+		i3 = (flags & PtrTypeFlag_EventX) ? 1 : 0;
+	} else {
+		tuple = getClassPtrTypeTuple(targetType);
+		i3 = constKind >> PtrTypeFlag__ConstKindBit;
+	}
+
+	ASSERT(i2 < ClassPtrKind__Count);
+	ASSERT(i3 < ConstKind__Count);
 
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
+	if (constKind >= ConstKind_FirstDual || (flags & PtrTypeFlag_EventX))
+		flags |= TypeFlag_Dual;
+
 	ClassPtrType* type = new ClassPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
-	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_targetType = targetType;
 	type->m_flags = flags;
 
@@ -1365,16 +1330,15 @@ FunctionPtrType*
 TypeMgr::getFunctionPtrType(
 	FunctionType* functionType,
 	TypeKind typeKind,
-	FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	ASSERT(typeKind == TypeKind_FunctionPtr || typeKind == TypeKind_FunctionRef);
-	ASSERT((size_t)ptrTypeKind < FunctionPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
 	flags |= functionType->getFlags() & (TypeFlag_Import | TypeFlag_Dual | TypeFlag_LayoutReady);
 
-	if (ptrTypeKind != FunctionPtrTypeKind_Thin)
+	FunctionPtrKind ptrKind = getFunctionPtrKindFromFlags(flags);
+	if (ptrKind != FunctionPtrKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	if (functionType->m_flags & FunctionTypeFlag_Unsafe)
@@ -1385,8 +1349,10 @@ TypeMgr::getFunctionPtrType(
 	// ref x kind x checked
 
 	size_t i1 = typeKind == TypeKind_FunctionRef;
-	size_t i2 = ptrTypeKind;
+	size_t i2 = ptrKind >> PtrTypeFlag__PtrKindBit;
 	size_t i3 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
+
+	ASSERT(i2 < FunctionPtrKind__Count);
 
 	if (tuple->m_ptrTypeArray[i1][i2][i3])
 		return tuple->m_ptrTypeArray[i1][i2][i3];
@@ -1394,8 +1360,7 @@ TypeMgr::getFunctionPtrType(
 	FunctionPtrType* type = new FunctionPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
-	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_size = ptrTypeKind == FunctionPtrTypeKind_Thin ? sizeof(void*) : sizeof(FunctionPtr);
+	type->m_size = ptrKind == FunctionPtrKind_Thin ? sizeof(void*) : sizeof(FunctionPtr);
 	type->m_targetType = functionType;
 	type->m_flags = flags;
 
@@ -1408,16 +1373,15 @@ PropertyPtrType*
 TypeMgr::getPropertyPtrType(
 	PropertyType* propertyType,
 	TypeKind typeKind,
-	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
 	ASSERT(typeKind == TypeKind_PropertyPtr || typeKind == TypeKind_PropertyRef);
-	ASSERT((size_t)ptrTypeKind < PropertyPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
 	flags |= propertyType->getFlags() & (TypeFlag_Import | TypeFlag_Dual | TypeFlag_LayoutReady);
 
-	if (ptrTypeKind != PropertyPtrTypeKind_Thin)
+	FunctionPtrKind ptrKind = getFunctionPtrKindFromFlags(flags);
+	if (ptrKind != PropertyPtrKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	PropertyPtrTypeTuple* tuple = getPropertyPtrTypeTuple(propertyType);
@@ -1425,8 +1389,10 @@ TypeMgr::getPropertyPtrType(
 	// ref x kind x checked
 
 	size_t i1 = typeKind == TypeKind_PropertyRef;
-	size_t i2 = ptrTypeKind;
+	size_t i2 = ptrKind >> PtrTypeFlag__PtrKindBit;
 	size_t i3 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
+
+	ASSERT(i2 < PropertyPtrKind__Count);
 
 	if (tuple->m_ptrTypeArray[i1][i2][i3])
 		return tuple->m_ptrTypeArray[i1][i2][i3];
@@ -1434,8 +1400,7 @@ TypeMgr::getPropertyPtrType(
 	PropertyPtrType* type = new PropertyPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
-	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_size = ptrTypeKind == PropertyPtrTypeKind_Thin ? sizeof(void*) : sizeof(PropertyPtr);
+	type->m_size = ptrKind == PropertyPtrKind_Thin ? sizeof(void*) : sizeof(PropertyPtr);
 	type->m_targetType = propertyType;
 	type->m_flags = flags;
 
@@ -1453,9 +1418,9 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 	StructType* type = createInternalStructType(typeName);
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
-		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
+		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType(FunctionPtrKind_Thin | PtrTypeFlag_Safe));
 
-	type->createField("!m_getter", propertyType->m_getterType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
+	type->createField("!m_getter", propertyType->m_getterType->getFunctionPtrType(FunctionPtrKind_Thin | PtrTypeFlag_Safe));
 
 	sl::String setterFieldName;
 
@@ -1464,7 +1429,7 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 		setterFieldName.format("!m_setter%d", i);
 
 		FunctionType* setterType = propertyType->m_setterType.getOverload(i);
-		type->createField(setterFieldName, setterType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
+		type->createField(setterFieldName, setterType->getFunctionPtrType(FunctionPtrKind_Thin | PtrTypeFlag_Safe));
 	}
 
 	type->ensureLayout();
@@ -1623,19 +1588,18 @@ Type*
 TypeMgr::foldDualType(
 	Type* type,
 	bool isAlien,
-	uint_t ptrFlags
+	ConstKind constKind
 ) {
 	ASSERT(type->getFlags() & TypeFlag_Dual);
-	ASSERT(!(ptrFlags & ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst)));
 
-	size_t ptrFlagIdx = getConstPtrFlagIdx(ptrFlags);
-	ASSERT(ptrFlagIdx < countof(DualTypeTuple::m_typeArray[0]));
+	size_t constIdx = constKind >> PtrTypeFlag__ConstKindBit;
+	ASSERT(constIdx < countof(DualTypeTuple::m_typeArray[0]));
 
 	DualTypeTuple* tuple = getDualTypeTuple(type);
-	Type* foldedType = tuple->m_typeArray[isAlien][ptrFlagIdx];
+	Type* foldedType = tuple->m_typeArray[isAlien][constIdx];
 	if (!foldedType) {
-		foldedType = type->calcFoldedDualType(isAlien, ptrFlags);
-		tuple->m_typeArray[isAlien][ptrFlagIdx] = foldedType;
+		foldedType = type->calcFoldedDualType(isAlien, constKind);
+		tuple->m_typeArray[isAlien][constIdx] = foldedType;
 	}
 
 	return foldedType;
@@ -2076,9 +2040,9 @@ TypeMgr::createStringStructType() {
 	// m_p && m_length are accessible directly (e.g.: string_t s; file.write(s.m_p, s.m_length);
 
 	StructType* type = createInternalStructType("jnc.string_t");
-	type->createField("m_p", getStdType(StdType_CharConstPtr), 0, PtrTypeFlag_ReadOnly);
+	type->createField("m_p", getStdType(StdType_CharConstPtr), 0, ConstKind_ReadOnly);
 	type->createField("!m_ptr_sz", getStdType(StdType_CharConstPtr));
-	type->createField("m_length", getPrimitiveType(TypeKind_SizeT), 0, PtrTypeFlag_ReadOnly);
+	type->createField("m_length", getPrimitiveType(TypeKind_SizeT), 0, ConstKind_ReadOnly);
 	type->ensureLayout();
 	return type;
 }
@@ -2086,9 +2050,9 @@ TypeMgr::createStringStructType() {
 StructType*
 TypeMgr::createGcShadowStackFrameType() {
 	StructType* type = createInternalStructType("jnc.GcShadowStackFrame");
-	type->createField("!m_prev", type->getDataPtrType_c());
+	type->createField("!m_prev", type->getDataPtrType(DataPtrKind_Thin));
 	type->createField("!m_map", getStdType(StdType_ByteThinPtr));
-	type->createField("!m_gcRootArray", getStdType(StdType_ByteThinPtr)->getDataPtrType_c());
+	type->createField("!m_gcRootArray", getStdType(StdType_ByteThinPtr)->getDataPtrType(DataPtrKind_Thin));
 	type->ensureLayout();
 	return type;
 }

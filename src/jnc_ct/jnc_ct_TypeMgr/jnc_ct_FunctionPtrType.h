@@ -22,16 +22,15 @@ class FunctionPtrType: public Type {
 	friend class TypeMgr;
 
 protected:
-	FunctionPtrTypeKind m_ptrTypeKind;
 	FunctionType* m_targetType;
 	ClassType* m_multicastType;
 
 public:
 	FunctionPtrType();
 
-	FunctionPtrTypeKind
-	getPtrTypeKind() {
-		return m_ptrTypeKind;
+	FunctionPtrKind
+	getPtrKind() {
+		return getFunctionPtrKindFromFlags(m_flags);
 	}
 
 	FunctionType*
@@ -41,41 +40,41 @@ public:
 
 	bool
 	hasClosure() {
-		return m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak;
+		return getPtrKind() <= FunctionPtrKind_Weak;
 	}
 
 	FunctionPtrType*
-	getCheckedPtrType() {
+	getSafePtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, (m_flags & PtrTypeFlag__All) | PtrTypeFlag_Safe) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
-	getUnCheckedPtrType() {
+	getUnsafePtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
 	getNormalPtrType() {
-		return (m_ptrTypeKind != FunctionPtrTypeKind_Normal) ?
-			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
+		return getPtrKind() != FunctionPtrKind_Normal ?
+			m_targetType->getFunctionPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
 	FunctionPtrType*
 	getWeakPtrType() {
-		return (m_ptrTypeKind != FunctionPtrTypeKind_Weak) ?
-			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Weak, m_flags & PtrTypeFlag__All) :
+		return getPtrKind() != FunctionPtrKind_Weak ?
+			m_targetType->getFunctionPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | FunctionPtrKind_Weak) :
 			this;
 	}
 
 	FunctionPtrType*
-	getUnWeakPtrType() {
-		return (m_ptrTypeKind == FunctionPtrTypeKind_Weak) ?
-			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
+	getNonWeakPtrType() {
+		return getPtrKind() == FunctionPtrKind_Weak ?
+			m_targetType->getFunctionPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
@@ -90,7 +89,6 @@ public:
 	createSignature(
 		FunctionType* functionType,
 		TypeKind typeKind,
-		FunctionPtrTypeKind ptrTypeKind,
 		uint_t flags
 	);
 
@@ -116,7 +114,7 @@ protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
+		m_signature = createSignature(m_targetType, m_typeKind, m_flags);
 		m_flags |= m_targetType->getFlags() & TypeFlag_SignatureMask;
 	}
 
@@ -138,10 +136,10 @@ protected:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	) {
-		FunctionType* targetType = (FunctionType*)m_targetType->foldDualType(isAlien, ptrFlags);
-		return targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags & PtrTypeFlag__All);
+		FunctionType* targetType = (FunctionType*)m_targetType->foldDualType(isAlien, constKind);
+		return targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All);
 	}
 
 	virtual
@@ -164,7 +162,6 @@ protected:
 inline
 FunctionPtrType::FunctionPtrType() {
 	m_typeKind = TypeKind_FunctionPtr;
-	m_ptrTypeKind = FunctionPtrTypeKind_Normal;
 	m_alignment = sizeof(void*);
 	m_targetType = NULL;
 	m_multicastType = NULL;
@@ -174,7 +171,7 @@ FunctionPtrType::FunctionPtrType() {
 //..............................................................................
 
 struct FunctionPtrTypeTuple: sl::ListLink {
-	FunctionPtrType* m_ptrTypeArray[2][3][2]; // ref x kind x checked
+	FunctionPtrType* m_ptrTypeArray[2][FunctionPtrKind__Count][2]; // ref x ptrkind x safe
 };
 
 //..............................................................................

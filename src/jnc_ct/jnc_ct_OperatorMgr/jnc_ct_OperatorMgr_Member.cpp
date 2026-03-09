@@ -169,13 +169,11 @@ OperatorMgr::baseTypeOperator(
 		baseType->getTypeKind() == TypeKind_Class ?
 			(Type*)((ClassType*)baseType)->getClassPtrType(
 				opType->getTypeKind(),
-				ClassPtrTypeKind_Normal,
 				ptrTypeFlags
 			) :
 			baseType->getDataPtrType(
 				TypeKind_DataPtr,
-				DataPtrTypeKind_Lean,
-				ptrTypeFlags
+				ptrTypeFlags & ~jnc_PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
 			) :
 		baseType;
 
@@ -240,7 +238,7 @@ OperatorMgr::getThisValue(Value* value) {
 				ASSERT(parentOffset);
 
 				Type* byteType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
-				m_module->m_llvmIrBuilder.createBitCast(thisValue, byteType->getDataPtrType_c(), &thisValue);
+				m_module->m_llvmIrBuilder.createBitCast(thisValue, byteType->getDataPtrType(DataPtrKind_Thin), &thisValue);
 				m_module->m_llvmIrBuilder.createGep(thisValue, byteType, -parentOffset, NULL, &thisValue);
 				m_module->m_llvmIrBuilder.createBitCast(thisValue, parentType->getClassPtrType(), &thisValue);
 			}
@@ -293,12 +291,8 @@ OperatorMgr::foldDualType(
 			m_module->m_namespaceMgr.getAccessKind(viaNamespace) == AccessKind_Public
 		);
 
-	Type* opType = opValue.getType();
-	uint_t ptrFlags = (opType->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr)) ?
-		opType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst) :
-		0;
-
-	Type* resultType = m_module->m_typeMgr.foldDualType(resultValue->getType(), isAlien, ptrFlags);
+	ConstKind constKind = getConstKindFromFlags(opValue.getType()->getFlags());
+	Type* resultType = m_module->m_typeMgr.foldDualType(resultValue->getType(), isAlien, constKind);
 	resultValue->overrideType(resultType);
 }
 
@@ -372,8 +366,7 @@ OperatorMgr::getNamespaceMember(
 
 			FunctionPtrType* resultType = function->getType()->getFunctionPtrType(
 				TypeKind_FunctionRef,
-				FunctionPtrTypeKind_Thin,
-				PtrTypeFlag_Safe
+				FunctionPtrKind_Thin | PtrTypeFlag_Safe
 			);
 
 			if (m_module->hasCodeGen())
@@ -778,7 +771,7 @@ OperatorMgr::getLibraryMember(
 
 	m_module->m_controlFlowMgr.checkErrorCode(ptrValue, getterFunctionType->getReturnType());
 
-	Type* resultType = function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
+	Type* resultType = function->getType()->getFunctionPtrType(FunctionPtrKind_Thin | PtrTypeFlag_Safe);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, resultType, resultValue);
 	return true;
 }

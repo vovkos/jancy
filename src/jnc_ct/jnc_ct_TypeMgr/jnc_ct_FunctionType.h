@@ -122,16 +122,12 @@ public:
 	FunctionPtrType*
 	getFunctionPtrType(
 		TypeKind typeKind,
-		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 	);
 
 	FunctionPtrType*
-	getFunctionPtrType(
-		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
-		uint_t flags = 0
-	) {
-		return getFunctionPtrType(TypeKind_FunctionPtr, ptrTypeKind, flags);
+	getFunctionPtrType(uint_t flags = 0) {
+		return getFunctionPtrType(TypeKind_FunctionPtr, flags);
 	}
 
 	ClassType*
@@ -200,7 +196,7 @@ protected:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	);
 
 	virtual

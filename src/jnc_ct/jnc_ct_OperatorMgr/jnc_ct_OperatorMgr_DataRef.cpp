@@ -42,16 +42,16 @@ OperatorMgr::prepareDataPtr(
 		return false;
 
 	DataPtrType* type = (DataPtrType*)value.getType();
-	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
-	DataPtrType* resultType = type->getTargetType()->getDataPtrType_c();
+	DataPtrKind ptrKind = type->getPtrKind();
+	DataPtrType* resultType = type->getTargetType()->getDataPtrType(DataPtrKind_Thin);
 
-	switch (ptrTypeKind) {
-	case DataPtrTypeKind_Thin:
-	case DataPtrTypeKind_Lean:
+	switch (ptrKind) {
+	case DataPtrKind_Thin:
+	case DataPtrKind_Lean:
 		resultValue->overrideType(value, resultType);
 		break;
 
-	case DataPtrTypeKind_Normal:
+	case DataPtrKind_Normal:
 		if (value.getValueKind() == ValueKind_Const) {
 			void* p = ((DataPtr*)value.getConstData())->m_p;
 			resultValue->createConst(&p, resultType);
@@ -96,10 +96,10 @@ OperatorMgr::loadDataRef(
 	} else {
 		const void* p;
 
-		DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
-		if (ptrTypeKind != DataPtrTypeKind_Normal) {
+		DataPtrKind ptrKind = type->getPtrKind();
+		if (ptrKind != DataPtrKind_Normal)
 			p = *(void**)opValue.getConstData();
-		} else {
+		else {
 			DataPtr* ptr = (DataPtr*)opValue.getConstData();
 			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
 			if (!result)
@@ -142,9 +142,9 @@ OperatorMgr::storeDataRef(
 	DataPtrType* dstType = (DataPtrType*)dstValue.getType();
 	uint_t dstTypeFlags = dstType->getFlags();
 
-	if (dstType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst)) {
+	if (dstType->getFlags() & PtrTypeFlag__ConstKindMask) {
 		err::setError(
-			(dstType->getFlags() & PtrTypeFlag_Const) ?
+			(dstType->getFlags() & ConstKind_Const) ?
 				"cannot store into const location" :
 				"cannot store into possibly const location"
 		);
@@ -210,10 +210,10 @@ OperatorMgr::storeDataRef(
 	} else {
 		void* p;
 
-		DataPtrTypeKind ptrTypeKind = dstType->getPtrTypeKind();
-		if (ptrTypeKind != DataPtrTypeKind_Normal) {
+		DataPtrKind ptrKind = dstType->getPtrKind();
+		if (ptrKind != DataPtrKind_Normal)
 			p = *(void**)dstValue.getConstData();
-		} else {
+		else {
 			DataPtr* ptr = (DataPtr*)dstValue.getConstData();
 			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
 			if (!result)
@@ -356,14 +356,11 @@ OperatorMgr::makeLeanDataPtr(
 ) {
 	ASSERT(
 		value.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr &&
-		((DataPtrType*)value.getType())->getPtrTypeKind() == DataPtrTypeKind_Normal);
+		((DataPtrType*)value.getType())->getPtrKind() == DataPtrKind_Normal);
 
 	DataPtrType* ptrType = ((DataPtrType*)value.getType());
-	ptrType = ptrType->getTargetType()->getDataPtrType(
-		DataPtrTypeKind_Lean,
-		ptrType->getFlags() & PtrTypeFlag__All
-	);
-
+	uint_t flags = ptrType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean;
+	ptrType = ptrType->getTargetType()->getDataPtrType(flags);
 	Type* validatorType = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
 
 	Value ptrValue;

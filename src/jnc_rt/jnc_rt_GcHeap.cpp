@@ -1149,7 +1149,7 @@ GcHeap::addRoot(
 		Root root = { p, type };
 		m_markRootArray[m_currentMarkRootArrayIdx].append(root);
 	} else { // dynamic validator or heap variable
-		ASSERT(isDataPtrType(type, DataPtrTypeKind_Thin));
+		ASSERT(isDataPtrType(type, DataPtrKind_Thin));
 		ct::Type* targetType = ((ct::DataPtrType*)type)->getTargetType();
 
 		if (targetType->getStdType() == StdType_DataPtrValidator) {

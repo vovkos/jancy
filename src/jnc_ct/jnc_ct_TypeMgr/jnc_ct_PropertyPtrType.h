@@ -23,15 +23,14 @@ class PropertyPtrType: public Type {
 	friend class TypeMgr;
 
 protected:
-	PropertyPtrTypeKind m_ptrTypeKind;
 	PropertyType* m_targetType;
 
 public:
 	PropertyPtrType();
 
-	PropertyPtrTypeKind
-	getPtrTypeKind() {
-		return m_ptrTypeKind;
+	PropertyPtrKind
+	getPtrKind() {
+		return getPropertyPtrKindFromFlags(m_flags);
 	}
 
 	PropertyType*
@@ -41,41 +40,41 @@ public:
 
 	bool
 	hasClosure() {
-		return m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak;
+		return getPtrKind() <= PropertyPtrKind_Weak;
 	}
 
 	PropertyPtrType*
-	getCheckedPtrType() {
+	getSafePtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, (m_flags & PtrTypeFlag__All) | PtrTypeFlag_Safe) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
-	getUnCheckedPtrType() {
+	getUnsafePtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
 	getNormalPtrType() {
-		return (m_ptrTypeKind != PropertyPtrTypeKind_Normal) ?
-			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
+		return getPtrKind() != PropertyPtrKind_Normal ?
+			m_targetType->getPropertyPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
 	PropertyPtrType*
 	getWeakPtrType() {
-		return (m_ptrTypeKind != PropertyPtrTypeKind_Weak) ?
-			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Weak, m_flags & PtrTypeFlag__All) :
+		return getPtrKind() != PropertyPtrKind_Weak ?
+			m_targetType->getPropertyPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | PropertyPtrKind_Weak) :
 			this;
 	}
 
 	PropertyPtrType*
-	getUnWeakPtrType() {
-		return (m_ptrTypeKind == PropertyPtrTypeKind_Weak) ?
-			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
+	getNonWeakPtrType() {
+		return getPtrKind() == PropertyPtrKind_Weak ?
+			m_targetType->getPropertyPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
@@ -84,7 +83,6 @@ public:
 	createSignature(
 		PropertyType* propertyType,
 		TypeKind typeKind,
-		PropertyPtrTypeKind ptrTypeKind,
 		uint_t flags
 	);
 
@@ -121,16 +119,16 @@ protected:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		uint_t ptrFlags
+		ConstKind constKind
 	) {
-		PropertyType* targetType = (PropertyType*)m_targetType->foldDualType(isAlien, ptrFlags);
-		return targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags & PtrTypeFlag__All);
+		PropertyType* targetType = (PropertyType*)m_targetType->foldDualType(isAlien, constKind);
+		return targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All);
 	}
 
 	virtual
 	void
 	prepareSignature() {
-		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
+		m_signature = createSignature(m_targetType, m_typeKind, m_flags);
 		m_flags |= m_targetType->getFlags() & TypeFlag_SignatureFinal;
 	}
 
@@ -158,7 +156,6 @@ protected:
 inline
 PropertyPtrType::PropertyPtrType() {
 	m_typeKind = TypeKind_PropertyPtr;
-	m_ptrTypeKind = PropertyPtrTypeKind_Normal;
 	m_alignment = sizeof(void*);
 	m_targetType = NULL;
 }
@@ -166,7 +163,7 @@ PropertyPtrType::PropertyPtrType() {
 //..............................................................................
 
 struct PropertyPtrTypeTuple: sl::ListLink {
-	PropertyPtrType* m_ptrTypeArray[2][3][3]; // ref x kind x unsafe / checked
+	PropertyPtrType* m_ptrTypeArray[2][PropertyPtrKind__Count][2]; // ref x ptrkind x safe
 };
 
 //..............................................................................

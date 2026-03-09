@@ -38,15 +38,16 @@ jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag) {
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind) {
-	static const char* stringTable[jnc_PropertyPtrTypeKind__Count] = {
-		"closure",  // PropertyPtrTypeKind_Normal = 0,
-		"weak",     // PropertyPtrTypeKind_Weak,
-		"thin",     // PropertyPtrTypeKind_Thin,
+jnc_getPropertyPtrKindString(jnc_PropertyPtrKind ptrKind) {
+	static const char* stringTable[jnc_PropertyPtrKind__Count] = {
+		"normal", // PropertyPtrKind_Normal = 0,
+		"weak",   // PropertyPtrKind_Weak,
+		"thin",   // PropertyPtrKind_Thin,
 	};
 
-	return (size_t)ptrTypeKind < countof(stringTable) ?
-		stringTable[ptrTypeKind] :
+	size_t i = ptrKind >> jnc_PtrTypeFlag__PtrKindBit;
+	return i < countof(stringTable) ?
+		stringTable[i] :
 		"undefined-property-ptr-kind";
 }
 
