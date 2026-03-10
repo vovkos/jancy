@@ -137,17 +137,17 @@ PropertyType::calcLayout() {
 
 Type*
 PropertyType::calcFoldedDualType(
-	bool isAlien,
+	AccessKind accessKind,
 	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
 
-	FunctionType* getterType = (FunctionType*)m_getterType->getActualTypeIfDual(isAlien, constKind);
+	FunctionType* getterType = (FunctionType*)m_getterType->getActualTypeIfDual(accessKind, constKind);
 	FunctionTypeOverload setterType;
 
 	size_t count = m_setterType.getOverloadCount();
 	for (size_t i = 0; i < count; i++) {
-		FunctionType* overloadType = (FunctionType*)m_setterType.getOverload(i)->getActualTypeIfDual(isAlien, constKind);
+		FunctionType* overloadType = (FunctionType*)m_setterType.getOverload(i)->getActualTypeIfDual(accessKind, constKind);
 		setterType.forceAddOverload(overloadType);
 	}
 

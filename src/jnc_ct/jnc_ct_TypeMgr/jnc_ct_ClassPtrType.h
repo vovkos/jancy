@@ -66,14 +66,14 @@ public:
 	ClassPtrType*
 	getNormalPtrType() {
 		return getPtrKind() != ClassPtrKind_Normal ?
-			m_targetType->getClassPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
 	ClassPtrType*
 	getWeakPtrType() {
 		return getPtrKind() != ClassPtrKind_Weak ?
-			m_targetType->getClassPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | ClassPtrKind_Weak) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | ClassPtrKind_Weak) :
 			this;
 	}
 
@@ -102,7 +102,7 @@ public:
 	virtual
 	Type*
 	calcFoldedDualType(
-		bool isAlien,
+		AccessKind accessKind,
 		ConstKind constKind
 	);
 

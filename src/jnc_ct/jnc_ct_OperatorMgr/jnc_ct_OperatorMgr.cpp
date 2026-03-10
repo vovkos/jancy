@@ -385,21 +385,17 @@ OperatorMgr::getConditionalOperatorResultType(
 	// for pointers, remove `safe` flag
 	// if it's a lean data pointer, turn it into a normal one
 
-	if ((resultType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
-		((DataPtrType*)resultType)->getPtrKind() == DataPtrKind_Lean
-	)
-		resultType = ((DataPtrType*)resultType)->getTargetType()->getDataPtrType(
-			resultType->getTypeKind(),
-			resultType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag_Safe
-		);
-	else if (
-		(resultType->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
-		(resultType->getFlags() & PtrTypeFlag_Safe)
-	)
-		resultType = ((ClassPtrType*)resultType)->getTargetType()->getClassPtrType(
-			resultType->getTypeKind(),
-			resultType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag_Safe
-		);
+	if (resultType->getTypeKindFlags() & TypeKindFlag_ClassPtr)
+		resultType = ((ClassPtrType*)resultType)->getUnsafePtrType();
+	else if (resultType->getTypeKindFlags() & TypeKindFlag_DataPtr) {
+		DataPtrType* ptrType = (DataPtrType*)resultType;
+		resultType = ptrType->getPtrKind() == DataPtrKind_Lean ?
+			ptrType->getTargetType()->getDataPtrType(
+				resultType->getTypeKind(),
+				resultType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask & ~PtrTypeFlag_Safe
+			) :
+			ptrType->getUnsafePtrType();
+	}
 
 	return resultType;
 }

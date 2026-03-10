@@ -38,8 +38,8 @@ PropertyPtrType::createSignature(
 	size_t i = (typeKind - TypeKind_PropertyPtr) * 2 + j;
 	ASSERT(i < countof(stringTable));
 
-	sl::String signature = stringTable[i];
-	signature += getPtrTypeFlagSignature(flags);
+	sl::String signature(stringTable[i], 2);
+	appendPtrTypeFlagSignature(&signature, flags);
 	signature += '&';
 	signature += propertyType->getSignature();
 	return signature;

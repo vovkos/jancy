@@ -40,11 +40,11 @@ DataPtrType::createSignature(
 	size_t i = (typeKind - TypeKind_DataPtr) * 2 + j;
 	ASSERT(i < countof(stringTable));
 
-	sl::String signature = stringTable[i];
+	sl::String signature(stringTable[i], 2);
 	if (bitCount)
 		signature.appendFormat(":%d:%d", bitOffset, bitOffset + bitCount);
 
-	signature += getPtrTypeFlagSignature(flags);
+	appendPtrTypeFlagSignature(&signature, flags);
 	signature += '&';
 	signature += targetType->getSignature();
 	return signature;
@@ -128,18 +128,19 @@ DataPtrType::markGcRoots(
 
 Type*
 DataPtrType::calcFoldedDualType(
-	bool isAlien,
+	AccessKind accessKind,
 	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
 
-	Type* targetType = m_targetType->getActualTypeIfDual(isAlien, constKind);
+	Type* targetType = m_targetType->getActualTypeIfDual(accessKind, constKind);
 	uint_t flags = m_flags & PtrTypeFlag__All & ~(ConstKind_ReadOnly | ConstKind_AutoConst);
 
-	if ((m_flags & ConstKind_ReadOnly) && isAlien)
-		flags |= ConstKind_Const;
-	else if (m_flags & ConstKind_AutoConst)
+	ConstKind thisConstKind = getConstKind();
+	if (thisConstKind == ConstKind_AutoConst)
 		flags |= constKind;
+	else if (thisConstKind == ConstKind_ReadOnly && accessKind == AccessKind_Public)
+		flags |= ConstKind_Const;
 
 	return targetType->getDataPtrType(m_typeKind, flags);
 }

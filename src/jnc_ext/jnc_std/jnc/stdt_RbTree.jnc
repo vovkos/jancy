@@ -40,7 +40,7 @@ struct RbTreeNode<K, V>: BinTreeNodeBase<RbTreeNode, K, V, RbTreeColor> {
 
 typedef Iterator<RbTreeNode<K, V> > RbTreeIterator<K, V>;
 typedef ConstIterator<RbTreeNode<K, V> > RbTreeConstIterator<K, V>;
-typedef AutoConstIterator<RbTreeNode<K, V> > RbTreeAutoConstIterator<K, V>;
+// typedef AutoConstIterator<RbTreeNode<K, V> > RbTreeAutoConstIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

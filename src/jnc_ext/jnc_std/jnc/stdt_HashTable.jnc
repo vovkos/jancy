@@ -38,7 +38,7 @@ protected:
 
 typedef Iterator<HashTableEntry<K, V> > HashTableIterator<K, V>;
 typedef ConstIterator<HashTableEntry<K, V> > HashTableConstIterator<K, V>;
-typedef AutoConstIterator<HashTableEntry<K, V> > HashTableAutoConstIterator<K, V>;
+// typedef AutoConstIterator<HashTableEntry<K, V> > HashTableAutoConstIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -80,7 +80,7 @@ public:
 		m_table.takeOver(&src.m_table);
 	}
 
-	AutoConstIterator find(Key key) const?;
+	T autoconst* find(Key key) const?;
 	Iterator errorcode visit(Key key);
 	void remove(Iterator it);
 	bool errorcode setBucketCount(size_t count);
@@ -88,7 +88,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AutoConstIterator HashTableBase<T, H, E>.find(Key key) const? {
+T autoconst* HashTableBase<T, H, E>.find(Key key) const? {
 	if (!m_table.m_count)
 		return null;
 

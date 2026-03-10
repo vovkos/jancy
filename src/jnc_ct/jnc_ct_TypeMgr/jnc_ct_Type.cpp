@@ -167,36 +167,23 @@ getConstKindSignature(ConstKind constKind) {
 	return stringTable[i];
 }
 
-sl::StringRef
-getPtrTypeFlagSignature(uint_t flags) {
+void
+appendPtrTypeFlagSignature(
+	sl::String* string,
+	uint_t flags
+) {
 	flags &= PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask;
-	if (!flags)
-		return sl::StringRef();
 
 	ConstKind constKind = getConstKindFromFlags(flags);
 	flags &= ~PtrTypeFlag__ConstKindMask;
-	if (!flags)
-		return getConstKindSignature(constKind);
-
-	PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
-	sl::StringRef string0 = sl::StringRef(getPtrTypeFlagSignature(flag), 1);
-	flags &= ~flag;
-	if (!flags)
-		return string0;
-
-	sl::String string = string0;
 	while (flags) {
-		flag = getFirstFlag<PtrTypeFlag>(flags);
-		string.append(getPtrTypeFlagSignature(flag), 1);
+		PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
+		string->append(getPtrTypeFlagSignature(flag), 1);
 		flags &= ~flag;
 	}
 
-	if (constKind) {
-		string += ' ';
-		string += getConstKindString(constKind);
-	}
-
-	return string;
+	if (constKind)
+		string->append(getConstKindSignature(constKind), 1);
 }
 
 uint_t

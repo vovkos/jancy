@@ -571,10 +571,10 @@ Type::getDataPtrType(
 inline
 Type*
 Type::foldDualType(
-	bool isAlien,
+	AccessKind accessKind,
 	ConstKind constKind
 ) {
-	return m_module->m_typeMgr.foldDualType(this, isAlien, constKind);
+	return m_module->m_typeMgr.foldDualType(this, accessKind, constKind);
 }
 
 inline

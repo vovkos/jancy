@@ -30,7 +30,7 @@ void printPtrTypeInfo(jnc.DataPtrType* type) {
 		type.m_signature,
 		type.m_size,
 		type.m_alignment,
-		type.m_ptrTypeKind,
+		type.m_ptrKind,
 		type.m_targetType,
 		type.m_targetType.m_typeString
 	);

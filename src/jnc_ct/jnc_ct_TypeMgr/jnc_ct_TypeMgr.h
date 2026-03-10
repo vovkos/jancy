@@ -714,7 +714,7 @@ public:
 	Type*
 	foldDualType(
 		Type* type,
-		bool isAlien,
+		AccessKind accessKind,
 		ConstKind constKind
 	);
 

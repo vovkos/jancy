@@ -1587,19 +1587,20 @@ TypeMgr::getAutoConstType(
 Type*
 TypeMgr::foldDualType(
 	Type* type,
-	bool isAlien,
+	AccessKind accessKind,
 	ConstKind constKind
 ) {
 	ASSERT(type->getFlags() & TypeFlag_Dual);
 
-	size_t constIdx = constKind >> PtrTypeFlag__ConstKindBit;
-	ASSERT(constIdx < countof(DualTypeTuple::m_typeArray[0]));
+	size_t i = accessKind - AccessKind_Public; // 0 is AccessKind_Undefined
+	size_t j = constKind >> PtrTypeFlag__ConstKindBit;
+	ASSERT(i < 2 && j < ConstKind__Count);
 
 	DualTypeTuple* tuple = getDualTypeTuple(type);
-	Type* foldedType = tuple->m_typeArray[isAlien][constIdx];
+	Type* foldedType = tuple->m_typeArray[i][j];
 	if (!foldedType) {
-		foldedType = type->calcFoldedDualType(isAlien, constKind);
-		tuple->m_typeArray[isAlien][constIdx] = foldedType;
+		foldedType = type->calcFoldedDualType(accessKind, constKind);
+		tuple->m_typeArray[i][j] = foldedType;
 	}
 
 	return foldedType;

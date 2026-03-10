@@ -858,7 +858,7 @@ struct jnc_McSnapshotClassTypeFuncTable {
 
 typedef
 jnc_DataPtrKind
-jnc_DataPtrType_GetPtrTypeKindFunc(jnc_DataPtrType* type);
+jnc_DataPtrType_GetPtrKindFunc(jnc_DataPtrType* type);
 
 typedef
 jnc_Type*
@@ -876,7 +876,7 @@ jnc_DataPtrType_GetBitCountFunc(jnc_DataPtrType* type);
 
 struct jnc_DataPtrTypeFuncTable {
 	size_t m_size;
-	jnc_DataPtrType_GetPtrTypeKindFunc* m_getPtrKindFunc;
+	jnc_DataPtrType_GetPtrKindFunc* m_getPtrKindFunc;
 	jnc_DataPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 	jnc_DataPtrType_GetBitOffsetFunc* m_getBitOffsetFunc;
 	jnc_DataPtrType_GetBitCountFunc* m_getBitCountFunc;
@@ -888,7 +888,7 @@ struct jnc_DataPtrTypeFuncTable {
 
 typedef
 jnc_ClassPtrKind
-jnc_ClassPtrType_GetPtrTypeKindFunc(jnc_ClassPtrType* type);
+jnc_ClassPtrType_GetPtrKindFunc(jnc_ClassPtrType* type);
 
 typedef
 jnc_ClassType*
@@ -896,7 +896,7 @@ jnc_ClassPtrType_GetTargetTypeFunc(jnc_ClassPtrType* type);
 
 struct jnc_ClassPtrTypeFuncTable {
 	size_t m_size;
-	jnc_ClassPtrType_GetPtrTypeKindFunc* m_getPtrKindFunc;
+	jnc_ClassPtrType_GetPtrKindFunc* m_getPtrKindFunc;
 	jnc_ClassPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
 
@@ -906,7 +906,7 @@ struct jnc_ClassPtrTypeFuncTable {
 
 typedef
 jnc_FunctionPtrKind
-jnc_FunctionPtrType_GetPtrTypeKindFunc(jnc_FunctionPtrType* type);
+jnc_FunctionPtrType_GetPtrKindFunc(jnc_FunctionPtrType* type);
 
 typedef
 jnc_FunctionType*
@@ -916,7 +916,7 @@ jnc_FunctionPtrType_GetTargetTypeFunc(jnc_FunctionPtrType* type);
 
 struct jnc_FunctionPtrTypeFuncTable {
 	size_t m_size;
-	jnc_FunctionPtrType_GetPtrTypeKindFunc* m_getPtrKindFunc;
+	jnc_FunctionPtrType_GetPtrKindFunc* m_getPtrKindFunc;
 	jnc_FunctionPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
 

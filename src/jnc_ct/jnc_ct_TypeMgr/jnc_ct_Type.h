@@ -54,11 +54,14 @@ getPtrTypeFlagString(PtrTypeFlag flag);
 sl::StringRef
 getPtrTypeFlagString(uint_t flags);
 
-sl::StringRef
-getPtrTypeFlagSignature(uint_t flags);
-
 uint_t
 getPtrTypeFlagsFromModifiers(uint_t modifiers);
+
+void
+appendPtrTypeFlagSignature(
+	sl::String* string,
+	uint_t flags
+);
 
 //..............................................................................
 
@@ -266,15 +269,15 @@ public:
 
 	Type*
 	getActualTypeIfDual(
-		bool isAlien,
+		AccessKind accessKind,
 		ConstKind constKind
 	) {
-		return (m_flags & TypeFlag_Dual) ? foldDualType(isAlien, constKind) : this;
+		return (m_flags & TypeFlag_Dual) ? foldDualType(accessKind, constKind) : this;
 	}
 
 	Type*
 	foldDualType(
-		bool isAlien,
+		AccessKind accessKind,
 		ConstKind constKind
 	);
 
@@ -388,7 +391,7 @@ protected:
 	virtual
 	Type*
 	calcFoldedDualType(
-		bool isAlien,
+		AccessKind accessKind,
 		ConstKind constKind
 	) {
 		ASSERT(false);

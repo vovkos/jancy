@@ -195,7 +195,7 @@ protected:
 	virtual
 	Type*
 	calcFoldedDualType(
-		bool isAlien,
+		AccessKind accessKind,
 		ConstKind constKind
 	);
 

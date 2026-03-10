@@ -36,8 +36,8 @@ ClassPtrType::createSignature(
 	size_t i = (typeKind - TypeKind_ClassPtr) * 2 + j;
 	ASSERT(i < countof(stringTable));
 
-	sl::String signature = stringTable[i];
-	signature += getPtrTypeFlagSignature(flags);
+	sl::String signature(stringTable[i], 2);
+	appendPtrTypeFlagSignature(&signature, flags);
 	signature += '&';
 	signature += classType->getSignature();
 	return signature;
@@ -99,21 +99,21 @@ ClassPtrType::markGcRoots(
 
 Type*
 ClassPtrType::calcFoldedDualType(
-	bool isAlien,
+	AccessKind accessKind,
 	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
 	uint_t flags = m_flags & PtrTypeFlag__All & ~(ConstKind_ReadOnly | ConstKind_AutoConst | PtrTypeFlag_EventX);
 
-	if (isAlien) {
-		if (m_flags & ConstKind_ReadOnly)
-			flags |= ConstKind_Const;
-		else if (m_flags & ConstKind_AutoConst)
+	ConstKind thisConstKind = getConstKind();
+	if (accessKind == AccessKind_Public) {
+		if (thisConstKind == ConstKind_AutoConst)
 			flags |= constKind;
-
-		if (m_flags & PtrTypeFlag_EventX)
+		else if (thisConstKind == ConstKind_ReadOnly)
+			flags |= ConstKind_Const;
+		else if (m_flags & PtrTypeFlag_EventX)
 			flags |= PtrTypeFlag_Event;
-	} else if (m_flags & ConstKind_AutoConst)
+	} else if (thisConstKind == ConstKind_AutoConst)
 		flags |= constKind;
 
 	return m_targetType->getClassPtrType(m_typeKind, flags);

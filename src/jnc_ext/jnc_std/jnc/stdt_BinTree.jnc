@@ -50,7 +50,7 @@ public:
 	}
 
 	void takeOver(BinTreeBase* src);
-	AutoConstIterator find(Key key) const?;
+	T autoconst* find(Key key) const?;
 
 protected:
 	static T* getLeftmostChild(T* p);
@@ -86,7 +86,7 @@ void BinTreeBase<T, C>.takeOver(BinTreeBase* src) {
 	src.m_root = null;
 }
 
-AutoConstIterator BinTreeBase<T, C>.find(Key key) const? {
+T autoconst* BinTreeBase<T, C>.find(Key key) const? {
 	T autoconst* p = m_root;
 	while (p) {
 		int cmp = m_cmp(key, p.m_key);

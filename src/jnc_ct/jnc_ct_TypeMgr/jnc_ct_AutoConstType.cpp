@@ -112,7 +112,7 @@ AutoConstType::calcLayout() {
 
 Type*
 AutoConstType::calcFoldedDualType(
-	bool isAlien,
+	AccessKind accessKind,
 	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);

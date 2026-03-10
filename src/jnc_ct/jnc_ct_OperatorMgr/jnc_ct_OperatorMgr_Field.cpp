@@ -20,6 +20,31 @@ namespace ct {
 
 //..............................................................................
 
+uint_t
+calcFieldPtrFlags(
+	uint_t parentFlags,
+	Field* field
+) {
+	static const ConstKind constKindTable[ConstKind__Count][ConstKind__Count] = {
+		{ ConstKind_None,       ConstKind_Const, ConstKind_MaybeConst, ConstKind_AutoConstX, ConstKind_AutoConst,  ConstKind_ReadOnly },
+		{ ConstKind_Const,      ConstKind_Const, ConstKind_Const,      ConstKind_Const,      ConstKind_Const,      ConstKind_Const    },
+		{ ConstKind_AutoConstX, ConstKind_Const, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_ReadOnly },
+		{ ConstKind_AutoConstX, ConstKind_Const, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_ReadOnly },
+
+		// autoconst in locals should be replaced with autoconstx
+		{ ConstKind_AutoConstX, ConstKind_Const, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_ReadOnly },
+	};
+
+	uint_t fieldFlags = field->getPtrTypeFlags();
+
+	size_t i = field->getStorageKind() == StorageKind_Mutable ? 0 : getConstKindFromFlags(parentFlags) >> PtrTypeFlag__ConstKindBit;
+	size_t j = getConstKindFromFlags(fieldFlags) >> PtrTypeFlag__ConstKindBit;
+	ASSERT(i < ConstKind__Count - 1 && j < ConstKind__Count);
+	return (parentFlags | fieldFlags) & PtrTypeFlag__All & ~PtrTypeFlag__ConstKindMask | constKindTable[i][j];
+}
+
+//..............................................................................
+
 bool
 OperatorMgr::getField(
 	const Value& opValue,
@@ -227,13 +252,8 @@ OperatorMgr::getStructField(
 	}
 
 	DataPtrType* opType = (DataPtrType*)opValue.getType();
-	coord->m_llvmIndexArray.insert(0, 0);
-
 	DataPtrKind ptrKind = opType->getPtrKind();
-	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
-	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~(PtrTypeFlag__ConstKindMask & ~ConstKind_ReadOnly);
-
+	uint_t ptrTypeFlags = calcFieldPtrFlags(opType->getFlags(), field);
 	DataPtrType* resultType;
 
 	if (!m_module->hasCodeGen()) {
@@ -242,12 +262,10 @@ OperatorMgr::getStructField(
 		return true;
 	}
 
-	if (ptrKind == DataPtrKind_Thin) {
-		resultType = field->getDataPtrType(
-			TypeKind_DataRef,
-			ptrTypeFlags
-		);
+	coord->m_llvmIndexArray.insert(0, 0);
 
+	if (ptrKind == DataPtrKind_Thin) {
+		resultType = field->getDataPtrType(TypeKind_DataRef, ptrTypeFlags);
 		getFieldPtrImpl(opValue, containerType, coord, resultType, resultValue);
 		return true;
 	}
@@ -309,12 +327,9 @@ OperatorMgr::getUnionField(
 	}
 
 	DataPtrType* opType = (DataPtrType*)opValue.getType();
-
-	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
-	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~(PtrTypeFlag__ConstKindMask & ~ConstKind_ReadOnly);
-
 	DataPtrKind ptrKind = opType->getPtrKind();
+	uint_t ptrTypeFlags = calcFieldPtrFlags(opType->getFlags(), field);
+
 	switch (ptrKind) {
 		DataPtrType* ptrType;
 
@@ -360,10 +375,7 @@ OperatorMgr::getClassField(
 
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 	ClassPtrType* opType = (ClassPtrType*)opValue.getType();
-
-	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags() | PtrTypeFlag_Safe) & PtrTypeFlag__All;
-	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~(PtrTypeFlag__ConstKindMask & ~ConstKind_ReadOnly);
+	uint_t ptrTypeFlags = calcFieldPtrFlags(opType->getFlags(), field) |PtrTypeFlag_Safe;
 
 	if (!m_module->hasCodeGen()) {
 		Type* resultType = field->getType()->getTypeKind() == TypeKind_Class ?

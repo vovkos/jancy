@@ -284,15 +284,12 @@ OperatorMgr::foldDualType(
 	ASSERT(resultValue->getType()->getFlags() & TypeFlag_Dual);
 
 	Namespace* parentNamespace = decl->getParentNamespace();
-
-	bool isAlien =
-		m_module->m_namespaceMgr.getAccessKind(parentNamespace) == AccessKind_Public && (
-			viaNamespace == parentNamespace ||
-			m_module->m_namespaceMgr.getAccessKind(viaNamespace) == AccessKind_Public
-		);
+	AccessKind accessKind = m_module->m_namespaceMgr.getAccessKind(parentNamespace);
+	if (accessKind == AccessKind_Public && viaNamespace != parentNamespace)
+		accessKind = m_module->m_namespaceMgr.getAccessKind(viaNamespace);
 
 	ConstKind constKind = getConstKindFromFlags(opValue.getType()->getFlags());
-	Type* resultType = m_module->m_typeMgr.foldDualType(resultValue->getType(), isAlien, constKind);
+	Type* resultType = m_module->m_typeMgr.foldDualType(resultValue->getType(), accessKind, constKind);
 	resultValue->overrideType(resultType);
 }
 

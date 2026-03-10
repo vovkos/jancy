@@ -109,7 +109,8 @@ enum TypeKind {
 
 bitflag enum TypeKindFlags {
 	Integer      = 0x00000001,
-	Unsigned     = 0x00000002,
+	Signed       = 0x00000002,
+	Unsigned     = 0x00000004,
 	Fp           = 0x00000008,
 	Numeric      = 0x00000010,
 	Aggregate    = 0x00000020,
@@ -125,6 +126,7 @@ bitflag enum TypeKindFlags {
 	Code         = 0x00020000,
 	Nullable     = 0x00040000,
 	ErrorCode    = 0x00080000,
+	Template     = 0x00100000,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -139,28 +141,36 @@ bitflag enum TypeFlags {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum PtrTypeFlags {
-	Safe       = 0x00010000, // all ptr
-	Const      = 0x00020000, // class, data ptr, function
-	MaybeConst = 0x00040000, // class, data ptr, function
-	AutoConst  = 0x00080000, // class & data ptr (dual)
-	ReadOnly   = 0x00100000, // class & data ptr (dual)
-	Volatile   = 0x00200000, // class & data ptr
-	Event      = 0x00400000, // multicast-class only
-	DualEvent  = 0x00800000, // multicast-class only
-	Bindable   = 0x01000000, // multicast-class only
-	AutoGet    = 0x02000000, // data ptr only
-	BigEndian  = 0x04000000, // data ptr only
-	BitField   = 0x08000000, // data ptr only
-	ThinThis   = 0x10000000, // function only (converts to DataPtrKind_Thin)
+	Volatile   = 0x00400000, // class & data ptr
+	Safe       = 0x00800000, // all ptr
+	Event      = 0x01000000, // multicast-class only
+	EventX     = 0x02000000, // multicast-class only
+	Bindable   = 0x04000000, // multicast-class only
+	AutoGet    = 0x08000000, // data ptr only
+	BigEndian  = 0x10000000, // data ptr only
+	BitField   = 0x20000000, // data ptr only
+	ThinThis   = 0x40000000, // function only (converts to DataPtrKind_Thin)
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ConstKind {
+	None       = 0x000000,
+	Const      = 0x010000,
+	MaybeConst = 0x020000,
+	AutoConstX = 0x030000,
+	AutoConst  = 0x040000,
+	ReadOnly   = 0x050000,
+	_Count     = 6,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum DataPtrKind {
-	Normal = 0,
-	Lean,
-	Thin,
-	_Count,
+	Normal = 0x000000,
+	Lean   = 0x100000,
+	Thin   = 0x200000,
+	_Count = 3,
 }
 
 //..............................................................................
@@ -186,12 +196,14 @@ opaque class Type: ModuleItem {
 		uint_t bitOffset,
 		uint_t bitCount,
 		TypeKind typeKind = TypeKind.DataPtr,
-		PtrTypeFlags flags = 0
+		uint_t _unused = 0,
+		uint_t flags = 0
 	) const;
 
 	DataPtrType* getDataPtrType(
 		TypeKind typeKind = TypeKind.DataPtr,
-		PtrTypeFlags flags = 0
+		uint_t _unused = 0,
+		uint_t flags = 0
 	) const;
 
 	string_t getValueString(

@@ -60,21 +60,21 @@ public:
 	FunctionPtrType*
 	getNormalPtrType() {
 		return getPtrKind() != FunctionPtrKind_Normal ?
-			m_targetType->getFunctionPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
 	FunctionPtrType*
 	getWeakPtrType() {
 		return getPtrKind() != FunctionPtrKind_Weak ?
-			m_targetType->getFunctionPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | FunctionPtrKind_Weak) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | FunctionPtrKind_Weak) :
 			this;
 	}
 
 	FunctionPtrType*
 	getNonWeakPtrType() {
 		return getPtrKind() == FunctionPtrKind_Weak ?
-			m_targetType->getFunctionPtrType(m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
 			this;
 	}
 
@@ -135,10 +135,10 @@ protected:
 	virtual
 	Type*
 	calcFoldedDualType(
-		bool isAlien,
+		AccessKind accessKind,
 		ConstKind constKind
 	) {
-		FunctionType* targetType = (FunctionType*)m_targetType->foldDualType(isAlien, constKind);
+		FunctionType* targetType = (FunctionType*)m_targetType->foldDualType(accessKind, constKind);
 		return targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All);
 	}
 
