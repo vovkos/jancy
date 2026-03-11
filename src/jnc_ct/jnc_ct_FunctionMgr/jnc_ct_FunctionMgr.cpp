@@ -1157,7 +1157,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		break;
 
 	case StdFunc_SimpleMulticastCall:
-		function = ((MulticastClassType*)m_module->m_typeMgr.getStdType(StdType_SimpleMulticast))->getMethod(MulticastMethodKind_Call);
+		function = ((MulticastClassType*)m_module->m_typeMgr.getStdType(StdType_SimpleMulticast))->getMethodArray()[MulticastMethodKind_Call];
 		break;
 
 	default:

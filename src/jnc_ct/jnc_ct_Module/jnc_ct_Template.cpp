@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_ct_Template.h"
 #include "jnc_ct_UnionType.h"
-#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
@@ -176,7 +175,12 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 
 	if (m_flags & TemplateFlag_AutoConst) {
 		ASSERT(argArray.getCount() == 2);
-		instance->m_item = m_module->m_typeMgr.getAutoConstType(argArray[0], argArray[1], TypeFlag_Dual);
+
+		ModuleItem* item = argArray[0]->getAutoConstType(argArray[1]);
+		if (!item)
+			return NULL;
+
+		instance->m_item = item;
 	} else if (m_declType) {
 		Type* type = m_declType->instantiate(argArray);
 		if (!type)

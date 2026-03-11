@@ -113,6 +113,10 @@ protected:
 	}
 
 	virtual
+	Type*
+	calcAutoConstType(Type* ctype0);
+
+	virtual
 	bool
 	calcLayout() {
 		return calcLayoutTo(NULL);

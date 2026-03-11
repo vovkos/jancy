@@ -181,9 +181,6 @@ public:
 	);
 
 	Variable*
-	createMutableAutoConstVariable(const Value& value);
-
-	Variable*
 	createStaticRegexVariable(const re2::Regex& regex);
 
 	Variable*

@@ -13,7 +13,6 @@
 #include "jnc_ct_VariableMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
-#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
 
@@ -627,26 +626,6 @@ VariableMgr::createAsyncArgVariable(
 	Variable* variable = createVariable(StorageKind_Member, name, type);
 	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
 	variable->m_llvmValue = value.getLlvmValue();
-	return variable;
-}
-
-Variable*
-VariableMgr::createMutableAutoConstVariable(const Value& value) {
-	ASSERT(value.getType()->getTypeKind() == TypeKind_AutoConst);
-	AutoConstType* autoConstType = (AutoConstType*)value.getType();
-	Type* originalType = autoConstType->getOriginalType();
-	Type* constType = autoConstType->getConstType();
-	Variable* variable = createSimpleStackVariable("mutableAutoConst", originalType);
-
-	if (!m_module->hasCodeGen())
-		return variable;
-
-	if (originalType->getFlags() & TypeFlag_GcRoot)
-		m_module->m_gcShadowStackMgr.markGcRoot(variable, originalType);
-
-	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast(variable, constType->getDataPtrType(DataPtrKind_Thin), &ptrValue);
-	m_module->m_llvmIrBuilder.createStore(ptrValue, value);
 	return variable;
 }
 

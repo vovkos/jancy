@@ -242,7 +242,7 @@ EnumConst::getType() {
 
 //..............................................................................
 
-JNC_INLINE
+inline
 bool
 isBitFlagEnumType(Type* type) {
 	return

@@ -39,7 +39,7 @@ class MapBase<T> {
 	typedef T.Value Value;
 	typedef stdt.Iterator<T> Iterator;
 	typedef stdt.ConstIterator<T> ConstIterator;
-	// typedef stdt.AutoConstIterator<T> AutoConstIterator;
+	typedef stdt.AutoConstIterator<T> AutoConstIterator;
 
 protected:
 	List<T> m_list;

@@ -24,35 +24,35 @@ getConstCastKind(
 	ConstKind dstConstKind
 ) {
 	static CastKind castKindTable[ConstKind__Count][ConstKind__Count] = {
-		{	// 0 - mutable
+		{	// CastKind_None
 			CastKind_Implicit,           // 0 - mutable
 			CastKind_ImplicitCrossConst, // 1 - const
 			CastKind_ImplicitCrossConst, // 2 - const?
 			CastKind_ImplicitCrossConst, // 3 - autoconstx
 			CastKind_ImplicitCrossConst, // 4 - autoconst
 		},
-		{	// 1 - const
+		{	// CastKind_Const
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
 			CastKind_None,               // 3 - autoconstx
 			CastKind_None,               // 3 - autoconst
 		},
-		{	// 2 - const?
+		{	// CastKind_MaybeConst
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
 			CastKind_Implicit,           // 4 - autoconstx
 			CastKind_Implicit,           // 4 - autoconst
 		},
-		{	// 4 - autoconst
+		{	// CastKind_AutoConstX
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
 			CastKind_Implicit,           // 4 - autoconstx
 			CastKind_Implicit,           // 4 - autoconst
 		},
-		{	// 4 - autoconst
+		{	// CastKind_AutoConst
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
@@ -82,7 +82,7 @@ getConstTypeString(Type* type) {
 	return string;
 }
 
-err::Error
+void
 setCastError(
 	const Value& opValue,
 	Type* dstType,
@@ -125,15 +125,15 @@ setCastError(
 			opValue.getClosureAwareType()->getTypeString();
 	}
 
-	return err::setFormatStringError(format, opValueString.sz(), dstType->getTypeString().sz());
+	err::setFormatStringError(format, opValueString.sz(), dstType->getTypeString().sz());
 }
 
-err::Error
+void
 setUnsafeCastError(
 	Type* srcType,
 	Type* dstType
 ) {
-	return err::setFormatStringError(
+	err::setFormatStringError(
 		"'%s' to '%s' cast is only permitted in unsafe regions",
 		srcType->getTypeString().sz(),
 		dstType->getTypeString().sz()

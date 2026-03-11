@@ -135,7 +135,7 @@ UnionType::calcLayout() {
 			return false;
 
 		if (!findCopyConstructor())
-			createDefaultCopyConstructor();
+			createDefaultCopyConstructor(this);
 	}
 
 	m_size = m_structType->getSize();

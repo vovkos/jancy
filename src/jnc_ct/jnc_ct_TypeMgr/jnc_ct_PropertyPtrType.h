@@ -100,10 +100,6 @@ public:
 		Type* referenceType
 	);
 
-	virtual
-	Type*
-	mergeAutoConstTypes(Type* constType);
-
 protected:
 	virtual
 	bool

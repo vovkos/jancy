@@ -377,7 +377,7 @@ Pcap::ioThreadFunc() {
 
 //..............................................................................
 
-JNC_INLINE
+inline
 uint32_t
 getIpFromSockAddr(const sockaddr* sockAddr) {
 	return sockAddr && sockAddr->sa_family == AF_INET ?

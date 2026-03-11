@@ -134,7 +134,7 @@ private:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE MainWindow* getMainWindow() {
+inline MainWindow* getMainWindow() {
 	extern MainWindow* g_mainWindow;
 	return g_mainWindow;
 }

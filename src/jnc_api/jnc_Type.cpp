@@ -158,8 +158,6 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Ptr |
 		jnc_TypeKindFlag_Ref,
 
-		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_AutoConst
-
 		// don't add any int or ptr flags (import and template types should be resolved first)
 
 		jnc_TypeKindFlag_Import,        // jnc_TypeKind_NamedImport
@@ -200,12 +198,12 @@ JNC_EXPORT_O
 const char*
 jnc_getConstKindString(jnc_ConstKind constKind) {
 	static const char* stringTable[jnc_ConstKind__Count] = {
-		"non-const",   // jnc_ConstKind_None  = 0,
-		"const",       // jnc_ConstKind_Const,
-		"const?",      // jnc_ConstKind_MaybeConst,
-		"autoconst-x", // jnc_ConstKind_AutoConstX,
-		"autoconst",   // jnc_ConstKind_AutoConst,
-		"readonly",    // jnc_ConstKind_ReadOnly,
+		"non-const",    // jnc_ConstKind_None  = 0,
+		"const",        // jnc_ConstKind_Const,
+		"const?",       // jnc_ConstKind_MaybeConst,
+		"__autoconst",  // jnc_ConstKind_AutoConstX,
+		"autoconst",    // jnc_ConstKind_AutoConst,
+		"readonly",     // jnc_ConstKind_ReadOnly,
 	};
 
 	size_t i = constKind >> jnc_PtrTypeFlag__ConstKindBit;

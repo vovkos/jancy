@@ -1027,7 +1027,7 @@ mapMulticastMethods(
 	module->m_jit->mapFunction(function, (void*)multicastDestruct);
 
 	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++) {
-		function = multicastType->getMethod((MulticastMethodKind)i);
+		function = multicastType->getMethodArray()[i];
 		module->m_jit->mapFunction(function, multicastMethodTable[j][i]);
 	}
 }

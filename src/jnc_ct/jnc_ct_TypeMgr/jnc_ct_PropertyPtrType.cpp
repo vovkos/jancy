@@ -150,21 +150,6 @@ PropertyPtrType::deduceTemplateArgs(
 	);
 }
 
-Type*
-PropertyPtrType::mergeAutoConstTypes(Type* constType0) {
-	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
-	PropertyPtrType* constType = (PropertyPtrType*)constType0;
-	if (constType->getTypeKind() != TypeKind_PropertyPtr || getPtrKind() != constType->getPtrKind())
-		return NULL;
-
-	PropertyType* targetType = (PropertyType*)m_targetType->mergeAutoConstTypes(constType->m_targetType);
-	if (!targetType)
-		return NULL;
-
-	ASSERT(targetType->getTypeKind() == TypeKind_Property);
-	return m_module->m_typeMgr.getPropertyPtrType(targetType, m_typeKind, m_flags & PtrTypeFlag__All);
-}
-
 //..............................................................................
 
 } // namespace ct

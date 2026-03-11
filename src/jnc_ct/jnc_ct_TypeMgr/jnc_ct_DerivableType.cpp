@@ -65,10 +65,10 @@ DerivableType::findCopyConstructor() {
 }
 
 Function*
-DerivableType::createDefaultCopyConstructor() {
-	Type* argType = this;
-	FunctionType* ctorType = (FunctionType*)m_module->m_typeMgr.getFunctionType(&argType, 1);
-	Function* ctor = m_module->m_functionMgr.createFunction<DefaultCopyConstructor>(sl::StringRef(), ctorType);
+DerivableType::createDefaultCopyConstructor(DerivableType* srcType) {
+	FunctionType* ctorType = (FunctionType*)m_module->m_typeMgr.getFunctionType((Type**)&srcType, 1);
+	DefaultCopyConstructor* ctor = m_module->m_functionMgr.createFunction<DefaultCopyConstructor>(sl::StringRef(), ctorType);
+	ctor->m_overloadIdx = m_constructor.getFunctionOverload()->getOverloadCount() - 1;
 	ctor->m_thisArgTypeFlags = PtrTypeFlag_ThinThis | PtrTypeFlag_Safe;
 	bool result = addMethod(ctor);
 	ASSERT(result);
@@ -287,44 +287,6 @@ DerivableType::addProperty(Property* prop) {
 
 	m_propertyArray.append(prop);
 	return true;
-}
-
-Type*
-DerivableType::mergeAutoConstTypes(Type* constType0) {
-	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
-
-	DerivableType* type = (DerivableType*)constType0;
-	if (m_typeKind != type->m_typeKind)
-		return NULL;
-
-	size_t fieldCount = m_fieldArray.getCount();
-	if (fieldCount != type->m_fieldArray.getCount() ||
-		m_baseTypeArray.getCount() != type->m_baseTypeArray.getCount()
-	)
-		return NULL;
-
-	AXL_TODO("ensure identical layout and merge autoconst derivables")
-
-	/*
-	// base types first...
-
-	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
-	sl::Iterator<BaseTypeSlot> slotIt2 = type->m_baseTypeList.getHead();
-	for (; slotIt; slotIt++, slotIt2++)
-		if (!slotIt->m_type->isLayoutIdentical(slotIt2->m_type))
-			return NULL;
-
-	// ...then fields
-
-	for (size_t i = 0; i < fieldCount; i++)
-		if (!m_fieldArray[i]->m_type->isLayoutIdentical(type->m_fieldArray[i]->m_type))
-			return false;
-
-	// the rest doesn't matter
-	*/
-
-	AXL_TODO("deduce & apply PtrConstKind")
-	return this;
 }
 
 bool
@@ -769,9 +731,8 @@ DerivableType::compileDefaultConstructor() {
 }
 
 bool
-DerivableType::compileDefaultCopyConstructor() {
-	size_t overloadCount = m_constructor.getFunctionOverload()->getOverloadCount();
-	Function* constructor = m_constructor.getFunctionOverload()->getOverload(overloadCount - 1);
+DerivableType::compileDefaultCopyConstructor(size_t overloadIdx) {
+	Function* constructor = m_constructor.getFunctionOverload()->getOverload(overloadIdx);
 
 	Value argValues[2];
 	m_module->m_namespaceMgr.openNamespace(this);
@@ -779,12 +740,16 @@ DerivableType::compileDefaultCopyConstructor() {
 
 	Value selfValue;
 
-	bool result =
-		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, argValues[0], &selfValue) &&
-		m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, selfValue, argValues[1]);
+	if (isEqual(argValues[1].getType())) {
+		bool result =
+			m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, argValues[0], &selfValue) &&
+			m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, selfValue, argValues[1]);
 
-	if (!result)
-		return false;
+		if (!result)
+			return false;
+	} else {
+		return err::fail("autoconst not yet");
+	}
 
 	m_module->m_functionMgr.internalEpilogue();
 	m_module->m_namespaceMgr.closeNamespace();

@@ -22,13 +22,13 @@ namespace ct {
 Type*
 getArithmeticOperatorResultType(Type* opType);
 
-JNC_INLINE
+inline
 Type*
 getArithmeticOperatorResultType(const Value& opValue) {
 	return getArithmeticOperatorResultType(opValue.getType());
 }
 
-JNC_INLINE
+inline
 Type*
 getArithmeticOperatorResultType(
 	Type* opType1,
@@ -41,7 +41,7 @@ getArithmeticOperatorResultType(
 		);
 }
 
-JNC_INLINE
+inline
 Type*
 getArithmeticOperatorResultType(
 	const Value& opValue1,

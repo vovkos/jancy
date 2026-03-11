@@ -276,7 +276,6 @@ getType(ct::Type* type) {
 		StdType_FunctionPtrType,   // TypeKind_FunctionRef
 		StdType_PropertyPtrType,   // TypeKind_PropertyPtr
 		StdType_PropertyPtrType,   // TypeKind_PropertyRef
-		StdType_Type,              // TypeKind_AutoConst,
 
 		// shouldn't happen at runtime
 

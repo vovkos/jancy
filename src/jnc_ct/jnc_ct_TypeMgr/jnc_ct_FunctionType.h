@@ -228,6 +228,12 @@ protected:
 	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_FunctionType);
 	}
+
+	FunctionType*
+	getDualType(
+		Type* returnType,
+		const sl::Array<FunctionArg*>& argArray
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

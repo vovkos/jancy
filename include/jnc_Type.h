@@ -97,10 +97,6 @@ enum jnc_TypeKind {
 	jnc_TypeKind_PropertyPtr,         // P
 	jnc_TypeKind_PropertyRef,         // R
 
-	// autoconst type pair (folds to one or the other depending on PtrConstKind)
-
-	jnc_TypeKind_AutoConst,           // Z
-
 	// import types (pseudo-types -- will be resolved and replaced)
 
 	jnc_TypeKind_ImportTypeName,      // IN
@@ -716,7 +712,6 @@ const TypeKind
 	TypeKind_FunctionRef         = jnc_TypeKind_FunctionRef,
 	TypeKind_PropertyPtr         = jnc_TypeKind_PropertyPtr,
 	TypeKind_PropertyRef         = jnc_TypeKind_PropertyRef,
-	TypeKind_AutoConst           = jnc_TypeKind_AutoConst,
 	TypeKind_ImportTypeName      = jnc_TypeKind_ImportTypeName,
 	TypeKind_ImportPtr           = jnc_TypeKind_ImportPtr,
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,

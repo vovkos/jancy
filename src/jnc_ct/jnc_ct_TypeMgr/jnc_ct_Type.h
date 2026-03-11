@@ -87,9 +87,7 @@ getInt64TypeKind(int64_t integer);
 TypeKind
 getInt64TypeKind_u(uint64_t integer);
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_INLINE
+inline
 TypeKind
 getUnsignedIntegerTypeKind(TypeKind typeKind) {
 	return (getTypeKindFlags(typeKind) & TypeKindFlag_Signed) ?
@@ -97,7 +95,7 @@ getUnsignedIntegerTypeKind(TypeKind typeKind) {
 		typeKind;
 }
 
-JNC_INLINE
+inline
 TypeKind
 getSignedIntegerTypeKind(TypeKind typeKind) {
 	return (getTypeKindFlags(typeKind) & TypeKindFlag_Unsigned) ?
@@ -105,7 +103,7 @@ getSignedIntegerTypeKind(TypeKind typeKind) {
 		typeKind;
 }
 
-JNC_INLINE
+inline
 bool
 isEquivalentIntegerTypeKind(
 	TypeKind typeKind1,
@@ -114,7 +112,7 @@ isEquivalentIntegerTypeKind(
 	return getSignedIntegerTypeKind(typeKind1) == getSignedIntegerTypeKind(typeKind2);
 }
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 sl::String
 getLlvmTypeString(llvm::Type* llvmType);
@@ -265,9 +263,6 @@ public:
 	getActualTypeIfImport();
 
 	Type*
-	getActualTypeIfAutoConst();
-
-	Type*
 	getActualTypeIfDual(
 		AccessKind accessKind,
 		ConstKind constKind
@@ -335,11 +330,13 @@ public:
 		return true; // scalar types deduce nothing
 	}
 
-	virtual
 	Type*
-	mergeAutoConstTypes(Type* constType) {
-		ASSERT((m_flags & TypeFlag_LayoutReady) && (constType->getFlags() & TypeFlag_LayoutReady));
-		return isEqual(constType) ? this : NULL;
+	getAutoConstType(Type* ctype) {
+		ASSERT(!(m_flags & TypeFlag_Import));
+		return
+			isEqual(ctype) ? this :
+			ensureLayout() && ctype->ensureLayout() ? calcAutoConstType(ctype) :
+			NULL;
 	}
 
 protected:
@@ -397,6 +394,10 @@ protected:
 		ASSERT(false);
 		return this;
 	}
+
+	virtual
+	Type*
+	calcAutoConstType(Type* ctype);
 
 	void
 	prepareSimpleTypeVariable(StdType stdType);
@@ -656,6 +657,25 @@ isWeakPtrType(Type* type);
 
 Type*
 getWeakPtrType(Type* type);
+
+uint_t
+calcAutoConstPtrTypeFlags(
+	uint_t mflags,
+	uint_t cflags
+);
+
+inline
+void
+setAutoConstError(
+	Type* mtype,
+	Type* ctype
+) {
+	err::setFormatStringError(
+		"incompatible autoconst type: '%s' vs '%s'",
+		mtype->getTypeString().sz(),
+		ctype->getTypeString().sz()
+	);
+}
 
 //..............................................................................
 

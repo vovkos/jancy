@@ -74,7 +74,7 @@ public:
 
 	virtual
 	Type*
-	mergeAutoConstTypes(Type* constType);
+	calcAutoConstType(Type* ctype);
 
 protected:
 	virtual

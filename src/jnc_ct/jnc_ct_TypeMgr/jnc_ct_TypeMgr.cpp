@@ -27,7 +27,6 @@
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_McSnapshotClassType.h"
 #include "jnc_ct_TemplateType.h"
-#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_Variant.h"
 #include "jnc_String.h"
@@ -900,11 +899,11 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	// fields
 
-	type->m_fieldArray[MulticastFieldKind_Lock] = type->createField("!m_lock", getPrimitiveType(TypeKind_IntPtr), 0, PtrTypeFlag_Volatile);
-	type->m_fieldArray[MulticastFieldKind_PtrArray] = type->createField("!m_arrayPtr", functionPtrType->getDataPtrType());
-	type->m_fieldArray[MulticastFieldKind_Count] = type->createField("!m_count", getPrimitiveType(TypeKind_SizeT));
-	type->m_fieldArray[MulticastFieldKind_MaxCount] = type->createField("!m_maxCount", getPrimitiveType(TypeKind_SizeT));
-	type->m_fieldArray[MulticastFieldKind_HandleTable] = type->createField("!m_handleTable", getPrimitiveType(TypeKind_IntPtr));
+	type->createField("!m_lock", getPrimitiveType(TypeKind_IntPtr), 0, PtrTypeFlag_Volatile);
+	type->createField("!m_arrayPtr", functionPtrType->getDataPtrType());
+	type->createField("!m_count", getPrimitiveType(TypeKind_SizeT));
+	type->createField("!m_maxCount", getPrimitiveType(TypeKind_SizeT));
+	type->createField("!m_handleTable", getPrimitiveType(TypeKind_IntPtr));
 
 	Type* argType;
 	Function* method;
@@ -924,7 +923,6 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 	methodType = (FunctionType*)getStdType(StdType_SimpleFunction);
 	method = type->createMethod("clear", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
-	type->m_methodArray[MulticastMethodKind_Clear] = method;
 
 	returnType = getPrimitiveType(TypeKind_IntPtr);
 	argType = functionPtrType;
@@ -932,27 +930,22 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	method = type->createMethod("setup", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
-	type->m_methodArray[MulticastMethodKind_Setup] = method;
 
 	method = type->createMethod("add", methodType);
-	type->m_methodArray[MulticastMethodKind_Add] = method;
 
 	returnType = functionPtrType;
 	argType = getPrimitiveType(TypeKind_IntPtr);
 	methodType = getFunctionType(returnType, &argType, 1);
 	method = type->createMethod("remove", methodType);
-	type->m_methodArray[MulticastMethodKind_Remove] = method;
 
 	returnType = functionPtrType->getNormalPtrType();
 	methodType = getFunctionType(returnType, NULL, 0);
 	method = type->createMethod("getSnapshot", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
-	type->m_methodArray[MulticastMethodKind_GetSnapshot] = method;
 
 	methodType = functionPtrType->getTargetType();
 	method = type->createMethod<MulticastClassType::CallMethod>("call", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
-	type->m_methodArray[MulticastMethodKind_Call] = method;
 
 	// overloaded operators
 
@@ -1548,39 +1541,6 @@ TypeMgr::createTemplateDeclType(Declarator* declarator) {
 		((ImportType*)type->m_declarator.m_baseType)->addFixup(&type->m_declarator.m_baseType);
 
 	m_typeList.insertTail(type);
-	return type;
-}
-
-AutoConstType*
-TypeMgr::getAutoConstType(
-	Type* originalType,
-	Type* constType,
-	uint_t flags
-) {
-	ASSERT(!(flags & ~(TypeFlag_Dual)));
-
-	sl::String signature;
-	flags |= AutoConstType::createSignature(&signature, originalType, constType, flags);
-	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value) {
-		ASSERT(it->m_value->m_signature == signature);
-		return (AutoConstType*)it->m_value;
-	}
-
-	AutoConstType* type = new AutoConstType;
-	type->m_module = m_module;
-	type->m_originalType = originalType;
-	type->m_constType = constType;
-	type->m_signature = signature;
-	type->m_flags = flags;
-	m_typeList.insertTail(type);
-
-	if (originalType->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)originalType)->addFixup(&type->m_originalType);
-
-	if (constType->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)constType)->addFixup(&type->m_constType);
-
 	return type;
 }
 

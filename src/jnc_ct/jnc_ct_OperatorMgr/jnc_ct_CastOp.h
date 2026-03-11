@@ -42,14 +42,14 @@ getConstCastKind(
 	ConstKind dstConstKind
 );
 
-err::Error
+void
 setCastError(
 	const Value& opValue,
 	Type* type,
 	CastKind castKind = CastKind_None
 );
 
-err::Error
+void
 setUnsafeCastError(
 	Type* srcType,
 	Type* dstType
@@ -67,7 +67,7 @@ castOperator(
 	Value* resultValue
 );
 
-JNC_INLINE
+inline
 bool
 castOperator(
 	Module* module,

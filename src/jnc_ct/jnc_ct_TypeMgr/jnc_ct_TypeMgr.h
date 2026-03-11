@@ -54,7 +54,6 @@ class TemplateTypeName;
 class TemplatePtrType;
 class TemplateIntModType;
 class TemplateDeclType;
-class AutoConstType;
 
 struct DataPtrTypeTuple;
 struct ClassPtrTypeTuple;
@@ -703,13 +702,6 @@ public:
 
 	TemplateDeclType*
 	createTemplateDeclType(Declarator* declarator);
-
-	AutoConstType*
-	getAutoConstType(
-		Type* originalType,
-		Type* constType,
-		uint_t flags = 0
-	);
 
 	Type*
 	foldDualType(

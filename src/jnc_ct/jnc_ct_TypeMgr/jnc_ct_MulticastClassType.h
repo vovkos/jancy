@@ -34,8 +34,6 @@ protected:
 protected:
 	FunctionPtrType* m_targetType;
 	McSnapshotClassType* m_snapshotType;
-	Field* m_fieldArray[MulticastFieldKind__Count];
-	Function* m_methodArray[MulticastMethodKind__Count];
 	ClassPtrTypeTuple* m_eventClassPtrTypeTuple;
 
 public:
@@ -49,18 +47,6 @@ public:
 	FunctionType*
 	getFunctionType() const {
 		return m_targetType->getTargetType();
-	}
-
-	Field*
-	getField(MulticastFieldKind field) const {
-		ASSERT(field < MulticastFieldKind__Count);
-		return m_fieldArray[field];
-	}
-
-	Function*
-	getMethod(MulticastMethodKind method) const {
-		ASSERT(method < MulticastMethodKind__Count);
-		return m_methodArray[method];
 	}
 
 	McSnapshotClassType*
@@ -90,8 +76,6 @@ MulticastClassType::MulticastClassType() {
 	m_targetType = NULL;
 	m_snapshotType = NULL;
 	m_eventClassPtrTypeTuple = NULL;
-	memset(m_fieldArray, 0, sizeof(m_fieldArray));
-	memset(m_methodArray, 0, sizeof(m_methodArray));
 }
 
 //..............................................................................

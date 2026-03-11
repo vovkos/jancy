@@ -189,7 +189,7 @@ StructType::calcLayoutTo(Field* targetField) {
 				return false;
 
 			if (!findCopyConstructor())
-				createDefaultCopyConstructor();
+				createDefaultCopyConstructor(this);
 		}
 	} else if (
 		m_structTypeKind == StructTypeKind_IfaceStruct &&
@@ -442,6 +442,57 @@ StructType::markGcRoots(
 		Field* field = m_gcRootFieldArray[i];
 		field->getType()->markGcRoots(p + field->getOffset(), gcHeap);
 	}
+}
+
+Type*
+StructType::calcAutoConstType(Type* ctype0) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (ctype0->getFlags() & TypeFlag_LayoutReady));
+
+	StructType* ctype = (StructType*)ctype0;
+	if (ctype->m_typeKind != TypeKind_Struct ||
+		m_size != ctype->getSize() ||
+		m_alignment != ctype->m_alignment ||
+		m_fieldSize != ctype->m_fieldSize ||
+		m_fieldAlignment != ctype->m_fieldAlignment ||
+		!m_templateInstance ||
+		!ctype->m_templateInstance ||
+		m_templateInstance->m_template != ctype->m_templateInstance->m_template
+	) {
+		setAutoConstError(this, ctype);
+		return NULL;
+	}
+
+	Template* templ = m_templateInstance->m_template;
+	size_t argCount = templ->getArgArray().getCount();
+	ASSERT(
+		m_templateInstance->m_argArray.getCount() == argCount &&
+		ctype->m_templateInstance->m_argArray.getCount() == argCount
+	);
+
+	sl::Array<Type*> argArray;
+	argArray.setCount(argCount);
+	sl::Array<Type*>::Rwi rwi = argArray.rwi();
+	for (size_t i = 0; i < argCount; i++) {
+		Type* margType = m_templateInstance->m_argArray[i];
+		Type* cargType = ctype->m_templateInstance->m_argArray[i];
+		Type* argType = margType->getAutoConstType(cargType);
+		if (!argType)
+			return NULL;
+
+		rwi[i] = argType;
+	}
+
+	StructType* actype = (StructType*)templ->instantiate(argArray);
+	if (!actype)
+		return NULL;
+
+	ASSERT(
+		actype->getItemKind() == ModuleItemKind_Type &&
+		actype->getTypeKind() == TypeKind_Struct
+	);
+
+	actype->createDefaultCopyConstructor(this);
+	return actype;
 }
 
 //..............................................................................

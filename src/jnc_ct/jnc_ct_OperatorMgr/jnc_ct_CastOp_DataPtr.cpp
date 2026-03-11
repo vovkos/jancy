@@ -478,12 +478,14 @@ Cast_DataPtr_Base::getCastKind(
 		srcDataType->getTypeKind() == TypeKind_Struct &&
 		((StructType*)srcDataType)->findBaseTypeTraverse(dstDataType);
 
+	// we can technically cast to POD const* basically ANY data reference (T&->T*->POD const*)
+	// but telling that explicit cast is required is really confusing when matching arg types
+
 	return
 		isDstBase ? constCastKind :
+		srcType->getTypeKind() == TypeKind_DataRef ? CastKind_None :
 		isDstPod && canCastToPod ? CastKind_Explicit :
-		isDstDerivable ?
-			CastKind_Dynamic :
-			CastKind_None;
+		isDstDerivable ? CastKind_Dynamic : CastKind_None;
 }
 
 size_t

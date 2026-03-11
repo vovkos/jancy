@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_ReactorClassType.h"
-#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_UnionType.h"
 #include "jnc_ct_DynamicLibNamespace.h"
 #include "jnc_ct_Module.h"
@@ -104,9 +103,6 @@ OperatorMgr::memberOperator(
 		if (!result)
 			return false;
 	}
-
-	if (type->getTypeKind() == TypeKind_AutoConst)
-		type = ((AutoConstType*)type)->getConstType();
 
 	TypeKind typeKind = type->getTypeKind();
 	switch (typeKind) {

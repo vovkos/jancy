@@ -172,7 +172,7 @@ jnc_MulticastClassType_getMethod(
 	jnc_MulticastClassType* type,
 	jnc_MulticastMethodKind method
 ) {
-	return type->getMethod(method);
+	return type->getMethodArray()[method];
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

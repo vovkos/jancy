@@ -118,6 +118,27 @@ FunctionType::resolveImports() {
 	return true;
 }
 
+FunctionType*
+FunctionType::getDualType(
+	Type* returnType,
+	const sl::Array<FunctionArg*>& argArray
+) {
+	return (m_flags & ModuleItemFlag_User) ?
+		m_module->m_typeMgr.createUserFunctionType(
+			m_callConv,
+			returnType,
+			argArray,
+			m_flags & FunctionTypeFlag__All
+		) :
+		m_module->m_typeMgr.getFunctionType(
+			m_callConv,
+			returnType,
+			argArray,
+			m_flags & FunctionTypeFlag__All
+		);
+}
+
+
 Type*
 FunctionType::calcFoldedDualType(
 	AccessKind accessKind,
@@ -140,19 +161,7 @@ FunctionType::calcFoldedDualType(
 			arg;
 	}
 
-	return (m_flags & ModuleItemFlag_User) ?
-		m_module->m_typeMgr.createUserFunctionType(
-			m_callConv,
-			returnType,
-			argArray,
-			m_flags & FunctionTypeFlag__All
-		) :
-		m_module->m_typeMgr.getFunctionType(
-			m_callConv,
-			returnType,
-			argArray,
-			m_flags & FunctionTypeFlag__All
-		);
+	return getDualType(returnType, argArray);
 }
 
 bool

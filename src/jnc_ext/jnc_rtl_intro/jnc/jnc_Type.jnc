@@ -67,10 +67,6 @@ enum TypeKind {
 	PropertyPtr,
 	PropertyRef,
 
-	// autoconst type pair (folds to one or the other depending on const?)
-
-	AutoConst,
-
 	// import pseudo-types (resolved on as-needed basis)
 
 	ImportTypeName,

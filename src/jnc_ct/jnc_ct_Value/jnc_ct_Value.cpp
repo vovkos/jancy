@@ -14,7 +14,6 @@
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
-#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_FunctionOverload.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
 #include "jnc_ct_TypeMgr/jnc_ct_UnionType.h"
@@ -298,14 +297,6 @@ getLlvmConstantFunc_propertyPtr(
 		getLlvmConstantFunc_ptr(type, p);
 }
 
-llvm::Constant*
-getLlvmConstantFunc_autoConst(
-	Type* type,
-	const void* p
-) {
-	return Value::getLlvmConst(((AutoConstType*)type)->getConstType(), p);
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Constant*
@@ -323,7 +314,7 @@ Value::getLlvmConst(
 		const void* p
 	);
 
-	GetLlvmConstantFunc* getLlvmConstantFuncTable[TypeKind_AutoConst + 1] = {
+	GetLlvmConstantFunc* getLlvmConstantFuncTable[TypeKind_PropertyRef + 1] = {
 		NULL,                                      // TypeKind_Void (should never happen)
 		getLlvmConstantFunc_variant,               // TypeKind_Variant
 		getLlvmConstantFunc_string,                // TypeKind_String
@@ -353,7 +344,6 @@ Value::getLlvmConst(
 		NULL,                                      // TypeKind_FunctionRef (should never happen)
 		getLlvmConstantFunc_propertyPtr,           // TypeKind_PropertyPtr
 		NULL,                                      // TypeKind_PropertyRef (should never happen)
-		getLlvmConstantFunc_autoConst,             // TypeKind_AutoConst
 	};
 
 	TypeKind typeKind = type->getTypeKind();

@@ -139,13 +139,16 @@ ArrayType::markGcRoots(
 }
 
 Type*
-ArrayType::mergeAutoConstTypes(Type* constType0) {
-	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
-	ArrayType* constType = (ArrayType*)constType0;
-	if (constType->getTypeKind() != TypeKind_Array || m_elementCount != constType->m_elementCount)
-		return NULL;
+ArrayType::calcAutoConstType(Type* ctype0) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (ctype0->getFlags() & TypeFlag_LayoutReady));
 
-	Type* elementType = m_elementType->mergeAutoConstTypes(constType->m_elementType);
+	ArrayType* ctype = (ArrayType*)ctype0;
+	if (ctype->getTypeKind() != TypeKind_Array || m_elementCount != ctype->m_elementCount) {
+		setAutoConstError(this, ctype);
+		return NULL;
+	}
+
+	Type* elementType = m_elementType->getAutoConstType(ctype->m_elementType);
 	return elementType ? m_module->m_typeMgr.getArrayType(elementType, m_elementCount) : NULL;
 }
 

@@ -108,7 +108,7 @@ public:
 
 	virtual
 	Type*
-	mergeAutoConstTypes(Type* constType);
+	calcAutoConstType(Type* ctype);
 
 protected:
 	virtual
@@ -155,7 +155,7 @@ struct ClassPtrTypeTuple: sl::ListLink {
 
 //..............................................................................
 
-JNC_INLINE
+inline
 bool
 isClassPtrType(
 	Type* type,
@@ -166,7 +166,7 @@ isClassPtrType(
 		((ClassPtrType*)type)->getTargetType()->getClassTypeKind() == classTypeKind;
 }
 
-JNC_INLINE
+inline
 bool
 isClassPtrType(
 	Type* type,
@@ -177,7 +177,7 @@ isClassPtrType(
 		((ClassPtrType*)type)->getTargetType()->isEqual(classType);
 }
 
-JNC_INLINE
+inline
 bool
 isDerivedClassPtrType(
 	Type* type,

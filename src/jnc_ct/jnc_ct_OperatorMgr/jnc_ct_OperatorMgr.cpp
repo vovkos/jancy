@@ -13,7 +13,6 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
-#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
@@ -151,7 +150,6 @@ OperatorMgr::OperatorMgr() {
 	m_castOperatorTable[TypeKind_PropertyPtr]   = &m_cast_PropertyPtr;
 	m_castOperatorTable[TypeKind_PropertyRef]   = &m_cast_PropertyRef;
 	m_castOperatorTable[TypeKind_TypedefShadow] = &m_cast_Typedef;
-	m_castOperatorTable[TypeKind_AutoConst]     = &m_cast_AutoConst;
 
 	m_unsafeEnterCount = 0;
 #if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
@@ -570,12 +568,11 @@ OperatorMgr::findCastOperator(
 		return (((ClassPtrType*)opType)->getTargetType())->findCastOperator(type, castKind);
 
 	if (opType->getTypeKindFlags() & TypeKindFlag_DataPtr) {
-		Type* targetType = ((DataPtrType*)opType)->getTargetType()->getActualTypeIfAutoConst();
+		Type* targetType = ((DataPtrType*)opType)->getTargetType();
 		if (targetType->getTypeKindFlags() & TypeKindFlag_Derivable)
 			return ((DerivableType*)targetType)->findCastOperator(type, castKind);
 	}
 
-	opType = opType->getActualTypeIfAutoConst();
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_Derivable))
 		return NULL;
 
@@ -1196,24 +1193,6 @@ OperatorMgr::prepareOperand_typedef(
 }
 
 bool
-OperatorMgr::prepareOperand_autoConst(
-	Value* value,
-	uint_t opFlags
-) {
-	if (opFlags & OpFlag_KeepAutoConst)
-		return true;
-
-	AutoConstType* type = (AutoConstType*)value->getType();
-	if (type->getFlags() & TypeFlag_Dual) {
-		value->overrideType(type->getConstType());
-		return true;
-	}
-
-	*value = m_module->m_variableMgr.createMutableAutoConstVariable(*value);
-	return true;
-}
-
-bool
 OperatorMgr::prepareOperand_import(
 	Value* value,
 	uint_t opFlags
@@ -1545,7 +1524,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperandType_propertyRef, // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperand_autoConst,       // TypeKind_AutoConst
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportIntMod
@@ -1587,7 +1565,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_functionRef, // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperand_propertyRef, // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperand_autoConst,   // TypeKind_AutoConst
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportIntMod
@@ -1629,7 +1606,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_AutoConst
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportIntMod
@@ -1671,7 +1647,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_AutoConst
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportIntMod

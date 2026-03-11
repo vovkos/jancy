@@ -22,7 +22,6 @@ set(
 	include/jnc_ct_AsyncSequencerFunction.h
 	include/jnc_ct_AttributeBlock.h
 	include/jnc_ct_AttributeMgr.h
-	include/jnc_ct_AutoConstType.h
 	include/jnc_ct_BasicBlock.h
 	include/jnc_ct_BinOp.h
 	include/jnc_ct_BinOp_Arithmetic.h
@@ -38,7 +37,6 @@ set(
 	include/jnc_ct_CapabilityMgr.h
 	include/jnc_ct_CastOp.h
 	include/jnc_ct_CastOp_Array.h
-	include/jnc_ct_CastOp_AutoConst.h
 	include/jnc_ct_CastOp_Bool.h
 	include/jnc_ct_CastOp_ClassPtr.h
 	include/jnc_ct_CastOp_DataPtr.h
@@ -357,7 +355,6 @@ set(
 	jnc_ct_OperatorMgr/jnc_ct_BinOp_Match.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Array.h
-	jnc_ct_OperatorMgr/jnc_ct_CastOp_AutoConst.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Bool.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_ClassPtr.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_DataPtr.h
@@ -388,7 +385,6 @@ set(
 	jnc_ct_OperatorMgr/jnc_ct_BinOp_Match.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Array.cpp
-	jnc_ct_OperatorMgr/jnc_ct_CastOp_AutoConst.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Bool.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_ClassPtr.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_DataPtr.cpp
@@ -433,7 +429,6 @@ source_group(
 set(
 	TYPEMGR_H_LIST
 	jnc_ct_TypeMgr/jnc_ct_ArrayType.h
-	jnc_ct_TypeMgr/jnc_ct_AutoConstType.h
 	jnc_ct_TypeMgr/jnc_ct_ClassPtrType.h
 	jnc_ct_TypeMgr/jnc_ct_ClassType.h
 	jnc_ct_TypeMgr/jnc_ct_ClosureClassType.h
@@ -466,7 +461,6 @@ set(
 set(
 	TYPEMGR_CPP_LIST
 	jnc_ct_TypeMgr/jnc_ct_ArrayType.cpp
-	jnc_ct_TypeMgr/jnc_ct_AutoConstType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClassPtrType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClassType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClosureClassType.cpp

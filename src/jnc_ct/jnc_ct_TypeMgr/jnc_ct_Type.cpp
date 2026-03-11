@@ -83,7 +83,7 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 		"volatile",   // PtrTypeFlag_Volatile  = 0x00200000
 		"safe",       // PtrTypeFlag_Safe      = 0x00400000
 		"event",      // PtrTypeFlag_Event     = 0x00800000
-		"event-x",    // PtrTypeFlag_EventX    = 0x01000000
+		"__event",    // PtrTypeFlag_EventX    = 0x01000000
 		"bindable",   // PtrTypeFlag_Bindable  = 0x02000000
 		"autoget",    // PtrTypeFlag_AutoGet   = 0x04000000
 		"bigendian",  // PtrTypeFlag_BigEndian = 0x08000000
@@ -379,8 +379,6 @@ Type::prepareLlvmType() {
 	m_llvmType = getLlvmTypeFuncTable[(size_t)m_typeKind](m_module);
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 void
 Type::prepareLlvmDiType() {
 		ASSERT(m_typeKind && m_typeKind < TypeKind__PrimitiveTypeCount);
@@ -670,6 +668,12 @@ Type::markGcRoots(
 	funcTable[i](p, gcHeap);
 }
 
+Type*
+Type::calcAutoConstType(Type* ctype) {
+	setAutoConstError(this, ctype);
+	return NULL;
+}
+
 //..............................................................................
 
 bool
@@ -904,6 +908,29 @@ getWeakPtrType(Type* type) {
 	default:
 		return type;
 	}
+}
+
+uint_t
+calcAutoConstPtrTypeFlags(
+	uint_t originalFlags,
+	uint_t constFlags
+) {
+	originalFlags &= PtrTypeFlag__All;
+	constFlags &= PtrTypeFlag__All;
+
+	if (originalFlags == constFlags)
+		return originalFlags;
+	else if ((originalFlags & ~PtrTypeFlag__ConstKindMask) != (constFlags & ~PtrTypeFlag__ConstKindMask))
+		return -1;
+
+	ConstKind originalConstKind = getConstKindFromFlags(originalFlags);
+	ConstKind constConstKind = getConstKindFromFlags(constFlags);
+
+	return
+		originalConstKind == constConstKind ? originalFlags :
+		originalConstKind == ConstKind_None && constConstKind == ConstKind_Const ?
+			originalFlags & ~PtrTypeFlag__ConstKindMask | ConstKind_AutoConstX :
+			-1;
 }
 
 //..............................................................................

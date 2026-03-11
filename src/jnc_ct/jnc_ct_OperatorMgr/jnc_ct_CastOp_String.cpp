@@ -202,8 +202,10 @@ Cast_String_FromArray::llvmCast(
 ) {
 	ASSERT(type->getTypeKind() == TypeKind_String);
 
-	if (!isCharArrayRefType(opValue.getType()))
-		return setCastError(opValue, type);
+	if (!isCharArrayRefType(opValue.getType())) {
+		setCastError(opValue, type);
+		return false;
+	}
 
 	return m_module->m_operatorMgr.callOperator(
 		m_module->m_functionMgr.getStdFunction(StdFunc_StringCreate),

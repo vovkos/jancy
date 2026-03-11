@@ -58,12 +58,12 @@ public:
 		Value* resultValue
 	) = 0;
 
-	size_t
+	void
 	setOperatorError(
 		Type* opType1,
 		Type* opType2
 	) {
-		return err::setFormatStringError(
+		err::setFormatStringError(
 			"binary '%s' cannot be applied to '%s' and '%s'",
 			getBinOpKindString(m_opKind),
 			opType1->getTypeString().sz(),
@@ -71,12 +71,12 @@ public:
 		);
 	}
 
-	size_t
+	void
 	setOperatorError(
 		const Value& opValue1,
 		const Value& opValue2
 	) {
-		return setOperatorError(opValue1.getType(), opValue2.getType());
+		setOperatorError(opValue1.getType(), opValue2.getType());
 	}
 };
 

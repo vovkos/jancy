@@ -63,6 +63,12 @@ public:
 	}
 
 	Function*
+	findAutoConstMethodOverload(FunctionType* type) {
+		size_t i = m_typeOverload.findAutoConstMethodOverload(type);
+		return i != -1 ? getOverload(i) : NULL;
+	}
+
+	Function*
 	chooseOverload(
 		Closure* closure,
 		FunctionArg* const* argArray,

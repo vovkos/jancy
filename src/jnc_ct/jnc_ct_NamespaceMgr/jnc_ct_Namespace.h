@@ -369,10 +369,10 @@ ModuleItemContext::getGrandParentNamespace() const {
 
 //..............................................................................
 
-JNC_INLINE
-err::Error
+inline
+void
 setRedefinitionError(const sl::StringRef& name) {
-	return err::setFormatStringError("redefinition of '%s'", name.sz());
+	err::setFormatStringError("redefinition of '%s'", name.sz());
 }
 
 //..............................................................................

@@ -123,14 +123,30 @@ protected:
 
 	class DefaultCopyConstructor: public CompilableFunction {
 	public:
+		size_t m_overloadIdx;
+
 		DefaultCopyConstructor() {
+			m_functionKind = FunctionKind_Constructor;
+			m_overloadIdx = -1; // must be adjusted
+		}
+
+		virtual
+		bool
+		compile() {
+			return ((DerivableType*)m_parentNamespace)->compileDefaultCopyConstructor(m_overloadIdx);
+		}
+	};
+
+	class DefaultAutoGetCastOperator: public CompilableFunction {
+	public:
+		DefaultAutoGetCastOperator() {
 			m_functionKind = FunctionKind_Constructor;
 		}
 
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultCopyConstructor();
+			return ((DerivableType*)m_parentNamespace)->compileDefaultAutoGetCastOperator();
 		}
 	};
 
@@ -346,10 +362,6 @@ public:
 		return findDirectChildItemTraverse(name, coord, flags, 0);
 	}
 
-	virtual
-	Type*
-	mergeAutoConstTypes(Type* constType);
-
 protected:
 	virtual
 	bool
@@ -394,7 +406,7 @@ protected:
 	findCopyConstructor();
 
 	Function*
-	createDefaultCopyConstructor();
+	createDefaultCopyConstructor(DerivableType* srcType);
 
 	FindModuleItemResult
 	findItemInExtensionNamespaces(const sl::StringRef& name);
@@ -406,7 +418,10 @@ protected:
 	compileDefaultConstructor();
 
 	bool
-	compileDefaultCopyConstructor();
+	compileDefaultCopyConstructor(size_t overloadIdx);
+
+	bool
+	compileDefaultAutoGetCastOperator();
 
 	bool
 	compileDefaultDestructor();
