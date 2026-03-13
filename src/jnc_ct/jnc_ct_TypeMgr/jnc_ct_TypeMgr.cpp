@@ -1377,7 +1377,7 @@ TypeMgr::getPropertyPtrType(
 
 	flags |= propertyType->getFlags() & (TypeFlag_Import | TypeFlag_Dual | TypeFlag_LayoutReady);
 
-	FunctionPtrKind ptrKind = getFunctionPtrKindFromFlags(flags);
+	PropertyPtrKind ptrKind = getPropertyPtrKindFromFlags(flags);
 	if (ptrKind != PropertyPtrKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
