@@ -54,7 +54,7 @@ Cast_ClassPtr::getCastKind(
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
 	ClassPtrType* dstType = (ClassPtrType*)type;
 
-	CastKind constCastKind = getConstCastKind(srcType->getConstKind(), dstType->getConstKind());
+	CastKind constCastKind = calcCastKindFromConstCast(srcType->getConstKind(), dstType->getConstKind());
 	if (!constCastKind)
 		return CastKind_None; // const vs non-const mismatch
 
@@ -234,7 +234,7 @@ Cast_ClassRef::getCastKind(
 		return CastKind_None;
 
 	ClassPtrType* ptrType = (ClassPtrType*)type;
-	ClassPtrType* intermediateDstType = ptrType->getTargetType()->getClassPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	ClassPtrType* intermediateDstType = ptrType->getTargetType()->getClassPtrType(ptrType->getFlags() & PtrTypeFlag_All);
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
 
@@ -247,7 +247,7 @@ Cast_ClassRef::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_ClassRef);
 
 	ClassPtrType* ptrType = (ClassPtrType*)type;
-	ClassPtrType* intermediateType = ptrType->getTargetType()->getClassPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	ClassPtrType* intermediateType = ptrType->getTargetType()->getClassPtrType(ptrType->getFlags() & PtrTypeFlag_All);
 	Value intermediateValue;
 
 	return

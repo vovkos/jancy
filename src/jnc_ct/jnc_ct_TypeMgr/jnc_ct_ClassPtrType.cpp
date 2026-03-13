@@ -103,24 +103,28 @@ ClassPtrType::calcFoldedDualType(
 	ConstKind constKind
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
-	uint_t flags = m_flags & PtrTypeFlag__All & ~(ConstKind_ReadOnly | ConstKind_AutoConst | PtrTypeFlag_EventX);
+	uint_t flags = m_flags & PtrTypeFlag_All & ~(ConstKind_ReadOnly | ConstKind_AutoConst | PtrTypeFlag_AutoEvent);
 
 	ConstKind thisConstKind = getConstKind();
-	if (accessKind == AccessKind_Public) {
-		if (thisConstKind == ConstKind_AutoConst)
-			flags |= constKind;
-		else if (thisConstKind == ConstKind_ReadOnly)
-			flags |= ConstKind_Const;
-		else if (m_flags & PtrTypeFlag_EventX)
-			flags |= PtrTypeFlag_Event;
-	} else if (thisConstKind == ConstKind_AutoConst)
+	if (thisConstKind == ConstKind_AutoConst)
 		flags |= constKind;
+	else if (thisConstKind == ConstKind_ReadOnly) {
+		if (accessKind == AccessKind_Public)
+			flags |= ConstKind_Const;
+	} else {
+		ASSERT(m_flags & PtrTypeFlag_AutoEvent); // class can't be dual, so it must be this pointer
+		if (accessKind == AccessKind_Public)
+			flags |= PtrTypeFlag_Event;
+	}
 
 	return m_targetType->getClassPtrType(m_typeKind, flags);
 }
 
 Type*
-ClassPtrType::calcAutoConstType(Type* ctype0) {
+ClassPtrType::calcDualConstType(
+	Type* ctype0,
+	ConstKind constKind
+) {
 	ASSERT((m_flags & TypeFlag_LayoutReady) && (ctype0->getFlags() & TypeFlag_LayoutReady));
 
 	uint_t ptrFlags;
@@ -128,7 +132,7 @@ ClassPtrType::calcAutoConstType(Type* ctype0) {
 	if (ctype->getTypeKind() != TypeKind_ClassPtr ||
 		getPtrKind() != ctype->getPtrKind() ||
 		!m_targetType->isEqual(ctype->m_targetType) ||
-		(ptrFlags = calcAutoConstPtrTypeFlags(m_flags, ctype->getFlags())) == -1
+		(ptrFlags = calcDualConstPtrTypeFlags(m_flags, ctype->getFlags(), constKind)) == -1
 	) {
 		setAutoConstError(this, ctype);
 		return NULL;

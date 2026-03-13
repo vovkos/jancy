@@ -20,7 +20,7 @@ namespace ct {
 
 sl::StringRef
 getFunctionTypeFlagString(uint_t flags) {
-	flags &= (FunctionTypeFlag__User);
+	flags &= (FunctionTypeFlag_User);
 	if (!flags)
 		return sl::StringRef();
 
@@ -128,13 +128,13 @@ FunctionType::getDualType(
 			m_callConv,
 			returnType,
 			argArray,
-			m_flags & FunctionTypeFlag__All
+			m_flags & FunctionTypeFlag_All
 		) :
 		m_module->m_typeMgr.getFunctionType(
 			m_callConv,
 			returnType,
 			argArray,
-			m_flags & FunctionTypeFlag__All
+			m_flags & FunctionTypeFlag_All
 		);
 }
 
@@ -147,7 +147,6 @@ FunctionType::calcFoldedDualType(
 	ASSERT(m_flags & TypeFlag_Dual);
 
 	Type* returnType = m_returnType->getActualTypeIfDual(accessKind, constKind);
-
 	size_t count = m_argArray.getCount();
 	sl::Array<FunctionArg*> argArray;
 	argArray.setCount(count);

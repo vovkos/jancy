@@ -42,7 +42,7 @@
 enum jnc_EnumTypeFlag {
 	jnc_EnumTypeFlag_Exposed = 0x010000,
 	jnc_EnumTypeFlag_BitFlag = 0x020000,
-	jnc_EnumTypeFlag__All    = 0x030000,
+	jnc_EnumTypeFlag_All     = 0x030000,
 };
 
 typedef enum jnc_EnumTypeFlag jnc_EnumTypeFlag;
@@ -126,7 +126,7 @@ typedef jnc_EnumTypeFlag EnumTypeFlag;
 const EnumTypeFlag
 	EnumTypeFlag_Exposed = jnc_EnumTypeFlag_Exposed,
 	EnumTypeFlag_BitFlag = jnc_EnumTypeFlag_BitFlag,
-	EnumTypeFlag__All    = jnc_EnumTypeFlag__All;
+	EnumTypeFlag_All     = jnc_EnumTypeFlag_All;
 
 //..............................................................................
 

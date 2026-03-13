@@ -173,10 +173,10 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 	if (instance->m_item)
 		return instance->m_item;
 
-	if (m_flags & TemplateFlag_AutoConst) {
+	if (m_flags & PtrTypeFlag_ConstKindMask) {
 		ASSERT(argArray.getCount() == 2);
 
-		ModuleItem* item = argArray[0]->getAutoConstType(argArray[1]);
+		ModuleItem* item = argArray[0]->getDualConstType(argArray[1], getConstKindFromFlags(m_flags));
 		if (!item)
 			return NULL;
 
@@ -344,7 +344,7 @@ Template::createItemString(size_t index) {
 
 	case ModuleItemStringKind_Synopsis: {
 		sl::String string;
-		if (m_flags & TemplateFlag_AutoConst)
+		if (m_flags & PtrTypeFlag_ConstKindMask)
 			return getItemName();
 
 		if (m_derivableTypeKind != TypeKind_Void) {

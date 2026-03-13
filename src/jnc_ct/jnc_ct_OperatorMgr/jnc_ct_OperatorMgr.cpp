@@ -327,7 +327,7 @@ getConditionalOperandType(const Value& value) {
 			type = ((ArrayType*)type)->getElementType()->getDataPtrType(value.getValueKind() == ValueKind_Const ? ConstKind_Const : 0);
 			break;
 		case TypeKind_FunctionRef:
-			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(type->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag_Safe);
+			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(type->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_Safe);
 			break;
 		}
 	}
@@ -390,7 +390,7 @@ OperatorMgr::getConditionalOperatorResultType(
 		resultType = ptrType->getPtrKind() == DataPtrKind_Lean ?
 			ptrType->getTargetType()->getDataPtrType(
 				resultType->getTypeKind(),
-				resultType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask & ~PtrTypeFlag_Safe
+				resultType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask & ~PtrTypeFlag_Safe
 			) :
 			ptrType->getUnsafePtrType();
 	}
@@ -495,7 +495,8 @@ OperatorMgr::castOperator(
 
 	// first, try cast operator methods
 
-	Function* castMethod = findCastOperator(rawOpValue, type);
+	CastKind castKind;
+	Function* castMethod = findCastOperator(rawOpValue, type, &castKind);
 	if (castMethod)
 		return
 			callOperator(castMethod, rawOpValue, resultValue) &&
@@ -1393,7 +1394,7 @@ OperatorMgr::prepareOperand_classRef(
 	if (!(opFlags & OpFlag_KeepClassRef)) {
 		ClassPtrType* ptrType = (ClassPtrType*)type;
 		ClassType* targetType = ptrType->getTargetType();
-		value->overrideType(targetType->getClassPtrType(ptrType->getFlags() & PtrTypeFlag__All));
+		value->overrideType(targetType->getClassPtrType(ptrType->getFlags() & PtrTypeFlag_All));
 	}
 
 	return true;
@@ -1407,7 +1408,7 @@ OperatorMgr::prepareOperand_functionRef(
 	if (!(opFlags & OpFlag_KeepFunctionRef)) {
 		FunctionPtrType* ptrType = (FunctionPtrType*)value->getType();
 		FunctionType* targetType = ptrType->getTargetType();
-		value->overrideType(targetType->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag__All));
+		value->overrideType(targetType->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag_All));
 	}
 
 	return true;
@@ -1754,7 +1755,7 @@ OperatorMgr::prepareArrayRef(
 	DataPtrType* ptrType = (DataPtrType*)value.getType();
 	DataPtrKind ptrKind = ptrType->getPtrKind();
 	ArrayType* arrayType = (ArrayType*)ptrType->getTargetType();
-	DataPtrType* resultType = arrayType->getElementType()->getDataPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	DataPtrType* resultType = arrayType->getElementType()->getDataPtrType(ptrType->getFlags() & PtrTypeFlag_All);
 	if (value.getValueKind() == ValueKind_Const || ptrKind == DataPtrKind_Normal)
 		resultValue->overrideType(value, resultType);
 	else if (ptrKind != DataPtrKind_Lean)

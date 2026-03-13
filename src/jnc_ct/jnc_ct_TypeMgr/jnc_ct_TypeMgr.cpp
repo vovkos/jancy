@@ -355,7 +355,7 @@ TypeMgr::createEnumType(
 	Type* baseType,
 	uint_t flags
 ) {
-	ASSERT(!(flags & ~EnumTypeFlag__All));
+	ASSERT(!(flags & ~EnumTypeFlag_All));
 
 	EnumType* type = new EnumType;
 	type->m_name = name;
@@ -412,7 +412,7 @@ TypeMgr::addClassType(
 	size_t fieldAlignment,
 	uint_t flags
 ) {
-	ASSERT(!(flags & ~ClassTypeFlag__All));
+	ASSERT(!(flags & ~ClassTypeFlag_All));
 
 	type->m_module = m_module;
 	type->m_name = name;
@@ -539,7 +539,7 @@ TypeMgr::getFunctionType(
 	uint_t flags
 ) {
 	ASSERT(callConv && returnType);
-	ASSERT(!(flags & ~FunctionTypeFlag__All));
+	ASSERT(!(flags & ~FunctionTypeFlag_All));
 
 	sl::String signature;
 	sl::StringRef argSignature;
@@ -588,7 +588,7 @@ TypeMgr::getFunctionType(
 	uint_t flags
 ) {
 	ASSERT(callConv && returnType);
-	ASSERT(!(flags & ~FunctionTypeFlag__All));
+	ASSERT(!(flags & ~FunctionTypeFlag_All));
 
 	sl::String signature;
 	sl::StringRef argSignature;
@@ -630,7 +630,7 @@ TypeMgr::createUserFunctionType(
 	uint_t flags
 ) {
 	ASSERT(callConv && returnType);
-	ASSERT(!(flags & ~FunctionTypeFlag__All));
+	ASSERT(!(flags & ~FunctionTypeFlag_All));
 
 	uint_t importFlags = returnType->getFlags();
 	size_t argCount = argArray.getCount();
@@ -695,13 +695,13 @@ TypeMgr::getMemberMethodType(
 			functionType->m_callConv,
 			returnType,
 			argArray,
-			functionType->m_flags & FunctionTypeFlag__All
+			functionType->m_flags & FunctionTypeFlag_All
 		) :
 		getFunctionType(
 			functionType->m_callConv,
 			returnType,
 			argArray,
-			functionType->m_flags & FunctionTypeFlag__All
+			functionType->m_flags & FunctionTypeFlag_All
 		);
 
 	memberMethodType->m_shortType = functionType;
@@ -724,7 +724,7 @@ TypeMgr::getPropertyType(
 	const FunctionTypeOverload& setterType,
 	uint_t flags
 ) {
-	ASSERT(!(flags & ~PropertyTypeFlag__All));
+	ASSERT(!(flags & ~PropertyTypeFlag_All));
 
 	sl::String signature;
 	flags |= PropertyType::createSignature(&signature, getterType, setterType, flags);
@@ -836,7 +836,7 @@ TypeMgr::getMemberPropertyType(
 	PropertyType* memberPropertyType = getPropertyType(
 		getterType,
 		FunctionTypeOverload(setterTypeOverloadArray, setterTypeOverloadCount),
-		propertyType->m_flags & PropertyTypeFlag__All
+		propertyType->m_flags & PropertyTypeFlag_All
 	);
 
 	memberPropertyType->m_shortType = propertyType;
@@ -875,7 +875,7 @@ TypeMgr::getShortPropertyType(PropertyType* propertyType) {
 	propertyType->m_shortType = getPropertyType(
 		getterType,
 		setterType,
-		propertyType->m_flags & PropertyTypeFlag__All
+		propertyType->m_flags & PropertyTypeFlag_All
 	);
 
 	return propertyType->m_shortType;
@@ -1219,7 +1219,7 @@ TypeMgr::getDataPtrType(
 	ASSERT(targetType->getTypeKind() != TypeKind_TemplateTypeName);  // getModType<TemplatePtrType>() should be used
 	ASSERT(targetType->getTypeKind() != TypeKind_TemplateArg); // getModType<TemplatePtrType>() should be used
 	ASSERT(typeKind != TypeKind_DataRef || targetType->m_typeKind != TypeKind_DataRef); // double reference
-	ASSERT(!(flags & ~PtrTypeFlag__All));
+	ASSERT(!(flags & ~PtrTypeFlag_All));
 
 	uint_t targetTypeFlags = targetType->getFlags();
 	flags |= targetTypeFlags & (TypeFlag_Import | TypeFlag_Dual);
@@ -1246,8 +1246,10 @@ TypeMgr::getDataPtrType(
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
-	if (constKind >= ConstKind_FirstDual)
-		flags |= TypeFlag_Dual;
+	if (constKind == ConstKind_ReadOnly)
+		flags |= TypeFlag_DualByAccess;
+	else if (constKind == ConstKind_AutoConst)
+		flags |= TypeFlag_DualByConst;
 
 	DataPtrType* type = new DataPtrType;
 	type->m_module = m_module;
@@ -1272,7 +1274,7 @@ TypeMgr::getClassPtrType(
 	TypeKind typeKind,
 	uint_t flags
 ) {
-	ASSERT(!(flags & ~PtrTypeFlag__All));
+	ASSERT(!(flags & ~PtrTypeFlag_All));
 	ASSERT(!(targetType->getFlags() & TypeFlag_Dual));
 
 	flags |= TypeFlag_GcRoot | TypeFlag_LayoutReady;
@@ -1290,10 +1292,10 @@ TypeMgr::getClassPtrType(
 	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 1 : 0;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
 
-	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_EventX)) {
+	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_AutoEvent)) {
 		ASSERT(targetType->getClassTypeKind() == ClassTypeKind_Multicast);
 		tuple = getEventClassPtrTypeTuple((MulticastClassType*)targetType);
-		i3 = (flags & PtrTypeFlag_EventX) ? 1 : 0;
+		i3 = (flags & PtrTypeFlag_AutoEvent) ? 1 : 0;
 	} else {
 		tuple = getClassPtrTypeTuple(targetType);
 		i3 = constKind >> PtrTypeFlag__ConstKindBit;
@@ -1305,8 +1307,10 @@ TypeMgr::getClassPtrType(
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
-	if (constKind >= ConstKind_FirstDual || (flags & PtrTypeFlag_EventX))
-		flags |= TypeFlag_Dual;
+	if (constKind == ConstKind_AutoConst)
+		flags |= TypeFlag_DualByConst;
+	else if (constKind == ConstKind_ReadOnly || (flags & PtrTypeFlag_AutoEvent))
+		flags |= TypeFlag_DualByAccess;
 
 	ClassPtrType* type = new ClassPtrType;
 	type->m_module = m_module;
@@ -1326,7 +1330,7 @@ TypeMgr::getFunctionPtrType(
 	uint_t flags
 ) {
 	ASSERT(typeKind == TypeKind_FunctionPtr || typeKind == TypeKind_FunctionRef);
-	ASSERT(!(flags & ~PtrTypeFlag__All));
+	ASSERT(!(flags & ~PtrTypeFlag_All));
 
 	flags |= functionType->getFlags() & (TypeFlag_Import | TypeFlag_Dual | TypeFlag_LayoutReady);
 
@@ -1369,7 +1373,7 @@ TypeMgr::getPropertyPtrType(
 	uint_t flags
 ) {
 	ASSERT(typeKind == TypeKind_PropertyPtr || typeKind == TypeKind_PropertyRef);
-	ASSERT(!(flags & ~PtrTypeFlag__All));
+	ASSERT(!(flags & ~PtrTypeFlag_All));
 
 	flags |= propertyType->getFlags() & (TypeFlag_Import | TypeFlag_Dual | TypeFlag_LayoutReady);
 

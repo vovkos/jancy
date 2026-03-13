@@ -105,7 +105,7 @@ Edit::gotoDefinition() {
 
 HighlighterBase*
 Edit::createSyntaxHighlighter() {
- 	Q_D(Edit);
+	Q_D(Edit);
 	return new JancyHighlighter(document(), &d->m_theme);
 }
 

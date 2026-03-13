@@ -78,7 +78,7 @@ Cast_Variant::llvmCast(
 		((DataPtrType*)opType)->getPtrKind() == DataPtrKind_Lean) {
 		opType = ((DataPtrType*)opType)->getTargetType()->getDataPtrType(
 			opType->getTypeKind(),
-			opType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask
+			opType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask
 		);
 
 		m_module->m_operatorMgr.castOperator(rawOpValue, opType, &opValue);

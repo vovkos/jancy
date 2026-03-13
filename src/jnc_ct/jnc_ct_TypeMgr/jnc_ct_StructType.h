@@ -22,6 +22,7 @@ namespace ct {
 
 enum StructTypeKind {
 	StructTypeKind_Normal,
+	StructTypeKind_Adapter, // same layout, same LLVM, modified API
 	StructTypeKind_AbstractData,
 	StructTypeKind_IfaceStruct,
 	StructTypeKind_ClassStruct,
@@ -32,6 +33,7 @@ enum StructTypeKind {
 
 class StructType: public DerivableType {
 	friend class TypeMgr;
+	friend class DerivableType;
 	friend class ClassType;
 	friend class UnionType;
 	friend class Property;
@@ -47,6 +49,7 @@ protected:
 
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	Field* m_lastBitField;
+	DerivableType* m_adapterOriginType;
 	size_t m_dynamicStructSectionId;
 
 public:
@@ -113,10 +116,6 @@ protected:
 	}
 
 	virtual
-	Type*
-	calcAutoConstType(Type* ctype0);
-
-	virtual
 	bool
 	calcLayout() {
 		return calcLayoutTo(NULL);
@@ -159,6 +158,7 @@ StructType::StructType() {
 	m_fieldSize = 0;
 	m_laidOutFieldCount = 0;
 	m_lastBitField = NULL;
+	m_adapterOriginType = NULL;
 	m_dynamicStructSectionId = -1;
 }
 

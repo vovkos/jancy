@@ -80,15 +80,15 @@ getLlvmTypeString(llvm::Type* llvmType) {
 const char*
 getPtrTypeFlagString(PtrTypeFlag flag) {
 	static const char* stringTable[] = {
-		"volatile",   // PtrTypeFlag_Volatile  = 0x00200000
-		"safe",       // PtrTypeFlag_Safe      = 0x00400000
-		"event",      // PtrTypeFlag_Event     = 0x00800000
-		"__event",    // PtrTypeFlag_EventX    = 0x01000000
-		"bindable",   // PtrTypeFlag_Bindable  = 0x02000000
-		"autoget",    // PtrTypeFlag_AutoGet   = 0x04000000
-		"bigendian",  // PtrTypeFlag_BigEndian = 0x08000000
-		"bitfield",   // PtrTypeFlag_BitField  = 0x10000000
-		"thin",       // PtrTypeFlag_ThinThis  = 0x20000000
+		"volatile",   // PtrTypeFlag_Volatile  = 0x00400000
+		"safe",       // PtrTypeFlag_Safe      = 0x00800000
+		"event",      // PtrTypeFlag_Event     = 0x01000000
+		"autoevent",  // PtrTypeFlag_AutoEvent = 0x02000000
+		"bindable",   // PtrTypeFlag_Bindable  = 0x04000000
+		"autoget",    // PtrTypeFlag_AutoGet   = 0x08000000
+		"bigendian",  // PtrTypeFlag_BigEndian = 0x10000000
+		"bitfield",   // PtrTypeFlag_BitField  = 0x20000000
+		"thin",       // PtrTypeFlag_ThinThis  = 0x40000000
 	};
 
 	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> PtrTypeFlag__FlagBit));
@@ -99,12 +99,12 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 
 sl::StringRef
 getPtrTypeFlagString(uint_t flags) {
-	flags &= PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask;
+	flags &= PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask;
 	if (!flags)
 		return sl::StringRef();
 
 	ConstKind constKind = getConstKindFromFlags(flags);
-	flags &= ~PtrTypeFlag__ConstKindMask;
+	flags &= ~PtrTypeFlag_ConstKindMask;
 	if (!flags)
 		return getConstKindString(constKind);
 
@@ -138,7 +138,7 @@ getPtrTypeFlagSignature(PtrTypeFlag flag) {
 		"v",  // PtrTypeFlag_Volatile  = 0x00400000
 		"s",  // PtrTypeFlag_Safe      = 0x00800000
 		"e",  // PtrTypeFlag_Event     = 0x01000000
-		"d",  // PtrTypeFlag_EventX    = 0x02000000
+		"d",  // PtrTypeFlag_AutoEvent = 0x02000000
 		"b",  // PtrTypeFlag_Bindable  = 0x04000000
 		"a",  // PtrTypeFlag_AutoGet   = 0x08000000
 		"n",  // PtrTypeFlag_BigEndian = 0x10000000
@@ -154,12 +154,13 @@ getPtrTypeFlagSignature(PtrTypeFlag flag) {
 const char*
 getConstKindSignature(ConstKind constKind) {
 	static const char* stringTable[] = {
-	    "w",  // ConstKind_None
-	    "c",  // ConstKind_Const
-	    "m",  // ConstKind_MaybeConst
-	    "x",  // ConstKind_AutoConstX
-        "u",  // ConstKind_AutoConst
-	    "r",  // ConstKind_ReadOnly
+		"w",  // ConstKind_None
+		"c",  // ConstKind_Const
+		"m",  // ConstKind_MaybeConst
+		"x",  // ConstKind_AutoConstX
+		"y",  // ConstKind_ReadOnlyX
+		"u",  // ConstKind_AutoConst
+		"r",  // ConstKind_ReadOnly
 	};
 
 	size_t i = constKind >> PtrTypeFlag__ConstKindBit;
@@ -172,10 +173,10 @@ appendPtrTypeFlagSignature(
 	sl::String* string,
 	uint_t flags
 ) {
-	flags &= PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask;
+	flags &= PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask;
 
 	ConstKind constKind = getConstKindFromFlags(flags);
-	flags &= ~PtrTypeFlag__ConstKindMask;
+	flags &= ~PtrTypeFlag_ConstKindMask;
 	while (flags) {
 		PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
 		string->append(getPtrTypeFlagSignature(flag), 1);
@@ -669,7 +670,10 @@ Type::markGcRoots(
 }
 
 Type*
-Type::calcAutoConstType(Type* ctype) {
+Type::calcDualConstType(
+	Type* ctype,
+	ConstKind constKind
+) {
 	setAutoConstError(this, ctype);
 	return NULL;
 }
@@ -911,16 +915,19 @@ getWeakPtrType(Type* type) {
 }
 
 uint_t
-calcAutoConstPtrTypeFlags(
+calcDualConstPtrTypeFlags(
 	uint_t originalFlags,
-	uint_t constFlags
+	uint_t constFlags,
+	ConstKind constKind
 ) {
-	originalFlags &= PtrTypeFlag__All;
-	constFlags &= PtrTypeFlag__All;
+	ASSERT(constKind == ConstKind_AutoConstX || constKind == ConstKind_ReadOnlyX);
+
+	originalFlags &= PtrTypeFlag_All;
+	constFlags &= PtrTypeFlag_All;
 
 	if (originalFlags == constFlags)
 		return originalFlags;
-	else if ((originalFlags & ~PtrTypeFlag__ConstKindMask) != (constFlags & ~PtrTypeFlag__ConstKindMask))
+	else if ((originalFlags & ~PtrTypeFlag_ConstKindMask) != (constFlags & ~PtrTypeFlag_ConstKindMask))
 		return -1;
 
 	ConstKind originalConstKind = getConstKindFromFlags(originalFlags);
@@ -929,7 +936,7 @@ calcAutoConstPtrTypeFlags(
 	return
 		originalConstKind == constConstKind ? originalFlags :
 		originalConstKind == ConstKind_None && constConstKind == ConstKind_Const ?
-			originalFlags & ~PtrTypeFlag__ConstKindMask | ConstKind_AutoConstX :
+			originalFlags & ~PtrTypeFlag_ConstKindMask | constKind :
 			-1;
 }
 

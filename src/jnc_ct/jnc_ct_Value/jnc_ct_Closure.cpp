@@ -227,7 +227,7 @@ Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
 		argArray
 	);
 
-	return closureType->getFunctionPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag__All);
+	return closureType->getFunctionPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag_All);
 }
 
 PropertyPtrType*
@@ -281,10 +281,10 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType) {
 	PropertyType* closureType = module->m_typeMgr.getPropertyType(
 		closureGetterType,
 		closureSetterType,
-		type->getFlags() & PropertyTypeFlag__All
+		type->getFlags() & PropertyTypeFlag_All
 	);
 
-	return closureType->getPropertyPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag__All);
+	return closureType->getPropertyPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag_All);
 }
 
 //..............................................................................

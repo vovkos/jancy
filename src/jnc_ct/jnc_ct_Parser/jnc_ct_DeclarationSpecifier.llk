@@ -349,6 +349,10 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_Event;
 			}
+	|	TokenKind_AutoEvent
+			{
+				$.m_typeModifier = TypeModifier_AutoEvent;
+			}
 	|	TokenKind_Reactor
 			{
 				$.m_typeModifier = TypeModifier_Reactor;
@@ -387,6 +391,7 @@ type_modifier_sync
 	|	TokenKind_Indexed
 	|	TokenKind_Multicast
 	|	TokenKind_Event
+	|	TokenKind_AutoEvent
 	|	TokenKind_Reactor
 	|	TokenKind_ErrorCode
 	|	TokenKind_Async

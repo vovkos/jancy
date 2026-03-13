@@ -55,7 +55,7 @@ printHidRdFieldArray(
 
 		printf(
 			"%sField: %s %d-bit\n",
-	    	indent.m_p,
+			indent.m_p,
 			typeof(io.HidReportType).getValueString(field.m_report.m_reportType),
 			field.m_bitCount
 		);

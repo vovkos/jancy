@@ -27,10 +27,14 @@ struct ListEntry<T> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class List<T, I = Iterator<T> > {
+class List<
+	T,
+	I = Iterator<T>,
+	C = ConstIterator<T>
+> {
 	typedef T Entry;
 	typedef I Iterator;
-	typedef I.ConstIterator ConstIterator;
+	typedef C ConstIterator;
 
 	T autoconst* readonly m_head;
 	T autoconst* readonly m_tail;
@@ -91,13 +95,13 @@ class List<T, I = Iterator<T> > {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void List<T, I>.clear() {
+void List<T, I, C>.clear() {
 	m_head = null;
 	m_tail = null;
 	m_count = 0;
 }
 
-void List<T, I>.takeOver(List* src) {
+void List<T, I, C>.takeOver(List* src) {
 	assert(src != this);
 
 	m_head = src.m_head;
@@ -106,7 +110,7 @@ void List<T, I>.takeOver(List* src) {
 	src.clear();
 }
 
-I List<T, I>.insertHead(T* p) {
+I List<T, I, C>.insertHead(T* p) {
 	p.m_prev = null;
 	p.m_next = m_head;
 
@@ -120,7 +124,7 @@ I List<T, I>.insertHead(T* p) {
 	return p;
 }
 
-I List<T, I>.insertTail(T* p) {
+I List<T, I, C>.insertTail(T* p) {
 	p.m_next = null;
 	p.m_prev = m_tail;
 
@@ -134,7 +138,7 @@ I List<T, I>.insertTail(T* p) {
 	return p;
 }
 
-I List<T, I>.insertBefore(
+I List<T, I, C>.insertBefore(
 	T* p,
 	I beforeIt
 ) {
@@ -156,7 +160,7 @@ I List<T, I>.insertBefore(
 	return p;
 }
 
-I List<T, I>.insertAfter(
+I List<T, I, C>.insertAfter(
 	T* p,
 	I afterIt
 ) {
@@ -178,7 +182,7 @@ I List<T, I>.insertAfter(
 	return p;
 }
 
-T* List<T, I>.remove(I it) {
+T* List<T, I, C>.remove(I it) {
 	T* p = it.m_p;
 	T* next = p.m_next;
 	T* prev = p.m_prev;

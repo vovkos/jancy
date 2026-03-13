@@ -142,7 +142,7 @@ OperatorMgr::storeDataRef(
 	DataPtrType* dstType = (DataPtrType*)dstValue.getType();
 	uint_t dstTypeFlags = dstType->getFlags();
 
-	if (dstType->getFlags() & PtrTypeFlag__ConstKindMask) {
+	if (dstType->getFlags() & PtrTypeFlag_ConstKindMask) {
 		err::setError(
 			(dstType->getFlags() & ConstKind_Const) ?
 				"cannot store into const location" :
@@ -359,7 +359,7 @@ OperatorMgr::makeLeanDataPtr(
 		((DataPtrType*)value.getType())->getPtrKind() == DataPtrKind_Normal);
 
 	DataPtrType* ptrType = ((DataPtrType*)value.getType());
-	uint_t flags = ptrType->getFlags() & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean;
+	uint_t flags = ptrType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean;
 	ptrType = ptrType->getTargetType()->getDataPtrType(flags);
 	Type* validatorType = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
 

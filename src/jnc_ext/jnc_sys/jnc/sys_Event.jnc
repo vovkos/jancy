@@ -46,7 +46,7 @@ namespace sys {
 			// ...
 
 			g_event.signal(); // thread1 wakes up and continues;
-			                   // g_event goes back to non-signalled state
+			                  // g_event goes back to non-signalled state
 		}
 
 	\sa `sys.NotificationEvent`, `sys.Lock`, `sys.Thread`

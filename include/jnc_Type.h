@@ -195,7 +195,9 @@ enum jnc_TypeFlag {
 	jnc_TypeFlag_NoStack        = 0x1000, // try to avoid allocation on stack
 	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
 	jnc_TypeFlag_Import         = 0x0008, // contains imports (supersedes TypeFlag_NoImports)
-	jnc_TypeFlag_Dual           = 0x4000, // should be folded in member operator
+	jnc_TypeFlag_DualByAccess   = 0x4000, // readonly/event
+	jnc_TypeFlag_DualByConst    = 0x8000, // autoconst
+	jnc_TypeFlag_Dual           = 0xc000, // must be folded in member operator
 };
 
 typedef enum jnc_TypeFlag jnc_TypeFlag;
@@ -207,24 +209,23 @@ enum jnc_PtrTypeFlag {
 	jnc_PtrTypeFlag_ConstKind_1    = 0x00020000, // class & data ptr
 	jnc_PtrTypeFlag_ConstKind_2    = 0x00040000, // class & data ptr
 	jnc_PtrTypeFlag_ConstKind_3    = 0x00080000, // unused
+	jnc_PtrTypeFlag_ConstKindMask  = 0x000f0000, // class & data ptr
 	jnc_PtrTypeFlag_PtrKind_0      = 0x00100000,
 	jnc_PtrTypeFlag_PtrKind_1      = 0x00200000,
+	jnc_PtrTypeFlag_PtrKindMask    = 0x00300000,
 	jnc_PtrTypeFlag_Volatile       = 0x00400000, // class & data ptr
 	jnc_PtrTypeFlag_Safe           = 0x00800000, // all ptr
 	jnc_PtrTypeFlag_Event          = 0x01000000, // multicast-class only
-	jnc_PtrTypeFlag_EventX         = 0x02000000, // multicast-class only (internal, dual)
+	jnc_PtrTypeFlag_AutoEvent      = 0x02000000, // multicast-class only
 	jnc_PtrTypeFlag_Bindable       = 0x04000000, // multicast-class only
 	jnc_PtrTypeFlag_AutoGet        = 0x08000000, // data ptr only
 	jnc_PtrTypeFlag_BigEndian      = 0x10000000, // data ptr only
 	jnc_PtrTypeFlag_BitField       = 0x20000000, // data ptr only
 	jnc_PtrTypeFlag_ThinThis       = 0x40000000, // 'this' arg only
-
+	jnc_PtrTypeFlag_All            = 0x7fff0000,
 	jnc_PtrTypeFlag__ConstKindBit  = 16,
-	jnc_PtrTypeFlag__ConstKindMask = 0x000f0000, // class & data ptr
 	jnc_PtrTypeFlag__PtrKindBit    = 20,
-	jnc_PtrTypeFlag__PtrKindMask   = 0x00300000,
 	jnc_PtrTypeFlag__FlagBit       = 22,
-	jnc_PtrTypeFlag__All           = 0x7fff0000,
 };
 
 typedef enum jnc_PtrTypeFlag jnc_PtrTypeFlag;
@@ -238,7 +239,7 @@ jnc_getPtrTypeFlagString_v(uint_t flags);
 JNC_INLINE
 uint_t
 jnc_getPtrKindFromFlags(uint_t flags) {
-	return flags & jnc_PtrTypeFlag__PtrKindMask;
+	return flags & jnc_PtrTypeFlag_PtrKindMask;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -248,10 +249,10 @@ enum jnc_ConstKind {
 	jnc_ConstKind_Const      = 0x010000, // single bit, easy to check
 	jnc_ConstKind_MaybeConst = 0x020000,
 	jnc_ConstKind_AutoConstX = 0x030000, // internal, non-dual
-    jnc_ConstKind_AutoConst  = 0x040000, // dual
-	jnc_ConstKind_ReadOnly   = 0x050000, // dual
-    jnc_ConstKind_FirstDual  = jnc_ConstKind_AutoConst,
-	jnc_ConstKind__Count     = 6,
+	jnc_ConstKind_ReadOnlyX  = 0x040000, // internal, non-dual
+	jnc_ConstKind_AutoConst  = 0x050000, // dual
+	jnc_ConstKind_ReadOnly   = 0x060000, // dual
+	jnc_ConstKind__Count     = 7,
 };
 
 typedef enum jnc_ConstKind jnc_ConstKind;
@@ -265,7 +266,7 @@ jnc_getConstKindString(jnc_ConstKind constKind);
 JNC_INLINE
 jnc_ConstKind
 jnc_getConstKindFromFlags(uint_t flags) {
-	return (jnc_ConstKind)(flags & jnc_PtrTypeFlag__ConstKindMask);
+	return (jnc_ConstKind)(flags & jnc_PtrTypeFlag_ConstKindMask);
 }
 
 //..............................................................................
@@ -788,6 +789,8 @@ const TypeFlag
 	TypeFlag_NoStack        = jnc_TypeFlag_NoStack,
 	TypeFlag_NoImports      = jnc_TypeFlag_NoImports,
 	TypeFlag_Import         = jnc_TypeFlag_Import,
+	TypeFlag_DualByAccess   = jnc_TypeFlag_DualByAccess,
+	TypeFlag_DualByConst    = jnc_TypeFlag_DualByConst,
 	TypeFlag_Dual           = jnc_TypeFlag_Dual;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -795,26 +798,27 @@ const TypeFlag
 typedef jnc_PtrTypeFlag PtrTypeFlag;
 
 const PtrTypeFlag
-	PtrTypeFlag_PtrKind_0      = jnc_PtrTypeFlag_PtrKind_0,
-	PtrTypeFlag_PtrKind_1      = jnc_PtrTypeFlag_PtrKind_1,
 	PtrTypeFlag_ConstKind_0    = jnc_PtrTypeFlag_ConstKind_0,
 	PtrTypeFlag_ConstKind_1    = jnc_PtrTypeFlag_ConstKind_1,
 	PtrTypeFlag_ConstKind_2    = jnc_PtrTypeFlag_ConstKind_2,
+	PtrTypeFlag_ConstKind_3    = jnc_PtrTypeFlag_ConstKind_3,
+	PtrTypeFlag_ConstKindMask  = jnc_PtrTypeFlag_ConstKindMask,
+	PtrTypeFlag_PtrKind_0      = jnc_PtrTypeFlag_PtrKind_0,
+	PtrTypeFlag_PtrKind_1      = jnc_PtrTypeFlag_PtrKind_1,
+	PtrTypeFlag_PtrKindMask    = jnc_PtrTypeFlag_PtrKindMask,
 	PtrTypeFlag_Volatile       = jnc_PtrTypeFlag_Volatile,
 	PtrTypeFlag_Safe           = jnc_PtrTypeFlag_Safe,
 	PtrTypeFlag_Event          = jnc_PtrTypeFlag_Event,
-	PtrTypeFlag_EventX         = jnc_PtrTypeFlag_EventX,
+	PtrTypeFlag_AutoEvent      = jnc_PtrTypeFlag_AutoEvent,
 	PtrTypeFlag_Bindable       = jnc_PtrTypeFlag_Bindable,
 	PtrTypeFlag_AutoGet        = jnc_PtrTypeFlag_AutoGet,
 	PtrTypeFlag_BigEndian      = jnc_PtrTypeFlag_BigEndian,
 	PtrTypeFlag_BitField       = jnc_PtrTypeFlag_BitField,
 	PtrTypeFlag_ThinThis       = jnc_PtrTypeFlag_ThinThis,
-	PtrTypeFlag__PtrKindBit    = jnc_PtrTypeFlag__PtrKindBit,
-	PtrTypeFlag__PtrKindMask   = jnc_PtrTypeFlag__PtrKindMask,
+	PtrTypeFlag_All            = jnc_PtrTypeFlag_All,
 	PtrTypeFlag__ConstKindBit  = jnc_PtrTypeFlag__ConstKindBit,
-	PtrTypeFlag__ConstKindMask = jnc_PtrTypeFlag__ConstKindMask,
-	PtrTypeFlag__FlagBit       = jnc_PtrTypeFlag__FlagBit,
-	PtrTypeFlag__All           = jnc_PtrTypeFlag__All;
+	PtrTypeFlag__PtrKindBit    = jnc_PtrTypeFlag__PtrKindBit,
+	PtrTypeFlag__FlagBit       = jnc_PtrTypeFlag__FlagBit;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -839,9 +843,9 @@ const ConstKind
 	ConstKind_Const      = jnc_ConstKind_Const,
 	ConstKind_MaybeConst = jnc_ConstKind_MaybeConst,
 	ConstKind_AutoConstX = jnc_ConstKind_AutoConstX,
+	ConstKind_ReadOnlyX  = jnc_ConstKind_ReadOnlyX,
 	ConstKind_AutoConst  = jnc_ConstKind_AutoConst,
 	ConstKind_ReadOnly   = jnc_ConstKind_ReadOnly,
-	ConstKind_FirstDual  = jnc_ConstKind_FirstDual,
 	ConstKind__Count     = jnc_ConstKind__Count;
 
 inline

@@ -331,11 +331,14 @@ public:
 	}
 
 	Type*
-	getAutoConstType(Type* ctype) {
+	getDualConstType(
+		Type* ctype,
+		ConstKind constKind
+	) {
 		ASSERT(!(m_flags & TypeFlag_Import));
 		return
 			isEqual(ctype) ? this :
-			ensureLayout() && ctype->ensureLayout() ? calcAutoConstType(ctype) :
+			ensureLayout() && ctype->ensureLayout() ? calcDualConstType(ctype, constKind) :
 			NULL;
 	}
 
@@ -397,7 +400,10 @@ protected:
 
 	virtual
 	Type*
-	calcAutoConstType(Type* ctype);
+	calcDualConstType(
+		Type* ctype,
+		ConstKind constKind
+	);
 
 	void
 	prepareSimpleTypeVariable(StdType stdType);
@@ -659,9 +665,10 @@ Type*
 getWeakPtrType(Type* type);
 
 uint_t
-calcAutoConstPtrTypeFlags(
+calcDualConstPtrTypeFlags(
 	uint_t mflags,
-	uint_t cflags
+	uint_t cflags,
+	ConstKind constKind
 );
 
 inline

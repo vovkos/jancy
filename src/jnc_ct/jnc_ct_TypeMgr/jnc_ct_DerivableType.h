@@ -42,11 +42,6 @@ protected:
 public:
 	BaseTypeSlot();
 
-	uint_t
-	getFlags() const {
-		return m_flags;
-	}
-
 	DerivableType*
 	getType() const {
 		return m_type;
@@ -104,7 +99,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultStaticConstructor();
+			return ((DerivableType*)m_parentNamespace)->compileDefaultStaticConstructor(this);
 		}
 	};
 
@@ -117,36 +112,33 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultConstructor();
+			return ((DerivableType*)m_parentNamespace)->compileDefaultConstructor(this);
 		}
 	};
 
 	class DefaultCopyConstructor: public CompilableFunction {
 	public:
-		size_t m_overloadIdx;
-
 		DefaultCopyConstructor() {
 			m_functionKind = FunctionKind_Constructor;
-			m_overloadIdx = -1; // must be adjusted
 		}
 
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultCopyConstructor(m_overloadIdx);
+			return ((DerivableType*)m_parentNamespace)->compileDefaultCopyConstructor(this);
 		}
 	};
 
-	class DefaultAutoGetCastOperator: public CompilableFunction {
+	class DefaultCastOperator: public CompilableFunction {
 	public:
-		DefaultAutoGetCastOperator() {
-			m_functionKind = FunctionKind_Constructor;
+		DefaultCastOperator() {
+			m_functionKind = FunctionKind_CastOperator;
 		}
 
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultAutoGetCastOperator();
+			return ((DerivableType*)m_parentNamespace)->compileDefaultCastOperator(this);
 		}
 	};
 
@@ -159,8 +151,14 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultDestructor();
+			return ((DerivableType*)m_parentNamespace)->compileDefaultDestructor(this);
 		}
+	};
+
+	struct DualConstTuple {
+		DerivableType* m_mtype;
+		DerivableType* m_ctype;
+		ConstKind m_constKind; // ConstKind_AutoConstX or ConstKind_ReadOnlyX
 	};
 
 protected:
@@ -182,9 +180,14 @@ protected:
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
 	Property* m_indexerProperty;
+	DualConstTuple* m_dualConstTuple;
 
 public:
 	DerivableType();
+
+	virtual ~DerivableType() {
+		delete m_dualConstTuple;
+	}
 
 	virtual
 	Type*
@@ -280,8 +283,11 @@ public:
 	Function*
 	findCastOperator(
 		Type* type,
-		CastKind* castKind = NULL
+		CastKind* castKind
 	);
+
+	Function*
+	findCastOperator(Type* type);
 
 	OverloadableFunction
 	getCallOperator() {
@@ -371,6 +377,20 @@ protected:
 	bool
 	resolveImports();
 
+	virtual
+	Type*
+	calcFoldedDualType(
+		AccessKind accessKind,
+		ConstKind constKind
+	);
+
+	virtual
+	Type*
+	calcDualConstType(
+		Type* ctype0,
+		ConstKind constKind
+	);
+
 	template <typename T>
 	void
 	combineOperators(
@@ -397,34 +417,53 @@ protected:
 	createIndexerProperty();
 
 	bool
-	isCopyContructor(Function* ctor) {
+	isCopyContructor(
+		Function* ctor,
+		Type* type
+	) {
 		const sl::Array<FunctionArg*> argArray = ctor->getType()->getArgArray();
-		return argArray.getCount() == 2 && isEqual(argArray[1]->getType());
+		return argArray.getCount() == 2 && type->isEqual(argArray[1]->getType());
 	}
 
 	Function*
-	findCopyConstructor();
+	findCopyConstructor() {
+		return findCopyConstructor(this);
+	}
 
 	Function*
-	createDefaultCopyConstructor(DerivableType* srcType);
+	findCopyConstructor(Type* type);
+
+	bool
+	createDefaultMethods();
+
+	Function*
+	createDefaultCopyConstructor() {
+		return createDefaultCopyConstructor(this);
+	}
+
+	Function*
+	createDefaultCopyConstructor(DerivableType* type);
+
+	Function*
+	createDefaultCastOperator(DerivableType* type);
 
 	FindModuleItemResult
 	findItemInExtensionNamespaces(const sl::StringRef& name);
 
 	bool
-	compileDefaultStaticConstructor();
+	compileDefaultStaticConstructor(Function* function);
 
 	bool
-	compileDefaultConstructor();
+	compileDefaultConstructor(Function* function);
 
 	bool
-	compileDefaultCopyConstructor(size_t overloadIdx);
+	compileDefaultCopyConstructor(Function* function);
 
 	bool
-	compileDefaultAutoGetCastOperator();
+	compileDefaultCastOperator(Function* function);
 
 	bool
-	compileDefaultDestructor();
+	compileDefaultDestructor(Function* function);
 
 	bool
 	requireConstructor() {
@@ -455,6 +494,7 @@ DerivableType::DerivableType():
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
 	m_indexerProperty = NULL;
+	m_dualConstTuple = NULL;
 }
 
 inline

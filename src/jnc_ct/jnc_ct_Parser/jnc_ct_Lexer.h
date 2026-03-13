@@ -90,6 +90,7 @@ enum TokenKind {
 	TokenKind_Indexed,
 	TokenKind_Multicast,
 	TokenKind_Event,
+	TokenKind_AutoEvent,
 	TokenKind_Reactor,
 	TokenKind_Async,
 
@@ -303,6 +304,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Indexed,      "indexed")
 	AXL_LEX_TOKEN_NAME(TokenKind_Multicast,    "multicast")
 	AXL_LEX_TOKEN_NAME(TokenKind_Event,        "event")
+	AXL_LEX_TOKEN_NAME(TokenKind_AutoEvent,    "autoevent")
 	AXL_LEX_TOKEN_NAME(TokenKind_Reactor,      "reactor")
 	AXL_LEX_TOKEN_NAME(TokenKind_Async,        "async")
 

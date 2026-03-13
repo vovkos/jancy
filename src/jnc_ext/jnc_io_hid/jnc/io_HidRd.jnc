@@ -303,7 +303,7 @@ opaque class HidRd {
 
 	HidReport const* const property m_reportArray(
 		HidReportType reportType,
-	    size_t i
+		size_t i
 	);
 
 	construct();

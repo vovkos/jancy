@@ -56,7 +56,7 @@ namespace sys {
 			// ...
 
 			g_event.signal(); // thread1 and thread2 wake up and continue;
-			                    // g_event is still signalled
+			                  // g_event is still signalled
 
 			// ...
 			// if any other thread issues g_event.wait (), it will be satisfied

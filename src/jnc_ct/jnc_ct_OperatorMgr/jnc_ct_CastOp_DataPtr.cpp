@@ -435,7 +435,7 @@ Cast_DataPtr_Base::getCastKind(
 	DataPtrType* srcType = (DataPtrType*)opValue.getType();
 	DataPtrType* dstType = (DataPtrType*)type;
 
-	CastKind constCastKind = getConstCastKind(srcType->getConstKind(), dstType->getConstKind());
+	CastKind constCastKind = calcCastKindFromConstCast(srcType->getConstKind(), dstType->getConstKind());
 	if (!constCastKind)
 		return CastKind_None; // const vs non-const mismatch
 
@@ -494,7 +494,7 @@ Cast_DataPtr_Base::getOffset(
 	DataPtrType* dstType,
 	BaseTypeCoord* coord
 ) {
-	CastKind constCastKind = getConstCastKind(srcType->getConstKind(), dstType->getConstKind());
+	CastKind constCastKind = calcCastKindFromConstCast(srcType->getConstKind(), dstType->getConstKind());
 	if (!constCastKind) {
 		setCastError(srcType, dstType);
 		return -1;
@@ -873,7 +873,7 @@ Cast_DataRef::getCastKind(
 		return CastKind_None;
 
 	DataPtrType* ptrType = (DataPtrType*)type;
-	DataPtrType* intermediateDstType = ptrType->getTargetType()->getDataPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	DataPtrType* intermediateDstType = ptrType->getTargetType()->getDataPtrType(ptrType->getFlags() & PtrTypeFlag_All);
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
 
@@ -886,7 +886,7 @@ Cast_DataRef::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_DataRef);
 
 	DataPtrType* ptrType = (DataPtrType*)type;
-	DataPtrType* intermediateType = ptrType->getTargetType()->getDataPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	DataPtrType* intermediateType = ptrType->getTargetType()->getDataPtrType(ptrType->getFlags() & PtrTypeFlag_All);
 	Value intermediateValue;
 
 	return

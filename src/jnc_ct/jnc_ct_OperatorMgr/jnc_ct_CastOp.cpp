@@ -19,45 +19,45 @@ namespace ct {
 //..............................................................................
 
 CastKind
-getConstCastKind(
+calcCastKindFromConstCast(
 	ConstKind srcConstKind,
 	ConstKind dstConstKind
 ) {
 	static CastKind castKindTable[ConstKind__Count][ConstKind__Count] = {
 		{	// CastKind_None
-			CastKind_Implicit,           // 0 - mutable
-			CastKind_ImplicitCrossConst, // 1 - const
-			CastKind_ImplicitCrossConst, // 2 - const?
-			CastKind_ImplicitCrossConst, // 3 - autoconstx
-			CastKind_ImplicitCrossConst, // 4 - autoconst
+			CastKind_Implicit,            // ConstKind_None
+			CastKind_ImplicitCrossConst,  // ConstKind_Const
+			CastKind_ImplicitCrossConst,  // ConstKind_MaybeConst
+			CastKind_ImplicitCrossConst,  // ConstKind_AutoConstX
+			CastKind_Implicit,            // ConstKind_ReadOnlyX
 		},
 		{	// CastKind_Const
-			CastKind_None,               // 0 - mutable
-			CastKind_Implicit,           // 1 - const
-			CastKind_Implicit,           // 2 - const?
-			CastKind_None,               // 3 - autoconstx
-			CastKind_None,               // 3 - autoconst
+			CastKind_None,                // ConstKind_None
+			CastKind_Implicit,            // ConstKind_Const
+			CastKind_Implicit,            // ConstKind_MaybeConst
+			CastKind_None,                // ConstKind_AutoConstX
+			CastKind_None,                // ConstKind_ReadOnlyX
 		},
 		{	// CastKind_MaybeConst
-			CastKind_None,               // 0 - mutable
-			CastKind_Implicit,           // 1 - const
-			CastKind_Implicit,           // 2 - const?
-			CastKind_Implicit,           // 4 - autoconstx
-			CastKind_Implicit,           // 4 - autoconst
+			CastKind_None,                // ConstKind_None
+			CastKind_Implicit,            // ConstKind_Const
+			CastKind_Implicit,            // ConstKind_MaybeConst
+			CastKind_Implicit,            // ConstKind_AutoConstX
+			CastKind_None,                // ConstKind_ReadOnlyX
 		},
 		{	// CastKind_AutoConstX
-			CastKind_None,               // 0 - mutable
-			CastKind_Implicit,           // 1 - const
-			CastKind_Implicit,           // 2 - const?
-			CastKind_Implicit,           // 4 - autoconstx
-			CastKind_Implicit,           // 4 - autoconst
+			CastKind_None,                // ConstKind_None
+			CastKind_Implicit,            // ConstKind_Const
+			CastKind_Implicit,            // ConstKind_MaybeConst
+			CastKind_Implicit,            // ConstKind_AutoConstX
+			CastKind_None,                // ConstKind_ReadOnlyX
 		},
-		{	// CastKind_AutoConst
-			CastKind_None,               // 0 - mutable
-			CastKind_Implicit,           // 1 - const
-			CastKind_Implicit,           // 2 - const?
-			CastKind_Implicit,           // 4 - autoconstx
-			CastKind_Implicit,           // 4 - autoconst
+		{	// CastKind_ReadOnlyX
+			CastKind_Implicit,            // ConstKind_None
+			CastKind_ImplicitCrossConst,  // ConstKind_Const
+			CastKind_ImplicitCrossConst,  // ConstKind_MaybeConst
+			CastKind_ImplicitCrossConst,  // ConstKind_AutoConstX
+			CastKind_Implicit,            // ConstKind_ReadOnlyX
 		},
 	};
 

@@ -20,22 +20,27 @@ namespace ct {
 
 sl::StringRef
 StructType::createItemString(size_t index) {
-	if (m_stdType != StdType_AbstractData)
-		return DerivableType::createItemString(index);
+	switch (m_structTypeKind) {
+	case StructTypeKind_Adapter:
+		ASSERT(m_baseTypeArray.getCount() == 1);
+		return m_baseTypeArray[0]->m_type->getItemString(index);
 
-	switch (index) {
-	case TypeStringKind_Prefix:
-	case TypeStringKind_DoxyLinkedTextPrefix:
-		return "anydata";
-
-	default:
-		return DerivableType::createItemString(index);
+	case StructTypeKind_AbstractData:
+		switch (index) {
+		case TypeStringKind_Prefix:
+		case TypeStringKind_DoxyLinkedTextPrefix:
+			return "anydata";
+		}
 	}
+
+	return DerivableType::createItemString(index);
 }
 
 void
 StructType::prepareLlvmType() {
-	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), getSignature() >> toLlvm);
+	m_llvmType = m_adapterOriginType ?
+		m_adapterOriginType->getLlvmType() :
+		llvm::StructType::create(*m_module->getLlvmContext(), getSignature() >> toLlvm);
 }
 
 Field*
@@ -133,16 +138,29 @@ StructType::calcLayoutTo(Field* targetField) {
 		return true;
 	}
 
+	if (m_structTypeKind == StructTypeKind_Adapter) {
+		ASSERT(m_adapterOriginType);
+		result = m_adapterOriginType->ensureLayout();
+		if (!result)
+			return false;
+
+		m_flags |= m_adapterOriginType->getFlags() & (TypeFlag_Pod | TypeFlag_GcRoot | TypeFlag_NoStack);
+		m_size = m_adapterOriginType->getSize();
+		m_alignment = m_adapterOriginType->getAlignment();
+		m_fieldSize = m_size;
+		m_fieldAlignment = m_alignment;
+		return true;
+	}
+
 	m_size = sl::align(m_fieldSize, m_alignment);
 
-	// scan members for gcroots and constructors (but not for auxilary structs such as class iface)
-
 	if (m_structTypeKind == StructTypeKind_Normal) {
+		// scan members for gcroots and constructors (but not for auxilary structs such as class iface)
+
 		size_t count = m_fieldArray.getCount();
 		for (size_t i = 0; i < count; i++) {
 			Field* field = m_fieldArray[i];
 			Type* type = field->getType();
-
 			uint_t fieldTypeFlags = type->getFlags();
 
 			if (!(fieldTypeFlags & TypeFlag_Pod))
@@ -169,28 +187,9 @@ StructType::calcLayoutTo(Field* targetField) {
 			return false;
 		}
 
-		if (!m_staticConstructor &&
-			(!m_staticVariableInitializeArray.isEmpty() ||
-			!m_propertyStaticConstructArray.isEmpty())
-		)
-			createDefaultMethod<DefaultStaticConstructor>();
-
-		if (!m_constructor &&
-			(m_staticConstructor ||
-			!m_baseTypeConstructArray.isEmpty() ||
-			!m_fieldInitializeArray.isEmpty() ||
-			!m_propertyConstructArray.isEmpty())
-		)
-			createDefaultMethod<DefaultConstructor>(m_constructorThinThisFlag);
-
-		if (m_constructor) {
-			result = m_constructor.ensureNoImports();
-			if (!result)
-				return false;
-
-			if (!findCopyConstructor())
-				createDefaultCopyConstructor(this);
-		}
+		result = createDefaultMethods();
+		if (!result)
+			return false;
 	} else if (
 		m_structTypeKind == StructTypeKind_IfaceStruct &&
 		(((ClassType*)m_parentNamespace)->getFlags() & ClassTypeFlag_Opaque) &&
@@ -265,7 +264,7 @@ StructType::layoutBaseType(BaseTypeSlot* slot) {
 
 	it->m_value = slot;
 
-	if (m_structTypeKind == StructTypeKind_Normal) {
+	if (m_structTypeKind <= StructTypeKind_Adapter) {
 		combineOperatorArrays(&m_unaryOperatorArray, slot->m_type->getUnaryOperatorArray());
 		combineOperatorArrays(&m_binaryOperatorArray, slot->m_type->getBinaryOperatorArray());
 		combineOperatorMaps(&m_castOperatorMap, slot->m_type->getCastOperatorMap());
@@ -429,6 +428,11 @@ StructType::markGcRoots(
 	const void* p0,
 	rt::GcHeap* gcHeap
 ) {
+	if (m_adapterOriginType) {
+		m_adapterOriginType->markGcRoots(p0, gcHeap);
+		return;
+	}
+
 	char* p = (char*)p0;
 
 	size_t count = m_gcRootBaseTypeArray.getCount();
@@ -442,57 +446,6 @@ StructType::markGcRoots(
 		Field* field = m_gcRootFieldArray[i];
 		field->getType()->markGcRoots(p + field->getOffset(), gcHeap);
 	}
-}
-
-Type*
-StructType::calcAutoConstType(Type* ctype0) {
-	ASSERT((m_flags & TypeFlag_LayoutReady) && (ctype0->getFlags() & TypeFlag_LayoutReady));
-
-	StructType* ctype = (StructType*)ctype0;
-	if (ctype->m_typeKind != TypeKind_Struct ||
-		m_size != ctype->getSize() ||
-		m_alignment != ctype->m_alignment ||
-		m_fieldSize != ctype->m_fieldSize ||
-		m_fieldAlignment != ctype->m_fieldAlignment ||
-		!m_templateInstance ||
-		!ctype->m_templateInstance ||
-		m_templateInstance->m_template != ctype->m_templateInstance->m_template
-	) {
-		setAutoConstError(this, ctype);
-		return NULL;
-	}
-
-	Template* templ = m_templateInstance->m_template;
-	size_t argCount = templ->getArgArray().getCount();
-	ASSERT(
-		m_templateInstance->m_argArray.getCount() == argCount &&
-		ctype->m_templateInstance->m_argArray.getCount() == argCount
-	);
-
-	sl::Array<Type*> argArray;
-	argArray.setCount(argCount);
-	sl::Array<Type*>::Rwi rwi = argArray.rwi();
-	for (size_t i = 0; i < argCount; i++) {
-		Type* margType = m_templateInstance->m_argArray[i];
-		Type* cargType = ctype->m_templateInstance->m_argArray[i];
-		Type* argType = margType->getAutoConstType(cargType);
-		if (!argType)
-			return NULL;
-
-		rwi[i] = argType;
-	}
-
-	StructType* actype = (StructType*)templ->instantiate(argArray);
-	if (!actype)
-		return NULL;
-
-	ASSERT(
-		actype->getItemKind() == ModuleItemKind_Type &&
-		actype->getTypeKind() == TypeKind_Struct
-	);
-
-	actype->createDefaultCopyConstructor(this);
-	return actype;
 }
 
 //..............................................................................

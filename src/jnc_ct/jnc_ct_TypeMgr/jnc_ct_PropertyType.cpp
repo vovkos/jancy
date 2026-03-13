@@ -154,7 +154,7 @@ PropertyType::calcFoldedDualType(
 	return m_module->m_typeMgr.getPropertyType(
 		getterType,
 		setterType,
-		m_flags & PropertyTypeFlag__All
+		m_flags & PropertyTypeFlag_All
 	);
 }
 

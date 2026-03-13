@@ -86,13 +86,24 @@ Cast_Struct::llvmCast(
 		BaseTypeCoord coord;
 		result = srcStructType->findBaseTypeTraverse(type, &coord);
 		if (result) {
-			m_module->m_llvmIrBuilder.createExtractValue(
-				opValue,
-				coord.m_llvmIndexArray,
-				coord.m_llvmIndexArray.getCount(),
-				type,
-				resultValue
-			);
+			if (srcStructType->getStructTypeKind() != StructTypeKind_Adapter)
+				m_module->m_llvmIrBuilder.createExtractValue(
+					opValue,
+					coord.m_llvmIndexArray,
+					coord.m_llvmIndexArray.getCount(),
+					type,
+					resultValue
+				);
+			else { // bitcast adapter struct
+				ASSERT(coord.m_offset == 0);
+
+				Value tmpValue;
+				Value tmpValue2;
+				m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
+				m_module->m_llvmIrBuilder.createBitCast(tmpValue, srcStructType->getDataPtrType(DataPtrKind_Thin), &tmpValue2);
+				m_module->m_llvmIrBuilder.createStore(opValue, tmpValue2);
+				m_module->m_llvmIrBuilder.createLoad(tmpValue, type, resultValue);
+			}
 
 			return true;
 		}

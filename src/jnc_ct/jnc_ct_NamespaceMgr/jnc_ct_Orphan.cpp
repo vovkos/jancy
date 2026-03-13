@@ -214,7 +214,7 @@ Orphan::resolveToFunction(ModuleItem* item) {
 			originType->getCallConv(),
 			originType->getReturnType(),
 			argArray,
-			originType->getFlags() & FunctionTypeFlag__All
+			originType->getFlags() & FunctionTypeFlag_All
 		);
 	}
 

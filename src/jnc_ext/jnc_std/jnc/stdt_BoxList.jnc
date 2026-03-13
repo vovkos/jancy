@@ -62,7 +62,11 @@ typedef IteratorImpl<
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BoxList<T>: List<BoxListEntry<T>, BoxIterator<T> > {
+class BoxList<T>: List<
+	BoxListEntry<T>,
+	BoxIterator<T>,
+	BoxConstIterator<T>
+> {
 	Iterator append(T value) {
 		return insertTail(value);
 	}

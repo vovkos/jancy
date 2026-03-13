@@ -101,11 +101,11 @@ OperatorMgr::getCdeclVarArgType(Type* type) {
 			break;
 
 		case TypeKind_ClassRef:
-			type = ((ClassPtrType*)type)->getTargetType()->getClassPtrType(type->getFlags() & PtrTypeFlag__All);
+			type = ((ClassPtrType*)type)->getTargetType()->getClassPtrType(type->getFlags() & PtrTypeFlag_All);
 			break;
 
 		case TypeKind_FunctionRef:
-			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(type->getFlags() & PtrTypeFlag__All);
+			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(type->getFlags() & PtrTypeFlag_All);
 			break;
 
 		case TypeKind_PropertyRef:

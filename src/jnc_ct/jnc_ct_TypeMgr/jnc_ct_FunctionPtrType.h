@@ -46,35 +46,35 @@ public:
 	FunctionPtrType*
 	getSafePtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All | PtrTypeFlag_Safe) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag_All | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
 	getUnsafePtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag_Safe) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
 	getNormalPtrType() {
 		return getPtrKind() != FunctionPtrKind_Normal ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask) :
 			this;
 	}
 
 	FunctionPtrType*
 	getWeakPtrType() {
 		return getPtrKind() != FunctionPtrKind_Weak ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | FunctionPtrKind_Weak) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask | FunctionPtrKind_Weak) :
 			this;
 	}
 
 	FunctionPtrType*
 	getNonWeakPtrType() {
 		return getPtrKind() == FunctionPtrKind_Weak ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask) :
 			this;
 	}
 
@@ -135,7 +135,7 @@ protected:
 		ConstKind constKind
 	) {
 		FunctionType* targetType = (FunctionType*)m_targetType->foldDualType(accessKind, constKind);
-		return targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag__All);
+		return targetType->getFunctionPtrType(m_typeKind, m_flags & PtrTypeFlag_All);
 	}
 
 	virtual

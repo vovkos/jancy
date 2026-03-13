@@ -57,21 +57,21 @@ public:
 	DataPtrType*
 	getSafePtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getDataPtrType(m_typeKind, m_flags & PtrTypeFlag__All | PtrTypeFlag_Safe) :
+			m_targetType->getDataPtrType(m_typeKind, m_flags & PtrTypeFlag_All | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	DataPtrType*
 	getUnsafePtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getDataPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag_Safe) :
+			m_targetType->getDataPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	DataPtrType*
 	getNonConstPtrType() {
-		return (m_flags & PtrTypeFlag__ConstKindMask) ?
-			m_targetType->getDataPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__ConstKindMask) :
+		return (m_flags & PtrTypeFlag_ConstKindMask) ?
+			m_targetType->getDataPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_ConstKindMask) :
 			this;
 	}
 
@@ -105,17 +105,6 @@ public:
 		Type* referenceType
 	);
 
-	virtual
-	Type*
-	calcFoldedDualType(
-		AccessKind accessKind,
-		ConstKind constKind
-	);
-
-	virtual
-	Type*
-	calcAutoConstType(Type* ctype);
-
 protected:
 	virtual
 	bool
@@ -126,6 +115,20 @@ protected:
 	virtual
 	bool
 	calcLayout();
+
+	virtual
+	Type*
+	calcFoldedDualType(
+		AccessKind accessKind,
+		ConstKind constKind
+	);
+
+	virtual
+	Type*
+	calcDualConstType(
+		Type* ctype,
+		ConstKind constKind
+	);
 
 	virtual
 	void

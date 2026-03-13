@@ -24,12 +24,6 @@ class Template;
 
 //..............................................................................
 
-enum TemplateFlag {
-	TemplateFlag_AutoConst = 0x0100,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct TemplateInstance {
 	ModuleItem* m_item;
 	Template* m_template;

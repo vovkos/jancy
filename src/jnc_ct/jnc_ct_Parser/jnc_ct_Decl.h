@@ -44,12 +44,13 @@ enum TypeModifier {
 	TypeModifier_Indexed    = 0x00020000,
 	TypeModifier_Multicast  = 0x00040000,
 	TypeModifier_Event      = 0x00080000,
-	TypeModifier_Reactor    = 0x00100000,
-	TypeModifier_Thiscall   = 0x00200000,
-	TypeModifier_Jnccall    = 0x00400000,
-	TypeModifier_Unsafe     = 0x00800000,
-	TypeModifier_ErrorCode  = 0x01000000,
-	TypeModifier_Async      = 0x02000000,
+	TypeModifier_AutoEvent  = 0x00100000,
+	TypeModifier_Reactor    = 0x00200000,
+	TypeModifier_Thiscall   = 0x00400000,
+	TypeModifier_Jnccall    = 0x00800000,
+	TypeModifier_Unsafe     = 0x01000000,
+	TypeModifier_ErrorCode  = 0x02000000,
+	TypeModifier_Async      = 0x04000000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -101,6 +102,7 @@ enum TypeModifierMaskKind {
 		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
+		TypeModifier_AutoEvent |
 		TypeModifier_Weak,
 
 	TypeModifierMaskKind_FunctionPtr =
@@ -136,16 +138,12 @@ enum TypeModifierMaskKind {
 		TypeModifier_MaybeConst |
 		TypeModifier_AutoConst |
 		TypeModifier_ReadOnly |
-		TypeModifier_Event,
+		TypeModifier_Event |
+		TypeModifier_AutoEvent,
 
 	TypeModifierMaskKind_Event =
 		TypeModifierMaskKind_Const |
-		TypeModifierMaskKind_TypeKind,
-
-	TypeModifierMaskKind_Dual =
-		TypeModifier_AutoConst |
-		TypeModifier_ReadOnly |
-		TypeModifier_Event,
+		TypeModifierMaskKind_TypeKind
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

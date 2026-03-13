@@ -44,7 +44,7 @@ Each property in Jancy has one getter and zero or more setters. Property type ha
 enum jnc_PropertyTypeFlag {
 	jnc_PropertyTypeFlag_Const    = 0x010000,
 	jnc_PropertyTypeFlag_Bindable = 0x020000,
-	jnc_PropertyTypeFlag__All     = 0x030000,
+	jnc_PropertyTypeFlag_All      = 0x030000,
 };
 
 typedef enum jnc_PropertyTypeFlag jnc_PropertyTypeFlag;
@@ -91,7 +91,7 @@ typedef jnc_PropertyTypeFlag PropertyTypeFlag;
 const PropertyTypeFlag
 	PropertyTypeFlag_Const    = jnc_PropertyTypeFlag_Const,
 	PropertyTypeFlag_Bindable = jnc_PropertyTypeFlag_Bindable,
-	PropertyTypeFlag__All     = jnc_PropertyTypeFlag__All;
+	PropertyTypeFlag_All      = jnc_PropertyTypeFlag_All;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

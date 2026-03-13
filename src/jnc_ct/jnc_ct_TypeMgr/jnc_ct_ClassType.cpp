@@ -451,27 +451,9 @@ ClassType::calcLayout() {
 			return false;
 	}
 
-	// create default constructors/destructors
-
-	if (!m_staticConstructor &&
-		(!m_staticVariableInitializeArray.isEmpty() ||
-		!m_propertyStaticConstructArray.isEmpty())
-	)
-		createDefaultMethod<DefaultStaticConstructor>();
-
-	if (!m_constructor &&
-		(m_staticConstructor ||
-		!m_baseTypeConstructArray.isEmpty() ||
-		!m_fieldInitializeArray.isEmpty() ||
-		!m_propertyConstructArray.isEmpty())
-	)
-		createDefaultMethod<DefaultConstructor>();
-
-	if (!m_destructor &&
-		(!m_baseTypeDestructArray.isEmpty() ||
-		!m_propertyDestructArray.isEmpty())
-	)
-		createDefaultMethod<DefaultDestructor>();
+	result = createDefaultMethods();
+	if (!result)
+		return false;
 
 	m_size = m_classStructType->getSize();
 	m_alignment = m_classStructType->getAlignment();
@@ -610,7 +592,7 @@ ClassType::overrideVirtualFunction(Function* function) {
 		function->m_type = m_module->m_typeMgr.getFunctionType(
 			function->m_type->getReturnType(),
 			argArray,
-			function->m_type->getFlags() & FunctionTypeFlag__All
+			function->m_type->getFlags() & FunctionTypeFlag_All
 		);
 	}
 

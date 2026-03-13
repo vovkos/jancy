@@ -22,7 +22,6 @@ class TemplateMgr {
 protected:
 	Module* m_module;
 	sl::List<Template> m_templateList;
-	Template* m_autoConstTemplate;
 
 public:
 	TemplateMgr();
@@ -35,7 +34,6 @@ public:
 	void
 	clear() {
 		m_templateList.clear();
-		m_autoConstTemplate = NULL;
 	}
 
 	Template*
@@ -53,13 +51,10 @@ public:
 	);
 
 	Template*
-	getAutoConstTemplate() {
-		return m_autoConstTemplate ? m_autoConstTemplate : createAutoConstTemplate();
-	}
-
-protected:
-	Template*
-	createAutoConstTemplate();
+	createDualConstTemplate(
+		const sl::StringRef& name,
+		ConstKind constKind
+	);
 };
 
 //..............................................................................

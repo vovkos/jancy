@@ -93,6 +93,7 @@ main := |*
 	'indexed'         |
 	'multicast'       |
 	'event'           |
+	'autoevent'       |
 	'reactor'         |
 	'async'           |
 

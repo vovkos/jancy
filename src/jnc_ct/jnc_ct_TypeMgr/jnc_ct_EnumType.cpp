@@ -35,7 +35,7 @@ getEnumTypeFlagString(EnumTypeFlag flag) {
 
 sl::StringRef
 getEnumTypeFlagString(uint_t flags) {
-	flags &= EnumTypeFlag__All;
+	flags &= EnumTypeFlag_All;
 	if (!flags)
 		return sl::StringRef();
 

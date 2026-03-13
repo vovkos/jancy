@@ -234,7 +234,8 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("ModuleCompileState", introImport) &&
 		jncNspace->addItem("Module", introImport) &&
 		jncNspace->addItem("Unit", introImport) &&
-		jncNspace->addItem("AutoConst", m_module->m_templateMgr.getAutoConstTemplate());
+		jncNspace->addItem(m_module->m_templateMgr.createDualConstTemplate("AutoConst", ConstKind_AutoConstX)) &&
+		jncNspace->addItem(m_module->m_templateMgr.createDualConstTemplate("ReadOnly", ConstKind_ReadOnlyX));
 
 	ASSERT(result);
 }

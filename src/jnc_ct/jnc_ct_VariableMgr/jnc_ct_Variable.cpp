@@ -105,7 +105,7 @@ Variable::generateDocumentation(
 	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 	itemXml->append(m_type->getDoxyTypeString());
 
-	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_ptrTypeFlags & ~PtrTypeFlag_EventX);
+	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_ptrTypeFlags & ~PtrTypeFlag_AutoEvent);
 	if (!ptrTypeFlagString.isEmpty())
 		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz());
 

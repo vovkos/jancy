@@ -37,7 +37,7 @@ enum CastKind {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 CastKind
-getConstCastKind(
+calcCastKindFromConstCast(
 	ConstKind srcConstKind,
 	ConstKind dstConstKind
 );

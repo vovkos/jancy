@@ -46,35 +46,35 @@ public:
 	PropertyPtrType*
 	getSafePtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All | PtrTypeFlag_Safe) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag_All | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
 	getUnsafePtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag_Safe) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
 	getNormalPtrType() {
 		return getPtrKind() != PropertyPtrKind_Normal ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask) :
 			this;
 	}
 
 	PropertyPtrType*
 	getWeakPtrType() {
 		return getPtrKind() != PropertyPtrKind_Weak ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | PropertyPtrKind_Weak) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask | PropertyPtrKind_Weak) :
 			this;
 	}
 
 	PropertyPtrType*
 	getNonWeakPtrType() {
 		return getPtrKind() == PropertyPtrKind_Weak ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask) :
 			this;
 	}
 
@@ -118,7 +118,7 @@ protected:
 		ConstKind constKind
 	) {
 		PropertyType* targetType = (PropertyType*)m_targetType->foldDualType(accessKind, constKind);
-		return targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag__All);
+		return targetType->getPropertyPtrType(m_typeKind, m_flags & PtrTypeFlag_All);
 	}
 
 	virtual

@@ -139,7 +139,10 @@ ArrayType::markGcRoots(
 }
 
 Type*
-ArrayType::calcAutoConstType(Type* ctype0) {
+ArrayType::calcDualConstType(
+	Type* ctype0,
+	ConstKind constKind
+) {
 	ASSERT((m_flags & TypeFlag_LayoutReady) && (ctype0->getFlags() & TypeFlag_LayoutReady));
 
 	ArrayType* ctype = (ArrayType*)ctype0;
@@ -148,7 +151,7 @@ ArrayType::calcAutoConstType(Type* ctype0) {
 		return NULL;
 	}
 
-	Type* elementType = m_elementType->getAutoConstType(ctype->m_elementType);
+	Type* elementType = m_elementType->getDualConstType(ctype->m_elementType, constKind);
 	return elementType ? m_module->m_typeMgr.getArrayType(elementType, m_elementCount) : NULL;
 }
 

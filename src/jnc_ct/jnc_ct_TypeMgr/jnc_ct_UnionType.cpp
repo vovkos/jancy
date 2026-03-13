@@ -116,27 +116,9 @@ UnionType::calcLayout() {
 		return false;
 	}
 
-	if (!m_staticConstructor &&
-		(!m_staticVariableInitializeArray.isEmpty() ||
-		!m_propertyStaticConstructArray.isEmpty())
-	)
-		createDefaultMethod<DefaultStaticConstructor>();
-
-	if (!m_constructor &&
-		(m_staticConstructor ||
-		!m_fieldInitializeArray.isEmpty() ||
-		!m_propertyConstructArray.isEmpty())
-	)
-		createDefaultMethod<DefaultConstructor>(m_constructorThinThisFlag);
-
-	if (m_constructor) {
-		result = m_constructor.ensureNoImports();
-		if (!result)
-			return false;
-
-		if (!findCopyConstructor())
-			createDefaultCopyConstructor(this);
-	}
+	result = createDefaultMethods();
+	if (!result)
+		return false;
 
 	m_size = m_structType->getSize();
 	m_alignment = m_structType->getAlignment();

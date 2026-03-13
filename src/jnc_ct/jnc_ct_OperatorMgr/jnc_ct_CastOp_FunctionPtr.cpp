@@ -603,7 +603,7 @@ Cast_FunctionRef::getCastKind(
 		return CastKind_None;
 
 	FunctionPtrType* ptrType = (FunctionPtrType*)type;
-	FunctionPtrType* intermediateDstType = ptrType->getTargetType()->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	FunctionPtrType* intermediateDstType = ptrType->getTargetType()->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag_All);
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
 
@@ -616,7 +616,7 @@ Cast_FunctionRef::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_FunctionRef);
 
 	FunctionPtrType* ptrType = (FunctionPtrType*)type;
-	FunctionPtrType* intermediateType = ptrType->getTargetType()->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag__All);
+	FunctionPtrType* intermediateType = ptrType->getTargetType()->getFunctionPtrType(ptrType->getFlags() & PtrTypeFlag_All);
 	Value intermediateValue;
 
 	return

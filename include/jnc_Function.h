@@ -325,6 +325,14 @@ public:
 		return m_item;
 	}
 
+	size_t
+	getOverloadCount() {
+		JNC_ASSERT(m_item);
+		return jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_FunctionOverload ?
+			jnc_FunctionOverload_getOverloadCount(m_functionOverload) :
+			1;
+	}
+
 	Function*
 	getFunction() {
 		JNC_ASSERT(m_item && jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_Function);

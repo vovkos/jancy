@@ -117,7 +117,7 @@ BinOp_Idx::arrayIndexOperator(
 					&ptr,
 					elementType->getDataPtrType(
 						TypeKind_DataRef,
-						type->getFlags() & PtrTypeFlag__All
+						type->getFlags() & PtrTypeFlag_All
 					)
 				);
 			} else {
@@ -128,7 +128,7 @@ BinOp_Idx::arrayIndexOperator(
 					&p,
 					elementType->getDataPtrType(
 						TypeKind_DataRef,
-						type->getFlags() & PtrTypeFlag__All
+						type->getFlags() & PtrTypeFlag_All
 					)
 				);
 			}
@@ -146,7 +146,7 @@ BinOp_Idx::arrayIndexOperator(
 	}
 
 	DataPtrType* opType1 = (DataPtrType*)opValue1.getType();
-	uint_t ptrTypeFlags = opType1->getFlags() & PtrTypeFlag__All;
+	uint_t ptrTypeFlags = opType1->getFlags() & PtrTypeFlag_All;
 	if (ptrTypeFlags & PtrTypeFlag_Safe) {
 		if (opValue2.getValueKind() == ValueKind_Const) {
 			Value idxValue;
@@ -179,7 +179,7 @@ BinOp_Idx::arrayIndexOperator(
 
 		default:
 			ASSERT(ptrKind == DataPtrKind_Normal);
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean);
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean);
 		}
 
 		resultValue->setType(ptrType);
@@ -198,7 +198,7 @@ BinOp_Idx::arrayIndexOperator(
 
 		default:
 			ASSERT(ptrKind == DataPtrKind_Normal);
-			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean);
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean);
 			m_module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
 			m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
 			m_module->m_llvmIrBuilder.createGep(ptrValue, elementType, opValue2, ptrType, resultValue);

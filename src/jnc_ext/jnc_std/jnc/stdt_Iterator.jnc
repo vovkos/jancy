@@ -57,16 +57,13 @@ struct IteratorBase<P> {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct IteratorImpl<B, M, C>: B {
-	typedef IteratorImpl<M, M, C> Iterator;
-	typedef IteratorImpl<C, M, C> ConstIterator;
-
 	construct() thin {}
 
 	construct(EntryPtr p) thin {
 		m_p = p;
 	}
 
-	construct(Iterator it) thin {
+	construct(IteratorImpl<M, M, C> it) thin { // cast from mutable iterator
 		m_p = it.m_p;
 	}
 }
@@ -89,6 +86,11 @@ typedef jnc.AutoConst<
 	Iterator<T>,
 	ConstIterator<T>
 > AutoConstIterator<T>;
+
+typedef jnc.ReadOnly<
+	Iterator<T>,
+	ConstIterator<T>
+> ReadOnlyIterator<T>;
 
 //..............................................................................
 

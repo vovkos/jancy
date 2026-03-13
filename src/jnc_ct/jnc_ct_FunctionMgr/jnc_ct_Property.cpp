@@ -719,11 +719,11 @@ Property::generateDocumentation(
 }
 
 bool
-Property::compileDefaultStaticConstructor() {
-	ASSERT(m_staticConstructor);
+Property::compileDefaultStaticConstructor(Function* function) {
+	ASSERT(function == m_staticConstructor);
 
 	ParseContext parseContext(ParseContextKind_Body, m_module, *this);
-	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
+	m_module->m_functionMgr.internalPrologue(function);
 
 	primeStaticVariables();
 
@@ -734,13 +734,11 @@ Property::compileDefaultStaticConstructor() {
 }
 
 bool
-Property::compileDefaultConstructor() {
-	Function* constructor = m_constructor.getFunction();
-
+Property::compileDefaultConstructor(Function* function) {
 	ParseContext parseContext(ParseContextKind_Body, m_module, *this);
 
 	Value thisValue;
-	m_module->m_functionMgr.internalPrologue(constructor, &thisValue, 1);
+	m_module->m_functionMgr.internalPrologue(function, &thisValue, 1);
 
 	// don't call static constructor here -- as to avoid unnecessary nested once-stmt
 
@@ -751,13 +749,13 @@ Property::compileDefaultConstructor() {
 }
 
 bool
-Property::compileDefaultDestructor() {
-	ASSERT(m_destructor);
+Property::compileDefaultDestructor(Function* function) {
+	ASSERT(function == m_destructor);
 
 	bool result;
 
 	Value argValue;
-	m_module->m_functionMgr.internalPrologue(m_destructor, &argValue, 1);
+	m_module->m_functionMgr.internalPrologue(function, &argValue, 1);
 
 	result = callPropertyDestructors(argValue);
 	if (!result)
@@ -768,12 +766,12 @@ Property::compileDefaultDestructor() {
 }
 
 bool
-Property::compileAutoGetter() {
-	ASSERT(m_getter);
+Property::compileAutoGetter(Function* function) {
+	ASSERT(function == m_getter);
 
 	bool result;
 
-	m_module->m_functionMgr.internalPrologue(m_getter);
+	m_module->m_functionMgr.internalPrologue(function);
 
 	Value autoGetValue;
 	result =
@@ -788,20 +786,18 @@ Property::compileAutoGetter() {
 }
 
 bool
-Property::compileAutoSetter() {
+Property::compileAutoSetter(Function* function) {
 	ASSERT(m_type->getFlags() & PropertyTypeFlag_Bindable);
 
 	bool result;
 
-	Function* setter = m_setter.getFunction();
-
 	Value srcValue;
 	if (isMember()) {
 		Value argValueArray[2];
-		m_module->m_functionMgr.internalPrologue(setter, argValueArray, 2);
+		m_module->m_functionMgr.internalPrologue(function, argValueArray, 2);
 		srcValue = argValueArray[1];
 	} else {
-		m_module->m_functionMgr.internalPrologue(setter, &srcValue, 1);
+		m_module->m_functionMgr.internalPrologue(function, &srcValue, 1);
 	}
 
 	BasicBlock* assignBlock = m_module->m_controlFlowMgr.createBlock("assign_block");
@@ -826,12 +822,12 @@ Property::compileAutoSetter() {
 }
 
 bool
-Property::compileBinder() {
-	ASSERT(m_binder);
+Property::compileBinder(Function* function) {
+	ASSERT(function == m_binder);
 
 	bool result;
 
-	m_module->m_functionMgr.internalPrologue(m_binder);
+	m_module->m_functionMgr.internalPrologue(function);
 
 	Value onChangedValue;
 	result =

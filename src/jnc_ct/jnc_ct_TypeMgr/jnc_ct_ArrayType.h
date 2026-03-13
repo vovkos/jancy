@@ -72,10 +72,6 @@ public:
 		rt::GcHeap* gcHeap
 	);
 
-	virtual
-	Type*
-	calcAutoConstType(Type* ctype);
-
 protected:
 	virtual
 	bool
@@ -86,6 +82,13 @@ protected:
 	virtual
 	bool
 	calcLayout();
+
+	virtual
+	Type*
+	calcDualConstType(
+		Type* ctype,
+		ConstKind constKind
+	);
 
 	virtual
 	void

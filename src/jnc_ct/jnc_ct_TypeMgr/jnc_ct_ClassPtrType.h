@@ -45,35 +45,35 @@ public:
 	ClassPtrType*
 	getSafePtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All | PtrTypeFlag_Safe) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag_All | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
 	getUnsafePtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag_Safe) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
 	getNonConstPtrType() {
-		return (m_flags & PtrTypeFlag__ConstKindMask) ?
-			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__ConstKindMask) :
+		return (m_flags & PtrTypeFlag_ConstKindMask) ?
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_ConstKindMask) :
 			this;
 	}
 
 	ClassPtrType*
 	getNormalPtrType() {
 		return getPtrKind() != ClassPtrKind_Normal ?
-			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask) :
 			this;
 	}
 
 	ClassPtrType*
 	getWeakPtrType() {
 		return getPtrKind() != ClassPtrKind_Weak ?
-			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag__All & ~PtrTypeFlag__PtrKindMask | ClassPtrKind_Weak) :
+			m_targetType->getClassPtrType(m_typeKind, m_flags & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask | ClassPtrKind_Weak) :
 			this;
 	}
 
@@ -98,17 +98,6 @@ public:
 		sl::Array<Type*>* templateArgTypeArray,
 		Type* referenceType
 	);
-
-	virtual
-	Type*
-	calcFoldedDualType(
-		AccessKind accessKind,
-		ConstKind constKind
-	);
-
-	virtual
-	Type*
-	calcAutoConstType(Type* ctype);
 
 protected:
 	virtual
@@ -135,6 +124,20 @@ protected:
 	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_ClassPtrType);
 	}
+
+	virtual
+	Type*
+	calcFoldedDualType(
+		AccessKind accessKind,
+		ConstKind constKind
+	);
+
+	virtual
+	Type*
+	calcDualConstType(
+		Type* ctype,
+		ConstKind constKind
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

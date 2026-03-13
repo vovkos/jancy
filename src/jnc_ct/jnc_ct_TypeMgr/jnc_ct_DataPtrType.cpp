@@ -134,8 +134,7 @@ DataPtrType::calcFoldedDualType(
 	ASSERT(m_flags & TypeFlag_Dual);
 
 	Type* targetType = m_targetType->getActualTypeIfDual(accessKind, constKind);
-	uint_t flags = m_flags & PtrTypeFlag__All & ~(ConstKind_ReadOnly | ConstKind_AutoConst);
-
+	uint_t flags = m_flags & PtrTypeFlag_All & ~(ConstKind_ReadOnly | ConstKind_AutoConst);
 	ConstKind thisConstKind = getConstKind();
 	if (thisConstKind == ConstKind_AutoConst)
 		flags |= constKind;
@@ -146,7 +145,10 @@ DataPtrType::calcFoldedDualType(
 }
 
 Type*
-DataPtrType::calcAutoConstType(Type* ctype0) {
+DataPtrType::calcDualConstType(
+	Type* ctype0,
+	ConstKind constKind
+) {
 	ASSERT((m_flags & TypeFlag_LayoutReady) && (ctype0->getFlags() & TypeFlag_LayoutReady));
 
 	DataPtrType* ctype = (DataPtrType*)ctype0;
@@ -154,13 +156,13 @@ DataPtrType::calcAutoConstType(Type* ctype0) {
 
 	if (ctype->getTypeKind() != TypeKind_DataPtr ||
 		getPtrKind() != ctype->getPtrKind() ||
-		(ptrFlags = calcAutoConstPtrTypeFlags(m_flags, ctype->getFlags())) == -1
+		(ptrFlags = calcDualConstPtrTypeFlags(m_flags, ctype->getFlags(), constKind)) == -1
 	) {
 		setAutoConstError(this, ctype);
 		return NULL;
 	}
 
-	Type* targetType = m_targetType->getAutoConstType(ctype->m_targetType);
+	Type* targetType = m_targetType->getDualConstType(ctype->m_targetType, constKind);
 	if (!targetType)
 		return NULL;
 

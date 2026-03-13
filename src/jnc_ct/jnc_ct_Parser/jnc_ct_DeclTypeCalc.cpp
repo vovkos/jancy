@@ -108,8 +108,7 @@ DeclTypeCalc::calcType(
 		case TypeKind_ImportTypeName:
 			type = m_module->m_typeMgr.getModType<ImportPtrType>(
 				(ImportTypeName*)type,
-				m_typeModifiers & TypeModifierMaskKind_ImportPtr,
-				(m_typeModifiers & TypeModifierMaskKind_Dual) ? TypeFlag_Dual : 0
+				m_typeModifiers & TypeModifierMaskKind_ImportPtr
 			);
 
 			m_typeModifiers &= ~TypeModifierMaskKind_ImportPtr;
@@ -118,8 +117,7 @@ DeclTypeCalc::calcType(
 		case TypeKind_TemplateArg:
 			type = m_module->m_typeMgr.getModType<TemplatePtrType>(
 				(TemplateArgType*)type,
-				m_typeModifiers & TypeModifierMaskKind_TemplatePtr,
-				(m_typeModifiers & TypeModifierMaskKind_Dual) ? TypeFlag_Dual : 0
+				m_typeModifiers & TypeModifierMaskKind_TemplatePtr
 			);
 
 			m_typeModifiers &= ~TypeModifierMaskKind_TemplatePtr;
@@ -284,8 +282,8 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 	if (m_typeModifiers & TypeModifier_Volatile)
 		flags |= PtrTypeFlag_Volatile;
 
-	if (m_typeModifiers & TypeModifier_Event) // convert 'event' to 'eventx'
-		flags |= PtrTypeFlag_EventX;
+	if (m_typeModifiers & (TypeModifier_Event | TypeModifier_AutoEvent)) // convert 'event' to 'autoevent'
+		flags |= PtrTypeFlag_AutoEvent;
 
 	if (m_typeModifiers & TypeModifier_Bindable)
 		flags |= PtrTypeFlag_Bindable;
@@ -301,6 +299,7 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 		TypeModifier_BigEndian |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
+		TypeModifier_AutoEvent |
 		TypeModifier_Bindable |
 		TypeModifier_AutoGet
 	);

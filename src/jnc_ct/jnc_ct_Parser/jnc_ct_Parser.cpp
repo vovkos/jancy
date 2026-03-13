@@ -2258,8 +2258,7 @@ Parser::declareData(
 		}
 
 		if (!stmt->m_structType) {
-			sl::String name = m_module->createUniqueName("!DySection");
-			StructType* structType = m_module->m_typeMgr.createInternalStructType(name, 1);
+			StructType* structType = m_module->m_typeMgr.createInternalStructType("!DySection", 1);
 
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
@@ -2356,6 +2355,31 @@ Parser::declareData(
 		if (bitCount) {
 			err::setError("bit fields are not applicable here");
 			return false;
+		}
+
+		uint_t typeFlags = type->getFlags();
+		if (typeFlags & TypeFlag_Dual) {
+			if (typeFlags & TypeFlag_DualByConst) {
+				Type* thisType = m_module->m_operatorMgr.getThisValueType();
+				if (!thisType)
+					return false;
+
+				ASSERT(thisType->getTypeKindFlags() & TypeKindFlag_Ptr);
+				ConstKind constKind = getConstKindFromFlags(thisType->getFlags());
+				if (constKind != ConstKind_MaybeConst) {
+					err::setError("'this' pointer is not 'const?'");
+					return false;
+				}
+			}
+
+			if ((typeFlags & (TypeFlag_DualByAccess | PtrTypeFlag_AutoEvent)) == TypeFlag_DualByAccess &&
+				namespaceKind != NamespaceKind_Type
+			) {
+				err::setError("not an access-controlled namespace");
+				return false;
+			}
+
+			type = type->foldDualType(AccessKind_Protected, ConstKind_AutoConstX);
 		}
 
 		Variable* variable = m_module->m_variableMgr.createVariable(

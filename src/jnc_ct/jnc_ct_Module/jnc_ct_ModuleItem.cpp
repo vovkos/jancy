@@ -89,18 +89,21 @@ ModuleItemDecl::createLinkIdImpl(Module* module) const {
 		parentLinkId = m_parentNamespace->getDeclItem()->getLinkId();
 
 	if (parentLinkId.isEmpty())
-		return !m_name.isEmpty() ?
-			m_name :
-			module->m_namespaceMgr.getGlobalNamespace() != this ?
+		return m_name.isEmpty() ?
+			this == module->m_namespaceMgr.getGlobalNamespace() ?
+				sl::StringRef() :
 				sl::StringRef(module->createUniqueName("unnamed")) :
-				sl::StringRef();
+			m_name[0] == '!' ?
+				sl::StringRef(module->createUniqueName(m_name)) :
+				m_name;
 
 	sl::String linkId = parentLinkId;
-	if (!m_name.isEmpty()) {
-		linkId += '.';
-		linkId += m_name;
-	} else
-		linkId.appendFormat(module->createUniqueName("unnamed"));
+	linkId += '.';
+	linkId += m_name.isEmpty() ?
+		module->createUniqueName("unnamed") :
+		m_name[0] == '!' ?
+			sl::StringRef(module->createUniqueName(m_name)) :
+			m_name;
 
 	return linkId;
 }

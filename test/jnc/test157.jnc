@@ -24,9 +24,9 @@ struct BoxIteratorBase<T>: IteratorBase<BoxListEntry<T> > {
 		return m_p.m_value;
 	}
 
- 	T operator := (T value) thin {
- 		return m_p.m_value = value;
- 	}
+	T operator := (T value) thin {
+		return m_p.m_value = value;
+	}
 }
 
 typedef IteratorImpl<BoxIteratorBase<T> > BoxIterator<T>;

@@ -158,7 +158,7 @@ OperatorMgr::baseTypeOperator(
 	if (!slot)
 		return false;
 
-	uint_t ptrTypeFlags = opType->getFlags() & PtrTypeFlag__All;
+	uint_t ptrTypeFlags = opType->getFlags() & PtrTypeFlag_All;
 
 	DerivableType* baseType = slot->getType();
 	Type* castType = (opTypeKindFlags & TypeKindFlag_Ptr) ?
@@ -169,7 +169,7 @@ OperatorMgr::baseTypeOperator(
 			) :
 			baseType->getDataPtrType(
 				TypeKind_DataPtr,
-				ptrTypeFlags & ~jnc_PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
+				ptrTypeFlags & ~jnc_PtrTypeFlag_PtrKindMask | DataPtrKind_Lean
 			) :
 		baseType;
 
@@ -183,11 +183,14 @@ OperatorMgr::createMemberClosure(Value* value) {
 	bool result;
 	ValueKind valueKind = value->getValueKind();
 	switch (valueKind) {
-	case ValueKind_Type:
-		result = getThisValueType(&thisValue);
-		if (!result)
+	case ValueKind_Type: {
+		Type* type = getThisValueType();
+		if (!type)
 			return false;
+
+		thisValue.setType(type);
 		break;
+		}
 
 	case ValueKind_Property:
 		if (value->getProperty()->getStorageKind() == StorageKind_Reactor) {
@@ -244,8 +247,8 @@ OperatorMgr::getThisValue(Value* value) {
 	return true;
 }
 
-bool
-OperatorMgr::getThisValueType(Value* value) {
+Type*
+OperatorMgr::getThisValueType() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	if (!function->isMember()) {
 		err::setFormatStringError(
@@ -253,7 +256,7 @@ OperatorMgr::getThisValueType(Value* value) {
 			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
 		);
 
-		return false;
+		return NULL;
 	}
 
 	Type* thisType = function->getThisType();
@@ -266,8 +269,7 @@ OperatorMgr::getThisValueType(Value* value) {
 			thisType = parentType->getClassPtrType();
 	}
 
-	value->setType(thisType);
-	return true;
+	return thisType;
 }
 
 void
@@ -277,14 +279,26 @@ OperatorMgr::foldDualType(
 	Namespace* viaNamespace,
 	Value* resultValue
 ) {
-	ASSERT(resultValue->getType()->getFlags() & TypeFlag_Dual);
+	uint_t flags = resultValue->getType()->getFlags();
+	ASSERT(flags & TypeFlag_Dual);
 
-	Namespace* parentNamespace = decl->getParentNamespace();
-	AccessKind accessKind = m_module->m_namespaceMgr.getAccessKind(parentNamespace);
-	if (accessKind == AccessKind_Public && viaNamespace != parentNamespace)
-		accessKind = m_module->m_namespaceMgr.getAccessKind(viaNamespace);
+	AccessKind accessKind;
+	ConstKind constKind;
 
-	ConstKind constKind = getConstKindFromFlags(opValue.getType()->getFlags());
+	if (!(flags & TypeFlag_DualByAccess))
+		accessKind = AccessKind_Protected;
+	else {
+		Namespace* parentNamespace = decl->getParentNamespace();
+		accessKind = m_module->m_namespaceMgr.getAccessKind(parentNamespace);
+		if (accessKind == AccessKind_Public && viaNamespace != parentNamespace)
+			accessKind = m_module->m_namespaceMgr.getAccessKind(viaNamespace);
+	}
+
+	if (!(flags & TypeFlag_DualByConst))
+		constKind = ConstKind_None;
+	else
+		constKind = getConstKindFromFlags(opValue.getType()->getFlags());
+
 	Type* resultType = m_module->m_typeMgr.foldDualType(resultValue->getType(), accessKind, constKind);
 	resultValue->overrideType(resultType);
 }

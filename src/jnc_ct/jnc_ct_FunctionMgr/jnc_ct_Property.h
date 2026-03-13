@@ -44,7 +44,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileDefaultStaticConstructor();
+			return ((Property*)m_parentNamespace)->compileDefaultStaticConstructor(this);
 		}
 	};
 
@@ -57,7 +57,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileDefaultConstructor();
+			return ((Property*)m_parentNamespace)->compileDefaultConstructor(this);
 		}
 	};
 
@@ -70,7 +70,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileDefaultDestructor();
+			return ((Property*)m_parentNamespace)->compileDefaultDestructor(this);
 		}
 	};
 
@@ -83,7 +83,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileAutoGetter();
+			return ((Property*)m_parentNamespace)->compileAutoGetter(this);
 		}
 	};
 
@@ -96,7 +96,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileAutoSetter();
+			return ((Property*)m_parentNamespace)->compileAutoSetter(this);
 		}
 	};
 
@@ -109,7 +109,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileBinder();
+			return ((Property*)m_parentNamespace)->compileBinder(this);
 		}
 	};
 
@@ -314,22 +314,22 @@ protected:
 	getAutoAccessorPropertyValue();
 
 	bool
-	compileDefaultStaticConstructor();
+	compileDefaultStaticConstructor(Function* function);
 
 	bool
-	compileDefaultConstructor();
+	compileDefaultConstructor(Function* function);
 
 	bool
-	compileDefaultDestructor();
+	compileDefaultDestructor(Function* function);
 
 	bool
-	compileAutoGetter();
+	compileAutoGetter(Function* function);
 
 	bool
-	compileAutoSetter();
+	compileAutoSetter(Function* function);
 
 	bool
-	compileBinder();
+	compileBinder(Function* function);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

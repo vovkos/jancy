@@ -286,7 +286,7 @@ public:
 	DataPtrType*
 	prepareArrayRefType(DataPtrType* type)  {
 		ASSERT(type->getTargetType()->getTypeKind() == TypeKind_Array);
-		return ((ArrayType*)type->getTargetType())->getElementType()->getDataPtrType(TypeKind_DataPtr, type->getFlags() & PtrTypeFlag__All);
+		return ((ArrayType*)type->getTargetType())->getElementType()->getDataPtrType(TypeKind_DataPtr, type->getFlags() & PtrTypeFlag_All);
 	}
 
 	void
@@ -899,11 +899,11 @@ public:
 	bool
 	createMemberClosure(Value* value);
 
-	bool
-	getThisValue(Value* value);
+	Type*
+	getThisValueType();
 
 	bool
-	getThisValueType(Value* value);
+	getThisValue(Value* value);
 
 	Namespace*
 	getValueNamespace(const Value& opValue);
@@ -1769,7 +1769,7 @@ protected:
 	findCastOperator(
 		const Value& opValue,
 		Type* type,
-		CastKind* castKind = NULL
+		CastKind* castKind
 	);
 
 	bool

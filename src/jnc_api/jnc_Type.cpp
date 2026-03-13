@@ -202,6 +202,7 @@ jnc_getConstKindString(jnc_ConstKind constKind) {
 		"const",        // jnc_ConstKind_Const,
 		"const?",       // jnc_ConstKind_MaybeConst,
 		"__autoconst",  // jnc_ConstKind_AutoConstX,
+		"__readonly",   // jnc_ConstKind_ReadOnlyX,
 		"autoconst",    // jnc_ConstKind_AutoConst,
 		"readonly",     // jnc_ConstKind_ReadOnly,
 	};

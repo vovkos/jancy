@@ -235,6 +235,7 @@ main := |*
 'indexed'        { createToken(TokenKind_Indexed); };
 'multicast'      { createToken(TokenKind_Multicast); };
 'event'          { createToken(TokenKind_Event); };
+'autoevent'      { createToken(TokenKind_AutoEvent); };
 'reactor'        { createToken(TokenKind_Reactor); };
 'async'          { createToken(TokenKind_Async); };
 

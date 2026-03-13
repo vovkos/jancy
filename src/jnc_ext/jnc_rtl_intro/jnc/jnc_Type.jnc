@@ -140,7 +140,7 @@ bitflag enum PtrTypeFlags {
 	Volatile   = 0x00400000, // class & data ptr
 	Safe       = 0x00800000, // all ptr
 	Event      = 0x01000000, // multicast-class only
-	EventX     = 0x02000000, // multicast-class only
+	AutoEvent  = 0x02000000, // multicast-class only
 	Bindable   = 0x04000000, // multicast-class only
 	AutoGet    = 0x08000000, // data ptr only
 	BigEndian  = 0x10000000, // data ptr only
@@ -155,9 +155,10 @@ enum ConstKind {
 	Const      = 0x010000,
 	MaybeConst = 0x020000,
 	AutoConstX = 0x030000,
-	AutoConst  = 0x040000,
-	ReadOnly   = 0x050000,
-	_Count     = 6,
+	ReadOnlyX  = 0x040000,
+	AutoConst  = 0x050000,
+	ReadOnly   = 0x060000,
+	_Count     = 7,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

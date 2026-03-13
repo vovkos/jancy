@@ -38,26 +38,37 @@ DerivableType::findCastOperator(
 		}
 	}
 
-	if (castKind)
-		*castKind = bestCastKind;
-
+	*castKind = bestCastKind;
 	return bestCastOperator;
 }
 
 Function*
-DerivableType::findCopyConstructor() {
+DerivableType::findCastOperator(Type* type) {
+	sl::StringHashTableIterator<Function*> it = m_castOperatorMap.getHead();
+	for (; it; it++) {
+		Function* castOperator = it->m_value;
+		Type* returnType = castOperator->getType()->getReturnType();
+		if (returnType->isEqual(type))
+			return castOperator;
+	}
+
+	return NULL;
+}
+
+Function*
+DerivableType::findCopyConstructor(Type* type) {
 	ASSERT(m_constructor);
 
 	if (m_constructor->getItemKind() == ModuleItemKind_Function) {
 		Function* ctor = m_constructor.getFunction();
-		return isCopyContructor(ctor) ? ctor : NULL;
+		return isCopyContructor(ctor, type) ? ctor : NULL;
 	}
 
 	FunctionOverload* ctorOverload = m_constructor.getFunctionOverload();
 	size_t count = ctorOverload->getOverloadCount();
 	for (size_t i = 0; i < count; i++) {
 		Function* ctor = ctorOverload->getOverload(i);
-		if (isCopyContructor(ctor))
+		if (isCopyContructor(ctor, type))
 			return ctor;
 	}
 
@@ -68,11 +79,20 @@ Function*
 DerivableType::createDefaultCopyConstructor(DerivableType* srcType) {
 	FunctionType* ctorType = (FunctionType*)m_module->m_typeMgr.getFunctionType((Type**)&srcType, 1);
 	DefaultCopyConstructor* ctor = m_module->m_functionMgr.createFunction<DefaultCopyConstructor>(sl::StringRef(), ctorType);
-	ctor->m_overloadIdx = m_constructor.getFunctionOverload()->getOverloadCount() - 1;
 	ctor->m_thisArgTypeFlags = PtrTypeFlag_ThinThis | PtrTypeFlag_Safe;
 	bool result = addMethod(ctor);
 	ASSERT(result);
 	return ctor;
+}
+
+Function*
+DerivableType::createDefaultCastOperator(DerivableType* dstType) {
+	FunctionType* opType = (FunctionType*)m_module->m_typeMgr.getFunctionType(dstType, NULL, 0);
+	DefaultCastOperator* op = m_module->m_functionMgr.createFunction<DefaultCastOperator>(sl::StringRef(), opType);
+	op->m_thisArgTypeFlags = PtrTypeFlag_ThinThis | PtrTypeFlag_Safe | ConstKind_Const;
+	bool result = addMethod(op);
+	ASSERT(result);
+	return op;
 }
 
 FindModuleItemResult
@@ -350,6 +370,140 @@ DerivableType::resolveImports() {
 		(!m_destructor || m_destructor->getType()->ensureNoImports());
 }
 
+Type*
+DerivableType::calcFoldedDualType(
+	AccessKind accessKind,
+	ConstKind constKind
+) {
+	ASSERT((m_flags & TypeFlag_Dual) && m_dualConstTuple);
+
+	bool isConst;
+
+	ConstKind thisConstKind = m_dualConstTuple->m_constKind;
+	if (m_dualConstTuple->m_constKind == ConstKind_AutoConstX)
+		isConst = constKind != ConstKind_None;
+	else {
+		ASSERT(m_dualConstTuple->m_constKind == ConstKind_ReadOnlyX);
+		isConst = accessKind == AccessKind_Public;
+	}
+
+	StructType* resultType = m_module->m_typeMgr.createInternalStructType("!DualConstAdapter");
+	resultType->m_structTypeKind = StructTypeKind_Adapter;
+	resultType->m_adapterOriginType = this;
+	resultType->addBaseType(isConst ? m_dualConstTuple->m_ctype : m_dualConstTuple->m_mtype);
+	return resultType;
+}
+
+Type*
+DerivableType::calcDualConstType(
+	Type* ctype0,
+	ConstKind constKind
+) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (ctype0->getFlags() & TypeFlag_LayoutReady));
+
+	DerivableType* ctype = (DerivableType*)ctype0;
+	if (m_typeKind == TypeKind_Class || // only structs & unions can be dual
+		ctype->m_typeKind != m_typeKind ||
+		m_size != ctype->getSize() ||
+		m_alignment != ctype->m_alignment ||
+		!m_templateInstance ||
+		!ctype->m_templateInstance ||
+		m_templateInstance->m_template != ctype->m_templateInstance->m_template
+	) {
+		setAutoConstError(this, ctype);
+		return NULL;
+	}
+
+	Template* templ = m_templateInstance->m_template;
+	size_t argCount = templ->getArgArray().getCount();
+	ASSERT(
+		m_templateInstance->m_argArray.getCount() == argCount &&
+		ctype->m_templateInstance->m_argArray.getCount() == argCount
+	);
+
+	sl::Array<Type*> argArray;
+	argArray.setCount(argCount);
+	sl::Array<Type*>::Rwi rwi = argArray.rwi();
+	for (size_t i = 0; i < argCount; i++) {
+		Type* margType = m_templateInstance->m_argArray[i];
+		Type* cargType = ctype->m_templateInstance->m_argArray[i];
+		Type* argType = margType->getDualConstType(cargType, constKind);
+		if (!argType)
+			return NULL;
+
+		rwi[i] = argType;
+	}
+
+	DerivableType* resultType = (DerivableType*)templ->instantiate(argArray);
+	if (!resultType)
+		return NULL;
+
+	ASSERT(
+		resultType->getItemKind() == ModuleItemKind_Type &&
+		resultType->getTypeKind() == m_typeKind
+	);
+
+	resultType->m_dualConstTuple = new DualConstTuple;
+	resultType->m_dualConstTuple->m_mtype = this;
+	resultType->m_dualConstTuple->m_ctype = ctype;
+	resultType->m_dualConstTuple->m_constKind = constKind;
+	resultType->m_flags |= TypeFlag_Dual;
+	return resultType;
+}
+
+bool
+DerivableType::createDefaultMethods() {
+	if (!m_staticConstructor &&
+		(!m_staticVariableInitializeArray.isEmpty() ||
+		!m_propertyStaticConstructArray.isEmpty())
+	)
+		createDefaultMethod<DefaultStaticConstructor>();
+
+	if (!m_constructor &&
+		(m_staticConstructor ||
+		!m_baseTypeConstructArray.isEmpty() ||
+		!m_fieldInitializeArray.isEmpty() ||
+		!m_propertyConstructArray.isEmpty() ||
+		m_dualConstTuple)
+	)
+		createDefaultMethod<DefaultConstructor>(m_constructorThinThisFlag);
+
+	switch (m_typeKind) {
+	case TypeKind_Struct:
+	case TypeKind_Union:
+		if (m_constructor) {
+			bool result = m_constructor.ensureNoImports();
+			if (!result)
+				return false;
+
+			if (!findCopyConstructor())
+				createDefaultCopyConstructor();
+		}
+
+		if (m_dualConstTuple) {
+			ASSERT(m_constructor);
+			if (!findCopyConstructor(m_dualConstTuple->m_mtype))
+				createDefaultCopyConstructor(m_dualConstTuple->m_mtype);
+
+			if (!findCastOperator(m_dualConstTuple->m_ctype))
+				createDefaultCastOperator(m_dualConstTuple->m_ctype);
+		}
+
+		break;
+
+	case TypeKind_Class:
+		if (!m_destructor &&
+			(!m_baseTypeDestructArray.isEmpty() ||
+			!m_propertyDestructArray.isEmpty())
+		)
+			createDefaultMethod<DefaultDestructor>();
+
+		break;
+	}
+
+	return true;
+}
+
 bool
 DerivableType::callBaseTypeConstructors(const Value& thisValue) {
 	bool result;
@@ -543,8 +697,9 @@ DerivableType::findDirectChildItemTraverse(
 	}
 
 	if (!(flags & TraverseFlag_NoBaseType)) {
+		bool isAdapter = m_typeKind == TypeKind_Struct && ((StructType*)this)->m_structTypeKind == StructTypeKind_Adapter;
 		uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
-		size_t nextLevel = level + 1;
+		size_t nextLevel = isAdapter ? level : level + 1;
 
 		sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 		for (; slotIt; slotIt++) {
@@ -558,7 +713,7 @@ DerivableType::findDirectChildItemTraverse(
 				return findResult;
 
 			if (findResult.m_item) {
-				if (coord && (coord->m_flags & MemberCoordFlag_Member)) {
+				if (!isAdapter && coord && (coord->m_flags & MemberCoordFlag_Member)) {
 					coord->m_offset += slot->m_offset;
 					coord->m_llvmIndexArray.rwi()[level] = slot->m_llvmIndex;
 					coord->m_vtableIndex += slot->m_vtableIndex;
@@ -686,11 +841,11 @@ DerivableType::generateDocumentation(
 }
 
 bool
-DerivableType::compileDefaultStaticConstructor() {
-	ASSERT(m_staticConstructor);
+DerivableType::compileDefaultStaticConstructor(Function* function) {
+	ASSERT(function == m_staticConstructor);
 
 	m_module->m_namespaceMgr.openNamespace(this);
-	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
+	m_module->m_functionMgr.internalPrologue(function);
 
 	primeStaticVariables();
 
@@ -707,14 +862,10 @@ DerivableType::compileDefaultStaticConstructor() {
 }
 
 bool
-DerivableType::compileDefaultConstructor() {
-	Function* constructor = m_constructor->getItemKind() == ModuleItemKind_Function ?
-		m_constructor.getFunction() :
-		m_constructor.getFunctionOverload()->getOverload(0);
-
+DerivableType::compileDefaultConstructor(Function* function) {
 	Value thisValue;
 	m_module->m_namespaceMgr.openNamespace(this);
-	m_module->m_functionMgr.internalPrologue(constructor, &thisValue, 1);
+	m_module->m_functionMgr.internalPrologue(function, &thisValue, 1);
 
 	bool result =
 		callBaseTypeConstructors(thisValue) &&
@@ -731,24 +882,18 @@ DerivableType::compileDefaultConstructor() {
 }
 
 bool
-DerivableType::compileDefaultCopyConstructor(size_t overloadIdx) {
-	Function* constructor = m_constructor.getFunctionOverload()->getOverload(overloadIdx);
+DerivableType::compileDefaultCopyConstructor(Function* function) {
+	ASSERT(m_constructorThinThisFlag & PtrTypeFlag_ThinThis);
 
 	Value argValues[2];
 	m_module->m_namespaceMgr.openNamespace(this);
-	m_module->m_functionMgr.internalPrologue(constructor, argValues, 2);
+	m_module->m_functionMgr.internalPrologue(function, argValues, 2);
 
-	Value selfValue;
+	Type* srcType = argValues[1].getType();
 
-	if (isEqual(argValues[1].getType())) {
-		bool result =
-			m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, argValues[0], &selfValue) &&
-			m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, selfValue, argValues[1]);
-
-		if (!result)
-			return false;
-	} else {
-		return err::fail("autoconst not yet");
+	if (m_module->hasCodeGen()) {
+		m_module->m_llvmIrBuilder.createBitCast(argValues[0], srcType->getDataPtrType(DataPtrKind_Thin), &argValues[0]);
+		m_module->m_llvmIrBuilder.createStore(argValues[1], argValues[0]);
 	}
 
 	m_module->m_functionMgr.internalEpilogue();
@@ -757,13 +902,34 @@ DerivableType::compileDefaultCopyConstructor(size_t overloadIdx) {
 }
 
 bool
-DerivableType::compileDefaultDestructor() {
-	ASSERT(m_destructor);
+DerivableType::compileDefaultCastOperator(Function* function) {
+	ASSERT(m_constructorThinThisFlag & PtrTypeFlag_ThinThis);
+
+	Value argValue;
+	m_module->m_namespaceMgr.openNamespace(this);
+	m_module->m_functionMgr.internalPrologue(function, &argValue, 1);
+
+	if (m_module->hasCodeGen()) {
+		Value resultValue;
+		Type* dstType = function->getType()->getReturnType();
+		m_module->m_llvmIrBuilder.createBitCast(argValue, dstType->getDataPtrType(DataPtrKind_Thin), &argValue);
+		m_module->m_llvmIrBuilder.createLoad(argValue, dstType, &resultValue);
+		m_module->m_llvmIrBuilder.createRet(resultValue);
+	}
+
+	m_module->m_functionMgr.internalEpilogue();
+	m_module->m_namespaceMgr.closeNamespace();
+	return true;
+}
+
+bool
+DerivableType::compileDefaultDestructor(Function* function) {
+	ASSERT(function == m_destructor);
 
 	bool result;
 
 	Value argValue;
-	m_module->m_functionMgr.internalPrologue(m_destructor, &argValue, 1);
+	m_module->m_functionMgr.internalPrologue(function, &argValue, 1);
 
 	result =
 		callPropertyDestructors(argValue) &&

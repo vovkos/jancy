@@ -26,21 +26,49 @@ calcFieldPtrFlags(
 	Field* field
 ) {
 	static const ConstKind constKindTable[ConstKind__Count][ConstKind__Count] = {
-		{ ConstKind_None,       ConstKind_Const, ConstKind_MaybeConst, ConstKind_AutoConstX, ConstKind_AutoConst,  ConstKind_ReadOnly },
-		{ ConstKind_Const,      ConstKind_Const, ConstKind_Const,      ConstKind_Const,      ConstKind_Const,      ConstKind_Const    },
-		{ ConstKind_AutoConstX, ConstKind_Const, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_ReadOnly },
-		{ ConstKind_AutoConstX, ConstKind_Const, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_ReadOnly },
-
-		// autoconst in locals should be replaced with autoconstx
-		{ ConstKind_AutoConstX, ConstKind_Const, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_AutoConstX, ConstKind_ReadOnly },
+		{	// CastKind_None
+			ConstKind_None,        // ConstKind_None
+			ConstKind_Const,       // ConstKind_Const
+			ConstKind_AutoConstX,  // ConstKind_MaybeConst
+			ConstKind_AutoConstX,  // ConstKind_AutoConstX
+			ConstKind_ReadOnlyX,   // ConstKind_ReadOnlyX
+		},
+		{	// CastKind_Const
+			ConstKind_None,        // ConstKind_None
+			ConstKind_Const,       // ConstKind_Const
+			ConstKind_Const,       // ConstKind_MaybeConst
+			ConstKind_Const,       // ConstKind_AutoConstX
+			ConstKind_Const,       // ConstKind_ReadOnlyX
+		},
+		{	// CastKind_MaybeConst
+			ConstKind_AutoConstX,  // ConstKind_None
+			ConstKind_Const,       // ConstKind_Const
+			ConstKind_AutoConstX,  // ConstKind_MaybeConst
+			ConstKind_AutoConstX,  // ConstKind_AutoConstX
+			ConstKind_AutoConstX,  // ConstKind_ReadOnlyX
+		},
+		{	// CastKind_AutoConstX
+			ConstKind_AutoConstX,  // ConstKind_None
+			ConstKind_Const,       // ConstKind_Const
+			ConstKind_AutoConstX,  // ConstKind_MaybeConst
+			ConstKind_AutoConstX,  // ConstKind_AutoConstX
+			ConstKind_AutoConstX,  // ConstKind_ReadOnlyX
+		},
+		{	// CastKind_ReadOnlyX
+			ConstKind_ReadOnlyX,   // ConstKind_None
+			ConstKind_Const,       // ConstKind_Const
+			ConstKind_AutoConstX,  // ConstKind_MaybeConst
+			ConstKind_AutoConstX,  // ConstKind_AutoConstX
+			ConstKind_ReadOnlyX,   // ConstKind_ReadOnlyX
+		},
 	};
 
 	uint_t fieldFlags = field->getPtrTypeFlags();
 
 	size_t i = field->getStorageKind() == StorageKind_Mutable ? 0 : getConstKindFromFlags(parentFlags) >> PtrTypeFlag__ConstKindBit;
 	size_t j = getConstKindFromFlags(fieldFlags) >> PtrTypeFlag__ConstKindBit;
-	ASSERT(i < ConstKind__Count - 1 && j < ConstKind__Count);
-	return (parentFlags | fieldFlags) & PtrTypeFlag__All & ~PtrTypeFlag__ConstKindMask | constKindTable[i][j];
+	ASSERT(i <= ConstKind_ReadOnlyX && j <= ConstKind_ReadOnlyX);
+	return (parentFlags | fieldFlags) & PtrTypeFlag_All & ~PtrTypeFlag_ConstKindMask | constKindTable[i][j];
 }
 
 //..............................................................................
@@ -215,7 +243,7 @@ OperatorMgr::getStructField(
 			ASSERT(type->getTypeKindFlags() & TypeKindFlag_DataPtr);
 			DataPtrType* ptrType = (DataPtrType*)type;
 			DataPtrKind ptrKind = ptrType->getPtrKind();
-			DataPtrType* resultType = field->getDataPtrType(TypeKind_DataRef, type->getFlags() & PtrTypeFlag__All);
+			DataPtrType* resultType = field->getDataPtrType(TypeKind_DataRef, type->getFlags() & PtrTypeFlag_All);
 
 			if (ptrKind == DataPtrKind_Normal) {
 				DataPtr ptr = *(DataPtr*)opValue.getConstData();
@@ -282,7 +310,7 @@ OperatorMgr::getStructField(
 	if (opType->getTargetType()->getFlags() & TypeFlag_Pod) {
 		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
-			ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
+			ptrTypeFlags & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean
 		);
 
 		resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), resultType, opValue);
@@ -294,7 +322,7 @@ OperatorMgr::getStructField(
 		ptrTypeFlags |= PtrTypeFlag_Safe;
 		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
-			ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
+			ptrTypeFlags & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean
 		);
 
 		resultValue->setLeanDataPtr(
@@ -351,7 +379,7 @@ OperatorMgr::getUnionField(
 	default:
 		ASSERT(ptrKind == DataPtrKind_Normal);
 		Value ptrValue;
-		ptrType = field->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean);
+		ptrType = field->getDataPtrType(TypeKind_DataRef, ptrTypeFlags & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean);
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, &ptrValue);
 		resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), ptrType, opValue);
@@ -385,7 +413,7 @@ OperatorMgr::getClassField(
 			) :
 			field->getDataPtrType(
 				TypeKind_DataRef,
-				ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
+				ptrTypeFlags & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean
 			);
 
 		resultValue->setType(resultType);
@@ -419,7 +447,7 @@ OperatorMgr::getClassField(
 	} else {
 		DataPtrType* ptrType = field->getDataPtrType(
 			TypeKind_DataRef,
-			ptrTypeFlags & ~PtrTypeFlag__PtrKindMask | DataPtrKind_Lean
+			ptrTypeFlags & ~PtrTypeFlag_PtrKindMask | DataPtrKind_Lean
 		);
 
 		resultValue->setLeanDataPtr(
@@ -469,13 +497,13 @@ OperatorMgr::getPropertyField(
 	ASSERT(parentType);
 
 	Type* parentPtrType;
-	uint_t ptrTypeFlags = parentValueType->getFlags() & PtrTypeFlag__All;
+	uint_t ptrTypeFlags = parentValueType->getFlags() & PtrTypeFlag_All;
 
 	if (parentType->getTypeKind() == TypeKind_Class)
 		parentPtrType = ((ClassType*)parentType)->getClassPtrType(ptrTypeFlags);
 	else {
 		if (!(parentValueType->getTypeKindFlags() & TypeKindFlag_DataPtr))
-			ptrTypeFlags &= ~PtrTypeFlag__PtrKindMask;
+			ptrTypeFlags &= ~PtrTypeFlag_PtrKindMask;
 
 		parentPtrType = parentType->getDataPtrType(ptrTypeFlags);
 	}

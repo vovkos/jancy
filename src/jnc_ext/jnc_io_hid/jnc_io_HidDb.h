@@ -69,7 +69,7 @@ public:
 	getString(HidUsagePage* self);
 
 	static
-    String
+	String
 	JNC_CDECL
 	getUsageName(
 		HidUsagePage* self,
@@ -77,7 +77,7 @@ public:
 	);
 
 	static
-    String
+	String
 	JNC_CDECL
 	getUsageString(
 		HidUsagePage* self,
