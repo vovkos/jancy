@@ -315,7 +315,7 @@ Cast_DataPtr_FromClassPtr::llvmCast(
 		return false;
 	}
 
-	if (dstType->getPtrKind() == DataPtrKind_Thin) {
+	if (dstType->getPtrKind() != DataPtrKind_Thin) {
 		err::setError("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
 		return false;
 	}
