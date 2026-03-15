@@ -10,6 +10,7 @@
 //..............................................................................
 
 import "stdt_List.jnc"
+import "stdt_Iterator.jnc"
 import "stdt_Operator.jnc"
 
 namespace stdt {
@@ -31,15 +32,34 @@ struct MapEntryBase<T, K, V>: ListEntry<T> {
 	}
 }
 
+//..............................................................................
+
+typedef IteratorImpl<
+	ValueMutableIteratorBase<T.Value, HashTableEntry<T.Key, T.Value>*>,
+	ValueMutableIteratorBase<T.Value, HashTableEntry<T.Key, T.Value>*>
+> MapIterator<T>;
+
+typedef IteratorImpl<
+	ValueIteratorBase<T.Value, T.Value const*, HashTableEntry<T.Key, T.Value> const*>,
+	ValueMutableIteratorBase<T.Value, HashTableEntry<T.Key, T.Value>*>
+> MapConstIterator<T>;
+
+typedef jnc.AutoConst<
+	MapIterator<T>,
+	MapConstIterator<T>
+> MapAutoConstIterator<T>;
+
+typedef jnc.ReadOnly<
+	MapIterator<T>,
+	MapConstIterator<T>
+> MapReadOnlyIterator<T>;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class MapBase<T> {
 	typedef T Entry;
 	typedef T.Key Key;
 	typedef T.Value Value;
-	typedef stdt.Iterator<T> Iterator;
-	typedef stdt.ConstIterator<T> ConstIterator;
-	typedef stdt.AutoConstIterator<T> AutoConstIterator;
 
 protected:
 	List<T> m_list;

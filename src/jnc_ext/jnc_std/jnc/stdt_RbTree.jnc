@@ -38,9 +38,10 @@ struct RbTreeNode<K, V>: BinTreeNodeBase<RbTreeNode, K, V, RbTreeColor> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef Iterator<RbTreeNode<K, V> > RbTreeIterator<K, V>;
-typedef ConstIterator<RbTreeNode<K, V> > RbTreeConstIterator<K, V>;
-typedef AutoConstIterator<RbTreeNode<K, V> > RbTreeAutoConstIterator<K, V>;
+typedef MapIterator<RbTreeEntry<K, V> > RbTreeIterator<K, V>;
+typedef MapConstIterator<RbTreeEntry<K, V> > RbTreeConstIterator<K, V>;
+typedef MapAutoConstIterator<RbTreeEntry<K, V> > RbTreeAutoConstIterator<K, V>;
+typedef MapReadOnlyIterator<RbTreeEntry<K, V> >  RbTreeReadOnlyIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -53,6 +54,10 @@ class RbTree<K, V, C = stdt.Cmp<K> >: MapImpl<BinTreeVisitRemoveImpl<RbTreeBase<
 //..............................................................................
 
 class RbTreeBase<T, C>: BinTreeBase<T, C> {
+	typedef RbTreeIterator<K, V> Iterator;
+	typedef RbTreeConstIterator<K, V> ConstIterator;
+	typedef RbTreeReadOnlyIterator<K, V> AutoConstIterator;
+
 protected:
 	static RbTreeColor getColor(T const* p) {
 		return p ? p.m_color : RbTreeColor.Black;

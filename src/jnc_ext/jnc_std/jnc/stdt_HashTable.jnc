@@ -36,9 +36,10 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef Iterator<HashTableEntry<K, V> > HashTableIterator<K, V>;
-typedef ConstIterator<HashTableEntry<K, V> > HashTableConstIterator<K, V>;
-typedef AutoConstIterator<HashTableEntry<K, V> > HashTableAutoConstIterator<K, V>;
+typedef MapIterator<HashTableEntry<K, V> > HashTableIterator<K, V>;
+typedef MapConstIterator<HashTableEntry<K, V> > HashTableConstIterator<K, V>;
+typedef MapAutoConstIterator<HashTableEntry<K, V> > HashTableAutoConstIterator<K, V>;
+typedef MapReadOnlyIterator<HashTableEntry<K, V> >  HashTableReadOnlyIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -58,6 +59,9 @@ class HashTableBase<T, H, E>: MapBase<T> {
 	typedef H Hash;
 	typedef E Eq;
 	typedef BoxList<T*> Bucket;
+	typedef HashTableIterator<K, V> Iterator;
+	typedef HashTableConstIterator<K, V> ConstIterator;
+	typedef HashTableReadOnlyIterator<K, V> AutoConstIterator;
 
 	enum {
 		InitialBucketCount = 32,

@@ -40,7 +40,7 @@ class BinTreeBase<T, C>: MapBase<T> {
 	typedef C Cmp;
 
 protected:
-	T* m_root;
+	T autoconst* m_root;
 	C m_cmp;
 
 public:
