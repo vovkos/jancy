@@ -405,28 +405,31 @@ DerivableType::calcDualConstType(
 	if (m_typeKind == TypeKind_Class || // only structs & unions can be dual
 		ctype->m_typeKind != m_typeKind ||
 		m_size != ctype->getSize() ||
-		m_alignment != ctype->m_alignment ||
-		!m_templateInstance ||
-		!ctype->m_templateInstance ||
-		m_templateInstance->m_template != ctype->m_templateInstance->m_template
+		m_alignment != ctype->m_alignment
 	) {
 		setAutoConstError(this, ctype);
 		return NULL;
 	}
 
-	Template* templ = m_templateInstance->m_template;
+	DualConstTuple commonBase = findCommonBaseTemplate(ctype);
+	if (!commonBase.m_mtype) {
+		setAutoConstError(this, ctype);
+		return NULL;
+	}
+
+	Template* templ = commonBase.m_mtype->m_templateInstance->m_template;
 	size_t argCount = templ->getArgArray().getCount();
 	ASSERT(
-		m_templateInstance->m_argArray.getCount() == argCount &&
-		ctype->m_templateInstance->m_argArray.getCount() == argCount
+		commonBase.m_mtype->m_templateInstance->m_argArray.getCount() == argCount &&
+		commonBase.m_ctype->m_templateInstance->m_argArray.getCount() == argCount
 	);
 
 	sl::Array<Type*> argArray;
 	argArray.setCount(argCount);
 	sl::Array<Type*>::Rwi rwi = argArray.rwi();
 	for (size_t i = 0; i < argCount; i++) {
-		Type* margType = m_templateInstance->m_argArray[i];
-		Type* cargType = ctype->m_templateInstance->m_argArray[i];
+		Type* margType = commonBase.m_mtype->m_templateInstance->m_argArray[i];
+		Type* cargType = commonBase.m_ctype->m_templateInstance->m_argArray[i];
 		Type* argType = margType->getDualConstType(cargType, constKind);
 		if (!argType)
 			return NULL;
@@ -588,7 +591,7 @@ DerivableType::findBaseTypeTraverseImpl(
 ) {
 	sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.find(type->getSignature());
 	if (it) {
-		if (!coord)
+		if (!coord || isAdapter())
 			return true;
 
 		BaseTypeSlot* slot = it->m_value;
@@ -617,6 +620,49 @@ DerivableType::findBaseTypeTraverseImpl(
 	}
 
 	return false;
+}
+
+DerivableType*
+DerivableType::findBaseTemplate(Template* templ) {
+	if (m_templateInstance && m_templateInstance->m_template == templ)
+		return this;
+
+	sl::Iterator<BaseTypeSlot> it = m_baseTypeList.getHead();
+	for (; it; it++) {
+		DerivableType* type = it->m_type->findBaseTemplate(templ);
+		if (type)
+			return type;
+	}
+
+	return NULL;
+}
+
+DerivableType::DualConstTuple
+DerivableType::findCommonBaseTemplate(DerivableType* ctype) {
+	DualConstTuple tuple = { 0 };
+
+	if (ctype->m_templateInstance) {
+		DerivableType* mtype = findBaseTemplate(ctype->m_templateInstance->m_template);
+		if (mtype) {
+			tuple.m_mtype = mtype;
+			tuple.m_ctype = ctype;
+			return tuple;
+		}
+	}
+
+	sl::Iterator<BaseTypeSlot> it = ctype->m_baseTypeList.getHead();
+	for (; it; it++) {
+		if (it->m_type->m_templateInstance) {
+			DerivableType* mtype = findBaseTemplate(it->m_type->m_templateInstance->m_template);
+			if (mtype) {
+				tuple.m_mtype = mtype;
+				tuple.m_ctype = it->m_type;
+				return tuple;
+			}
+		}
+	}
+
+	return tuple;
 }
 
 FindModuleItemResult
@@ -697,9 +743,8 @@ DerivableType::findDirectChildItemTraverse(
 	}
 
 	if (!(flags & TraverseFlag_NoBaseType)) {
-		bool isAdapter = m_typeKind == TypeKind_Struct && ((StructType*)this)->m_structTypeKind == StructTypeKind_Adapter;
 		uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
-		size_t nextLevel = isAdapter ? level : level + 1;
+		size_t nextLevel = isAdapter() ? level : level + 1;
 
 		sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 		for (; slotIt; slotIt++) {
@@ -713,7 +758,7 @@ DerivableType::findDirectChildItemTraverse(
 				return findResult;
 
 			if (findResult.m_item) {
-				if (!isAdapter && coord && (coord->m_flags & MemberCoordFlag_Member)) {
+				if (coord && (coord->m_flags & MemberCoordFlag_Member) && level != nextLevel) {
 					coord->m_offset += slot->m_offset;
 					coord->m_llvmIndexArray.rwi()[level] = slot->m_llvmIndex;
 					coord->m_vtableIndex += slot->m_vtableIndex;

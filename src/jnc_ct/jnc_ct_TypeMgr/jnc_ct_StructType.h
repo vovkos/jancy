@@ -164,5 +164,13 @@ StructType::StructType() {
 
 //..............................................................................
 
+inline
+bool
+DerivableType::isAdapter() {
+	return m_typeKind == TypeKind_Struct && ((StructType*)this)->m_structTypeKind == StructTypeKind_Adapter;
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

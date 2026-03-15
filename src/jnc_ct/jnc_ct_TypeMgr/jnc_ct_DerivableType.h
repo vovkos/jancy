@@ -197,6 +197,9 @@ public:
 			(Type*)getDataPtrType(ptrTypeFlags);
 	}
 
+	bool
+	isAdapter();
+
 	virtual
 	MemberBlock*
 	getMemberBlock() {
@@ -476,6 +479,12 @@ protected:
 		BaseTypeCoord* coord,
 		size_t level
 	);
+
+	DerivableType*
+	findBaseTemplate(Template* templ);
+
+	DualConstTuple
+	findCommonBaseTemplate(DerivableType* type);
 
 	FindModuleItemResult
 	findDirectChildItemTraverse(
