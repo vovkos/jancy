@@ -34,14 +34,28 @@ struct MapEntryBase<T, K, V>: ListEntry<T> {
 
 //..............................................................................
 
+struct MapIteratorBase<V, E>: IteratorBase<E> {
+	V operator * () thin const {
+		return m_p.m_value;
+	}
+}
+
+struct MapMutableIteratorBase<V, E>: MapIteratorBase<V, E> {
+	V operator := (V value) thin const {
+		return m_p.m_value = value;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 typedef IteratorImpl<
-	ValueMutableIteratorBase<T.Value, HashTableEntry<T.Key, T.Value>*>,
-	ValueMutableIteratorBase<T.Value, HashTableEntry<T.Key, T.Value>*>
+	MapMutableIteratorBase<T.Value, T*>,
+	MapMutableIteratorBase<T.Value, T*>
 > MapIterator<T>;
 
 typedef IteratorImpl<
-	ValueIteratorBase<T.Value, T.Value const*, HashTableEntry<T.Key, T.Value> const*>,
-	ValueMutableIteratorBase<T.Value, HashTableEntry<T.Key, T.Value>*>
+	MapIteratorBase<T.Value, T const*>,
+	MapMutableIteratorBase<T.Value, T*>
 > MapConstIterator<T>;
 
 typedef jnc.AutoConst<
@@ -60,9 +74,12 @@ class MapBase<T> {
 	typedef T Entry;
 	typedef T.Key Key;
 	typedef T.Value Value;
+	typedef MapIterator<T> Iterator;
+	typedef MapConstIterator<T> ConstIterator;
+	typedef MapAutoConstIterator<T> AutoConstIterator;
 
 protected:
-	List<T> m_list;
+	List<T, Iterator, ConstIterator> m_list;
 
 public:
 	alias m_head = m_list.m_head;

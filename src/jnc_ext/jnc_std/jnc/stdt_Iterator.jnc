@@ -56,26 +56,6 @@ struct IteratorBase<P> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// box lists, hashtables, trees, etc
-
-struct ValueIteratorBase<V, P, E>: IteratorBase<E> {
-	V operator * () thin const {
-		return m_p.m_value;
-	}
-
-	P operator -> () thin const {
-		return &m_p.m_value;
-	}
-}
-
-struct ValueMutableIteratorBase<V, E>: ValueIteratorBase<V, V*, E> {
-	V operator := (V value) thin const {
-		return m_p.m_value = value;
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct IteratorImpl<B, M>: B {
 	construct() thin {}
 

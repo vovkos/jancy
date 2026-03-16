@@ -297,7 +297,11 @@ void BinTreeBase<T, C>.exchange(
 class BinTreeVisitRemoveImpl<T>: T {
 public:
 	Iterator visit(Key key);
-	void remove(Iterator it);
+
+	void remove(Iterator it) {
+		Entry* child = replaceWithChild(it.m_p);
+		rebalanceOnRemove(it.m_p, child);
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -319,12 +323,6 @@ Iterator BinTreeVisitRemoveImpl<T>.visit(Key key) {
 	p = insert(key, parent, cmp);
 	rebalanceOnInsert(p);
 	return p;
-}
-
-void BinTreeVisitRemoveImpl<T>.remove(Iterator it) {
-	Entry* p = *it;
-	Entry* child = replaceWithChild(p);
-	rebalanceOnRemove(p, child);
 }
 
 //..............................................................................

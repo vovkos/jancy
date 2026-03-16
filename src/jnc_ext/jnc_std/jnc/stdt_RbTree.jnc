@@ -54,10 +54,6 @@ class RbTree<K, V, C = stdt.Cmp<K> >: MapImpl<BinTreeVisitRemoveImpl<RbTreeBase<
 //..............................................................................
 
 class RbTreeBase<T, C>: BinTreeBase<T, C> {
-	typedef RbTreeIterator<K, V> Iterator;
-	typedef RbTreeConstIterator<K, V> ConstIterator;
-	typedef RbTreeReadOnlyIterator<K, V> AutoConstIterator;
-
 protected:
 	static RbTreeColor getColor(T const* p) {
 		return p ? p.m_color : RbTreeColor.Black;

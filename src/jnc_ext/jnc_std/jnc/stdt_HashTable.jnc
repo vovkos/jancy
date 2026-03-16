@@ -26,7 +26,7 @@ struct HashTableEntry<K, V>: MapEntryBase<HashTableEntry, K, V> {
 	typedef BoxList<HashTableEntry*> Bucket;
 
 protected:
-	Bucket* readonly m_bucket;
+	Bucket safe* readonly m_bucket;
 	Bucket.Iterator readonly m_bucketIt;
 
 	construct(K key = null) {
@@ -59,9 +59,6 @@ class HashTableBase<T, H, E>: MapBase<T> {
 	typedef H Hash;
 	typedef E Eq;
 	typedef BoxList<T*> Bucket;
-	typedef HashTableIterator<K, V> Iterator;
-	typedef HashTableConstIterator<K, V> ConstIterator;
-	typedef HashTableReadOnlyIterator<K, V> AutoConstIterator;
 
 	enum {
 		InitialBucketCount = 32,
@@ -86,7 +83,12 @@ public:
 
 	AutoConstIterator find(Key key) const?;
 	Iterator errorcode visit(Key key);
-	void remove(Iterator it);
+
+	void remove(Iterator it) {
+		it->m_bucket.remove(it->m_bucketIt);
+		m_list.remove(it);
+	}
+
 	bool errorcode setBucketCount(size_t count);
 }
 
@@ -125,7 +127,7 @@ Iterator errorcode HashTableBase<T, H, E>.visit(Key key) {
 				return p;
 		}
 
-	T* p = new T(key);
+	T safe* p = new T(key);
 	p.m_bucket = bucket;
 	p.m_bucketIt = bucket.insertTail(p);
 	m_list.insertTail(p);
@@ -137,21 +139,13 @@ Iterator errorcode HashTableBase<T, H, E>.visit(Key key) {
 	return p;
 }
 
-void HashTableBase<T, H, E>.remove(Iterator it) {
-	T* p = *it;
-	p.m_bucket.remove(p.m_bucketIt);
-	p.m_bucket = null;
-	p.m_bucketIt = null;
-	m_list.remove(p);
-}
-
 bool errorcode HashTableBase<T, H, E>.setBucketCount(size_t count) {
 	m_table.clear();
 	m_table.setCount(count);
 
 	Iterator it = m_head;
 	for (; it; it++) {
-		T* p = it.m_p;
+		T safe* p = it.m_p;
 		size_t bucketIdx = m_hash(p.m_key) % count;
 		Bucket* bucket = m_table[bucketIdx];
 		if (!bucket)

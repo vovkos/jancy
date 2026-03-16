@@ -30,14 +30,32 @@ struct BoxListEntry<T>: ListEntry<BoxListEntry> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct BoxIteratorBase<T, P, E>: IteratorBase<E> {
+	T operator * () thin const {
+		return m_p.m_value;
+	}
+
+	P operator -> () thin const {
+		return &m_p.m_value;
+	}
+}
+
+struct BoxMutableIteratorBase<T>: BoxIteratorBase<T, T*, BoxListEntry<T>* > {
+	T operator := (T value) thin const {
+		return m_p.m_value = value;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 typedef IteratorImpl<
-	ValueMutableIteratorBase<T, BoxListEntry<T>*>,
-	ValueMutableIteratorBase<T, BoxListEntry<T>*>
+	BoxMutableIteratorBase<T>,
+	BoxMutableIteratorBase<T>
 > BoxIterator<T>;
 
 typedef IteratorImpl<
-	ValueIteratorBase<T, T const*, BoxListEntry<T> const*>,
-	ValueMutableIteratorBase<T, BoxListEntry<T>*>
+	BoxIteratorBase<T, T const*, BoxListEntry<T> const*>,
+	BoxMutableIteratorBase<T>
 > BoxConstIterator<T>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
