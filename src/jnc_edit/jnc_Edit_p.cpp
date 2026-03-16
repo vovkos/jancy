@@ -793,6 +793,14 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 
 		break;
 
+	case '>':
+		if (getCursorPrevChar(cursor) != '-') {
+			EditBasePrivate::keyPressPrintChar(e);
+			break;
+		}
+
+		// fall through on operator ->
+
 	case '.':
 		EditBasePrivate::keyPressPrintChar(e);
 
