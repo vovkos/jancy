@@ -73,7 +73,7 @@ OperatorMgr::loadDataRef(
 	const Value& opValue,
 	Value* resultValue
 ) {
-	ASSERT(opValue.getType()->getTypeKind() == TypeKind_DataRef);
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
 	bool result;
 
@@ -135,7 +135,7 @@ OperatorMgr::storeDataRef(
 	const Value& dstValue,
 	const Value& rawSrcValue
 ) {
-	ASSERT(dstValue.getType()->getTypeKind() == TypeKind_DataRef);
+	ASSERT(dstValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
 	bool result;
 
