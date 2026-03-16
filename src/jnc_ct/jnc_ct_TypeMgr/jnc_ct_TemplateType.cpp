@@ -19,6 +19,14 @@ namespace ct {
 
 //..............................................................................
 
+bool
+TemplateType::calcLayout() {
+	// calcDualType() requires layout and template deduction types use template arg types
+	return true;
+}
+
+//..............................................................................
+
 void
 TemplateArgType::prepareSignature() {
 	m_signature = sl::formatString("XA%d", m_module->createUniqueLinkId());
