@@ -34,7 +34,9 @@ OperatorMgr::getValueNamespace(const Value& rawOpValue) {
 	switch (typeKind) {
 	case TypeKind_DataPtr:
 	case TypeKind_DataRef:
-		type = ((DataPtrType*)type)->getTargetType();
+		do {
+			type = ((DataPtrType*)type)->getTargetType();
+		} while (type->getTypeKindFlags() & TypeKindFlag_DataPtr);
 		break;
 
 	case TypeKind_ClassPtr:
@@ -92,12 +94,20 @@ OperatorMgr::memberOperator(
 		type = ((DataPtrType*)type)->getTargetType();
 
 	if (type->getTypeKind() == TypeKind_DataPtr) {
-		result = unaryOperator(UnOpKind_Indir, &opValue);
-		if (!result)
-			return false;
+		for (;;) {
+			ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
+			type = ((DataPtrType*)opValue.getType())->getTargetType();
+			if (type->getTypeKind() != TypeKind_DataPtr)
+				break;
 
-		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
-		type = ((DataPtrType*)opValue.getType())->getTargetType();
+			if (!m_module->hasCodeGen())
+				opValue.setType(type);
+			else {
+				result = loadDataRef(&opValue);
+				if (!result)
+					return false;
+			}
+		}
 
 		result = type->ensureLayout();
 		if (!result)
