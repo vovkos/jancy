@@ -188,6 +188,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 
 		if (m_storageKind == StorageKind_Typedef) {
 			Typedef* tdef = m_module->m_typeMgr.createTypedef(m_name, type);
+			tdef->m_templateInstance = instance;
 			copyDecl(tdef);
 			instance->m_item = tdef;
 		} else {
@@ -197,7 +198,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			}
 
 			Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
-			function->m_templateInstance = &mapIt->m_value;
+			function->m_templateInstance = instance;
 			copyDecl(function);
 			instance->m_item = function;
 		}

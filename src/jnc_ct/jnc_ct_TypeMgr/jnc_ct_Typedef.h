@@ -17,15 +17,18 @@ namespace jnc {
 namespace ct {
 
 class TypedefShadowType;
+struct TemplateInstance;
 
 //..............................................................................
 
 class Typedef: public ModuleItemWithDecl<> {
 	friend class TypeMgr;
+	friend class Template;
 
 protected:
 	Type* m_type;
 	TypedefShadowType* m_shadowType;
+	TemplateInstance* m_templateInstance;
 
 public:
 	Typedef();
@@ -77,6 +80,7 @@ Typedef::Typedef() {
 	m_itemKind = ModuleItemKind_Typedef;
 	m_type = NULL;
 	m_shadowType = NULL;
+	m_templateInstance = NULL;
 }
 
 //

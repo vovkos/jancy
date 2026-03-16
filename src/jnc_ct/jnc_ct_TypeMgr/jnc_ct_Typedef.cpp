@@ -21,8 +21,14 @@ namespace ct {
 sl::StringRef
 Typedef::createItemString(size_t index) {
 	switch (index) {
-	case ModuleItemStringKind_QualifiedName:
-		return createItemStringImpl(index, this);
+	case ModuleItemStringKind_QualifiedName: {
+		if (!m_templateInstance)
+			return createQualifiedNameImpl();
+
+		sl::String string = createQualifiedNameImpl();
+		m_templateInstance->appendArgString(&string);
+		return string;
+		}
 
 	case ModuleItemStringKind_Synopsis:
 		break;

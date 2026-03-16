@@ -345,7 +345,6 @@ TypeMgr::createTypedefShadowType(Typedef* tdef) {
 	type->m_attributeBlock = tdef->m_attributeBlock;
 	type->m_typedef = tdef;
 	m_typeList.insertTail(type);
-
 	return type;
 }
 
