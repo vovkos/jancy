@@ -797,11 +797,10 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 
 	switch (c) {
 	case '(':
-	case '[':
-	case '{':
+	case '<':
 		EditBasePrivate::keyPressPrintChar(e);
 
-		if ((m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis) && c == '(')
+		if (m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis)
 			requestCodeAssist(CodeAssistDelay_ArgumentTipInitial, CodeAssistKind_ArgumentTip);
 
 		break;
