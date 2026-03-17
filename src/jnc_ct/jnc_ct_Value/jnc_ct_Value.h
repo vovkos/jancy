@@ -122,6 +122,11 @@ public:
 		setNamespace(nspace);
 	}
 
+	Value(Template* templ) {
+		init();
+		setTemplate(templ);
+	}
+
 	Value(Variable* variable) {
 		init();
 		setVariable(variable);

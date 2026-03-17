@@ -32,6 +32,7 @@ protected:
 
 	union {
 		ModuleItem* m_item;
+		Template* m_template;
 		Namespace* m_namespace;
 	};
 
@@ -73,6 +74,12 @@ public:
 	getNamespace() {
 		ASSERT(m_codeAssistKind == CodeAssistKind_AutoComplete);
 		return m_namespace;
+	}
+
+	Template*
+	getTemplate() {
+		ASSERT(m_codeAssistKind == CodeAssistKind_ArgumentTip);
+		return m_template;
 	}
 
 	FunctionTypeOverload*
@@ -118,16 +125,13 @@ protected:
 	struct ArgumentTip: sl::ListLink {
 		lex::LineColOffset m_pos;
 		Value m_value;
+		Template* m_template;
 		size_t m_argumentIdx;
 
 		ArgumentTip(
 			const lex::LineColOffset& pos,
 			const Value& value
-		) {
-			m_pos = pos;
-			m_value = value;
-			m_argumentIdx = 0;
-		}
+		);
 	};
 
 protected:
@@ -242,6 +246,13 @@ public:
 	);
 
 	CodeAssist*
+	createArgumentTip(
+		size_t offset,
+		Template* templ,
+		size_t argumentIdx
+	);
+
+	CodeAssist*
 	createArgumentTipFromStack();
 
 	CodeAssist*
@@ -311,6 +322,18 @@ protected:
 	CodeAssist*
 	createFallbackCodeAssist();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+CodeAssistMgr::ArgumentTip::ArgumentTip(
+	const lex::LineColOffset& pos,
+	const Value& value
+) {
+	m_pos = pos;
+	m_value = value;
+	m_argumentIdx = 0;
+}
 
 //..............................................................................
 

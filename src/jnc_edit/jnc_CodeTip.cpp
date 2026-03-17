@@ -60,6 +60,7 @@ CodeTip::showQuickInfoTip(
 	const QPoint& pos,
 	ModuleItem* item
 ) {
+	m_template = NULL;
 	m_functionTypeOverload = NULL;
 	m_functionTypeOverloadIdx = 0;
 	m_argumentIdx = 0;
@@ -74,6 +75,7 @@ CodeTip::showArgumentTip(
 	FunctionTypeOverload* overload,
 	size_t argumentIdx
 ) {
+	m_template = NULL;
 	m_functionTypeOverload = overload;
 	m_argumentIdx = argumentIdx;
 
@@ -84,10 +86,26 @@ CodeTip::showArgumentTip(
 	showText(pos, getArgumentTipText());
 }
 
+void
+CodeTip::showArgumentTip(
+	const QPoint& pos,
+	Template* templ,
+	size_t argumentIdx
+) {
+	m_template = templ;
+	m_functionTypeOverload = NULL;
+	m_functionTypeOverloadIdx = 0;
+	m_argumentIdx = argumentIdx;
+
+	showText(pos, getArgumentTipText());
+}
+
 QString
 CodeTip::getArgumentTipText() {
-	ASSERT(m_functionTypeOverload);
+	if (m_template)
+		return getArgumentTipText(m_template, m_argumentIdx);
 
+	ASSERT(m_functionTypeOverload);
 	size_t overloadCount = m_functionTypeOverload->getOverloadCount();
 	ASSERT(m_functionTypeOverloadIdx < overloadCount);
 
@@ -161,6 +179,40 @@ CodeTip::getArgumentTipText(
 	if (isConst)
 		text += highlightJancySource(" const", m_theme);
 
+	return text;
+}
+
+QString
+CodeTip::getArgumentTipText(
+	Template* templ,
+	size_t argumentIdx
+) {
+	size_t argCount = templ->getArgCount();
+	size_t lastArgIdx = argCount - 1;
+
+	QString text = "&lt;";
+
+	for (size_t i = 0; i < argCount; i++) {
+		TemplateArgType* arg = templ->getArg(i);
+		if (i == argumentIdx)
+			text += "<b>";
+
+		text += arg->getTypeString();
+
+		Type* defaultType = arg->getDefaultType();
+		if (defaultType) {
+			text += " = ";
+			text += highlightJancySource(defaultType->getTypeString(), m_theme);
+		}
+
+		if (i == argumentIdx)
+			text += "</b>";
+
+		if (i != lastArgIdx)
+			text += ", ";
+	}
+
+	text += "&gt;";
 	return text;
 }
 

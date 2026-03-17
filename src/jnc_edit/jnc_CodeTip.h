@@ -11,7 +11,8 @@ class CodeTip: public QLabel {
 
 protected:
 	const EditTheme* m_theme;
-	FunctionTypeOverload* m_functionTypeOverload; // needed when we press up/down
+	Template* m_template;
+	FunctionTypeOverload* m_functionTypeOverload;
 	size_t m_functionTypeOverloadIdx;
 	size_t m_argumentIdx;
 
@@ -45,6 +46,13 @@ public:
 		size_t argumentIdx
 	);
 
+	void
+	showArgumentTip(
+		const QPoint& pos,
+		Template* templ,
+		size_t argumentIdx
+	);
+
 protected:
 	virtual
 	bool
@@ -69,6 +77,12 @@ protected:
 	QString
 	getArgumentTipText(
 		FunctionType* type,
+		size_t argumentIdx
+	);
+
+	QString
+	getArgumentTipText(
+		Template* templ,
 		size_t argumentIdx
 	);
 

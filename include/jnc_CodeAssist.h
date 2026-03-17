@@ -65,6 +65,10 @@ jnc_Namespace*
 jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
+jnc_Template*
+jnc_CodeAssist_getTemplate(jnc_CodeAssist* codeAssist);
+
+JNC_EXTERN_C
 jnc_FunctionTypeOverload*
 jnc_CodeAssist_getFunctionTypeOverload(jnc_CodeAssist* codeAssist);
 
@@ -104,6 +108,11 @@ struct jnc_CodeAssist {
 	jnc_Namespace*
 	getNamespace() {
 		return jnc_CodeAssist_getNamespace(this);
+	}
+
+	jnc_Template*
+	getTemplate() {
+		return jnc_CodeAssist_getTemplate(this);
 	}
 
 	jnc_FunctionTypeOverload*

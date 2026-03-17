@@ -3009,6 +3009,11 @@ Parser::lookupIdentifier(
 		return NULL;
 	}
 
+	if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
+		(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
+	)
+		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, findResult.m_item);
+
 	return findResult.m_item;
 }
 
@@ -3250,11 +3255,6 @@ Parser::lookupIdentifier(
 		);
 		return false;
 	};
-
-	if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
-		(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
-	)
-		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, item);
 
 	return true;
 }

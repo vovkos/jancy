@@ -64,6 +64,13 @@ jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_Template*
+jnc_CodeAssist_getTemplate(jnc_CodeAssist* codeAssist) {
+	return codeAssist->getTemplate();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionTypeOverload*
 jnc_CodeAssist_getFunctionTypeOverload(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getFunctionTypeOverload();

@@ -162,6 +162,12 @@ protected:
 	);
 
 	void
+	createArgumentTip(
+		Template* templ,
+		size_t argumentIdx
+	);
+
+	void
 	createAutoComplete(
 		Namespace* nspace,
 		uint_t flags

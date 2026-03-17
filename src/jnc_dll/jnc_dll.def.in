@@ -36,6 +36,7 @@ EXPORTS
 	jnc_CodeAssist_getFunctionTypeOverload
 	jnc_CodeAssist_getArgumentIdx
 	jnc_CodeAssist_getNamespace
+	jnc_CodeAssist_getTemplate
 	jnc_ModuleItemDecl_getAccessKind
 	jnc_ModuleItemDecl_getAttributeBlock
 	jnc_ModuleItemDecl_getCol
@@ -137,6 +138,7 @@ EXPORTS
 	jnc_Template_getDeclType
 	jnc_Template_getArgCount
 	jnc_Template_getArg
+	jnc_TemplateArgType_getDefaultType
 	jnc_Alias_isResolved
 	jnc_Alias_getInitializerString_v
 	jnc_Alias_getTargetItem

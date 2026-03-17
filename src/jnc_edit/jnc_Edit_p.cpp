@@ -566,6 +566,19 @@ EditPrivate::createArgumentTip(
 	m_codeTip->showArgumentTip(point, typeOverload, argumentIdx);
 }
 
+void
+EditPrivate::createArgumentTip(
+	Template* templ,
+	size_t argumentIdx
+) {
+	Q_Q(Edit);
+
+	QPoint point = getLastCodeTipPoint();
+
+	ensureCodeTip();
+	m_codeTip->showArgumentTip(point, templ, argumentIdx);
+}
+
 size_t
 EditPrivate::getItemIconIdx(ModuleItem* item) {
 	ModuleItemKind itemKind = item->getItemKind();
@@ -1006,9 +1019,14 @@ EditPrivate::onCodeAssistReady() {
 		createQuickInfoTip(codeAssist->getModuleItem());
 		break;
 
-	case CodeAssistKind_ArgumentTip:
-		createArgumentTip(codeAssist->getFunctionTypeOverload(), codeAssist->getArgumentIdx());
+	case CodeAssistKind_ArgumentTip: {
+		Template* templ = codeAssist->getTemplate();
+		if (templ)
+			createArgumentTip(templ, codeAssist->getArgumentIdx());
+		else
+			createArgumentTip(codeAssist->getFunctionTypeOverload(), codeAssist->getArgumentIdx());
 		break;
+		}
 
 	case CodeAssistKind_AutoComplete:
 		createAutoComplete(codeAssist->getNamespace(), codeAssist->getFlags());

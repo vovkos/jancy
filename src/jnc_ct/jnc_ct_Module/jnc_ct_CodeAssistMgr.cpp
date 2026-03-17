@@ -47,7 +47,7 @@ CodeAssistMgr::clear() {
 
 void
 CodeAssistMgr::initialize(
-	jnc_CodeAssistKind kind,
+	CodeAssistKind kind,
 	size_t offset
 ) {
 	clear();
@@ -167,11 +167,35 @@ CodeAssistMgr::createArgumentTip(
 }
 
 CodeAssist*
+CodeAssistMgr::createArgumentTip(
+	size_t offset,
+	Template* templ,
+	size_t argumentIdx
+) {
+	freeCodeAssist();
+
+	m_codeAssist = new CodeAssist;
+	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
+	m_codeAssist->m_offset = offset;
+	m_codeAssist->m_module = m_module;
+	m_codeAssist->m_template = templ;
+	m_codeAssist->m_argumentIdx = argumentIdx;
+	return m_codeAssist;
+}
+
+CodeAssist*
 CodeAssistMgr::createArgumentTipFromStack() {
-	if (m_argumentTipStack.isEmpty())
-		return NULL;
+	ASSERT(!m_argumentTipStack.isEmpty());
 
 	ArgumentTip* argumentTip = *m_argumentTipStack.getTail();
+
+	if (argumentTip->m_value.getValueKind() == ValueKind_Template)
+		return createArgumentTip(
+			argumentTip->m_pos.m_offset,
+			argumentTip->m_value.getTemplate(),
+			argumentTip->m_argumentIdx
+		);
+
 
 	size_t baseArgumentIdx;
 	FunctionTypeOverload typeOverload = m_module->m_operatorMgr.getValueFunctionTypeOverload(
