@@ -124,6 +124,7 @@ protected:
 	sl::Array<Type*> m_lastTypeArray;
 	FunctionType* m_lastPropertyGetterType;
 	uint_t m_lastPropertyTypeModifiers;
+	ValueKind m_lastPostfixValueKind;
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution

@@ -742,6 +742,9 @@ new_operator_curly_initializer<Value* $value>
 
 postfix_expr<Value* $value>
 	:	primary_expr<$value>
+			{
+				m_lastPostfixValueKind = $value->getValueKind();
+			}
 		postfix_operator<$value>*
 	;
 
@@ -792,7 +795,7 @@ postfix_operator<Value* $value>
 				createMemberCodeAssistIf($1, *$value);
 			}
 		member_operator<$value>
-	|	resolver ('<' ('>' | ',' | type_name_rslv)) // vs epsilon
+	|	resolver ({ return m_lastPostfixValueKind == ValueKind_Template; }) // vs epsilon
 		'<' $l
 			{
 				m_module->m_codeAssistMgr.pushArgumentTipIf($l.m_pos, *$value);

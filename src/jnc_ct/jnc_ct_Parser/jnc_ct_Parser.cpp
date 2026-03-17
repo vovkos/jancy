@@ -78,6 +78,7 @@ Parser::Parser(
 	m_lastDeclaredItem = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
+	m_lastPostfixValueKind = ValueKind_Void;
 	m_topDeclarator = NULL;
 	m_importTypeNameAnchor = NULL;
 	m_declarationId = 0;
