@@ -274,6 +274,39 @@ TemplateDeclType::prepareSignature() {
 	m_flags |= TypeFlag_SignatureFinal;
 }
 
+sl::StringRef
+TemplateDeclType::createItemString(size_t index) {
+	Type* deductionType = ensureDeductionType();
+	return deductionType ? deductionType->getItemString(index) : sl::StringRef();
+}
+
+Type*
+TemplateDeclType::createDeductionType() {
+	ASSERT(m_parentNamespace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
+	const sl::StringHashTable<ModuleItem*>& itemMap = m_parentNamespace->getItemMap();
+	size_t argCount = itemMap.getCount();
+
+	char buffer[256];
+	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	argArray.setCount(argCount);
+
+	TemplateNamespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(*this);
+
+	sl::ConstStringHashTableIterator<ModuleItem*> it = itemMap.getHead();
+	sl::Array<Type*>::Rwi rwi = argArray.rwi();
+	for (size_t i = 0; i < argCount; i++, it++) {
+		Type* type = (Type*)it->m_value;
+		ASSERT(type->getItemKind() == ModuleItemKind_Type);
+		bool result = nspace->addItem(it->getKey(), it->m_value);
+		ASSERT(result); // should have been checked in parser
+		rwi[i] = type;
+	}
+
+	m_deductionType = instantiate(argArray);
+	m_module->m_namespaceMgr.closeTemplateInstNamespace();
+	return m_deductionType;
+}
+
 //..............................................................................
 
 } // namespace ct

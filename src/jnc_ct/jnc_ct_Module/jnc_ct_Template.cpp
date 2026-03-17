@@ -75,7 +75,7 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 	}
 
 	if (actualArgCount == argCount && argArray0.find(NULL) == -1) {
-		openTemplateInstNamespace(argArray0);
+		m_module->m_namespaceMgr.openTemplateInstNamespace(*this, m_argArray, argArray0);
 		ModuleItem* item = instantiateImpl(argArray0);
 		m_module->m_namespaceMgr.closeTemplateInstNamespace();
 		return item;
@@ -86,7 +86,7 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 	argArray.setCountZeroConstruct(argCount);
 	memcpy(argArray.p(), argArray0, actualArgCount * sizeof(Type*));
 
-	openTemplateInstNamespace(argArray);
+	m_module->m_namespaceMgr.openTemplateInstNamespace(*this, m_argArray, argArray);
 	ModuleItem* item = setDefaultArgs(&argArray) ? instantiateImpl(argArray) : NULL;
 	m_module->m_namespaceMgr.closeTemplateInstNamespace();
 	return item;
@@ -97,6 +97,9 @@ Template::instantiate(
 	const ModuleItemContext& context,
 	const sl::List<Token>& argArrayTokenList
 ) {
+	if (argArrayTokenList.isEmpty())
+		return instantiate(sl::ArrayRef<Type*>());
+
 	sl::List<Token> tokenList;
 	cloneTokenList(&tokenList, argArrayTokenList);
 
@@ -104,22 +107,6 @@ Template::instantiate(
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 	bool result = parser.parseTokenList(SymbolKind_template_inst_type_name_list_save, &tokenList);
 	return result ? instantiate(parser.getLastTypeArray()) : NULL;
-}
-
-TemplateNamespace*
-Template::openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const {
-	TemplateNamespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(*this);
-
-	size_t count = argArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Type* type = argArray[i];
-		if (type) {
-			bool result = nspace->addItem(m_argArray[i]->getName(), type);
-			ASSERT(result); // should have been checked in parser
-		}
-	}
-
-	return nspace;
 }
 
 bool
@@ -257,25 +244,14 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 	return instance->m_item;
 }
 
-Type*
-Template::ensureDeductionType() const {
-	Type* deductionType = m_declType->getDeductionType();
-	if (deductionType)
-		return deductionType;
-
-	openTemplateInstNamespace(*(sl::Array<Type*>*)&m_argArray);
-	deductionType = m_declType->createDeductionType();
-	m_module->m_namespaceMgr.closeTemplateInstNamespace();
-	return deductionType;
-}
-
 bool
 Template::deduceArgs(
 	sl::Array<Type*>* templateArgArray,
 	const sl::ConstBoxList<Value>& argTypeList,
 	const sl::ConstBoxList<Value>& argValueList
 ) const {
-	Type* deductionType = ensureDeductionType();
+	ASSERT(m_declType);
+	Type* deductionType = m_declType->ensureDeductionType();
 	if (!deductionType)
 		return false;
 
@@ -333,11 +309,11 @@ Template::deduceArgs(
 
 sl::StringRef
 Template::createItemString(size_t index) {
-		static const sl::StringRef derivableTypeKindPrefixTable[] = {
-			"struct ",          // TypeKind_Struct,
-			"union ",           // TypeKind_Union,
-			"class ",           // TypeKind_Class,
-		};
+	static const sl::StringRef derivableTypeKindPrefixTable[] = {
+		"struct ",          // TypeKind_Struct,
+		"union ",           // TypeKind_Union,
+		"class ",           // TypeKind_Class,
+	};
 
 	switch (index) {
 	case ModuleItemStringKind_QualifiedName:
@@ -354,7 +330,8 @@ Template::createItemString(size_t index) {
 			return string;
 		}
 
-		Type* deductionType = ensureDeductionType();
+		ASSERT(m_declType);
+		Type* deductionType = m_declType->ensureDeductionType();
 		if (!deductionType) {
 			string = m_storageKind == StorageKind_Typedef ? "typedef " : "template ";
 			string += getItemName();

@@ -323,7 +323,8 @@ Parser::parseTokenList(
 			result = parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
 
 		if (!m_module->m_codeAssistMgr.getCodeAssist() &&
-			m_module->m_codeAssistMgr.hasArgumentTipStack())
+			m_module->m_codeAssistMgr.hasArgumentTipStack()
+		)
 			m_module->m_codeAssistMgr.createArgumentTipFromStack();
 
 		return result;
@@ -1192,9 +1193,9 @@ bool
 Parser::checkTemplateName(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
-	Namespace* templNspace
+	Namespace* templateDeclNamespace
 ) {
-	if (!templNspace->findDirectChildItem(name).m_item)
+	if (!templateDeclNamespace->findDirectChildItem(name).m_item)
 		return true;
 
 	err::setFormatStringError("template name '%s' conflicts with template arguments", name.sz());
@@ -1204,20 +1205,20 @@ Parser::checkTemplateName(
 
 bool
 Parser::declareTemplate(Declarator* declarator) {
-	Namespace* templNspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	Namespace* templateDeclNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	m_module->m_namespaceMgr.closeAllTemplateDeclNamespaces();
 
 	if (declarator->isQualified()) {
-		TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
+		TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(templateDeclNamespace, declarator);
 		declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 		createOrphan(OrphanKind_Template, declarator->getFunctionKind(), declarator, type);
 		return true;
 	}
 
-	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
+	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(templateDeclNamespace, declarator);
 	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 	const sl::StringRef& name = declarator->getName().getFirstAtom().m_name;
-	if (!checkTemplateName(declarator->getPos(), name, templNspace))
+	if (!checkTemplateName(declarator->getPos(), name, templateDeclNamespace))
 		return false;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();

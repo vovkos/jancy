@@ -218,6 +218,13 @@ public:
 		return openTemplateNamespace(NamespaceKind_TemplateInstantiation, context);
 	}
 
+	TemplateNamespace*
+	openTemplateInstNamespace(
+		const ModuleItemContext& context,
+		const sl::ArrayRef<TemplateArgType*>& formalArgArray,
+		const sl::ArrayRef<Type*>& actualArgArray
+	);
+
 	void
 	closeTemplateInstNamespace() {
 		closeTemplateNamespace(NamespaceKind_TemplateInstantiation);

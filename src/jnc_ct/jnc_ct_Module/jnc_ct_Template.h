@@ -94,15 +94,9 @@ public:
 	) const;
 
 protected:
-	Type*
-	ensureDeductionType() const;
-
 	virtual
 	sl::StringRef
 	createItemString(size_t index);
-
-	TemplateNamespace*
-	openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const;
 
 	void
 	copyDecl(ModuleItemDecl* itemDecl) const {

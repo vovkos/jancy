@@ -211,6 +211,11 @@ public:
 		const Value& value
 	);
 
+	const sl::StringHashTable<ModuleItem*>&
+	getItemMap() {
+		return m_itemMap;
+	}
+
 	const sl::Array<ModuleItem*>&
 	getItemArray() {
 		return m_itemArray;

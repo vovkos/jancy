@@ -701,6 +701,12 @@ public:
 	);
 
 	TemplateDeclType*
+	createTemplateDeclType(
+		Namespace* parentNamespace,
+		Declarator* declarator
+	);
+
+	TemplateDeclType*
 	createTemplateDeclType(Declarator* declarator);
 
 	Type*

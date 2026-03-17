@@ -19,6 +19,7 @@ namespace jnc {
 namespace ct {
 
 class TemplateDeclType;
+class TemplateNamespace;
 
 //..............................................................................
 
@@ -195,7 +196,9 @@ protected:
 
 //..............................................................................
 
-class TemplateDeclType: public TemplateType {
+class TemplateDeclType:
+	public TemplateType,
+	public ModuleItemContext {
 	friend class TypeMgr;
 	friend class Parser;
 
@@ -215,14 +218,8 @@ public:
 	}
 
 	Type*
-	getDeductionType() {
-		return m_deductionType;
-	}
-
-	Type*
-	createDeductionType() {
-		ASSERT(!m_deductionType);
-		return m_deductionType = instantiate(*(sl::ArrayRef<Type*>*)&m_declarator.getTemplateArgArray());
+	ensureDeductionType() {
+		return m_deductionType ? m_deductionType : createDeductionType();
 	}
 
 	Type*
@@ -235,9 +232,10 @@ protected:
 
 	virtual
 	sl::StringRef
-	createItemString(size_t index) {
-		return getDeductionType()->getItemString(index);
-	}
+	createItemString(size_t index);
+
+	Type*
+	createDeductionType();
 };
 
 //..............................................................................

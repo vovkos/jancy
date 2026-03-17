@@ -364,6 +364,28 @@ NamespaceMgr::closeAllNamespaces() {
 	m_sourcePosLockCount = 0;
 }
 
+TemplateNamespace*
+NamespaceMgr::openTemplateInstNamespace(
+	const ModuleItemContext& context,
+	const sl::ArrayRef<TemplateArgType*>& formalArgArray,
+	const sl::ArrayRef<Type*>& actualArgArray
+) {
+	TemplateNamespace* nspace = openTemplateInstNamespace(context);
+
+	size_t count = actualArgArray.getCount();
+	ASSERT(formalArgArray.getCount() == count);
+
+	for (size_t i = 0; i < count; i++) {
+		Type* type = actualArgArray[i];
+		if (type) {
+			bool result = nspace->addItem(formalArgArray[i]->getName(), type);
+			ASSERT(result); // should have been checked in parser
+		}
+	}
+
+	return nspace;
+}
+
 Scope*
 NamespaceMgr::openInternalScope() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
