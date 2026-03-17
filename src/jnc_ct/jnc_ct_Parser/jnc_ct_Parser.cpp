@@ -3287,7 +3287,8 @@ Parser::lookupMember(
 		return NULL;
 	}
 
-	return result.m_item;}
+	return result.m_item;
+}
 
 bool
 Parser::prepareCurlyInitializerNamedItem(

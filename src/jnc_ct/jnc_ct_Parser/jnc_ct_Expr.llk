@@ -745,7 +745,12 @@ postfix_expr<Value* $value>
 			{
 				m_lastPostfixValueKind = $value->getValueKind();
 			}
-		postfix_operator<$value>*
+		(
+			postfix_operator<$value>
+				{
+					m_lastPostfixValueKind = $value->getValueKind();
+				}
+		)*
 	;
 
 postfix_operator<Value* $value>
