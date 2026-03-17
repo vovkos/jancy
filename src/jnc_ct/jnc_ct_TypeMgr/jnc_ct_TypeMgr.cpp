@@ -459,21 +459,40 @@ TypeMgr::createFunctionArg(
 	uint_t ptrTypeFlags,
 	sl::List<Token>* initializer
 ) {
-	FunctionArg* functionArg = new FunctionArg;
-	functionArg->m_module = m_module;
-	functionArg->m_name = name;
-	functionArg->m_type = type;
-	functionArg->m_ptrTypeFlags = ptrTypeFlags;
+	FunctionArg* arg = new FunctionArg;
+	arg->m_module = m_module;
+	arg->m_name = name;
+	arg->m_type = type;
+	arg->m_ptrTypeFlags = ptrTypeFlags;
 
 	if (initializer)
-		sl::takeOver(&functionArg->m_initializer, initializer);
+		sl::takeOver(&arg->m_initializer, initializer);
 
-	m_functionArgList.insertTail(functionArg);
+	m_functionArgList.insertTail(arg);
 
 	if (type->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)type)->addFixup(&functionArg->m_type);
+		((ImportType*)type)->addFixup(&arg->m_type);
 
-	return functionArg;
+	return arg;
+}
+
+FunctionArg*
+TypeMgr::cloneFunctionArgOverrideType(
+	FunctionArg* srcArg,
+	Type* type
+) {
+	FunctionArg* arg;
+
+	if (srcArg->m_initializer.isEmpty())
+		arg = createFunctionArg(srcArg->m_name, type, srcArg->m_ptrTypeFlags);
+	else {
+		sl::List<Token> initializer;
+		cloneTokenList(&initializer, srcArg->m_initializer);
+		arg = createFunctionArg(srcArg->m_name, type, srcArg->m_ptrTypeFlags, &initializer);
+	}
+
+	arg->copyDecl(srcArg);
+	return arg;
 }
 
 Field*

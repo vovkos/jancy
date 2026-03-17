@@ -836,20 +836,6 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-FunctionArg*
-TypeMgr::cloneFunctionArgOverrideType(
-	FunctionArg* arg,
-	Type* type
-) {
-	if (arg->m_initializer.isEmpty())
-		return createFunctionArg(arg->m_name, type, arg->m_ptrTypeFlags);
-
-	sl::List<Token> initializer;
-	cloneTokenList(&initializer, arg->m_initializer);
-	return createFunctionArg(arg->m_name, type, arg->m_ptrTypeFlags, &initializer);
-}
-
-inline
 FunctionType*
 TypeMgr::createUserFunctionType(
 	CallConv* callConv,
