@@ -26,6 +26,15 @@
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_Type*
+jnc_TemplateArgType_getDefaultType(jnc_TemplateArgType* type) {
+	return type->getDefaultType();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_TypeKind
 jnc_Template_getDerivableTypeKind(jnc_Template* templ) {
 	return templ->getDerivableTypeKind();
@@ -47,7 +56,7 @@ jnc_Template_getArgCount(jnc_Template* templ) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Type*
+jnc_TemplateArgType*
 jnc_Template_getArg(
 	jnc_Template* templ,
 	size_t index

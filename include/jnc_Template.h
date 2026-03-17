@@ -15,8 +15,27 @@
 
 #include "jnc_Type.h"
 
-/// \addtogroup namespace
+/// \addtogroup template
 /// @{
+
+//..............................................................................
+
+JNC_EXTERN_C
+jnc_Type*
+jnc_TemplateArgType_getDefaultType(jnc_TemplateArgType* type);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_TemplateArgType: jnc_Type {
+	jnc_Type*
+	getDefaultType() {
+		return jnc_TemplateArgType_getDefaultType(this);
+	}
+};
+
+#endif // _JNC_CORE
 
 //..............................................................................
 
@@ -33,7 +52,7 @@ size_t
 jnc_Template_getArgCount(jnc_Template* templ);
 
 JNC_EXTERN_C
-jnc_Type*
+jnc_TemplateArgType*
 jnc_Template_getArg(
 	jnc_Template* templ,
 	size_t index
@@ -59,7 +78,7 @@ struct jnc_Template: jnc_ModuleItem {
 		return jnc_Template_getArgCount(this);
 	}
 
-	jnc_Type*
+	jnc_TemplateArgType*
 	getArg(size_t index) {
 		return jnc_Template_getArg(this, index);
 	}
