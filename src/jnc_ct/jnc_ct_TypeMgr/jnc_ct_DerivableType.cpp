@@ -928,7 +928,7 @@ DerivableType::compileDefaultConstructor(Function* function) {
 
 bool
 DerivableType::compileDefaultCopyConstructor(Function* function) {
-	ASSERT(m_constructorThinThisFlag & PtrTypeFlag_ThinThis);
+	ASSERT(function->getThisArgTypeFlags() & PtrTypeFlag_ThinThis);
 
 	Value argValues[2];
 	m_module->m_namespaceMgr.openNamespace(this);
@@ -948,7 +948,7 @@ DerivableType::compileDefaultCopyConstructor(Function* function) {
 
 bool
 DerivableType::compileDefaultCastOperator(Function* function) {
-	ASSERT(m_constructorThinThisFlag & PtrTypeFlag_ThinThis);
+	ASSERT(function->getThisArgTypeFlags() & PtrTypeFlag_ThinThis);
 
 	Value argValue;
 	m_module->m_namespaceMgr.openNamespace(this);
