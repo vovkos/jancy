@@ -649,6 +649,16 @@ EditPrivate::addAutoCompleteNamespace(
 		if (name.startsWith('!')) // internal item
 			continue;
 
+		if (name.isEmpty()) {
+			Module* module = item->getModule();
+			ASSERT(
+				item == module->getGlobalNamespace() &&
+				nspace->getDeclItem() == module->getStdNamespace(StdNamespace_Jnc)
+			);
+
+			name = "global";
+		}
+
 		ModuleItemKind itemKind = item->getItemKind();
 		Type* type = item->getType();
 		QString synopsis = item->getItemString(ModuleItemStringKind_Synopsis);
