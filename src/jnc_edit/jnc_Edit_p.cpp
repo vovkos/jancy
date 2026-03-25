@@ -966,7 +966,7 @@ EditPrivate::onCompleterActivated(const QModelIndex& index) {
 		return;
 	}
 
-	QModelIndex nameIndex = index.siblingAtColumn(Column_Name); // user could have clicked on synopsis
+	QModelIndex nameIndex = index.sibling(index.row(), Column_Name); // user could have clicked on synopsis
 	QString completion = m_completer->popup()->model()->data(nameIndex, Qt::DisplayRole).toString();
 	int basePosition = getLastCodeAssistPosition();
 
