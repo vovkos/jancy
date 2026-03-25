@@ -137,6 +137,7 @@ public:
 		uint_t bitOffset,
 		uint_t bitCount,
 		TypeKind typeKind,
+		uint_t _unused,
 		uint_t flags
 	) {
 		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(bitOffset, bitCount, typeKind, flags));
@@ -146,6 +147,7 @@ public:
 	JNC_CDECL
 	getDataPtrType_1(
 		TypeKind typeKind,
+		uint_t _unused,
 		uint_t flags
 	) {
 		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(typeKind, flags));

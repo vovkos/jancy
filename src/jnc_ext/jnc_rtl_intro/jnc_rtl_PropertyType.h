@@ -62,7 +62,8 @@ public:
 	JNC_CDECL
 	getPropertyPtrType(
 		TypeKind typeKind,
-		uint_t flags = 0
+		uint_t _unused,
+		uint_t flags
 	) {
 		return (PropertyPtrType*)rtl::getType(m_item->getPropertyPtrType(typeKind, flags));
 	}

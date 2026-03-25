@@ -51,6 +51,7 @@ public:
 	JNC_CDECL
 	getClassPtrType(
 		TypeKind typeKind,
+		uint_t _unused,
 		uint_t flags
 	) {
 		return (ClassPtrType*)rtl::getType(m_item->getClassPtrType(typeKind, flags));

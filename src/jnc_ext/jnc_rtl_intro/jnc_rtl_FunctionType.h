@@ -83,6 +83,7 @@ public:
 	JNC_CDECL
 	getFunctionPtrType(
 		TypeKind typeKind,
+		uint_t _unused,
 		uint_t flags
 	) {
 		return (FunctionPtrType*)rtl::getType(m_item->getFunctionPtrType(typeKind, flags));
