@@ -32,6 +32,7 @@ class JNC_EDIT_EXPORT EditBase: public QPlainTextEdit {
 	Q_PROPERTY(int lineNumberMarginWidth READ lineNumberMarginWidth)
 	Q_PROPERTY(bool isCurrentLineHighlightingEnabled READ isCurrentLineHighlightingEnabled WRITE enableCurrentLineHighlighting)
 	Q_PROPERTY(bool isSyntaxHighlightingEnabled READ isSyntaxHighlightingEnabled WRITE enableSyntaxHighlighting)
+	Q_PROPERTY(bool isTabsToSpacesEnabled READ isTabsToSpacesEnabled WRITE enableTabsToSpaces)
 	Q_PROPERTY(int tabWidth READ tabWidth WRITE setTabWidth)
 
 	friend class LineNumberMargin;
@@ -58,6 +59,8 @@ public:
 	void enableCurrentLineHighlighting(bool isEnabled);
 	bool isSyntaxHighlightingEnabled();
 	void enableSyntaxHighlighting(bool isEnabled);
+	bool isTabsToSpacesEnabled();
+	void enableTabsToSpaces(bool isEnabled);
 	int tabWidth();
 	void setTabWidth(int width);
 	const EditTheme* theme();

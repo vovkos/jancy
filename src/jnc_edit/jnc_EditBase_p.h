@@ -43,6 +43,7 @@ protected:
 	int m_tabWidth;
 	bool m_isExtraSelectionUpdateRequired;
 	bool m_isCurrentLineHighlightingEnabled;
+	bool m_isTabsToSpacesEnabled;
 
 protected:
 	EditBasePrivate();

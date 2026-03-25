@@ -13,8 +13,9 @@
 #include "mdichild.h"
 #include "moc_mdichild.cpp"
 
-#define _DARK_THEME 0
-#define _READ_ONLY  0
+#define _DARK_THEME     0
+#define _READ_ONLY      0
+#define _TABS_TO_SPACES 0
 
 MdiChild::MdiChild(QWidget *parent):
 	jnc::Edit(parent) {
@@ -27,6 +28,10 @@ MdiChild::MdiChild(QWidget *parent):
 
 #if (_READ_ONLY)
 	setReadOnly(true);
+#endif
+
+#if (_TABS_TO_SPACES)
+	enableTabsToSpaces(true);
 #endif
 }
 

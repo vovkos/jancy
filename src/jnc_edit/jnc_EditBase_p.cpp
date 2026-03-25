@@ -211,6 +211,18 @@ EditBase::enableSyntaxHighlighting(bool isEnabled) {
 	d->enableSyntaxHighlighting(isEnabled);
 }
 
+bool
+EditBase::isTabsToSpacesEnabled() {
+	Q_D(EditBase);
+	return d->m_isTabsToSpacesEnabled;
+}
+
+void
+EditBase::enableTabsToSpaces(bool isEnabled) {
+	Q_D(EditBase);
+	d->m_isTabsToSpacesEnabled = true;
+}
+
 int
 EditBase::tabWidth() {
 	Q_D(EditBase);
@@ -390,6 +402,7 @@ EditBasePrivate::EditBasePrivate() {
 	m_tabWidth = 4;
 	m_isCurrentLineHighlightingEnabled = false;
 	m_isExtraSelectionUpdateRequired = false;
+	m_isTabsToSpacesEnabled = false;
 	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
 }
 
@@ -644,6 +657,7 @@ EditBasePrivate::indentSelection() {
 	QTextCursor cursor = q->textCursor();
 	int start = cursor.selectionStart();
 	int end = cursor.selectionEnd();
+	int anchor = cursor.anchor();
 
 	cursor.beginEditBlock();
 	cursor.setPosition(start);
@@ -652,10 +666,23 @@ EditBasePrivate::indentSelection() {
 	QTextCursor endCursor = cursor;
 	endCursor.setPosition(end);
 
+	QString indent = m_isTabsToSpacesEnabled ? QString(m_tabWidth, QChar(' ')) : QString('\t');
 	for (; cursor < endCursor; moveCursorWithLimit(&cursor, endCursor, QTextCursor::Down))
-		cursor.insertText(QChar('\t'));
+		cursor.insertText(indent);
 
 	cursor.endEditBlock();
+
+	int newEnd = q->textCursor().selectionEnd();
+
+	if (anchor == start) {
+		cursor.setPosition(start);
+		cursor.setPosition(newEnd, QTextCursor::KeepAnchor);
+	} else {
+		cursor.setPosition(newEnd);
+		cursor.setPosition(start, QTextCursor::KeepAnchor);
+	}
+
+	q->setTextCursor(cursor);
 }
 
 void
@@ -663,7 +690,6 @@ EditBasePrivate::unindentSelection() {
 	Q_Q(EditBase);
 
 	QTextCursor cursor = q->textCursor();
-
 	int start = cursor.selectionStart();
 	int end = isCursorMultiLineSelection(cursor) ?
 		cursor.selectionEnd() :
@@ -741,8 +767,16 @@ EditBasePrivate::keyPressTab(QKeyEvent* e) {
 	QTextCursor cursor = q->textCursor();
 	if (isCursorMultiLineSelection(cursor))
 		indentSelection();
-	else
+	else if (!m_isTabsToSpacesEnabled)
 		q->QPlainTextEdit::keyPressEvent(e);
+	else {
+		e->accept();
+		int col = cursor.positionInBlock();
+		cursor.beginEditBlock();
+		cursor.insertText(QString(m_tabWidth - col % m_tabWidth, QChar(' ')));
+		cursor.endEditBlock();
+		q->setTextCursor(cursor);
+	}
 }
 
 void
