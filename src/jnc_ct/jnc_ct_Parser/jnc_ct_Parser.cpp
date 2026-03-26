@@ -1216,20 +1216,34 @@ Parser::declareTemplate(Declarator* declarator) {
 		return true;
 	}
 
-	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(templateDeclNamespace, declarator);
+	DerivableType* parentType = NULL;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	NamespaceKind namespaceKind = nspace->getNamespaceKind();
+	AXL_TODO("quick check if templates are even allowed here")
+
+	if (m_storageKind != StorageKind_Typedef &&
+		m_storageKind != StorageKind_Static
+	)
+		switch (namespaceKind) {
+		case NamespaceKind_Property:
+			parentType = ((Property*)nspace)->getParentType();
+			break;
+
+		case NamespaceKind_Type:
+			if (((NamedType*)nspace)->getTypeKindFlags() & TypeKindFlag_Derivable)
+				parentType = (DerivableType*)nspace;
+			break;
+		}
+
+	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(templateDeclNamespace, declarator, parentType);
 	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 	const sl::StringRef& name = declarator->getName().getFirstAtom().m_name;
 	if (!checkTemplateName(declarator->getPos(), name, templateDeclNamespace))
 		return false;
 
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	Template* templ = m_module->m_templateMgr.createTemplate(name, type);
-	bool result = nspace->addItem(name, templ);
-	if (!result)
-		return false;
-
 	assignDeclarationAttributes(templ, templ, declarator);
-	return true;
+	return nspace->addItem(name, templ);
 }
 
 bool
@@ -1247,6 +1261,9 @@ Parser::declareTemplate(
 		return false;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	NamespaceKind namespaceKind = nspace->getNamespaceKind();
+	AXL_TODO("quick check if templates are even allowed here")
+
 	Template* templ = m_module->m_templateMgr.createTemplate(
 		typeKind,
 		name,
@@ -1254,13 +1271,9 @@ Parser::declareTemplate(
 		baseTypeArray
 	);
 
-	bool result = nspace->addItem(name, templ);
-	if (!result)
-		return false;
-
 	assignDeclarationAttributes(templ, templ, nameToken.m_pos);
 	setBody(templ, bodyTokenList);
-	return true;
+	return nspace->addItem(name, templ);
 }
 
 bool
@@ -1278,7 +1291,6 @@ Parser::declareTypedef(
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	const sl::StringRef& name = declarator->getSimpleName();
 	FindModuleItemResult findResult = nspace->findDirectChildItem(name);
-
 	if (!findResult.m_result)
 		return false;
 

@@ -147,8 +147,7 @@ public:
 
 	DerivableType*
 	getParentType() {
-		return m_parentNamespace->getNamespaceKind() == NamespaceKind_Type ?
-			(DerivableType*)(NamedType*)m_parentNamespace : NULL;
+		return m_parentNamespace->getNamespaceKind() == NamespaceKind_Type ? (DerivableType*)m_parentNamespace : NULL;
 	}
 
 	Type*

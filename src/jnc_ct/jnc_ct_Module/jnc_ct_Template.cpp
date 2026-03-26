@@ -51,21 +51,6 @@ TemplateInstance::appendArgString(sl::String* string) const {
 //..............................................................................
 
 ModuleItem*
-Template::instantiate(const sl::ConstBoxList<Value>& argList) {
-	char buffer[256];
-	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-	argArray.setCount(argList.getCount());
-	sl::Array<Type*>::Rwi rwi = argArray.rwi();
-	sl::ConstBoxIterator<Value> it = argList.getHead();
-	for (size_t i = 0; it; i++, it++) {
-		Type* type = it->getType();
-		rwi[i] = type;
-	}
-
-	return instantiate(argArray);
-}
-
-ModuleItem*
 Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 	size_t argCount = m_argArray.getCount();
 	size_t actualArgCount = argArray0.getCount();
@@ -169,7 +154,9 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 
 		instance->m_item = item;
 	} else if (m_declType) {
-		Type* type = m_declType->instantiate(argArray);
+		uint_t thisArgTypeFlags;
+		DerivableType* parentType = m_declType->getParentType();
+		Type* type = m_declType->instantiate(argArray, parentType ? &thisArgTypeFlags : NULL);
 		if (!type)
 			return NULL;
 
@@ -188,6 +175,11 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			function->m_templateInstance = instance;
 			copyDecl(function);
 			instance->m_item = function;
+
+			if (parentType) {
+				function->m_thisArgTypeFlags = thisArgTypeFlags;
+				function->convertToMemberMethod(parentType);
+			}
 		}
 	} else {
 		DerivableType* type;
@@ -247,11 +239,12 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 bool
 Template::deduceArgs(
 	sl::Array<Type*>* templateArgArray,
-	const sl::ConstBoxList<Value>& argTypeList,
+	const sl::ArrayRef<Type*>& argTypeArray,
 	const sl::ConstBoxList<Value>& argValueList
-) const {
+) {
 	ASSERT(m_declType);
-	Type* deductionType = m_declType->ensureDeductionType();
+
+	FunctionType* deductionType = (FunctionType*)m_declType->ensureDeductionType();
 	if (!deductionType)
 		return false;
 
@@ -260,22 +253,22 @@ Template::deduceArgs(
 		return false;
 	}
 
-	FunctionType* functionType = (FunctionType*)deductionType;
-	const sl::Array<FunctionArg*>& functionArgArray = functionType->getArgArray();
+	const sl::Array<FunctionArg*>& functionArgArray = deductionType->getArgArray();
 	size_t functionArgCount = functionArgArray.getCount();
 	if (functionArgCount != argValueList.getCount()) {
-		err::setFormatStringError("'%s' does not take %d arguments", getItemName().sz(), argValueList.getCount());
+		err::setFormatStringError("'%s' does not take %d argument(s)", getItemName().sz(), argValueList.getCount());
 		return false;
 	}
 
 	size_t templateArgCount = m_argArray.getCount();
 	templateArgArray->setCountZeroConstruct(templateArgCount);
 
-	if (!argTypeList.isEmpty()) {
+	if (!argTypeArray.isEmpty()) {
 		sl::Array<Type*>::Rwi rwi = templateArgArray->rwi();
-		sl::ConstBoxIterator<Value> it = argTypeList.getHead();
-		for (size_t i = 0; i < templateArgCount && it; i++, it++) {
-			Type* type = it->getType();
+		size_t j = 0;
+		size_t argTypeCount = argTypeArray.getCount();
+		for (size_t i = 0; i < templateArgCount && j < argTypeCount; i++, j++) {
+			Type* type = argTypeArray[j];
 			if (type)
 				rwi[i] = type;
 		}

@@ -276,7 +276,8 @@ FunctionMgr::epilogue() {
 
 	Function* function = m_currentFunction;
 	if (function->m_functionKind == FunctionKind_Destructor &&
-		function->m_storageKind == StorageKind_Member) {
+		function->m_storageKind == StorageKind_Member
+	) {
 		ASSERT(m_thisValue);
 
 		if (function->getProperty()) {

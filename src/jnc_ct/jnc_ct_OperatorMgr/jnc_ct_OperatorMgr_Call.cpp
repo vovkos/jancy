@@ -202,6 +202,11 @@ OperatorMgr::callOperator(
 
 	ValueKind valueKind = opValue.getValueKind();
 	Closure* closure = opValue.getClosure();
+	if (closure) {
+		result = closure->apply(argValueList);
+		if (!result)
+			return false;
+	}
 
 	if (valueKind == ValueKind_Template) {
 		Template* templ = opValue.getTemplate();
@@ -209,7 +214,7 @@ OperatorMgr::callOperator(
 		sl::Array<Type*> argTypeArray;
 		result = templ->deduceArgs(
 			&argTypeArray,
-			closure ? *closure->getArgValueList() : sl::ConstBoxList<Value>(),
+			closure ? closure->getTemplateArgArray() : sl::Array<Type*>(),
 			*argValueList
 		);
 
@@ -232,12 +237,6 @@ OperatorMgr::callOperator(
 		}
 
 		closure = NULL; // template closure carries template type args
-	}
-
-	if (closure) {
-		result = closure->apply(argValueList);
-		if (!result)
-			return false;
 	}
 
 	switch (valueKind) {

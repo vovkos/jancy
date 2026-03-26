@@ -214,7 +214,10 @@ TemplateIntModType::createItemString(size_t index) {
 //..............................................................................
 
 Type*
-TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
+TemplateDeclType::instantiate(
+	const sl::ArrayRef<Type*>& argArray,
+	uint_t* thisArgFlags
+) {
 	Type* baseType = m_declarator.getBaseType();
 	switch (baseType->getTypeKind()) {
 	case TypeKind_TemplateArg:
@@ -250,8 +253,8 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 	DeclTypeCalc typeCalc;
 	typeCalc.setTemplateArgArray(argArray);
-	uint_t declFlags;
 
+	uint_t declFlags;
 	Type* type = typeCalc.calcType(
 		baseType,
 		m_declarator.getTypeModifiers(),
@@ -264,7 +267,13 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	if (!type)
 		return NULL;
 
-	// do something with declFlags?
+	if (thisArgFlags)
+		*thisArgFlags = declFlags;
+	else if (declFlags) {
+		err::setFormatStringError("unused modifiers '%s'", getPtrTypeFlagString(declFlags).sz());
+		return NULL;
+	}
+
 	return type;
 }
 
@@ -302,9 +311,19 @@ TemplateDeclType::createDeductionType() {
 		rwi[i] = type;
 	}
 
-	m_deductionType = instantiate(argArray);
+	uint_t thisArgTypeFlags;
+	Type* type = instantiate(argArray, m_parentType ? &thisArgTypeFlags : NULL);
+
 	m_module->m_namespaceMgr.closeTemplateInstNamespace();
-	return m_deductionType;
+
+	if (!type)
+		return NULL;
+
+	if (m_parentType && type->getTypeKind() == TypeKind_Function)
+		type = ((FunctionType*)type)->getMemberMethodType(m_parentType, thisArgTypeFlags);
+
+	m_deductionType = type;
+	return type;
 }
 
 //..............................................................................

@@ -91,15 +91,13 @@ Closure::append(sl::BoxList<Value>* argValueList) {
 }
 
 size_t
-Closure::append(const sl::ArrayRef<Type*>& argTypeArray) {
-	sl::BoxList<Value> argList;
-	size_t argCount = argTypeArray.getCount();
-	for (size_t i = 0; i < argCount; i++) {
-		Type* type = argTypeArray[i];
-		argList.insertTail(type ? Value(type) : Value());
-	}
+Closure::appendTemplateArgs(const sl::ArrayRef<Type*>& argTypeArray) {
+	size_t i = prependTemplateArgs(argTypeArray);
+	size_t count = argTypeArray.getCount();
+	if (i < count)
+		m_templateArgArray.append(&argTypeArray[i], count - i);
 
-	return append(&argList);
+	return m_templateArgArray.getCount();
 }
 
 sl::ConstBoxIterator<Value>
@@ -108,22 +106,42 @@ Closure::prepend(const sl::ConstBoxList<Value>& argValueList) {
 	sl::ConstBoxIterator<Value> externalArg = argValueList.getHead();
 
 	for (;;) {
-		while (internalArg && !internalArg->isEmpty())
-			internalArg++;
+		for (;;) {
+			if (!internalArg)
+				return externalArg;
 
-		if (!internalArg)
-			break;
+			if (!internalArg->isEmpty())
+				internalArg++;
+		}
 
-		*internalArg = *externalArg;
-
-		internalArg++;
-		externalArg++;
-
+		*internalArg++ = *externalArg++;
 		if (!externalArg)
-			break;
+			return externalArg;
 	}
+}
 
-	return externalArg;
+size_t
+Closure::prependTemplateArgs(const sl::ArrayRef<Type*>& argTypeArray) {
+	size_t i = 0;
+	size_t j = 0;
+
+	size_t internalCount = m_templateArgArray.getCount();
+	size_t externalCount = argTypeArray.getCount();
+	sl::Array<Type*>::Rwi rwi = m_templateArgArray.rwi();
+	for (;;) {
+		for (;;) {
+			if (i >= internalCount)
+				return j;
+
+			if (rwi[i])
+				i++;
+		}
+
+
+		rwi[i++] = argTypeArray[j++];
+		if (j >= externalCount)
+			return j;
+	}
 }
 
 bool

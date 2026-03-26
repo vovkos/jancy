@@ -1556,12 +1556,14 @@ TypeMgr::getTemplateTypeName(
 TemplateDeclType*
 TypeMgr::createTemplateDeclType(
 	Namespace* parentNamespace,
-	Declarator* declarator
+	Declarator* declarator,
+	DerivableType* parentType
 ) {
 	ASSERT(parentNamespace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
 
 	TemplateDeclType* type = new TemplateDeclType;
 	type->m_module = m_module;
+	type->m_parentType = parentType;
 	type->setup(m_module->m_unitMgr.getCurrentUnit(), parentNamespace);
 	sl::takeOver(&type->m_declarator, declarator);
 

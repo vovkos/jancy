@@ -75,9 +75,6 @@ public:
 	}
 
 	ModuleItem*
-	instantiate(const sl::ConstBoxList<Value>& argList);
-
-	ModuleItem*
 	instantiate(const sl::ArrayRef<Type*>& argArray);
 
 	ModuleItem*
@@ -89,9 +86,9 @@ public:
 	bool
 	deduceArgs(
 		sl::Array<Type*>* templateArgArray,
-		const sl::ConstBoxList<Value>& argTypeList,
+		const sl::ArrayRef<Type*>& argTypeArray,
 		const sl::ConstBoxList<Value>& argValueList
-	) const;
+	);
 
 protected:
 	virtual

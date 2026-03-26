@@ -703,7 +703,8 @@ public:
 	TemplateDeclType*
 	createTemplateDeclType(
 		Namespace* parentNamespace,
-		Declarator* declarator
+		Declarator* declarator,
+		DerivableType* parentType = NULL
 	);
 
 	TemplateDeclType*

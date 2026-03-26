@@ -204,17 +204,20 @@ class TemplateDeclType:
 
 protected:
 	Declarator m_declarator;
+	DerivableType* m_parentType;
 	Type* m_deductionType; // includes TemplateType-s
 
 public:
-	TemplateDeclType() {
-		m_typeKind = TypeKind_TemplateDecl;
-		m_deductionType = NULL;
-	}
+	TemplateDeclType();
 
 	Declarator*
 	getDeclarator() {
 		return &m_declarator;
+	}
+
+	DerivableType*
+	getParentType() {
+		return m_parentType;
 	}
 
 	Type*
@@ -223,7 +226,10 @@ public:
 	}
 
 	Type*
-	instantiate(const sl::ArrayRef<Type*>& argArray);
+	instantiate(
+		const sl::ArrayRef<Type*>& argArray,
+		uint_t* declFlags = NULL
+	);
 
 protected:
 	virtual
@@ -237,6 +243,15 @@ protected:
 	Type*
 	createDeductionType();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+TemplateDeclType::TemplateDeclType() {
+	m_typeKind = TypeKind_TemplateDecl;
+	m_parentType = NULL;
+	m_deductionType = NULL;
+}
 
 //..............................................................................
 

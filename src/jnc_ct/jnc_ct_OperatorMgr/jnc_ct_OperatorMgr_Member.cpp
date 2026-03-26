@@ -515,6 +515,11 @@ OperatorMgr::getNamedTypeMember(
 		decl = (GlobalNamespace*)member;
 		break;
 
+	case ModuleItemKind_Template:
+		resultValue->setTemplate((Template*)member);
+		decl = (Template*)member;
+		break;
+
 	case ModuleItemKind_Field:
 		if (m_module->m_controlFlowMgr.isEmissionLocked()) { // sizeof/countof/offsetof/typeof operators, keep Field
 			resultValue->setField((Field*)member, coord.m_offset);

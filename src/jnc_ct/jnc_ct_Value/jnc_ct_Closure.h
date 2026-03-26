@@ -25,6 +25,7 @@ class PropertyPtrType;
 
 class Closure: public rc::RefCount {
 protected:
+	sl::Array<Type*> m_templateArgArray;
 	sl::BoxList<Value> m_argValueList;
 	Value* m_thisArgValue;
 	size_t m_thisArgIdx;
@@ -33,6 +34,11 @@ public:
 	Closure() {
 		m_thisArgValue = NULL;
 		m_thisArgIdx = -1;
+	}
+
+	const sl::Array<Type*>&
+	getTemplateArgArray() {
+		return m_templateArgArray;
 	}
 
 	sl::BoxList<Value>*
@@ -44,6 +50,9 @@ public:
 	isMemberClosure() {
 		return m_thisArgIdx != -1;
 	}
+
+	size_t
+	countNonEmptyTemplateArgs();
 
 	size_t
 	countNonEmptyArgs();
@@ -77,7 +86,7 @@ public:
 	append(sl::BoxList<Value>* argValueList); // destructive
 
 	size_t
-	append(const sl::ArrayRef<Type*>& argTypeArray);
+	appendTemplateArgs(const sl::ArrayRef<Type*>& argTypeArray);
 
 	bool
 	apply(sl::BoxList<Value>* argValueList);
@@ -103,19 +112,34 @@ public:
 protected:
 	sl::ConstBoxIterator<Value>
 	prepend(const sl::ConstBoxList<Value>& argValueList);
+
+	size_t
+	prependTemplateArgs(const sl::ArrayRef<Type*>& argTypeArray);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 size_t
+Closure::countNonEmptyTemplateArgs() {
+	size_t argCount = m_templateArgArray.getCount();
+	size_t resultCount = 0;
+	for (size_t i = 0; i < argCount; i++)
+		if (m_templateArgArray[i])
+			resultCount++;
+
+	return resultCount;
+}
+
+inline
+size_t
 Closure::countNonEmptyArgs() {
 	size_t count = 0;
 	sl::BoxIterator<Value> it = m_argValueList.getHead();
-	for (; it; it++) {
+	for (; it; it++)
 		if (!it->isEmpty())
 			count++;
-	}
+
 
 	return count;
 }
