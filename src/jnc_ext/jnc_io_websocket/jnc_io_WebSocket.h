@@ -164,6 +164,30 @@ public:
 		return SocketBase::setOptions(options);
 	}
 
+	uint_t
+	JNC_CDECL
+	getKeepAliveIdleTimeout() {
+		return SocketBase::getKeepAliveIdleTimeout();
+	}
+
+	bool
+	JNC_CDECL
+	setKeepAliveIdleTimeout(uint_t timeout) {
+		return SocketBase::setKeepAliveIdleTimeout(timeout);
+	}
+
+	uint_t
+	JNC_CDECL
+	getKeepAliveRetryInterval() {
+		return SocketBase::getKeepAliveRetryInterval();
+	}
+
+	bool
+	JNC_CDECL
+	setKeepAliveRetryInterval(uint_t interval) {
+		return SocketBase::setKeepAliveRetryInterval(interval);
+	}
+
 	void
 	JNC_CDECL
 	setExtraHeaders(WebSocketHandshakeHeaders* headers);

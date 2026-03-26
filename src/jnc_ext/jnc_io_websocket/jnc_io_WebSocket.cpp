@@ -42,6 +42,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocket)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &WebSocket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &WebSocket::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options", &WebSocket::setOptions)
+	JNC_MAP_PROPERTY("m_keepAliveIdleTimeout", &WebSocket::getKeepAliveIdleTimeout, &WebSocket::setKeepAliveIdleTimeout)
+	JNC_MAP_PROPERTY("m_keepAliveRetryInterval", &WebSocket::getKeepAliveRetryInterval, &WebSocket::setKeepAliveRetryInterval)
 	JNC_MAP_AUTOGET_PROPERTY("m_extraHeaders", &WebSocket::setExtraHeaders)
 
 	JNC_MAP_FUNCTION("open", &WebSocket::open_0)

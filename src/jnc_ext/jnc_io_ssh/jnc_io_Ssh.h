@@ -199,8 +199,32 @@ public:
 
 	bool
 	JNC_CDECL
-	setOptions(uint_t flags) {
-		return SocketBase::setOptions(flags);
+	setOptions(uint_t options) {
+		return SocketBase::setOptions(options);
+	}
+
+	uint_t
+	JNC_CDECL
+	getKeepAliveIdleTimeout() {
+		return SocketBase::getKeepAliveIdleTimeout();
+	}
+
+	bool
+	JNC_CDECL
+	setKeepAliveIdleTimeout(uint_t timeout) {
+		return SocketBase::setKeepAliveIdleTimeout(timeout);
+	}
+
+	uint_t
+	JNC_CDECL
+	getKeepAliveRetryInterval() {
+		return SocketBase::getKeepAliveRetryInterval();
+	}
+
+	bool
+	JNC_CDECL
+	setKeepAliveRetryInterval(uint_t interval) {
+		return SocketBase::setKeepAliveRetryInterval(interval);
 	}
 
 	bool

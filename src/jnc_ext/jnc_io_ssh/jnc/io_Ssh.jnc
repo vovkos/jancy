@@ -261,6 +261,8 @@ opaque class SshChannel {
 	size_t autoget errorcode property m_writeBufferSize;
 
 	SocketOptions autoget errorcode property m_options;
+    uint_t errorcode property m_keepAliveIdleTimeout;
+    uint_t errorcode property m_keepAliveRetryInterval;
 
 	io.SshEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;

@@ -52,6 +52,8 @@ protected:
 protected:
 	axl::io::Socket m_socket;
 	uint16_t m_family;
+	uint_t m_keepAliveIdleTimeout;
+	uint_t m_keepAliveRetryInterval;
 
 	mem::Pool<IncomingConnection> m_incomingConnectionPool;
 	sl::List<IncomingConnection> m_pendingIncomingConnectionList;
@@ -70,6 +72,24 @@ protected:
 
 	bool
 	setOptions(uint_t options);
+
+	uint_t
+	getKeepAliveIdleTimeout();
+
+	bool
+	setKeepAliveIdleTimeout(uint_t timeout);
+
+	bool
+	setKeepAliveIdleTimeoutImpl(uint_t timeout);
+
+	uint_t
+	getKeepAliveRetryInterval();
+
+	bool
+	setKeepAliveRetryInterval(uint_t interval);
+
+	bool
+	setKeepAliveRetryIntervalImpl(uint_t interval);
 
 	bool
 	checkAccess(

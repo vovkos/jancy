@@ -35,7 +35,11 @@ opaque class SslSocket: SslState {
 	size_t autoget property m_readBlockSize;
 	size_t autoget errorcode property m_readBufferSize;
 	size_t autoget errorcode property m_writeBufferSize;
+
 	SocketOptions autoget errorcode property m_options;
+    uint_t errorcode property m_keepAliveIdleTimeout;
+    uint_t errorcode property m_keepAliveRetryInterval;
+
 	string_t property m_hostname;
 
 	io.SslSocketEvents readonly volatile m_activeEvents;

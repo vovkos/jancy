@@ -95,7 +95,10 @@ opaque class WebSocket {
 	size_t autoget property m_readBlockSize;
 	size_t autoget errorcode property m_readBufferSize;
 	size_t autoget errorcode property m_writeBufferSize;
+
 	WebSocketOptions autoget errorcode property m_options;
+    uint_t errorcode property m_keepAliveIdleTimeout;
+    uint_t errorcode property m_keepAliveRetryInterval;
 
 	io.WebSocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;

@@ -46,8 +46,21 @@ SocketBase::setOptions(uint_t options) {
 	}
 
 	if ((options & SocketOption_TcpNagle) != (m_options & SocketOption_TcpNagle)) {
-		int value = !(options & SocketOption_TcpNagle);
+		int value = (options & SocketOption_TcpNagle) == 0;
 		result = m_socket.setOption(IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
+		if (!result)
+			return false;
+	}
+
+	if ((options & SocketOption_TcpKeepAlive) != (m_options & SocketOption_TcpKeepAlive)) {
+		int value = (options & SocketOption_TcpKeepAlive) != 0;
+		result = m_socket.setOption(SOL_SOCKET, SO_KEEPALIVE, &value, sizeof(value));
+
+		if (value)
+			result = result &&
+				(!m_keepAliveIdleTimeout || setKeepAliveIdleTimeoutImpl(m_keepAliveIdleTimeout)) &&
+				(!m_keepAliveRetryInterval || setKeepAliveRetryIntervalImpl(m_keepAliveRetryInterval));
+
 		if (!result)
 			return false;
 	}
@@ -64,7 +77,6 @@ SocketBase::setOptions(uint_t options) {
 
 	if ((options & SocketOption_UdpBroadcast) != (m_options & SocketOption_UdpBroadcast)) {
 		int value = (m_options & SocketOption_UdpBroadcast) != 0;
-
 		result = m_socket.setOption(SOL_SOCKET, SO_BROADCAST, &value, sizeof(value));
 		if (!result)
 			return false;
@@ -80,6 +92,74 @@ SocketBase::setOptions(uint_t options) {
 	m_lock.unlock();
 
 	return true;
+}
+
+uint_t
+SocketBase::getKeepAliveIdleTimeout() {
+	if (!m_isOpen)
+		return m_keepAliveIdleTimeout;
+
+#if (_AXL_OS_WIN)
+#else
+	int value;
+	bool result = m_socket.getOption(IPPROTO_TCP, TCP_KEEPIDLE, &value, sizeof(value));
+	return result ? value * 1000 : -1;
+#endif
+}
+
+bool
+SocketBase::setKeepAliveIdleTimeout(uint_t timeout) {
+	if (m_isOpen && !setKeepAliveIdleTimeoutImpl(timeout))
+		return false;
+
+	m_keepAliveIdleTimeout = timeout;
+	return true;
+}
+
+bool
+SocketBase::setKeepAliveIdleTimeoutImpl(uint_t timeout) {
+#if (_AXL_OS_WIN)
+#else
+	int value = timeout / 1000;
+	if (!value)
+		value = 1;
+
+	return m_socket.setOption(IPPROTO_TCP, TCP_KEEPIDLE, &value, sizeof(value));
+#endif
+}
+
+uint_t
+SocketBase::getKeepAliveRetryInterval() {
+	if (!m_isOpen)
+		return m_keepAliveRetryInterval;
+
+#if (_AXL_OS_WIN)
+#else
+	int value;
+	bool result = m_socket.getOption(IPPROTO_TCP, TCP_KEEPINTVL, &value, sizeof(value));
+	return result ? value * 1000 : -1;
+#endif
+}
+
+bool
+SocketBase::setKeepAliveRetryInterval(uint_t interval) {
+	if (m_isOpen && !setKeepAliveRetryIntervalImpl(interval))
+		return false;
+
+	m_keepAliveRetryInterval = interval;
+	return true;
+}
+
+bool
+SocketBase::setKeepAliveRetryIntervalImpl(uint_t interval) {
+#if (_AXL_OS_WIN)
+#else
+	int value = interval / 1000;
+	if (!value)
+		value = 1;
+
+	return m_socket.setOption(IPPROTO_TCP, TCP_KEEPINTVL, &value, sizeof(value));
+#endif
 }
 
 bool
@@ -156,15 +236,11 @@ SocketBase::openSocket(
 		return false;
 
 	switch (protocol) {
-		int tcpNoDelayValue;
-		int tcpKeepAlive;
-		linger lingerValue;
-		int udpBroadcastValue;
-		int rawHdrInclValue;
+	case IPPROTO_TCP: {
+		int tcpNoDelayValue = (m_options & SocketOption_TcpNagle) == 0;
+		int tcpKeepAlive = (m_options & SocketOption_TcpKeepAlive) != 0;
 
-	case IPPROTO_TCP:
-		tcpNoDelayValue = !(m_options & SocketOption_TcpNagle);
-		tcpKeepAlive = (m_options & SocketOption_TcpKeepAlive) != 0;
+		linger lingerValue;
 		lingerValue.l_onoff = (m_options & SocketOption_TcpReset) != 0;
 		lingerValue.l_linger = 0;
 
@@ -172,19 +248,28 @@ SocketBase::openSocket(
 			m_socket.setOption(IPPROTO_TCP, TCP_NODELAY, &tcpNoDelayValue, sizeof(tcpNoDelayValue)) &&
 			m_socket.setOption(SOL_SOCKET, SO_KEEPALIVE, &tcpKeepAlive, sizeof(tcpKeepAlive)) &&
 			m_socket.setOption(SOL_SOCKET, SO_LINGER, &lingerValue, sizeof(lingerValue));
-		break;
 
-	case IPPROTO_UDP:
-		udpBroadcastValue = (m_options & SocketOption_UdpBroadcast) != 0;
+		if (tcpKeepAlive)
+			result = result &&
+				(!m_keepAliveIdleTimeout || setKeepAliveIdleTimeoutImpl(m_keepAliveIdleTimeout)) &&
+				(!m_keepAliveRetryInterval || setKeepAliveRetryIntervalImpl(m_keepAliveRetryInterval));
+
+		break;
+		}
+
+	case IPPROTO_UDP: {
+		int udpBroadcastValue = (m_options & SocketOption_UdpBroadcast) != 0;
 		result = m_socket.setOption(SOL_SOCKET, SO_BROADCAST, &udpBroadcastValue, sizeof(udpBroadcastValue));
 		break;
+		}
 
-	case IPPROTO_RAW:
-		rawHdrInclValue = (m_options & SocketOption_RawHdrIncl) != 0;
+	case IPPROTO_RAW: {
+		int rawHdrInclValue = (m_options & SocketOption_RawHdrIncl) != 0;
 		result = family_s == AF_INET6 ?
 			m_socket.setOption(IPPROTO_IPV6, IPV6_HDRINCL, &rawHdrInclValue, sizeof(rawHdrInclValue)) :
 			m_socket.setOption(IPPROTO_IP, IP_HDRINCL, &rawHdrInclValue, sizeof(rawHdrInclValue));
 		break;
+		}
 	}
 
 	if (!result)
@@ -192,7 +277,6 @@ SocketBase::openSocket(
 
 	if (address) {
 		int reuseAddrValue = (m_options & SocketOption_ReuseAddr) != 0;
-
 		result =
 			m_socket.setOption(SOL_SOCKET, SO_REUSEADDR, &reuseAddrValue, sizeof(reuseAddrValue)) &&
 			m_socket.bind(address->getSockAddr());
