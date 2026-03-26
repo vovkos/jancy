@@ -48,7 +48,9 @@
 #include "jnc_Error.h"
 #include "jnc_Promise.h"
 
-#if (_AXL_OS_POSIX)
+#if (_AXL_OS_WIN)
+#	include <mstcpip.h>
+#elif (_AXL_OS_POSIX)
 #	include <netinet/tcp.h>
 #endif
 

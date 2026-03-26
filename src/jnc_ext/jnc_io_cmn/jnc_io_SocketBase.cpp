@@ -96,10 +96,14 @@ SocketBase::setOptions(uint_t options) {
 
 uint_t
 SocketBase::getKeepAliveIdleTimeout() {
-	if (!m_isOpen)
+	if (!m_isOpen || !(m_options & SocketOption_TcpKeepAlive))
 		return m_keepAliveIdleTimeout;
 
 #if (_AXL_OS_WIN)
+	tcp_keepalive keepAlive;
+	dword_t actualSize;
+	bool result = m_socket.m_socket.wsaIoctl(SIO_KEEPALIVE_VALS, NULL, 0, &keepAlive, sizeof(keepAlive), &actualSize);
+	return result ? keepAlive.keepalivetime : -1;
 #else
 	int value;
 	bool result = m_socket.getOption(IPPROTO_TCP, TCP_KEEPIDLE, &value, sizeof(value));
@@ -109,7 +113,7 @@ SocketBase::getKeepAliveIdleTimeout() {
 
 bool
 SocketBase::setKeepAliveIdleTimeout(uint_t timeout) {
-	if (m_isOpen && !setKeepAliveIdleTimeoutImpl(timeout))
+	if (m_isOpen && (m_options & SocketOption_TcpKeepAlive) && !setKeepAliveIdleTimeoutImpl(timeout))
 		return false;
 
 	m_keepAliveIdleTimeout = timeout;
@@ -119,6 +123,20 @@ SocketBase::setKeepAliveIdleTimeout(uint_t timeout) {
 bool
 SocketBase::setKeepAliveIdleTimeoutImpl(uint_t timeout) {
 #if (_AXL_OS_WIN)
+	tcp_keepalive keepAlive;
+	dword_t actualSize;
+
+	if (m_keepAliveRetryInterval) // set before
+		keepAlive.keepaliveinterval = m_keepAliveRetryInterval;
+	else {
+		bool result = m_socket.m_socket.wsaIoctl(SIO_KEEPALIVE_VALS, NULL, 0, &keepAlive, sizeof(keepAlive), &actualSize);
+		if (!result)
+			return false;
+	}
+
+	keepAlive.onoff = 1;
+	keepAlive.keepalivetime = timeout;
+	return m_socket.m_socket.wsaIoctl(SIO_KEEPALIVE_VALS, &keepAlive, sizeof(keepAlive), NULL, 0, &actualSize);
 #else
 	int value = timeout / 1000;
 	if (!value)
@@ -130,10 +148,14 @@ SocketBase::setKeepAliveIdleTimeoutImpl(uint_t timeout) {
 
 uint_t
 SocketBase::getKeepAliveRetryInterval() {
-	if (!m_isOpen)
+	if (!m_isOpen || !(m_options & SocketOption_TcpKeepAlive))
 		return m_keepAliveRetryInterval;
 
 #if (_AXL_OS_WIN)
+	tcp_keepalive keepAlive;
+	dword_t actualSize;
+	bool result = m_socket.m_socket.wsaIoctl(SIO_KEEPALIVE_VALS, NULL, 0, &keepAlive, sizeof(keepAlive), &actualSize);
+	return result ? keepAlive.keepaliveinterval : -1;
 #else
 	int value;
 	bool result = m_socket.getOption(IPPROTO_TCP, TCP_KEEPINTVL, &value, sizeof(value));
@@ -143,7 +165,7 @@ SocketBase::getKeepAliveRetryInterval() {
 
 bool
 SocketBase::setKeepAliveRetryInterval(uint_t interval) {
-	if (m_isOpen && !setKeepAliveRetryIntervalImpl(interval))
+	if (m_isOpen && (m_options & SocketOption_TcpKeepAlive) && !setKeepAliveRetryIntervalImpl(interval))
 		return false;
 
 	m_keepAliveRetryInterval = interval;
@@ -153,6 +175,20 @@ SocketBase::setKeepAliveRetryInterval(uint_t interval) {
 bool
 SocketBase::setKeepAliveRetryIntervalImpl(uint_t interval) {
 #if (_AXL_OS_WIN)
+	tcp_keepalive keepAlive;
+	dword_t actualSize;
+
+	if (m_keepAliveIdleTimeout) // set before
+		keepAlive.keepalivetime = m_keepAliveIdleTimeout;
+	else {
+		bool result = m_socket.m_socket.wsaIoctl(SIO_KEEPALIVE_VALS, NULL, 0, &keepAlive, sizeof(keepAlive), &actualSize);
+		if (!result)
+			return false;
+	}
+
+	keepAlive.onoff = 1;
+	keepAlive.keepaliveinterval = interval;
+	return m_socket.m_socket.wsaIoctl(SIO_KEEPALIVE_VALS, &keepAlive, sizeof(keepAlive), NULL, 0, &actualSize);
 #else
 	int value = interval / 1000;
 	if (!value)
