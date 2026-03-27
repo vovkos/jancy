@@ -231,13 +231,11 @@ EnumType::EnumType() {
 
 //..............................................................................
 
-// must be after declaration of EnumType for downcast to work
-
 inline
 EnumType*
 EnumConst::getType() {
 	ASSERT(m_parentNamespace->getNamespaceKind() == NamespaceKind_Type);
-	return (EnumType*)m_parentNamespace;
+	return static_cast<EnumType*>(m_parentNamespace);
 }
 
 //..............................................................................

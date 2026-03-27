@@ -192,10 +192,10 @@ StructType::calcLayoutTo(Field* targetField) {
 			return false;
 	} else if (
 		m_structTypeKind == StructTypeKind_IfaceStruct &&
-		(((ClassType*)m_parentNamespace)->getFlags() & ClassTypeFlag_Opaque) &&
+		(static_cast<ClassType*>(m_parentNamespace)->getFlags() & ClassTypeFlag_Opaque) &&
 		!(m_module->getCompileFlags() & ModuleCompileFlag_IgnoreOpaqueClassTypeInfo)
 	) {
-		ClassType* classType = (ClassType*)m_parentNamespace;
+		ClassType* classType = static_cast<ClassType*>(m_parentNamespace);
 
 		const OpaqueClassTypeInfo* typeInfo = m_module->m_extensionLibMgr.findOpaqueClassTypeInfo(classType->getItemName());
 		if (!typeInfo) {

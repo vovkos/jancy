@@ -12,12 +12,10 @@
 #pragma once
 
 #include "jnc_ct_GlobalNamespace.h"
-#include "jnc_ct_ClassType.h"
+#include "jnc_ct_DynamicLibClassType.h"
 
 namespace jnc {
 namespace ct {
-
-class DynamicLibClassType;
 
 //..............................................................................
 
@@ -34,7 +32,7 @@ public:
 	}
 
 	DynamicLibClassType* getLibraryType() {
-		return (DynamicLibClassType*)m_parentNamespace;
+		return static_cast<DynamicLibClassType*>(m_parentNamespace);
 	}
 
 	size_t

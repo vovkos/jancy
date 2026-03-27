@@ -99,7 +99,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultStaticConstructor(this);
+			return static_cast<DerivableType*>(m_parentNamespace)->compileDefaultStaticConstructor(this);
 		}
 	};
 
@@ -112,7 +112,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultConstructor(this);
+			return static_cast<DerivableType*>(m_parentNamespace)->compileDefaultConstructor(this);
 		}
 	};
 
@@ -125,7 +125,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultCopyConstructor(this);
+			return static_cast<DerivableType*>(m_parentNamespace)->compileDefaultCopyConstructor(this);
 		}
 	};
 
@@ -138,7 +138,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultCastOperator(this);
+			return static_cast<DerivableType*>(m_parentNamespace)->compileDefaultCastOperator(this);
 		}
 	};
 
@@ -151,7 +151,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DerivableType*)m_parentNamespace)->compileDefaultDestructor(this);
+			return static_cast<DerivableType*>(m_parentNamespace)->compileDefaultDestructor(this);
 		}
 	};
 
@@ -512,6 +512,16 @@ DerivableType::findBaseTypeOffset(Type* type) {
 	jnc::ct::BaseTypeCoord coord;
 	bool result = findBaseTypeTraverse(type, &coord);
 	return result ? coord.m_offset : -1;
+}
+
+//..............................................................................
+
+inline
+DerivableType*
+Function::getParentType() {
+	return m_parentNamespace->getNamespaceKind() == NamespaceKind_Type ?
+		static_cast<DerivableType*>(m_parentNamespace) :
+		NULL;
 }
 
 //..............................................................................

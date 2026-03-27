@@ -491,9 +491,7 @@ TypeMgr::createImportTypeNameAnchor() {
 inline
 TemplateDeclType*
 TypeMgr::createTemplateDeclType(Declarator* declarator) {
-	Namespace* nspace = (Namespace*)m_module->m_namespaceMgr.getCurrentNamespace();
-	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
-	return createTemplateDeclType(nspace, declarator);
+	return createTemplateDeclType(m_module->m_namespaceMgr.getCurrentNamespace(), declarator);
 }
 
 //..............................................................................

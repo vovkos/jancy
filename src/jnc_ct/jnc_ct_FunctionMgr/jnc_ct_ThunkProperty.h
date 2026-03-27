@@ -53,7 +53,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DataThunkProperty*)m_parentNamespace)->compileGetter(this);
+			return static_cast<DataThunkProperty*>(m_parentNamespace)->compileGetter(this);
 		}
 	};
 
@@ -66,7 +66,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DataThunkProperty*)m_parentNamespace)->compileSetter(this);
+			return static_cast<DataThunkProperty*>(m_parentNamespace)->compileSetter(this);
 		}
 	};
 

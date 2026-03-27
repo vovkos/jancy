@@ -64,13 +64,13 @@ getNamespace(ct::Namespace* nspace) {
 
 	switch (nspaceKind) {
 	case NamespaceKind_Global:
-		return getGlobalNamespace((ct::GlobalNamespace*)nspace);
+		return getGlobalNamespace(static_cast<ct::GlobalNamespace*>(nspace));
 
 	case NamespaceKind_Type:
-		return (NamedType*)getType((ct::NamedType*)nspace);
+		return (NamedType*)getType(static_cast<ct::NamedType*>(nspace));
 
 	case NamespaceKind_Property:
-		return getProperty((ct::Property*)nspace);
+		return getProperty(static_cast<ct::Property*>(nspace));
 
 	default:
 		return (Namespace*)getIntrospectionClass(nspace, StdType_Namespace);

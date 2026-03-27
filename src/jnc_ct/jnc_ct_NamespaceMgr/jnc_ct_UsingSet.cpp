@@ -81,11 +81,11 @@ UsingSet::addNamespaceImpl(
 
 	switch (namespaceKind) {
 	case NamespaceKind_Global:
-		m_globalNamespaceArray.append((GlobalNamespace*)nspace);
+		m_globalNamespaceArray.append(static_cast<GlobalNamespace*>(nspace));
 		break;
 
 	case NamespaceKind_Extension:
-		m_extensionNamespaceArray.append((ExtensionNamespace*)nspace);
+		m_extensionNamespaceArray.append(static_cast<ExtensionNamespace*>(nspace));
 		break;
 
 	default:

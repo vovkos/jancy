@@ -222,9 +222,9 @@ CodeAssistMgr::createAutoComplete(
 	freeCodeAssist();
 
 	NamespaceKind nspaceKind = nspace->getNamespaceKind();
-	if (nspaceKind == NamespaceKind_Type) {
-		((NamedType*)nspace)->ensureLayout();
-	} else {
+	if (nspaceKind == NamespaceKind_Type)
+		static_cast<NamedType*>(nspace)->ensureLayout();
+	else {
 		if (nspace == m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc))
 			nspace->parseLazyImports();
 

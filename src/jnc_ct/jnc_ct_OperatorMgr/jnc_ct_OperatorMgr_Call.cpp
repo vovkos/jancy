@@ -272,7 +272,7 @@ OperatorMgr::callOperator(
 			return false;
 		}
 
-		NamedType* type = (NamedType*)nspace;
+		NamedType* type = static_cast<NamedType*>(nspace);
 		if (type->getStdType() == StdType_StringStruct) {
 			opValue = m_module->m_functionMgr.getStdFunction(StdFunc_StringCreate);
 			break;

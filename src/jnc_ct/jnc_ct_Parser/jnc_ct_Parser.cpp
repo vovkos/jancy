@@ -911,7 +911,7 @@ Parser::declareGlobalNamespace(
 		return NULL;
 	}
 
-	GlobalNamespace* nspace = getGlobalNamespace((GlobalNamespace*)currentNamespace, name.getFirstAtom(), pos);
+	GlobalNamespace* nspace = getGlobalNamespace(static_cast<GlobalNamespace*>(currentNamespace), name.getFirstAtom(), pos);
 	if (!nspace)
 		return NULL;
 
@@ -1226,12 +1226,12 @@ Parser::declareTemplate(Declarator* declarator) {
 	)
 		switch (namespaceKind) {
 		case NamespaceKind_Property:
-			parentType = ((Property*)nspace)->getParentType();
+			parentType = static_cast<Property*>(nspace)->getParentType();
 			break;
 
 		case NamespaceKind_Type:
-			if (((NamedType*)nspace)->getTypeKindFlags() & TypeKindFlag_Derivable)
-				parentType = (DerivableType*)nspace;
+			if (static_cast<NamedType*>(nspace)->getTypeKindFlags() & TypeKindFlag_Derivable)
+				parentType = static_cast<DerivableType*>(nspace);
 			break;
 		}
 
@@ -1349,7 +1349,7 @@ Parser::declareAlias(
 	assignDeclarationAttributes(alias, alias, declarator);
 
 	if (nspace->getNamespaceKind() == NamespaceKind_Property) {
-		Property* prop = (Property*)nspace;
+		Property* prop = static_cast<Property*>(nspace);
 
 		if (ptrTypeFlags & PtrTypeFlag_Bindable) {
 			result = prop->setOnChanged(alias);
@@ -1398,7 +1398,7 @@ Parser::declareFunction(
 	if (!m_storageKind) {
 		m_storageKind =
 			functionKind == FunctionKind_StaticConstructor ? StorageKind_Static :
-			namespaceKind == NamespaceKind_Property ? ((Property*)nspace)->getStorageKind() : StorageKind_Undefined;
+			namespaceKind == NamespaceKind_Property ? static_cast<Property*>(nspace)->getStorageKind() : StorageKind_Undefined;
 	}
 
 	if (namespaceKind == NamespaceKind_PropertyTemplate) {
@@ -1412,7 +1412,7 @@ Parser::declareFunction(
 			return false;
 		}
 
-		bool result = ((PropertyTemplate*)nspace)->addMethod(functionKind, type);
+		bool result = static_cast<PropertyTemplate*>(nspace)->addMethod(functionKind, type);
 		if (!result)
 			return false;
 
@@ -1467,15 +1467,17 @@ Parser::declareFunction(
 
 	switch (namespaceKind) {
 	case NamespaceKind_Extension:
-		return ((ExtensionNamespace*)nspace)->addMethod(function);
+		return static_cast<ExtensionNamespace*>(nspace)->addMethod(function);
 
-	case NamespaceKind_Type:
-		switch (TypeKind typeKind = ((NamedType*)nspace)->getTypeKind()) {
+	case NamespaceKind_Type: {
+		NamedType* parentType = static_cast<NamedType*>(nspace);
+		TypeKind typeKind = parentType->getTypeKind();
+		switch (typeKind) {
 		case TypeKind_Struct:
-			return ((StructType*)nspace)->addMethod(function);
+			return ((StructType*)parentType)->addMethod(function);
 
 		case TypeKind_Union:
-			return ((UnionType*)nspace)->addMethod(function);
+			return ((UnionType*)parentType)->addMethod(function);
 
 		case TypeKind_Class:
 			if (thisArgTypeFlags & PtrTypeFlag_ThinThis) {
@@ -1483,18 +1485,18 @@ Parser::declareFunction(
 				return false;
 			}
 
-			return ((ClassType*)nspace)->addMethod(function);
+			return ((ClassType*)parentType)->addMethod(function);
 
 		default:
-			err::setFormatStringError("method members are not allowed in '%s'", ((NamedType*)nspace)->getTypeString().sz());
+			err::setFormatStringError("method members are not allowed in '%s'", parentType->getTypeString().sz());
 			return false;
-		}
+		}}
 
 	case NamespaceKind_Property:
-		return ((Property*)nspace)->addMethod(function);
+		return static_cast<Property*>(nspace)->addMethod(function);
 
 	case NamespaceKind_DynamicLib:
-		function->m_libraryTableIndex = ((DynamicLibNamespace*)nspace)->m_functionCount++;
+		function->m_libraryTableIndex = static_cast<DynamicLibNamespace*>(nspace)->m_functionCount++;
 
 		// and fall through
 
@@ -1660,32 +1662,32 @@ Parser::createProperty(Declarator* declarator) {
 	Property* prop = m_module->m_functionMgr.createProperty(declarator->getSimpleName());
 	assignDeclarationAttributes(prop, prop, declarator);
 
-	TypeKind typeKind;
 	switch (namespaceKind) {
 	case NamespaceKind_Extension:
-		result = ((ExtensionNamespace*)nspace)->addProperty(prop);
+		result = static_cast<ExtensionNamespace*>(nspace)->addProperty(prop);
 		if (!result)
 			return NULL;
 
 		break;
 
-	case NamespaceKind_Type:
-		typeKind = ((NamedType*)nspace)->getTypeKind();
+	case NamespaceKind_Type: {
+		NamedType* parentType = static_cast<NamedType*>(nspace);
+		TypeKind typeKind = parentType->getTypeKind();
 		switch (typeKind) {
 		case TypeKind_Struct:
-			result = ((StructType*)nspace)->addProperty(prop);
+			result = ((StructType*)parentType)->addProperty(prop);
 			break;
 
 		case TypeKind_Union:
-			result = ((UnionType*)nspace)->addProperty(prop);
+			result = ((UnionType*)parentType)->addProperty(prop);
 			break;
 
 		case TypeKind_Class:
-			result = ((ClassType*)nspace)->addProperty(prop);
+			result = ((ClassType*)parentType)->addProperty(prop);
 			break;
 
 		default:
-			err::setFormatStringError("property members are not allowed in '%s'", ((NamedType*)nspace)->getTypeString().sz());
+			err::setFormatStringError("property members are not allowed in '%s'", parentType->getTypeString().sz());
 			return NULL;
 		}
 
@@ -1693,9 +1695,10 @@ Parser::createProperty(Declarator* declarator) {
 			return NULL;
 
 		break;
+		}
 
 	case NamespaceKind_Property:
-		result = ((Property*)nspace)->addProperty(prop);
+		result = static_cast<Property*>(nspace)->addProperty(prop);
 		if (!result)
 			return NULL;
 
@@ -1909,11 +1912,11 @@ Parser::declareReactor(
 
 	switch (namespaceKind) {
 	case NamespaceKind_Property:
-		parentType = ((Property*)nspace)->getParentType();
+		parentType = static_cast<Property*>(nspace)->getParentType();
 		break;
 
 	case NamespaceKind_Type:
-		parentType = (NamedType*)nspace;
+		parentType = static_cast<NamedType*>(nspace);
 		break;
 	}
 
@@ -2008,7 +2011,7 @@ Parser::declareData(
 			break;
 
 		case NamespaceKind_Property:
-			storageKind = ((Property*)nspace)->getParentType() ? StorageKind_Member : StorageKind_Static;
+			storageKind = static_cast<Property*>(nspace)->getParentType() ? StorageKind_Member : StorageKind_Static;
 			break;
 
 		default:
@@ -2034,7 +2037,7 @@ Parser::declareData(
 			break;
 
 		case NamespaceKind_Property:
-			if (((Property*)nspace)->getParentType())
+			if (static_cast<Property*>(nspace)->getParentType())
 				break;
 
 		default:
@@ -2319,7 +2322,7 @@ Parser::declareData(
 	}
 
 	if (namespaceKind == NamespaceKind_Property) {
-		Property* prop = (Property*)nspace;
+		Property* prop = static_cast<Property*>(nspace);
 		ModuleItem* dataItem = NULL;
 
 		if (storageKind == StorageKind_Member) {
@@ -2412,7 +2415,7 @@ Parser::declareData(
 			return false;
 
 		if (nspace->getNamespaceKind() == NamespaceKind_Type) {
-			NamedType* namedType = (NamedType*)nspace;
+			NamedType* namedType = static_cast<NamedType*>(nspace);
 			TypeKind namedTypeKind = namedType->getTypeKind();
 
 			switch (namedTypeKind) {
@@ -2474,7 +2477,7 @@ Parser::declareData(
 	} else {
 		ASSERT(nspace->getNamespaceKind() == NamespaceKind_Type);
 
-		NamedType* namedType = (NamedType*)nspace;
+		NamedType* namedType = static_cast<NamedType*>(nspace);
 		TypeKind namedTypeKind = namedType->getTypeKind();
 
 		Field* field;
@@ -2606,9 +2609,10 @@ Parser::createEnumConst(
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	ASSERT(nspace->getNamespaceKind() == NamespaceKind_Type);
-	ASSERT(((NamedType*)nspace)->getTypeKind() == TypeKind_Enum);
 
-	EnumType* type = (EnumType*)m_module->m_namespaceMgr.getCurrentNamespace();
+	EnumType* type = static_cast<EnumType*>(nspace);
+	ASSERT(type->getTypeKind() == TypeKind_Enum);
+
 	EnumConst* enumConst = type->createConst(name, initializer);
 	if (!enumConst)
 		return NULL;
@@ -3185,9 +3189,11 @@ Parser::lookupIdentifier(
 		}
 
 		DynamicLayoutStmt* stmt = findDynamicLayoutStmt();
-		ASSERT(stmt);
+		ASSERT(stmt && field->getParentNamespace()->getNamespaceKind() == NamespaceKind_Type);
 
-		StructType* structType = (StructType*)field->getParentNamespace();
+		StructType* structType = static_cast<StructType*>(field->getParentNamespace());
+		ASSERT(structType->getTypeKind() == TypeKind_Struct);
+
 		result = structType->ensureLayoutTo(field);
 		if (!result)
 			return false;

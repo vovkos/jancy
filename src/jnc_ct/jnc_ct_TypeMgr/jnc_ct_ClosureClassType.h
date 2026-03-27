@@ -78,7 +78,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((FunctionClosureClassType*)m_parentNamespace)->compileThunkFunction(this);
+			return static_cast<FunctionClosureClassType*>(m_parentNamespace)->compileThunkFunction(this);
 		}
 	};
 
@@ -127,7 +127,8 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((PropertyClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileAccessor(this);
+			Property* prop = static_cast<Property*>(m_parentNamespace);
+			return static_cast<PropertyClosureClassType*>(prop->getParentNamespace())->compileAccessor(this);
 		}
 	};
 
@@ -176,7 +177,8 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DataClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileGetter(this);
+			Property* prop = static_cast<Property*>(m_parentNamespace);
+			return static_cast<DataClosureClassType*>(prop->getParentNamespace())->compileGetter(this);
 		}
 	};
 
@@ -185,7 +187,8 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((DataClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileSetter(this);
+			Property* prop = static_cast<Property*>(m_parentNamespace);
+			return static_cast<DataClosureClassType*>(prop->getParentNamespace())->compileSetter(this);
 		}
 	};
 

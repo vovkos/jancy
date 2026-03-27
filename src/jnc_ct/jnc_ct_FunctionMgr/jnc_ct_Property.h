@@ -44,7 +44,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileDefaultStaticConstructor(this);
+			return static_cast<Property*>(m_parentNamespace)->compileDefaultStaticConstructor(this);
 		}
 	};
 
@@ -57,7 +57,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileDefaultConstructor(this);
+			return static_cast<Property*>(m_parentNamespace)->compileDefaultConstructor(this);
 		}
 	};
 
@@ -70,7 +70,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileDefaultDestructor(this);
+			return static_cast<Property*>(m_parentNamespace)->compileDefaultDestructor(this);
 		}
 	};
 
@@ -83,7 +83,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileAutoGetter(this);
+			return static_cast<Property*>(m_parentNamespace)->compileAutoGetter(this);
 		}
 	};
 
@@ -96,7 +96,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileAutoSetter(this);
+			return static_cast<Property*>(m_parentNamespace)->compileAutoSetter(this);
 		}
 	};
 
@@ -109,7 +109,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((Property*)m_parentNamespace)->compileBinder(this);
+			return static_cast<Property*>(m_parentNamespace)->compileBinder(this);
 		}
 	};
 
@@ -364,10 +364,10 @@ DerivableType*
 Field::getParentType() {
 	NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind();
 	if (namespaceKind == NamespaceKind_Type)
-		return (DerivableType*)m_parentNamespace;
+		return static_cast<DerivableType*>(m_parentNamespace);
 
 	ASSERT(namespaceKind == NamespaceKind_Property);
-	DerivableType* parentType = ((Property*)m_parentNamespace)->getParentType();
+	DerivableType* parentType = static_cast<Property*>(m_parentNamespace)->getParentType();
 	ASSERT(parentType);
 	return parentType;
 }

@@ -106,7 +106,9 @@ public:
 
 	Scope*
 	getParentScope() {
-		return m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Scope ? (Scope*)m_parentNamespace : NULL;
+		return m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Scope ?
+			static_cast<Scope*>(m_parentNamespace) :
+			NULL;
 	}
 
 	GcShadowStackFrameMap*

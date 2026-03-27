@@ -46,7 +46,7 @@ getReactorMethod(
 
 bool
 ReactorClassType::Reactor::compile() {
-	ReactorClassType* reactorType = (ReactorClassType*)m_parentNamespace;
+	ReactorClassType* reactorType = static_cast<ReactorClassType*>(m_parentNamespace);
 	const sl::StringRef& body = reactorType->getBody();
 	const lex::LineColOffset& bodyPos = reactorType->getBodyPos();
 

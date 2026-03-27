@@ -537,7 +537,7 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 		return AccessKind_Public;
 	}
 
-	NamedType* targetType = (NamedType*)targetNamespace;
+	NamedType* targetType = static_cast<NamedType*>(targetNamespace);
 	for (; nspace; nspace = nspace->m_parentNamespace) {
 		if (!nspace->isNamed())
 			continue;
@@ -546,7 +546,7 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 			return AccessKind_Protected;
 
 		if (nspace->m_namespaceKind == NamespaceKind_Type) {
-			NamedType* type = (NamedType*)nspace;
+			NamedType* type = static_cast<NamedType*>(nspace);
 			TypeKind typeKind = type->getTypeKind();
 			if (typeKind == TypeKind_Class || typeKind == TypeKind_Struct) {
 				bool result = ((DerivableType*)type)->findBaseTypeTraverse(targetType);

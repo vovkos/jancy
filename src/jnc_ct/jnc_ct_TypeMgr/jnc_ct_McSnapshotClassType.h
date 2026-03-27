@@ -28,7 +28,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((McSnapshotClassType*)m_parentNamespace)->compileCallMethod(this);
+			return static_cast<McSnapshotClassType*>(m_parentNamespace)->compileCallMethod(this);
 		}
 	};
 

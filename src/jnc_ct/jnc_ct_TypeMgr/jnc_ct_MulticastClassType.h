@@ -27,7 +27,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((MulticastClassType*)m_parentNamespace)->compileCallMethod(this);
+			return static_cast<MulticastClassType*>(m_parentNamespace)->compileCallMethod(this);
 		}
 	};
 

@@ -66,7 +66,7 @@ OperatorMgr::memberOperator(
 	case ValueKind_Namespace:
 		nspace = rawOpValue.getNamespace();
 		return nspace->getNamespaceKind() == NamespaceKind_DynamicLib ?
-			getLibraryMember((DynamicLibNamespace*)nspace, rawOpValue.getClosure(), name, resultValue) :
+			getLibraryMember(static_cast<DynamicLibNamespace*>(nspace), rawOpValue.getClosure(), name, resultValue) :
 			getNamespaceMember(nspace, name, 0, resultValue);
 
 	case ValueKind_Field:
@@ -453,7 +453,7 @@ OperatorMgr::getNamespaceMember(
 			return false;
 		}
 
-		result = ((NamedType*)nspace)->ensureLayout();
+		result = static_cast<NamedType*>(nspace)->ensureLayout();
 		if (!result)
 			return false;
 

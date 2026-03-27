@@ -150,7 +150,7 @@ FriendSet::isFriend(Namespace* nspace) const {
 	if (nspace->getNamespaceKind() != NamespaceKind_Type || m_templateSet.isEmpty())
 		return false;
 
-	TemplateInstance* instance = ((NamedType*)nspace)->getTemplateInstance();
+	TemplateInstance* instance = static_cast<NamedType*>(nspace)->getTemplateInstance();
 	return instance && m_templateSet.find(instance->m_template);
 }
 

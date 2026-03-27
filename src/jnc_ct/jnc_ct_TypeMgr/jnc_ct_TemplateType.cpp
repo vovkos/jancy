@@ -235,10 +235,10 @@ TemplateDeclType::instantiate(
 		ASSERT(
 			nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation ||
 			nspace->getNamespaceKind() == NamespaceKind_Type &&
-			((NamedType*)nspace)->getTemplateInstance()
+			static_cast<NamedType*>(nspace)->getTemplateInstance()
 		);
 
-		baseType = ((TemplateTypeName*)baseType)->lookupType(nspace);
+		baseType = static_cast<TemplateTypeName*>(baseType)->lookupType(nspace);
 		if (!baseType)
 			return NULL;
 

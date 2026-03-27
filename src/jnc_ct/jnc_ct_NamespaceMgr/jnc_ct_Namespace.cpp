@@ -556,7 +556,7 @@ Namespace::findTemplateInstanceType(Template* templ) {
 	for (Namespace* nspace = this; nspace; nspace = nspace->getParentNamespace()) {
 		switch (nspace->m_namespaceKind) {
 		case NamespaceKind_Type: {
-			NamedType* type = (NamedType*)nspace;
+			NamedType* type = static_cast<NamedType*>(nspace);
 			TemplateInstance* templateInstance = type->getTemplateInstance();
 			if (templateInstance && templateInstance->m_template == templ)
 				return type;
@@ -565,7 +565,7 @@ Namespace::findTemplateInstanceType(Template* templ) {
 			}
 
 		case NamespaceKind_TemplateInstantiation: {
-			DerivableType* type = ((TemplateNamespace*)nspace)->getInstanceType();
+			DerivableType* type = static_cast<TemplateNamespace*>(nspace)->getInstanceType();
 			if (!type)
 				break;
 

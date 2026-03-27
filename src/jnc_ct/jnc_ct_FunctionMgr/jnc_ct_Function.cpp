@@ -138,12 +138,12 @@ Function::compile() {
 			NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind();
 			switch (namespaceKind) {
 			case NamespaceKind_Type:
-				parser.m_constructorType = (DerivableType*)m_parentNamespace;
+				parser.m_constructorType = static_cast<DerivableType*>(m_parentNamespace);
 				symbolKind = SymbolKind_constructor_compound_stmt;
 				break;
 
 			case NamespaceKind_Property:
-				parser.m_constructorProperty = (Property*)m_parentNamespace;
+				parser.m_constructorProperty = static_cast<Property*>(m_parentNamespace);
 				symbolKind = SymbolKind_constructor_compound_stmt;
 				break;
 			}

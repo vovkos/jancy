@@ -96,7 +96,7 @@ Template::instantiate(
 
 bool
 Template::setDefaultArgs(sl::Array<Type*>* argArray) {
-	TemplateNamespace* nspace = (TemplateNamespace*)m_module->m_namespaceMgr.getCurrentNamespace();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
 
 	size_t count = argArray->getCount();
