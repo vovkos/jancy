@@ -270,7 +270,7 @@ TemplateDeclType::instantiate(
 	if (thisArgFlags)
 		*thisArgFlags = declFlags;
 	else if (declFlags) {
-		err::setFormatStringError("unused modifiers '%s'", getPtrTypeFlagString(declFlags).sz());
+		err::setFormatStringError("unused modifier(s) '%s'", getPtrTypeFlagString(declFlags).sz());
 		return NULL;
 	}
 

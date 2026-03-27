@@ -145,7 +145,7 @@ inline
 bool
 DeclTypeCalc::checkUnusedModifiers() {
 	if (m_typeModifiers) {
-		err::setFormatStringError("unused modifier '%s'", getTypeModifierString(m_typeModifiers).sz());
+		err::setFormatStringError("unused modifier(s) '%s'", getTypeModifierString(m_typeModifiers).sz());
 		return false;
 	}
 

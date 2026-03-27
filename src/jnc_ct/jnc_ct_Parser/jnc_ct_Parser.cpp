@@ -1408,7 +1408,7 @@ Parser::declareFunction(
 		}
 
 		if (thisArgTypeFlags) {
-			err::setFormatStringError("unused modifiers '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
+			err::setFormatStringError("unused modifier(s) '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -1502,7 +1502,7 @@ Parser::declareFunction(
 
 	default:
 		if (thisArgTypeFlags) {
-			err::setFormatStringError("unused modifier '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
+			err::setFormatStringError("unused modifier(s) '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -1879,7 +1879,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 				return false;
 		}
 	} else if (autogetValuePtrFlags) {
-		err::setFormatStringError("unused modifiers '%s'", getPtrTypeFlagString(autogetValuePtrFlags).sz());
+		err::setFormatStringError("unused modifier(s) '%s'", getPtrTypeFlagString(autogetValuePtrFlags).sz());
 		return false;
 	}
 
