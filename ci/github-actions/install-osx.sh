@@ -13,7 +13,7 @@ brew install coreutils
 brew install lua
 brew install hidapi
 brew install ragel
-brew install ${LLVM_VERSION}
+brew install ${LLVM_VERSION} 2>&1 | grep -v "installed but not linked"
 
 BREW_PREFIX=$(brew --prefix)
 
