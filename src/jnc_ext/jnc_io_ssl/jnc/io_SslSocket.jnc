@@ -37,8 +37,8 @@ opaque class SslSocket: SslState {
 	size_t autoget errorcode property m_writeBufferSize;
 
 	SocketOptions autoget errorcode property m_options;
-    uint_t errorcode property m_keepAliveIdleTimeout;
-    uint_t errorcode property m_keepAliveRetryInterval;
+    uint_t errorcode property m_tcpKeepAliveIdleTimeout;
+    uint_t errorcode property m_tcpKeepAliveRetryInterval;
 
 	string_t property m_hostname;
 

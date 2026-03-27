@@ -115,26 +115,26 @@ public:
 
 	uint_t
 	JNC_CDECL
-	getKeepAliveIdleTimeout() {
-		return SocketBase::getKeepAliveIdleTimeout();
+	getTcpKeepAliveIdleTimeout() {
+		return SocketBase::getTcpKeepAliveIdleTimeout();
 	}
 
 	bool
 	JNC_CDECL
-	setKeepAliveIdleTimeout(uint_t timeout) {
-		return SocketBase::setKeepAliveIdleTimeout(timeout);
+	setTcpKeepAliveIdleTimeout(uint_t timeout) {
+		return SocketBase::setTcpKeepAliveIdleTimeout(timeout);
 	}
 
 	uint_t
 	JNC_CDECL
-	getKeepAliveRetryInterval() {
-		return SocketBase::getKeepAliveRetryInterval();
+	getTcpKeepAliveRetryInterval() {
+		return SocketBase::getTcpKeepAliveRetryInterval();
 	}
 
 	bool
 	JNC_CDECL
-	setKeepAliveRetryInterval(uint_t interval) {
-		return SocketBase::setKeepAliveRetryInterval(interval);
+	setTcpKeepAliveRetryInterval(uint_t interval) {
+		return SocketBase::setTcpKeepAliveRetryInterval(interval);
 	}
 
 
