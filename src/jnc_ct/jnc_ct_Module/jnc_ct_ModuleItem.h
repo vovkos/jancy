@@ -68,14 +68,14 @@ protected:
 
 public:
 	ModuleItemContext() {
-		setup(NULL, NULL);
+		setupContext(NULL, NULL);
 	}
 
 	ModuleItemContext(
 		Unit* parentUnit,
 		Namespace* parentNamespace
 	) {
-		setup(parentUnit, parentNamespace);
+		setupContext(parentUnit, parentNamespace);
 	}
 
 	ModuleItemContext(Module* module) {
@@ -104,7 +104,12 @@ public:
 	captureContext(Module* module);
 
 	void
-	setup(
+	copyContext(const ModuleItemContext& context) {
+		setupContext(context.m_parentUnit, context.m_parentNamespace);
+	}
+
+	void
+	setupContext(
 		Unit* parentUnit,
 		Namespace* parentNamespace
 	) {

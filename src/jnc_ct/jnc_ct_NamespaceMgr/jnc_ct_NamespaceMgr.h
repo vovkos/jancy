@@ -313,7 +313,7 @@ NamespaceMgr::openTemplateNamespace(
 ) {
 	TemplateNamespace* nspace = new TemplateNamespace(namespaceKind);
 	nspace->m_module = m_module;
-	*(ModuleItemContext*)nspace = context;
+	nspace->copyContext(context);
 	m_templateNamespaceArray.append(nspace);
 	openNamespace(nspace);
 	return nspace;

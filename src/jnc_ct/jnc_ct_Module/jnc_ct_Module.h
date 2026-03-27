@@ -474,7 +474,7 @@ Module::markForCompile(Function* function) {
 inline
 void
 ModuleItemContext::captureContext(Module* module) {
-	setup(module->m_unitMgr.getCurrentUnit(), module->m_namespaceMgr.getCurrentNamespace());
+	setupContext(module->m_unitMgr.getCurrentUnit(), module->m_namespaceMgr.getCurrentNamespace());
 }
 
 //..............................................................................

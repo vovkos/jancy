@@ -1564,7 +1564,7 @@ TypeMgr::createTemplateDeclType(
 	TemplateDeclType* type = new TemplateDeclType;
 	type->m_module = m_module;
 	type->m_parentType = parentType;
-	type->setup(m_module->m_unitMgr.getCurrentUnit(), parentNamespace);
+	type->setupContext(m_module->m_unitMgr.getCurrentUnit(), parentNamespace);
 	sl::takeOver(&type->m_declarator, declarator);
 
 	if (type->m_declarator.m_baseType->getTypeKindFlags() & TypeKindFlag_Import)
