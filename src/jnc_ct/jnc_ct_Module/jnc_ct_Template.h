@@ -28,12 +28,16 @@ struct TemplateInstance {
 	ModuleItem* m_item;
 	Template* m_template;
 	sl::Array<Type*> m_argArray;
+	err::Error m_error;
 
 	size_t
 	appendArgLinkId(sl::String* string) const;
 
 	size_t
 	appendArgString(sl::String* string) const;
+
+	ModuleItem*
+	failInstantiation();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

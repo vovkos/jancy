@@ -48,6 +48,14 @@ TemplateInstance::appendArgString(sl::String* string) const {
 	return string->getLength();
 }
 
+inline
+ModuleItem*
+TemplateInstance::failInstantiation() {
+	m_error = err::getLastError();
+	m_item = NULL;
+	return NULL;
+}
+
 //..............................................................................
 
 ModuleItem*
@@ -145,12 +153,17 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 	if (instance->m_item)
 		return instance->m_item;
 
+	if (instance->m_error) {
+		err::setError(instance->m_error);
+		return NULL;
+	}
+
 	if (m_flags & PtrTypeFlag_ConstKindMask) {
 		ASSERT(argArray.getCount() == 2);
 
 		ModuleItem* item = argArray[0]->getDualConstType(argArray[1], getConstKindFromFlags(m_flags));
 		if (!item)
-			return NULL;
+			return instance->failInstantiation();
 
 		instance->m_item = item;
 	} else if (m_declType) {
@@ -158,7 +171,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		DerivableType* parentType = m_declType->getParentType();
 		Type* type = m_declType->instantiate(argArray, parentType ? &thisArgTypeFlags : NULL);
 		if (!type)
-			return NULL;
+			return instance->failInstantiation();
 
 		if (m_storageKind == StorageKind_Typedef) {
 			Typedef* tdef = m_module->m_typeMgr.createTypedef(m_name, type);
@@ -168,7 +181,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		} else {
 			if (type->getTypeKind() != TypeKind_Function) {
 				err::setFormatStringError("cannot instantiate template '%s' (not a function)", getItemName().sz());
-				return NULL;
+				return instance->failInstantiation();
 			}
 
 			Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
@@ -198,7 +211,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 
 		default:
 			ASSERT(false);
-			return NULL;
+			return instance->failInstantiation();
 		}
 
 		TemplateNamespace* nspace = (TemplateNamespace*)m_module->m_namespaceMgr.getCurrentNamespace();
@@ -222,12 +235,23 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			Type* baseType = m_baseTypeArray[i]->instantiate(argArray);
 			bool result = baseType && type->addBaseType(baseType);
 			if (!result)
-				return NULL;
+				return instance->failInstantiation();
 		}
 
 		size_t orphanCount = m_orphanArray.getCount();
 		for (size_t i = 0; i < orphanCount; i++) {
 			Orphan* orphan = m_module->m_namespaceMgr.cloneOrphan(m_orphanArray[i]);
+			if (orphan->getOrphanKind() != OrphanKind_Template) {
+				err::setFormatStringError(
+					"incompatible orphan '%s' in '%s'",
+					orphan->getItemName().sz(),
+					getItemName().sz()
+				);
+
+				orphan->pushSrcPosError();
+				return instance->failInstantiation();
+			}
+
 			orphan->addTemplateInstantiation(argArray);
 			type->addOrphan(orphan);
 		}
