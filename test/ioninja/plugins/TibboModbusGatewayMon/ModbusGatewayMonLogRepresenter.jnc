@@ -227,7 +227,7 @@ bool representModbusGatewayMonLog(
 				expectedChecksum = expectedChecksum + *(uint8_t const*)(aduHdr + _i);
 			expectedChecksum = 0 - expectedChecksum;
 
-		   	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+			representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 			if (expectedChecksum == actualChecksum) {
 				representation.addHyperText(
 					$"Checksum:    \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m [\e[32mOK\e[m]" (

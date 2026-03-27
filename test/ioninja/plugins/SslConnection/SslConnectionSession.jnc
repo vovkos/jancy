@@ -290,6 +290,8 @@ bool errorcode SslConnectionSession.connect(io.SocketAddress const* remoteAddres
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		m_socket.open(remoteAddress.m_family);
@@ -471,6 +473,8 @@ bool errorcode SslConnectionSession.applyProperties() {
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 	return true;
 }
 

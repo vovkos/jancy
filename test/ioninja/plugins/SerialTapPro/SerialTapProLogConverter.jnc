@@ -102,7 +102,7 @@ protected:
 protected:
 	log.Log* m_log;
 
-	ui.ToggleUi m_rawDataToggle;
+	// ui.ToggleUi m_rawDataToggle;
 	ui.ToggleUi m_flipToggle;
 	ui.ToggleUi m_separateBytesToggle;
 	ui.ToggleUi m_parityBitToggle;
@@ -180,12 +180,14 @@ void SerialTapProLogConverter.createUi(doc.PluginHost* pluginHost) {
 
 	bindingof(m_flipToggle.m_value) += onFlip;
 
+	/*
 	m_rawDataToggle.create(
 		layout,,
 		groupProp,
 		"Raw data (debug)",
 		"Show/hide raw USB bulk data (for debugging)"
 	);
+	*/
 
 	m_separateBytesToggle.create(
 		layout,,
@@ -295,8 +297,10 @@ override bool SerialTapProLogConverter.convert(
 		p += sizeof(SerialTapProRawUsbBulkParams);
 		size -= sizeof(SerialTapProRawUsbBulkParams);
 
+		/*
 		if (m_rawDataToggle.m_value)
 			writer.write(timestamp, log.StdRecordCode.Bin, p, size);
+		*/
 
 		convertSerialTapProRawUsbBulk(
 			writer,

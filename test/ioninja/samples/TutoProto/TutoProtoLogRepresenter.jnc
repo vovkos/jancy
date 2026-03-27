@@ -77,9 +77,9 @@ bool representTutoProtoLog(
 		string_t digest;
 
 		if (getDigestFunc) {
-			 digest = getDigestFunc(hdr + 1, size - sizeof(TutoProtoHdr));
-			 if (!digest)
-				 digest = "[ \e[31mINVALID\e[m ]";
+			digest = getDigestFunc(hdr + 1, size - sizeof(TutoProtoHdr));
+			if (!digest)
+				digest = "[ \e[31mINVALID\e[m ]";
 		}
 
 		representation.addHyperText($"[\e^+1\e[34m+\e[m] \e[1mTutoProto\e[m %1 %2 %3"(

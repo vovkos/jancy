@@ -35,11 +35,13 @@ protected:
 	}
 
 	enum ActionId {
+		Refresh,
 		Open,
 		_Count,
 	}
 
 	enum IconId {
+		Refresh,
 		Open,
 		Close,
 		Compass,
@@ -120,6 +122,14 @@ public:
 	);
 
 protected:
+	void onRefresh() {
+		ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_socketPropertySet.m_adapterProp
+		);
+	}
+
 	void onOpen() {
 		m_state ? closeSocket() : try openSocket();
 	}
@@ -170,6 +180,7 @@ UdpSession.construct(doc.PluginHost* pluginHost) {
 void UdpSession.createUi() {
 	// toolbar
 
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
 	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
 	m_iconTable[IconId.Close] = new ui.Icon("images/close.png");
 	m_iconTable[IconId.Compass] = new ui.Icon("images/compass.png");
@@ -184,6 +195,9 @@ void UdpSession.createUi() {
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
+
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Local port:");
@@ -263,6 +277,8 @@ nestedscope:
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 
 	m_socket.open(io.Protocol.Udp, &address);
 	address = m_socket.m_address;
@@ -352,6 +368,8 @@ bool errorcode UdpSession.applyProperties() {
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 	return true;
 }
 

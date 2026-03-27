@@ -50,6 +50,8 @@ public:
 		io.SshConnectParams m_sshParams;
 		io.SocketAddress m_localAddress;
 		io.SocketOptions m_socketOptions;
+		uint_t m_tcpKeepAliveIdleTimeout;
+		uint_t m_tcpKeepAliveRetryInterval;
 		bool m_useReconnect;
 		uint_t m_reconnectTimeout;
 
@@ -270,6 +272,9 @@ bool errorcode SshChannel.connect(
 	m_ssh.m_readBufferSize = params.m_readBufferSize;
 	m_ssh.m_writeBufferSize = params.m_writeBufferSize;
 	m_ssh.m_options = params.m_socketOptions;
+	m_ssh.m_tcpKeepAliveIdleTimeout = params.m_tcpKeepAliveIdleTimeout;
+	m_ssh.m_tcpKeepAliveRetryInterval = params.m_tcpKeepAliveRetryInterval;
+
 
 	if (params.m_localAddress.m_family)
 		m_ssh.open(params.m_localAddress);
@@ -331,6 +336,14 @@ void SshChannel.initConnectParams(
 		ui.BufferPropertySet.Defaults.WriteBufferSize;
 
 	params.m_socketOptions = ui.getSocketOptions(socketPropSet, bufferPropSet);
+
+	params.m_tcpKeepAliveIdleTimeout = socketPropSet.m_tcpKeepAliveIdleTimeoutProp ?
+		socketPropSet.m_tcpKeepAliveIdleTimeoutProp.m_value :
+		ui.SocketPropertySet.Defaults.TcpKeepAliveIdleTimeout;
+
+	params.m_tcpKeepAliveRetryInterval = socketPropSet.m_tcpKeepAliveRetryIntervalProp ?
+		socketPropSet.m_tcpKeepAliveRetryIntervalProp.m_value :
+		ui.SocketPropertySet.Defaults.TcpKeepAliveRetryInterval;
 
 	params.m_defaultPort = socketPropSet.m_remotePortProp ?
 		socketPropSet.m_remotePortProp.m_value :
@@ -642,7 +655,7 @@ void SshChannel.onReconnectTimer(uint_t syncId) {
 
 void SshChannel.onResolveCompleted() {
 	m_state = State.Closed;
-	
+
 	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
 		try connect(m_resolver.m_address, &m_connectParams);
 }

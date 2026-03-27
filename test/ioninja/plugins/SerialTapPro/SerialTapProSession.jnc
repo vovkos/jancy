@@ -841,7 +841,7 @@ bool errorcode SerialTapProSession.writeRegister(
 
 void SerialTapProSession.stopCapture(bool isGraceful) {
 	if (m_device && isGraceful)
-	 	writeRegister(SerialTapProRegister.Control, 0);
+		writeRegister(SerialTapProRegister.Control, 0);
 
 	if (m_inEndpoint) {
 		m_inEndpoint.close();

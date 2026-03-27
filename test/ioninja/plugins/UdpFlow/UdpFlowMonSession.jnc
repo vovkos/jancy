@@ -38,12 +38,14 @@ protected:
 
 	enum ActionId {
 		ApplyFilter,
+		Refresh,
 		Capture,
 		OpenPcap,
 		_Count,
 	}
 
 	enum IconId {
+		Refresh,
 		Capture,
 		StopCapture,
 		_Count,
@@ -110,6 +112,10 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
+	void onRefresh() {
+		ui.enumeratePcapDevices(m_deviceCombo, m_deviceProp);
+	}
+
 	void onCapture() {
 		m_state ? stopCapture() : try capture();
 	}
@@ -153,6 +159,10 @@ UdpFlowMonSession.construct(doc.PluginHost* pluginHost) {
 void UdpFlowMonSession.createUi() {
 	// toolbar
 
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
+
 	m_pluginHost.m_toolBar.addLabel("Filter:");
 	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_viewFilterCombo.m_isEditable = true;
@@ -168,8 +178,8 @@ void UdpFlowMonSession.createUi() {
 	m_deviceCombo = ui.createPcapDeviceComboBox(m_pluginHost.m_toolBar);
 	m_deviceCombo.m_onReturnPressed += onDeviceComboEnter;
 
-	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
-	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;

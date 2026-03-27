@@ -128,6 +128,38 @@ ComboBox* createNetworkAdapterComboBox(
 	return comboBox;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t enumerateNetworkAdapters(
+	NetworkAdapterUsage usage,
+	ComboBox* adapterCombo,
+	EnumProperty* adapterProp
+) {
+	EnumPropertyOption const* optionArray = createNetworkAdapterOptionArray(usage);
+	size_t optionCount = dynamic countof(optionArray);
+
+	size_t index = -1;
+	io.SocketAddress const* address = adapterCombo.m_currentData;
+	if (address)
+		for (size_t i = 0; i < optionCount; i++) {
+			io.SocketAddress const* address2 = optionArray[i].m_value;
+			if (address.isEqual(address2)) {
+				index = i;
+				break;
+			}
+		}
+
+	adapterCombo.setItems(optionArray, optionCount);
+	adapterProp.setOptions(optionArray, optionCount);
+
+	if (index != -1) {
+		adapterCombo.m_currentIndex = index;
+		adapterProp.m_currentIndex = index;
+	}
+
+	return optionCount;
+}
+
 //..............................................................................
 
 class SocketPropertySet {
@@ -168,15 +200,17 @@ class SocketPropertySet {
 	}
 
 	enum Defaults {
-		RemotePort         = 80,
-		UseReconnect       = false,
-		ReconnectTimeout   = 3000,
-		LocalPort          = 0,
-		ReuseLocalAddress  = false,
-		TcpKeepAlive       = false,
-		TcpNagle           = false,
-		TcpReset           = false,
-		UdpBroadcast       = true,
+		RemotePort                = 80,
+		UseReconnect              = false,
+		ReconnectTimeout          = 3000,
+		LocalPort                 = 0,
+		ReuseLocalAddress         = false,
+		TcpKeepAlive              = false,
+		TcpKeepAliveIdleTimeout   = 60000,
+		TcpKeepAliveRetryInterval = 3000,
+		TcpNagle                  = false,
+		TcpReset                  = false,
+		UdpBroadcast              = true,
 	}
 
 	static string_t const DefaultRemoteAddress = "ioninja.com";
@@ -190,6 +224,8 @@ class SocketPropertySet {
 	IntProperty* m_localPortProp;
 	BoolProperty* m_reuseLocalAddressProp;
 	BoolProperty* m_tcpKeepAliveProp;
+	IntProperty* m_tcpKeepAliveIdleTimeoutProp;
+	IntProperty* m_tcpKeepAliveRetryIntervalProp;
 	BoolProperty* m_tcpNagleProp;
 	BoolProperty* m_tcpResetProp;
 	BoolProperty* m_udpBroadcastProp;
@@ -248,7 +284,7 @@ void SocketPropertySet.createProperties(
 
 		m_reconnectTimeoutProp = propertyGrid.createIntProperty(
 			m_useReconnectProp,,
-			"Reconnect timeout",
+			"Reconnect timeout (ms)",
 			"Specify the delay between reconnect attempts"
 		);
 	}
@@ -294,7 +330,7 @@ void SocketPropertySet.createProperties(
 			localAddressGroup,
 			localAddressInsertBefore,
 			"Reuse address",
-			"Allow multiple sockets to share the same local address"
+			"Allow multiple non-listening sockets to share the same local address (SO_REUSEADDR)"
 		);
 
 	if (mask & PropertyId.TcpOptions) {
@@ -308,19 +344,33 @@ void SocketPropertySet.createProperties(
 		m_tcpNagleProp = propertyGrid.createBoolProperty(
 			tcpGroup,,
 			"TCP Nagle algorithm",
-			"Delay transmission to reduce the number of small TCP packets"
+			"Delay transmission to reduce the number of small TCP packets (TCP_NODELAY)"
 		);
 
 		m_tcpResetProp = propertyGrid.createBoolProperty(
 			tcpGroup,,
 			"TCP reset",
-			"Drop TCP connections abruptly with a TCP RST packet"
+			"Drop TCP connections abruptly with a TCP RST packet (SO_LINGER)"
 		);
 
 		m_tcpKeepAliveProp = propertyGrid.createBoolProperty(
 			tcpGroup,,
 			"TCP keep-alives",
-			"Detect connection loss with TCP keep-alive probes"
+			"Detect connection loss with TCP keep-alive probes (SO_KEEPALIVE)"
+		);
+
+		m_tcpKeepAliveProp.m_isGroupEnabler = true;
+
+		m_tcpKeepAliveIdleTimeoutProp = propertyGrid.createIntProperty(
+			m_tcpKeepAliveProp,,
+			"Idle timeout (ms)",
+			"Time to wait before sending a keep-alive probe when connection is idle (TCP_KEEPIDLE)"
+		);
+
+		m_tcpKeepAliveRetryIntervalProp = propertyGrid.createIntProperty(
+			m_tcpKeepAliveProp,,
+			"Retry interval (ms)",
+			"Interval before resending unanswered keep-alive probes (TCP_KEEPINTVL)"
 		);
 	}
 
@@ -361,6 +411,12 @@ void SocketPropertySet.load(doc.Storage* storage) {
 	if (m_tcpKeepAliveProp)
 		m_tcpKeepAliveProp.m_value = storage.readBool("tcpKeepAlive", Defaults.TcpKeepAlive);
 
+	if (m_tcpKeepAliveIdleTimeoutProp)
+		m_tcpKeepAliveIdleTimeoutProp.m_value = storage.readInt("tcpKeepAliveIdleTimeout", Defaults.TcpKeepAliveIdleTimeout);
+
+	if (m_tcpKeepAliveRetryIntervalProp)
+		m_tcpKeepAliveRetryIntervalProp.m_value = storage.readInt("tcpKeepAliveRetryInterval", Defaults.TcpKeepAliveRetryInterval);
+
 	if (m_tcpNagleProp)
 		m_tcpNagleProp.m_value = storage.readBool("isNagleEnabled", Defaults.TcpNagle);
 
@@ -399,6 +455,12 @@ void SocketPropertySet.save(doc.Storage* storage) {
 	if (m_tcpKeepAliveProp)
 		storage.writeBool("tcpKeepAlive", m_tcpKeepAliveProp.m_value);
 
+	if (m_tcpKeepAliveIdleTimeoutProp)
+		storage.writeInt("tcpKeepAliveIdleTimeout", m_tcpKeepAliveIdleTimeoutProp.m_value);
+
+	if (m_tcpKeepAliveRetryIntervalProp)
+		storage.writeInt("tcpKeepAliveRetryInterval", m_tcpKeepAliveRetryIntervalProp.m_value);
+
 	if (m_tcpNagleProp)
 		storage.writeBool("isNagleEnabled", m_tcpNagleProp.m_value);
 
@@ -436,6 +498,12 @@ void SocketPropertySet.restoreDefaults() {
 
 	if (m_tcpKeepAliveProp)
 		m_tcpKeepAliveProp.m_value = Defaults.TcpKeepAlive;
+
+	if (m_tcpKeepAliveIdleTimeoutProp)
+		m_tcpKeepAliveIdleTimeoutProp.m_value = Defaults.TcpKeepAliveIdleTimeout;
+
+	if (m_tcpKeepAliveRetryIntervalProp)
+		m_tcpKeepAliveRetryIntervalProp.m_value = Defaults.TcpKeepAliveRetryInterval;
 
 	if (m_tcpNagleProp)
 		m_tcpNagleProp.m_value = Defaults.TcpNagle;

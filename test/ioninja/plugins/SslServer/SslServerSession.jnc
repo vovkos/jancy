@@ -41,6 +41,7 @@ protected:
 	}
 
 	enum ActionId {
+		Refresh,
 		Listen,
 		Disconnect,
 		DisconnectAll,
@@ -48,6 +49,7 @@ protected:
 	}
 
 	enum IconId {
+		Refresh,
 		Listen,
 		StopListen,
 		_Count,
@@ -129,6 +131,14 @@ public:
 	}
 
 protected:
+	void onRefresh() {
+		ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_socketPropertySet.m_adapterProp
+		);
+	}
+
 	void onListen() {
 		m_listenerState ? stopListen() : try listen();
 	}
@@ -171,8 +181,15 @@ SslServerSession.construct(doc.PluginHost* pluginHost) {
 void SslServerSession.createUi() {
 	// toolbar
 
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
+	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
+
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
+
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
@@ -180,8 +197,6 @@ void SslServerSession.createUi() {
 	m_portCombo.m_isEditable = true;
 	m_portCombo.m_onReturnPressed += onPortComboEnter;
 
-	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
-	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
 
@@ -387,6 +402,8 @@ bool errorcode SslServerSession.applyProperties() {
 		connection.m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		connection.m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 		connection.m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+		connection.m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+		connection.m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 	}
 
 	return true;
@@ -487,6 +504,8 @@ void SslServerSession.onListenerSocketEvent(
 		socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 		socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+		socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+		socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 
 		socket.m_securityLevel = m_sslPropertySet.m_securityLevelProp.m_value;
 		socket.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);

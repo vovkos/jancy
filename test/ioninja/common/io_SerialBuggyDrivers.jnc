@@ -24,7 +24,7 @@ string_t detectSerialBuggyDriver(string_t portName) {
 		portName;
 
 	string_t deviceName = try io.getSymbolicLinkTarget(linkName);
-	printf("link name: %s, device name: %s\n", linkName, deviceName);
+	trace($"link name: %1, device name: %2\n"(linkName, deviceName));
 
 	// when we can't get the device name, usually it's because of no port
 

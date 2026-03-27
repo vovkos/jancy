@@ -75,6 +75,38 @@ ComboBox* createPcapDeviceComboBox(
 	return comboBox;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t enumeratePcapDevices(
+	ComboBox* deviceCombo,
+	EnumProperty* deviceProp
+) {
+	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray();
+	size_t optionCount = dynamic countof(optionArray);
+
+	size_t index = -1;
+
+	io.PcapDeviceDesc const* device = deviceCombo.m_currentData;
+	if (device)
+		for (size_t i = 0; i < optionCount; i++) {
+			io.PcapDeviceDesc const* device2 = optionArray[i].m_value;
+			if (device.m_name == device2.m_name) {
+				index = i;
+				break;
+			}
+		}
+
+	deviceCombo.setItems(optionArray, optionCount);
+	deviceProp.setOptions(optionArray, optionCount);
+
+	if (index != -1) {
+		deviceCombo.m_currentIndex = index;
+		deviceProp.m_currentIndex = index;
+	}
+
+	return optionCount;
+}
+
 //..............................................................................
 
 //! @}

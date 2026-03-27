@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// IO Ninja IAS (In-App Scripting) API
+// IO Ninja IAS (In-App Scripting) API for Jancy
 //
 
 import "log_Writer.jnc"
@@ -23,6 +23,7 @@ void clearLog();
 
 // basic session transport operations
 
+bool const property g_isConnected;
 bool errorcode connect();
 void disconnect();
 
@@ -36,6 +37,8 @@ size_t errorcode transmit(string_t text) {
 }
 
 size_t getTransmitData(std.Buffer* buffer); // fetch contents of the "Transmit" pane
+
+size_t const property g_pendingReceiveSize;
 
 size_t errorcode receive(
 	void* p,
@@ -121,7 +124,7 @@ size_t errorcode receiveAll(
 void main();
 
 // IAS thread #2 (aka event thread)
-// - not called for direct `transmit()` invocations
+// - not called for direct `transmit()` invokations
 // - kills the ability to track the actual (accepted) size
 
 [ prototype ]

@@ -39,12 +39,14 @@ protected:
 	}
 
 	enum ActionId {
+		Refresh,
 		Capture,
 		OpenPcap,
 		_Count,
 	}
 
 	enum IconId {
+		Refresh,
 		Capture,
 		StopCapture,
 		_Count,
@@ -122,6 +124,10 @@ public:
 	);
 
 protected:
+	void onRefresh() {
+		ui.enumeratePcapDevices(m_deviceCombo, m_deviceProp);
+	}
+
 	void onCapture() {
 		try(m_state ? stopCapture() : capture());
 	}
@@ -165,12 +171,16 @@ PcapSnifferSession.construct(doc.PluginHost* pluginHost) {
 void PcapSnifferSession.createUi() {
 	// toolbar
 
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
+
 	m_pluginHost.m_toolBar.addLabel("Device:");
 	m_deviceCombo = ui.createPcapDeviceComboBox(m_pluginHost.m_toolBar);
 	m_deviceCombo.m_onReturnPressed += onDeviceComboEnter;
 
-	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
-	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;

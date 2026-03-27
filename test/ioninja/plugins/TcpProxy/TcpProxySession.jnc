@@ -48,6 +48,7 @@ protected:
 	}
 
 	enum ActionId {
+		Refresh,
 		Listen,
 		Disconnect,
 		DisconnectAll,
@@ -55,6 +56,7 @@ protected:
 	}
 
 	enum IconId {
+		Refresh,
 		Listen,
 		StopListen,
 		Disconnect,
@@ -142,6 +144,14 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
+	void onRefresh() {
+		ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_listenerSocketPropertySet.m_adapterProp
+		);
+	}
+
 	void onListen() {
 		m_listenerState ? stopListen() : try listen();
 	}
@@ -218,6 +228,10 @@ TcpProxySession.construct(doc.PluginHost* pluginHost) {
 void TcpProxySession.createUi() {
 	// toolbar
 
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
+	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
+
 	m_pluginHost.m_toolBar.addLabel("Target:");
 	m_targetAddressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_targetAddressCombo.m_isEditable = true;
@@ -229,14 +243,15 @@ void TcpProxySession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
 	m_portCombo.m_onReturnPressed += onPortComboEnter;
 
-	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
-	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
 
@@ -549,6 +564,9 @@ void TcpProxySession.onListenerSocketEvent(
 		socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 		socket.m_options = ui.getSocketOptions(m_connectionSocketPropertySet, m_bufferPropertySet);
+		socket.m_tcpKeepAliveIdleTimeout = m_connectionSocketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+		socket.m_tcpKeepAliveRetryInterval = m_connectionSocketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
+
 		socket.unsuspend();
 
 		Proxy* proxy = new Proxy;

@@ -251,7 +251,7 @@ void PipeMonitor.processFsctlNotification(
 			timestamp,
 			PipeMonLogRecordCode.Transaction,
 			&transactionParams,
-			 sizeof(transactionParams)
+			sizeof(transactionParams)
 			);
 
 		if (inDataSize)

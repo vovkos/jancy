@@ -94,7 +94,7 @@ opaque class InformationGrid {
 		string_t toolTip = null
 	);
 
-	 InformationValue* createValue(
+	InformationValue* createValue(
 		string_t name,
 		string_t toolTip = null
 	) {
@@ -109,7 +109,7 @@ opaque class InformationGrid {
 		string_t toolTip = null
 	);
 
-	 InformationStatValue* createStatValue(
+	InformationStatValue* createStatValue(
 		string_t name,
 		string_t toolTip = null
 	) {

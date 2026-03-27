@@ -357,11 +357,15 @@ bool errorcode WebSocketClientSession.connect(
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+
 	m_socket.m_options =
 		ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet) |
 		io.WebSocketOptions.IncludeControlFrames |
 		io.WebSocketOptions.DisableCloseResponse |
 		io.WebSocketOptions.DisablePongResponse;
+
+	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		m_socket.open(remoteAddress.m_family, isSecure);
@@ -384,6 +388,7 @@ bool errorcode WebSocketClientSession.connect(
 	m_remoteAddress = *remoteAddress;
 
 	if (isSecure) {
+		m_socket.m_sslState.m_securityLevel = m_sslPropertySet.m_securityLevelProp.m_value;
 		m_socket.m_sslState.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
 
 		if (m_sslPropertySet.m_useCertificateProp.m_value) {
@@ -568,11 +573,15 @@ bool errorcode WebSocketClientSession.applyProperties() {
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+
 	m_socket.m_options =
 		ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet) |
 		io.WebSocketOptions.IncludeControlFrames |
 		io.WebSocketOptions.DisableCloseResponse |
 		io.WebSocketOptions.DisablePongResponse;
+
+	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 
 	return true;
 }

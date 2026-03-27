@@ -62,7 +62,9 @@ enum StdRecordCode: uint64_t {
 	TxRx9             = 0x01d47ff1fc334a1f | PartCodeFlags.Mergeable,
 	TxRx9Sep          = 0x01d47ff1fc334a1f,
 	Bin9              = 0x01d47ff1fc334a20 | PartCodeFlags.Mergeable,
-	Bin9Sep           = 0x01d47ff1fc334a21,
+	Bin9Sep           = 0x01d47ff1fc334a20,
+	Stderr            = 0x01d47ff1fc334a21 | PartCodeFlags.Mergeable,
+	StderrSep         = 0x01d47ff1fc334a21,
 }
 
 //..............................................................................

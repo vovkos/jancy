@@ -45,6 +45,7 @@ protected:
 	}
 
 	enum ActionId {
+		Refresh,
 		UseSsl,
 		Listen,
 		Disconnect,
@@ -54,6 +55,7 @@ protected:
 	}
 
 	enum IconId {
+		Refresh,
 		Listen,
 		StopListen,
 		_Count,
@@ -141,6 +143,14 @@ public:
 	}
 
 protected:
+	void onRefresh() {
+		ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_socketPropertySet.m_adapterProp
+		);
+	}
+
 	void onListen() {
 		m_listenerState ? stopListen() : try listen();
 	}
@@ -189,17 +199,21 @@ WebSocketServerSession.construct(doc.PluginHost* pluginHost) {
 void WebSocketServerSession.createUi() {
 	// toolbar
 
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
+	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
+
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
+
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
 	m_portCombo.m_onReturnPressed += onPortComboEnter;
-
-	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
-	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
 
 	m_actionTable[ActionId.UseSsl] = createAction("Secure WebWockets (wss://)", "images/ssl.png");
 	m_actionTable[ActionId.UseSsl].m_isCheckable = true;
@@ -468,11 +482,15 @@ bool errorcode WebSocketServerSession.applyProperties() {
 		connection.m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 		connection.m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		connection.m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+
 		connection.m_socket.m_options =
 			ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet) |
 			io.WebSocketOptions.IncludeControlFrames |
 			io.WebSocketOptions.DisableCloseResponse |
 			io.WebSocketOptions.DisablePongResponse;
+
+		connection.m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+		connection.m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 	}
 
 	return true;
@@ -559,6 +577,7 @@ void WebSocketServerSession.waitClientSocketEvents(WebSocketServerSession.Client
 }
 
 void WebSocketServerSession.configureSsl(io.SslState* sslState) {
+	sslState.m_securityLevel = m_sslPropertySet.m_securityLevelProp.m_value;
 	sslState.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
 
 	if (m_sslPropertySet.m_useEphemeralDhProp.m_value)
@@ -610,11 +629,15 @@ void WebSocketServerSession.onListenerSocketEvent(
 		socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 		socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+
 		socket.m_options =
 			ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet) |
 			io.WebSocketOptions.IncludeControlFrames |
 			io.WebSocketOptions.DisableCloseResponse |
 			io.WebSocketOptions.DisablePongResponse;
+
+		socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+		socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 
 		Client* client = new Client;
 		client.m_socket = socket;
