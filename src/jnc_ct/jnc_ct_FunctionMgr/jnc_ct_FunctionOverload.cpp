@@ -18,6 +18,23 @@ namespace ct {
 
 //..............................................................................
 
+Function*
+FunctionOverload::findShortOverload(
+	FunctionType* shortType,
+	uint_t thisArgTypeFlags
+) {
+	size_t count = m_overloadArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Function* overload = m_overloadArray[i];
+		if (overload->getType()->getShortType()->isEqual(shortType) &&
+			overload->getThisArgTypeFlags() == thisArgTypeFlags
+		)
+			return overload;
+	}
+
+	return NULL;
+}
+
 size_t
 FunctionOverload::addOverload(Function* function) {
 	size_t overloadIdx = m_typeOverload.addOverload(function->getType());

@@ -93,12 +93,6 @@ public:
 	findOverload(FunctionType* type) const;
 
 	size_t
-	findShortOverload(FunctionType* type) const;
-
-	size_t
-	findAutoConstMethodOverload(FunctionType* type) const;
-
-	size_t
 	chooseOverload(
 		Closure* closure,
 		FunctionArg* const* argArray,

@@ -41,50 +41,6 @@ FunctionTypeOverload::findOverload(FunctionType* type) const {
 }
 
 size_t
-FunctionTypeOverload::findShortOverload(FunctionType* type) const {
-	if (!m_type)
-		return -1;
-
-	bool result = ensureLayout();
-	if (!result)
-		return -1;
-
-	if (type->isEqual(m_type->getShortType()))
-		return 0;
-
-	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		FunctionType* overloadType = m_overloadArray[i];
-		if (type->isEqual(overloadType->getShortType()))
-			return i + 1;
-	}
-
-	return -1;
-}
-
-size_t
-FunctionTypeOverload::findAutoConstMethodOverload(FunctionType* type) const {
-	if (!m_type)
-		return -1;
-
-	bool result = ensureLayout();
-	if (!result)
-		return -1;
-
-	if (type->isEqual(m_type->getShortType()))
-		return 0;
-
-	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		FunctionType* overloadType = m_overloadArray[i];
-		if (type->isEqual(overloadType->getShortType()))
-			return i + 1;
-	}
-
-	return -1;
-}
-
-size_t
 FunctionTypeOverload::chooseOverload(
 	Closure* closure,
 	FunctionArg* const* argArray,

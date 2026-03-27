@@ -560,7 +560,7 @@ ClassType::overrideVirtualFunction(Function* function) {
 		result = overridenFunction->getType()->getShortType()->isEqual(function->getType()->getShortType());
 	} else {
 		ASSERT(overridenOverload);
-		overridenFunction = overridenOverload->findShortOverload(function->getType()->getShortType());
+		overridenFunction = overridenOverload->findShortOverload(function->getType()->getShortType(), function->getThisArgTypeFlags());
 		result = overridenFunction != NULL;
 	}
 

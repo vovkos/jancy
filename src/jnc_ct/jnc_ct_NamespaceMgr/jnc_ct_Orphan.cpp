@@ -49,7 +49,7 @@ Orphan::resolve(ModuleItem* item) {
 
 	if (m_orphanKind == OrphanKind_Template) {
 		m_module->m_namespaceMgr.openNamespace(nspace);
-		Type* type = m_templateDeclType->instantiate(m_templateArgArray);
+		Type* type = m_templateDeclType->instantiate(m_templateArgArray, &m_thisArgTypeFlags);
 		m_module->m_namespaceMgr.closeNamespace();
 		if (!type)
 			return NULL;
@@ -180,7 +180,7 @@ Orphan::resolveToFunction(ModuleItem* item) {
 
 	Function* originFunction =
 		origin->getItemKind() == ModuleItemKind_FunctionOverload ?
-			origin.getFunctionOverload()->findShortOverload(m_functionType) :
+			origin.getFunctionOverload()->findShortOverload(m_functionType, m_thisArgTypeFlags) :
 		origin.getFunction()->getType()->getShortType()->isEqual(m_functionType) ?
 			origin.getFunction() :
 			NULL;

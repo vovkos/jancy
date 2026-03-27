@@ -57,16 +57,10 @@ public:
 	}
 
 	Function*
-	findShortOverload(FunctionType* type) {
-		size_t i = m_typeOverload.findShortOverload(type);
-		return i != -1 ? getOverload(i) : NULL;
-	}
-
-	Function*
-	findAutoConstMethodOverload(FunctionType* type) {
-		size_t i = m_typeOverload.findAutoConstMethodOverload(type);
-		return i != -1 ? getOverload(i) : NULL;
-	}
+	findShortOverload(
+		FunctionType* shortType,
+		uint_t thisArgTypeFlags
+	);
 
 	Function*
 	chooseOverload(
