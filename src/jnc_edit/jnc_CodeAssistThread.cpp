@@ -18,52 +18,10 @@ namespace jnc {
 //..............................................................................
 
 CodeAssistThread::CodeAssistThread(QObject* parent):
-	QThread(parent) {
-	m_codeAssistKind = CodeAssistKind_Undefined;
-	m_offset = 0;
-
-	rc::Ptr<AutoModule> autoModule = AXL_RC_NEW(rc::Box<AutoModule>);
-	m_module.attach(autoModule->p(), autoModule.getRefCount());
-	autoModule.detach();
-}
-
-void
-CodeAssistThread::request(
-	const QString& fileName,
-	CodeAssistKind kind,
-	int position,
-	const QString& source
-) {
-	QByteArray fileNameUtf8 = fileName.toUtf8();
-	QByteArray sourceUtf8 = source.toUtf8();
-	size_t offset = source.left(position).toUtf8().count();
-
-	request(
-		sl::StringRef(fileNameUtf8.data(), fileNameUtf8.size()),
-		kind,
-		offset,
-		sl::StringRef(sourceUtf8.data(), sourceUtf8.size())
-	);
-}
-
-void
-CodeAssistThread::request(
-	const sl::StringRef& fileName,
-	CodeAssistKind kind,
-	size_t offset,
-	const sl::StringRef& source
-) {
-	m_fileName = fileName;
-	m_codeAssistKind = kind;
-	m_offset = offset;
-	m_source = source;
-
-	start();
-}
-
-void
-CodeAssistThread::cancel() {
-	m_module->cancelCodeAssist();
+	CodeAssistThreadBase(parent) {
+	rc::Ptr<AutoModule> module = AXL_RC_NEW(rc::Box<AutoModule>);
+	m_module.attach(module->p(), module.getRefCount());
+	module.detach();
 }
 
 void

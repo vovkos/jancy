@@ -27,12 +27,12 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_EditTheme.h
 	${JANCY_ROOT_DIR}/include/jnc_EditBase.h
 	${JANCY_ROOT_DIR}/include/jnc_Edit.h
-	${JANCY_ROOT_DIR}/include/jnc_CodeAssist.h
 	${JANCY_ROOT_DIR}/include/jnc_CursorUtils.h
 	jnc_Highlighter.h
 	jnc_EditBase_p.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
+	jnc_CodeAssistThreadBase.h
 	jnc_CodeAssistThread.h
 	jnc_CodeTip.h
 )
@@ -44,6 +44,7 @@ set(
 	jnc_Edit_p.cpp
 	jnc_LineNumberMargin.cpp
 	jnc_Highlighter.cpp
+	jnc_CodeAssistThreadBase.cpp
 	jnc_CodeAssistThread.cpp
 	jnc_CodeTip.cpp
 	jnc_CursorUtils.cpp
@@ -99,6 +100,7 @@ set(
 	jnc_EditBase_p.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
+	jnc_CodeAssistThreadBase.h
 	jnc_CodeAssistThread.h
 	jnc_CodeTip.h
 )

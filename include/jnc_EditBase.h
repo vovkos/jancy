@@ -16,9 +16,10 @@
 
 namespace jnc {
 
+class EditBasePrivate;
 class LineNumberMargin;
 class HighlighterBase;
-class EditBasePrivate;
+class CodeAssistThreadBase;
 
 //..............................................................................
 
@@ -26,6 +27,7 @@ class JNC_EDIT_EXPORT EditBase: public QPlainTextEdit {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(EditBase)
 	Q_DISABLE_COPY(EditBase)
+
 	Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 	Q_PROPERTY(bool isReadOnly READ isReadOnly WRITE setReadOnly)
 	Q_PROPERTY(bool isLineNumberMarginEnabled READ isLineNumberMarginEnabled WRITE enableLineNumberMargin)
@@ -34,8 +36,32 @@ class JNC_EDIT_EXPORT EditBase: public QPlainTextEdit {
 	Q_PROPERTY(bool isSyntaxHighlightingEnabled READ isSyntaxHighlightingEnabled WRITE enableSyntaxHighlighting)
 	Q_PROPERTY(bool isTabsToSpacesEnabled READ isTabsToSpacesEnabled WRITE enableTabsToSpaces)
 	Q_PROPERTY(int tabWidth READ tabWidth WRITE setTabWidth)
+	Q_PROPERTY(CodeAssistTriggers codeAssistTriggers READ codeAssistTriggers WRITE setCodeAssistTriggers)
+	Q_PROPERTY(QStringList importDirList READ importDirList WRITE setImportDirList)
+	Q_PROPERTY(QStringList importList READ importList WRITE setImportList)
+	Q_PROPERTY(QString extraSource READ extraSource WRITE setExtraSource)
 
 	friend class LineNumberMargin;
+
+public:
+	enum CodeAssistTrigger {
+		QuickInfoTipOnMouseOverIdentifier      = 0x0001,
+		QuickInfoTipOnCursorOverIdentifier     = 0x0002,
+		ArgumentTipOnCtrlShiftSpace            = 0x0004,
+		ArgumentTipOnTypeLeftParenthesis       = 0x0008,
+		ArgumentTipOnTypeComma                 = 0x0010,
+		ArgumentTipOnMouseOverLeftParenthesis  = 0x0020,
+		ArgumentTipOnCursorOverLeftParenthesis = 0x0040,
+		ArgumentTipOnMouseOverComma            = 0x0080,
+		ArgumentTipOnCursorOverComma           = 0x0100,
+		AutoCompleteOnCtrlSpace                = 0x0200,
+		AutoCompleteOnTypeDot                  = 0x0400,
+		AutoCompleteOnTypeIdentifier           = 0x0800,
+		ImportAutoCompleteOnTypeQuotationMark  = 0x1000,
+		GotoDefinitionOnCtrlClick              = 0x2000,
+	};
+
+	Q_DECLARE_FLAGS(CodeAssistTriggers, CodeAssistTrigger)
 
 protected:
 	EditBase(
@@ -65,6 +91,14 @@ public:
 	void setTabWidth(int width);
 	const EditTheme* theme();
 	void setTheme(const EditTheme* theme);
+	CodeAssistTriggers codeAssistTriggers();
+	void setCodeAssistTriggers(CodeAssistTriggers triggers);
+	QStringList importDirList();
+	void setImportDirList(const QStringList& dirList);
+	QStringList importList();
+	void setImportList(const QStringList& importList);
+	QString extraSource();
+	void setExtraSource(const QString& source);
 
 	// selection/highlighth operations
 
@@ -82,9 +116,25 @@ public:
 public slots:
 	void indentSelection();
 	void unindentSelection();
+	void quickInfoTip();
+	void argumentTip();
+	void autoComplete();
+	void gotoDefinition();
 
 protected:
-	virtual HighlighterBase* createSyntaxHighlighter() = 0; // define in subclass
+	// code assist utils
+
+	void
+	addFile(
+		QStandardItemModel* model,
+		const QString& fileName
+	);
+
+protected:
+	// overridables
+
+	virtual HighlighterBase* createSyntaxHighlighter() = 0;
+	virtual CodeAssistThreadBase* createCodeAssistThread() = 0;
 
 	virtual void autoIndent(
 		QTextCursor* cursor,
@@ -92,14 +142,24 @@ protected:
 		const QString& tailWord
 	);
 
+	virtual void activateCompleter(const QModelIndex& index);
+	virtual void showCodeAssist(CodeAssistThreadBase* thread) = 0;
+	virtual void hideCodeAssist();
+
 	virtual void changeEvent(QEvent* e);
 	virtual void resizeEvent(QResizeEvent* e);
+	virtual void mousePressEvent(QMouseEvent* e);
+	virtual void mouseMoveEvent(QMouseEvent* e);
+	virtual void enterEvent(QEvent* e);
 	virtual void keyPressEvent(QKeyEvent* e);
+	virtual void keyPressPrintChar(QKeyEvent* e);
 
 protected:
 	QScopedPointer<EditBasePrivate> d_ptr;
 };
 
 //..............................................................................
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(EditBase::CodeAssistTriggers)
 
 } // namespace jnc

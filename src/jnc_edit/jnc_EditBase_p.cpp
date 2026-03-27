@@ -16,6 +16,7 @@
 #include "jnc_LineNumberMargin.h"
 #include "jnc_HighlighterBase.h"
 #include "jnc_CursorUtils.h"
+#include "jnc_CodeAssistThreadBase.h"
 
 namespace jnc {
 
@@ -170,6 +171,26 @@ EditBase::EditBase(
 
 EditBase::~EditBase() {}
 
+QString
+EditBase::fileName() {
+	Q_D(EditBase);
+	return d->m_fileName;
+}
+
+void
+EditBase::setFileName(const QString& fileName) {
+	Q_D(EditBase);
+	d->m_fileName = fileName;
+}
+
+void
+EditBase::setReadOnly(bool isReadOnly) {
+	Q_D(EditBase);
+	QPlainTextEdit::setReadOnly(isReadOnly);
+	d->applyPalette();
+	d->updateExtraSelections();
+}
+
 bool
 EditBase::isLineNumberMarginEnabled() {
 	Q_D(EditBase);
@@ -252,16 +273,76 @@ EditBase::setTheme(const EditTheme* theme) {
 	viewport()->update();
 }
 
-QString
-EditBase::fileName() {
+EditBase::CodeAssistTriggers
+EditBase::codeAssistTriggers() {
 	Q_D(EditBase);
-	return d->m_fileName;
+	return d->m_codeAssistTriggers;
 }
 
 void
-EditBase::setFileName(const QString& fileName) {
+EditBase::setCodeAssistTriggers(CodeAssistTriggers triggers) {
 	Q_D(EditBase);
-	d->m_fileName = fileName;
+	d->m_codeAssistTriggers = triggers;
+}
+
+QStringList
+EditBase::importDirList() {
+	Q_D(EditBase);
+	return d->m_importDirList;
+}
+
+void
+EditBase::setImportDirList(const QStringList& dirList) {
+	Q_D(EditBase);
+	d->m_importDirList = dirList;
+}
+
+QStringList
+EditBase::importList() {
+	Q_D(EditBase);
+	return d->m_importList;
+}
+
+void
+EditBase::setImportList(const QStringList& importList) {
+	Q_D(EditBase);
+	d->m_importList = importList;
+}
+
+QString
+EditBase::extraSource() {
+	Q_D(EditBase);
+	return d->m_extraSource;
+}
+
+void
+EditBase::setExtraSource(const QString& source) {
+	Q_D(EditBase);
+	d->m_extraSource = source;
+}
+
+void
+EditBase::quickInfoTip() {
+	Q_D(EditBase);
+	d->requestCodeAssist(0, CodeAssistKind_QuickInfoTip);
+}
+
+void
+EditBase::argumentTip() {
+	Q_D(EditBase);
+	d->requestCodeAssist(0, CodeAssistKind_ArgumentTip);
+}
+
+void
+EditBase::autoComplete() {
+	Q_D(EditBase);
+	d->requestCodeAssist(0, CodeAssistKind_AutoComplete);
+}
+
+void
+EditBase::gotoDefinition() {
+	Q_D(EditBase);
+	d->requestCodeAssist(0, CodeAssistKind_GotoDefinition);
 }
 
 void
@@ -308,11 +389,18 @@ EditBase::unindentSelection() {
 }
 
 void
-EditBase::setReadOnly(bool isReadOnly) {
+EditBase::addFile(
+	QStandardItemModel* model,
+	const QString& fileName
+) {
 	Q_D(EditBase);
-	QPlainTextEdit::setReadOnly(isReadOnly);
-	d->applyPalette();
-	d->updateExtraSelections();
+
+	QStandardItem* qtItem = new QStandardItem;
+	qtItem->setText(fileName);
+	qtItem->setData(fileName.toLower(), EditBasePrivate::Role_CaseInsensitiveSort);
+	qtItem->setIcon(d->m_fileIconProvider.icon(QFileIconProvider::File));
+
+	model->appendRow(qtItem);
 }
 
 void
@@ -323,6 +411,12 @@ EditBase::autoIndent(
 ) {
 	cursor->insertText(QChar('\n'));
 	cursor->insertText(baseIndent);
+}
+
+void
+EditBase::hideCodeAssist() {
+	Q_D(EditBase);
+	d->hideCodeAssist();
 }
 
 void
@@ -363,34 +457,195 @@ EditBase::keyPressEvent(QKeyEvent* e) {
 	QString text = e->text();
 	QChar ch = text.isEmpty() ? QChar() : text.at(0);
 
-	switch (key) {
-	case Qt::Key_Enter:
-	case Qt::Key_Return:
-		d->keyPressEnter(e);
+	if (!d->isCompleterVisible())
+		switch (key) {
+		case Qt::Key_Escape:
+			d->hideCodeAssist();
+			QPlainTextEdit::keyPressEvent(e);
+			break;
+
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+			d->keyPressEnter(e);
+			break;
+
+		case Qt::Key_Tab:
+			d->keyPressTab(e);
+			break;
+
+		case Qt::Key_Backtab:
+			d->keyPressBacktab(e);
+			break;
+
+		case Qt::Key_Backspace:
+			d->keyPressBackspace(e);
+			break;
+
+		case Qt::Key_Home:
+			d->keyPressHome(e);
+			break;
+
+		case Qt::Key_Up:
+		case Qt::Key_Down:
+			if (!d->isCodeTipVisible() || !d->m_codeTip->isFunctionTypeOverload())
+				QPlainTextEdit::keyPressEvent(e);
+			else if (key == Qt::Key_Up)
+				d->m_codeTip->prevFunctionTypeOverload();
+			else
+				d->m_codeTip->nextFunctionTypeOverload();
+
+			break;
+
+		case Qt::Key_Space:
+			if (e->modifiers() & QT_CONTROL_MODIFIER) {
+				d->keyPressControlSpace(e);
+				break;
+			}
+
+			// fall through
+
+		default:
+			if (ch.isPrint())
+				keyPressPrintChar(e);
+			else
+				QPlainTextEdit::keyPressEvent(e);
+		}
+	else
+		switch (key) {
+		case Qt::Key_Escape:
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+		case Qt::Key_Tab:
+		case Qt::Key_Backtab:
+		case Qt::Key_Up:
+		case Qt::Key_Down:
+			e->ignore(); // let the completer do the default processing
+			break;
+
+		case Qt::Key_Space:
+			if (e->modifiers() & QT_CONTROL_MODIFIER) {
+				d->keyPressControlSpace(e);
+				break;
+			}
+
+			// fall through
+
+		default:
+			if (!ch.isPrint() || ch.isLetterOrNumber() || ch == '_') {
+				QPlainTextEdit::keyPressEvent(e);
+				break;
+			}
+
+			d->applyCompleter();
+			keyPressEvent(e); // re-run
+		}
+}
+
+void
+EditBase::keyPressPrintChar(QKeyEvent* e) {
+	Q_D(EditBase);
+
+	QString text = e->text();
+	QChar ch = text.isEmpty() ? QChar() : text.at(0);
+	int c = ch.toLatin1();
+
+	QTextCursor cursor = textCursor();
+
+	switch (c) {
+	case ')':
+	case ']':
+	case '}':
+		if (cursor.hasSelection() || getCursorNextChar(cursor) != c || hasCursorHighlightColor(cursor)) {
+			QPlainTextEdit::keyPressEvent(e);
+			break;
+		}
+
+		cursor.movePosition(QTextCursor::NextCharacter);
+		setTextCursor(cursor);
 		break;
 
-	case Qt::Key_Tab:
-		d->keyPressTab(e);
-		break;
+	case '(':
+	case '[':
+	case '{':
+		QPlainTextEdit::keyPressEvent(e);
 
-	case Qt::Key_Backtab:
-		d->keyPressBacktab(e);
-		break;
+		if (hasCursorHighlightColor(cursor))
+			break;
 
-	case Qt::Key_Backspace:
-		d->keyPressBackspace(e);
-		break;
+		if (isBraceAutoComplete(getCursorNextChar(cursor))) {
+			cursor = textCursor();
+			cursor.insertText(getRightBrace(c));
+			cursor.movePosition(QTextCursor::PreviousCharacter);
+			setTextCursor(cursor);
+		}
 
-	case Qt::Key_Home:
-		d->keyPressHome(e);
 		break;
 
 	default:
-		if (ch.isPrint())
-			d->keyPressPrintChar(e);
-		else
-			QPlainTextEdit::keyPressEvent(e);
+		QPlainTextEdit::keyPressEvent(e);
 	}
+}
+
+void
+EditBase::mousePressEvent(QMouseEvent* e) {
+	Q_D(EditBase);
+
+	// check for triggers first
+
+	QPlainTextEdit::mousePressEvent(e);
+}
+
+void
+EditBase::mouseMoveEvent(QMouseEvent* e) {
+	Q_D(EditBase);
+
+	QPlainTextEdit::mouseMoveEvent(e);
+
+	if (!d->isCompleterVisible() &&
+		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier))
+		d->requestQuickInfoTip(EditBasePrivate::CodeAssistDelay_QuickInfoTip, e->pos());
+}
+
+void
+EditBase::enterEvent(QEvent* e) {
+	Q_D(EditBase);
+
+	QPlainTextEdit::enterEvent(e);
+
+	if (!d->isCompleterVisible() &&
+		d->m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip &&
+		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)) {
+		QPoint pos = mapFromGlobal(QCursor::pos());
+		d->requestQuickInfoTip(EditBasePrivate::CodeAssistDelay_QuickInfoTip, pos);
+	}
+}
+
+void
+EditBase::activateCompleter(const QModelIndex& index) {
+	Q_D(EditBase);
+
+	QTextCursor cursor = textCursor();
+
+	QModelIndex nameIndex = index.sibling(index.row(), EditBasePrivate::Column_Name); // user could have clicked on synopsis
+	QString completion = d->m_completer->popup()->model()->data(nameIndex, Qt::DisplayRole).toString();
+	int basePosition = d->getLastCodeAssistPosition();
+
+	if (d->m_lastCodeAssistKind == CodeAssistKind_ImportAutoComplete) {
+		QString quotedCompletion = '"' + completion + '"';
+		cursor.setPosition(basePosition);
+		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+		cursor.insertText(quotedCompletion);
+	} else {
+		cursor.setPosition(basePosition);
+
+		QChar c = getCursorNextChar(cursor);
+		if (c.isLetterOrNumber() || c == '_')
+			cursor.select(QTextCursor::WordUnderCursor);
+
+		cursor.insertText(completion);
+	}
+
+	setTextCursor(cursor);
 }
 
 //..............................................................................
@@ -404,6 +659,44 @@ EditBasePrivate::EditBasePrivate() {
 	m_isExtraSelectionUpdateRequired = false;
 	m_isTabsToSpacesEnabled = false;
 	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
+	m_thread = NULL;
+	m_codeTip = NULL;
+	m_completer = NULL;
+	m_lastCodeAssistKind = CodeAssistKind_Undefined;
+	m_lastCodeAssistOffset = -1;
+	m_lastCodeAssistPosition = -1;
+	m_pendingCodeAssistKind = CodeAssistKind_Undefined;
+	m_pendingCodeAssistPosition = -1;
+
+	m_codeAssistTriggers =
+		EditBase::QuickInfoTipOnMouseOverIdentifier |
+		EditBase::ArgumentTipOnCtrlShiftSpace |
+		EditBase::ArgumentTipOnTypeLeftParenthesis |
+		EditBase::ArgumentTipOnTypeComma |
+		EditBase::AutoCompleteOnCtrlSpace |
+		EditBase::AutoCompleteOnTypeDot |
+		EditBase::AutoCompleteOnTypeIdentifier |
+		EditBase::ImportAutoCompleteOnTypeQuotationMark |
+		EditBase::GotoDefinitionOnCtrlClick;
+
+	static const size_t iconIdxTable[] = {
+		0,  // Icon_Object
+		1,  // Icon_Namespace
+		2,  // Icon_Event
+		4,  // Icon_Function
+		6,  // Icon_Property
+		7,  // Icon_Variable
+		12, // Icon_Field
+		11, // Icon_Const
+		10, // Icon_Type
+		9,  // Icon_Typedef
+	};
+
+	QPixmap imageList(":/Images/ObjectIcons");
+	int iconSize = imageList.height();
+
+	for (size_t i = 0; i < countof(m_iconTable); i++)
+		m_iconTable[i] = imageList.copy(iconIdxTable[i] * iconSize, 0, iconSize, iconSize);
 }
 
 void
@@ -867,48 +1160,27 @@ EditBasePrivate::keyPressBackspace(QKeyEvent* e) {
 }
 
 void
-EditBasePrivate::keyPressPrintChar(QKeyEvent* e) {
+EditBasePrivate::keyPressControlSpace(QKeyEvent* e) {
 	Q_Q(EditBase);
 
-	QString text = e->text();
-	QChar ch = text.isEmpty() ? QChar() : text.at(0);
-	int c = ch.toLatin1();
-
-	QTextCursor cursor = q->textCursor();
-
-	switch (c) {
-	case ')':
-	case ']':
-	case '}':
-		if (cursor.hasSelection() || getCursorNextChar(cursor) != c || hasCursorHighlightColor(cursor)) {
-			q->QPlainTextEdit::keyPressEvent(e);
-			break;
-		}
-
-		cursor.movePosition(QTextCursor::NextCharacter);
-		q->setTextCursor(cursor);
-		break;
-
-	case '(':
-	case '[':
-	case '{':
-		q->QPlainTextEdit::keyPressEvent(e);
-
-		if (hasCursorHighlightColor(cursor))
-			break;
-
-		if (isBraceAutoComplete(getCursorNextChar(cursor))) {
-			cursor = q->textCursor();
-			cursor.insertText(getRightBrace(c));
-			cursor.movePosition(QTextCursor::PreviousCharacter);
-			q->setTextCursor(cursor);
-		}
-
-		break;
-
-	default:
-		q->QPlainTextEdit::keyPressEvent(e);
+	if (e->modifiers() & Qt::ShiftModifier) {
+		if (m_codeAssistTriggers & EditBase::ArgumentTipOnCtrlShiftSpace)
+			requestCodeAssist(0, CodeAssistKind_ArgumentTip);
+	} else {
+		if (m_codeAssistTriggers & EditBase::AutoCompleteOnCtrlSpace)
+			requestCodeAssist(0, CodeAssistKind_AutoComplete);
 	}
+}
+
+void
+EditBasePrivate::timerEvent(QTimerEvent* e) {
+	Q_Q(EditBase);
+
+	if (e->timerId() != m_codeAssistTimer.timerId())
+		return;
+
+	m_codeAssistTimer.stop();
+	startCodeAssistThread(m_pendingCodeAssistKind, m_pendingCodeAssistPosition);
 }
 
 void
@@ -990,7 +1262,268 @@ EditBasePrivate::matchBraces() {
 }
 
 void
+EditBasePrivate::requestCodeAssist(
+	int delay,
+	CodeAssistKind kind
+) {
+	Q_Q(EditBase);
+
+	QTextCursor cursor = q->textCursor();
+	requestCodeAssist(delay, kind, cursor.position());
+}
+
+void
+EditBasePrivate::requestCodeAssist(
+	int delay,
+	CodeAssistKind kind,
+	int position
+) {
+	Q_Q(EditBase);
+
+	if (m_thread) {
+		m_thread->cancel();
+		m_thread = NULL;
+	}
+
+	if (!delay) {
+		m_codeAssistTimer.stop();
+		startCodeAssistThread(kind, position);
+	} else {
+		m_pendingCodeAssistKind = kind;
+		m_pendingCodeAssistPosition = position;
+		m_codeAssistTimer.start(delay, this);
+	}
+}
+
+void
+EditBasePrivate::requestQuickInfoTip(
+	int delay,
+	const QPoint& pos
+) {
+	Q_Q(EditBase);
+
+	QTextCursor cursor = q->cursorForPosition(pos);
+	requestCodeAssist(delay, CodeAssistKind_QuickInfoTip, cursor.position());
+}
+
+void
+EditBasePrivate::startCodeAssistThread(
+	CodeAssistKind kind,
+	int position
+) {
+	Q_Q(EditBase);
+
+	if (m_thread)
+		m_thread->cancel();
+
+	m_thread = q->createCodeAssistThread();
+	m_thread->m_importDirList = m_importDirList;
+	m_thread->m_importList = m_importList;
+
+	if (!m_extraSource.isEmpty()) {
+		QByteArray source = m_extraSource.toUtf8();
+		m_thread->m_extraSource = sl::String(source.constData(), source.length());
+	}
+
+	QObject::connect(
+		m_thread, SIGNAL(ready()),
+		this, SLOT(onCodeAssistThreadReady())
+	);
+
+	QObject::connect(
+		m_thread, SIGNAL(finished()),
+		this, SLOT(onCodeAssistThreadFinished())
+	);
+
+	m_thread->request(
+		!m_fileName.isEmpty() ? m_fileName : QStringLiteral("untitled-source"),
+		kind,
+		position,
+		q->toPlainText()
+	);
+}
+
+void
+EditBasePrivate::ensureCodeTip() {
+	if (m_codeTip)
+		return;
+
+	Q_Q(EditBase);
+
+	m_codeTip = new CodeTip(q, &m_theme);
+	m_codeTip->setFont(q->font());
+}
+
+void
+EditBasePrivate::ensureCompleter() {
+	if (m_completer)
+		return;
+
+	Q_Q(EditBase);
+
+	QTreeView* popup = new QTreeView;
+	CompleterItemDelegate* itemDelegate = new CompleterItemDelegate(popup, &m_theme);
+	popup->setHeaderHidden(true);
+	popup->setRootIsDecorated(false);
+	popup->setSelectionBehavior(QAbstractItemView::SelectRows);
+	popup->setFont(q->font());
+	popup->setPalette(m_theme.completerPalette());
+
+	popup->setItemDelegateForColumn(Column_Name, itemDelegate);
+	popup->setItemDelegateForColumn(Column_Synopsis, itemDelegate);
+
+	m_completer = new QCompleter(q);
+	m_completer->setWidget(q);
+	m_completer->setCompletionMode(QCompleter::PopupCompletion);
+	m_completer->setMaxVisibleItems(Limit_MaxVisibleItemCount);
+	m_completer->setPopup(popup);
+
+	QObject::connect(
+		m_completer, SIGNAL(activated(const QModelIndex&)),
+		this, SLOT(onCompleterActivated(const QModelIndex&))
+	);
+}
+
+void
+EditBasePrivate::updateCompleter(bool isForced) {
+	ASSERT(m_completer);
+
+	Q_Q(EditBase);
+
+	QTextCursor cursor = q->textCursor();
+	int position = cursor.position();
+	int anchorPosition = getLastCodeAssistPosition();
+	if (position < anchorPosition) {
+		hideCodeAssist();
+		return;
+	}
+
+	cursor.setPosition(position, QTextCursor::MoveAnchor);
+	cursor.setPosition(anchorPosition, QTextCursor::KeepAnchor);
+	QString prefix = cursor.selectedText();
+
+	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoComplete)
+		prefix.remove(0, 1); // opening quotation mark
+
+	if (!isForced && prefix == m_completer->completionPrefix())
+		return;
+
+	QAbstractItemView* popup = (QTreeView*)m_completer->popup();
+	QTreeView* treeView = (QTreeView*)popup;
+	m_completer->setCompletionPrefix(prefix);
+	popup->setCurrentIndex(m_completer->model()->index(0, 0));
+
+	QMargins margins = treeView->contentsMargins();
+	int marginWidth = margins.left() + margins.right();
+	int scrollWidth = popup->verticalScrollBar()->sizeHint().width();
+	int nameWidth = popup->sizeHintForColumn(Column_Name);
+	int synopsisWidth = popup->sizeHintForColumn(Column_Synopsis);
+
+	if (nameWidth > Limit_MaxNameWidth)
+		nameWidth = Limit_MaxNameWidth;
+
+	if (synopsisWidth > Limit_MaxSynopsisWidth)
+		synopsisWidth = Limit_MaxSynopsisWidth;
+
+	treeView->setColumnWidth(Column_Name, nameWidth);
+	treeView->setColumnWidth(Column_Synopsis, synopsisWidth);
+
+	int fullWidth = nameWidth + synopsisWidth + scrollWidth + marginWidth;
+	m_completerRect.setWidth(fullWidth);
+	m_completer->complete(m_completerRect);
+}
+
+void
+EditBasePrivate::applyCompleter() {
+	Q_Q(EditBase);
+
+	ASSERT(m_completer);
+
+	QModelIndex index = m_completer->popup()->currentIndex();
+	if (index.isValid())
+		onCompleterActivated(index);
+
+	hideCodeAssist();
+}
+
+QTextCursor
+EditBasePrivate::getLastCodeAssistCursor() {
+	Q_Q(EditBase);
+
+	int position = getLastCodeAssistPosition();
+	QTextCursor cursor = q->textCursor();
+	cursor.setPosition(position);
+	return cursor;
+}
+
+QRect
+EditBasePrivate::getLastCodeAssistCursorRect() {
+	Q_Q(EditBase);
+
+	QTextCursor cursor = getLastCodeAssistCursor();
+	QRect rect = q->cursorRect(cursor);
+
+#if (QT_VERSION >= 0x050500)
+	rect.translate(q->viewportMargins().left(), q->viewportMargins().top());
+#else
+	rect.translate(m_lineNumberMargin ? m_lineNumberMargin->width() : 0, 0);
+#endif
+
+	return rect;
+}
+
+int
+EditBasePrivate::calcLastCodeAssistPosition() {
+	ASSERT(m_lastCodeAssistKind && m_lastCodeAssistPosition == -1);
+
+	QTextCursor cursor = getCursorFromOffset(m_lastCodeAssistOffset);
+	m_lastCodeAssistPosition = cursor.position();
+	return m_lastCodeAssistPosition;
+}
+
+QPoint
+EditBasePrivate::getLastCodeTipPoint(bool isBelowCurrentCursor) {
+	Q_Q(EditBase);
+
+	QRect rect = getLastCodeAssistCursorRect();
+
+	if (isBelowCurrentCursor)
+		rect.moveTop(q->cursorRect().top());
+
+	return q->mapToGlobal(rect.bottomLeft());
+}
+
+void
+EditBasePrivate::hideCodeAssist() {
+	if (m_completer)
+		m_completer->popup()->hide();
+
+	if (m_codeTip)
+		m_codeTip->close();
+
+	m_lastCodeAssistKind = CodeAssistKind_Undefined;
+	m_lastCodeAssistPosition = -1;
+	m_thread = NULL;
+}
+
+void
 EditBasePrivate::onCursorPositionChanged() {
+	switch (m_lastCodeAssistKind) {
+	case CodeAssistKind_QuickInfoTip:
+		hideCodeAssist();
+		break;
+
+	case CodeAssistKind_ArgumentTip:
+		requestCodeAssist(CodeAssistDelay_ArgumentTipPos, CodeAssistKind_ArgumentTip);
+		break;
+
+	case CodeAssistKind_AutoComplete:
+	case CodeAssistKind_ImportAutoComplete:
+		if (isCompleterVisible())
+			updateCompleter();
+		break;
+	}
+
 	if (m_isCurrentLineHighlightingEnabled)
 		highlightCurrentLine();
 
@@ -1003,6 +1536,54 @@ EditBasePrivate::onCursorPositionChanged() {
 
 	if (m_isExtraSelectionUpdateRequired)
 		updateExtraSelections();
+}
+
+void
+EditBasePrivate::onCompleterActivated(const QModelIndex& index) {
+	Q_Q(EditBase);
+	q->activateCompleter(index);
+}
+
+void
+EditBasePrivate::onCodeAssistThreadReady() {
+	Q_Q(EditBase);
+
+	CodeAssistThreadBase* thread = qobject_cast<CodeAssistThreadBase*>(sender());
+	ASSERT(thread);
+
+	if (thread == m_thread)
+		q->showCodeAssist(thread);
+}
+
+void
+EditBasePrivate::onCodeAssistThreadFinished() {
+	CodeAssistThreadBase* thread = qobject_cast<CodeAssistThreadBase*>(sender());
+	ASSERT(thread);
+
+	if (thread == m_thread)
+		m_thread = NULL;
+
+	thread->deleteLater();
+}
+
+//..............................................................................
+
+void
+CompleterItemDelegate::paint(
+	QPainter* painter,
+	const QStyleOptionViewItem& option,
+	const QModelIndex& index
+) const {
+	if (index.column() != EditBasePrivate::Column_Synopsis) {
+		QStyledItemDelegate::paint(painter, option, index);
+		return;
+	}
+
+	QColor color = m_theme->color(EditTheme::CompleterSynopsisColumn);
+	QStyleOptionViewItem altOption = option;
+	altOption.palette.setColor(QPalette::Text, color);
+	altOption.palette.setColor(QPalette::WindowText, color);
+	QStyledItemDelegate::paint(painter, altOption, index);
 }
 
 //..............................................................................

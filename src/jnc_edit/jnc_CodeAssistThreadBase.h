@@ -11,47 +11,64 @@
 
 #pragma once
 
-#include "jnc_CodeAssistThreadBase.h"
-
 namespace jnc {
 
 //..............................................................................
 
-class CodeAssistThread: public CodeAssistThreadBase {
+class CodeAssistThreadBase: public QThread {
 	Q_OBJECT
 
 protected:
-	rc::Ptr<Module> m_module;
+	sl::String m_fileName;
+	sl::String m_source;
+	CodeAssistKind m_codeAssistKind;
+	size_t m_offset;
 
 public:
-	CodeAssistThread(QObject* parent = NULL);
+	QStringList m_importDirList;
+	QStringList m_importList;
+	sl::String m_extraSource;
 
-	~CodeAssistThread() {
+public:
+	CodeAssistThreadBase(QObject* parent = NULL);
+
+	~CodeAssistThreadBase() {
 		wait();
 	}
 
-	const rc::Ptr<Module>&
-	getModule() {
-		return m_module;
+	CodeAssistKind
+	getCodeAssistKind() {
+		return m_codeAssistKind;
 	}
+
+	void
+	request(
+		const QString& fileName,
+		CodeAssistKind kind,
+		int position,
+		const QString& source
+	);
+
+	void
+	request(
+		const sl::StringRef& fileName,
+		CodeAssistKind kind,
+		size_t offset,
+		const sl::StringRef& source
+	);
 
 	virtual
 	void
-	cancel() {
-		m_module->cancelCodeAssist();
-	}
+	cancel() = 0;
 
 protected:
 	virtual
 	void
-	run();
+	run() = 0;
 
-	static
-	bool_t
-	compileErrorHandler(
-		void* context,
-		jnc::ModuleCompileErrorKind errorKind
-	);
+signals:
+	void error(const lex::LineCol& lineCol, size_t length);
+	void ready();
 };
 
 //..............................................................................

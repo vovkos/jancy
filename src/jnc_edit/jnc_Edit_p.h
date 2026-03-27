@@ -13,9 +13,6 @@
 
 #include "jnc_Edit.h"
 #include "jnc_EditBase_p.h"
-#include "jnc_Highlighter.h"
-#include "jnc_CodeTip.h"
-#include "jnc_CodeAssistThread.h"
 
 namespace jnc {
 
@@ -27,130 +24,20 @@ class EditPrivate: public EditBasePrivate {
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(Edit)
 
-public:
-	enum Column {
-		Column_Name     = 0,
-		Column_Synopsis = 1,
-	};
-
-	enum Limit {
-		Limit_MaxVisibleItemCount = 16,
-		Limit_MaxNameWidth        = 256,
-		Limit_MaxSynopsisWidth    = 512,
-	};
-
 protected:
 	enum Role {
-		Role_CaseInsensitiveSort = Qt::UserRole + 1,
-		Role_ModuleItem,
-	};
-
-	enum Icon {
-		Icon_Object = 0,
-		Icon_Namespace,
-		Icon_Event,
-		Icon_Function,
-		Icon_Property,
-		Icon_Variable,
-		Icon_Field,
-		Icon_Const,
-		Icon_Type,
-		Icon_Typedef,
-		Icon__Count,
-	};
-
-	enum CodeAssistDelay {
-		CodeAssistDelay_None               = 0,
-		CodeAssistDelay_AutoComplete       = 100,
-		CodeAssistDelay_ArgumentTipInitial = 100,
-		CodeAssistDelay_ArgumentTipComma   = 250,
-		CodeAssistDelay_ArgumentTipPos     = 250,
-		CodeAssistDelay_QuickInfoTip       = 250,
+		Role_ModuleItem = Role_CaseInsensitiveSort + 1
 	};
 
 protected:
-	Edit::CodeAssistTriggers m_codeAssistTriggers;
-	QStringList m_importDirList;
-	QStringList m_importList;
-	QString m_extraSource;
-	CodeAssistThread* m_thread;
 	rc::Ptr<Module> m_lastCodeAssistModule;
-	CodeAssistKind m_lastCodeAssistKind;
-	size_t m_lastCodeAssistOffset;
-	int m_lastCodeAssistPosition;
-	CodeAssistKind m_pendingCodeAssistKind;
-	int m_pendingCodeAssistPosition;
-	CodeTip* m_codeTip;
-	QCompleter* m_completer;
-	QRect m_completerRect;
-	QIcon m_iconTable[Icon__Count];
-	QBasicTimer m_codeAssistTimer;
-	QFileIconProvider m_fileIconProvider;
 
 protected:
-	EditPrivate();
-
 	void
-	init();
-
-	void
-	requestCodeAssist(
-		int delay,
-		CodeAssistKind kind
+	createCodeAssist(
+		const rc::Ptr<Module>& module,
+		CodeAssist* codeAssist
 	);
-
-	void
-	requestCodeAssist(
-		int delay,
-		CodeAssistKind kind,
-		const QTextCursor& cursor
-	) {
-		requestCodeAssist(delay, kind, cursor.position());
-	}
-
-	void
-	requestCodeAssist(
-		int delay,
-		CodeAssistKind kind,
-		int position
-	);
-
-	void
-	requestQuickInfoTip(
-		int delay,
-		const QPoint& pos
-	);
-
-	void
-	startCodeAssistThread(
-		CodeAssistKind kind,
-		int position
-	);
-
-	void
-	hideCodeAssist();
-
-	void
-	ensureCodeTip();
-
-	bool
-	isCompleterVisible() {
-		return m_completer && m_completer->popup()->isVisible();
-	}
-
-	bool
-	isCodeTipVisible() {
-		return m_codeTip && m_codeTip->isVisible();
-	}
-
-	void
-	ensureCompleter();
-
-	void
-	applyCompleter();
-
-	void
-	updateCompleter(bool isForced = false);
 
 	void
 	createQuickInfoTip(ModuleItem* item);
@@ -182,74 +69,11 @@ protected:
 		Namespace* nspace
 	);
 
-	void
-	addFile(
-		QStandardItemModel* model,
-		const QString& fileName
-	);
-
 	size_t
 	getItemIconIdx(ModuleItem* item);
 
-	QTextCursor
-	getLastCodeAssistCursor();
-
-	QRect
-	getLastCodeAssistCursorRect();
-
-	int
-	getLastCodeAssistPosition() {
-		return m_lastCodeAssistPosition != -1 ? m_lastCodeAssistPosition : calcLastCodeAssistPosition();
-	}
-
-	int
-	calcLastCodeAssistPosition();
-
-	QPoint
-	getLastCodeTipPoint(bool isBelowCurrentCursor = false);
-
 	Function*
 	getPrototypeFunction(const QModelIndex& index);
-
-	void
-	keyPressControlSpace(QKeyEvent* e);
-
-	void
-	keyPressPrintChar(QKeyEvent* e);
-
-	virtual
-	void
-	timerEvent(QTimerEvent* e);
-
-private slots:
-	void onCursorPositionChanged();
-	void onCompleterActivated(const QModelIndex& index);
-	void onCodeAssistReady();
-	void onThreadFinished();
-};
-
-//..............................................................................
-
-class CompleterItemDelegate: public QStyledItemDelegate {
-protected:
-	const EditTheme* m_theme;
-
-public:
-	CompleterItemDelegate(
-		QObject* parent,
-		const EditTheme* theme
-	):
-		QStyledItemDelegate(parent) {
-		m_theme = theme;
-	}
-
-	virtual
-	void
-	paint(
-		QPainter* painter,
-		const QStyleOptionViewItem& option0,
-		const QModelIndex& index
-	) const;
 };
 
 //..............................................................................
