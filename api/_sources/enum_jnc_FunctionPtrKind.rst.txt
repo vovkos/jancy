@@ -1,0 +1,20 @@
+.. index:: pair: enum; jnc_FunctionPtrKind
+.. _doxid-group__function-type_1ga7d19e1db7dc3f24a147137ac09d3992d:
+
+enum jnc_FunctionPtrKind
+========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_FunctionType.h>
+
+	enum jnc_FunctionPtrKind {
+	    :target:`jnc_FunctionPtrKind_Normal<doxid-group__function-type_1gga7d19e1db7dc3f24a147137ac09d3992daa489ed859835243595d2fdcadd6a9b7e>` = 0x000000,
+	    :target:`jnc_FunctionPtrKind_Weak<doxid-group__function-type_1gga7d19e1db7dc3f24a147137ac09d3992daaea34ba8dad6357242df3f6600eba55f>`   = 0x100000,
+	    :target:`jnc_FunctionPtrKind_Thin<doxid-group__function-type_1gga7d19e1db7dc3f24a147137ac09d3992daeff92d0df32061ef8e8a2b5251761877>`   = 0x200000,
+	    :target:`jnc_FunctionPtrKind__Count<doxid-group__function-type_1gga7d19e1db7dc3f24a147137ac09d3992dad4a6e681ebb2134aee436ce0d8ab19cc>` = 3,
+	};
+

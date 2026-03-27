@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multicasts and Events &mdash; Jancy Language Manual</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reactive Programming" href="reactive.html" />
+    <link rel="prev" title="Property Pointers" href="type_ptr_property.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Language Manual
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="language.html">Jancy Language</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_primitive.html">Primitive Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_simple.html">Simple Declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_advanced.html">Advanced Declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_curly.html">Curly Initializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_storage.html">Storage Specifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="literals.html">Literals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aliases.html">Aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="function_redirection.html">Function Redirection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cflow.html">Control Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prop.html">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nspace.html">Namespaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_named.html">Named Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_ptr.html">Pointer Types</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Multicasts and Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactive.html">Reactive Programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_switches.html">Regex Switches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schedulers.html">Schedulers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_structs.html">Dynamic Structs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dual_modifiers.html">Dual Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Exception Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disposable.html">Deterministic Resource Release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c_compatibility.html">Compatibility with C</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Language Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="language.html">Jancy Language</a></li>
+      <li class="breadcrumb-item active">Multicasts and Events</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multicasts-and-events">
+<h1>Multicasts and Events</h1>
+<p>Multicasts are compiler-generated classes capable of accumulating function pointers and then calling them all at once. The main (but not the only) application of multicasts is the implementation of a publisher-subscriber pattern.</p>
+<p>A multicast stores function pointers, so a multicast declaration looks similar to a function pointer declaration (and just like a function pointer it can be thin, fat, or weak).</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">multicast</span> <span class="n">m</span><span class="p">(</span><span class="k">int</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>A multicast class provides the following methods (this is for the multicast from the above example):</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">void</span> <span class="n">clear</span><span class="p">();</span>
+<span class="k">intptr</span> <span class="n">setup</span><span class="p">(</span><span class="k">function</span><span class="o">*</span> <span class="p">(</span><span class="k">int</span><span class="p">));</span> <span class="c1">// returns cookie</span>
+<span class="k">intptr</span> <span class="n">add</span><span class="p">(</span><span class="k">function</span><span class="o">*</span> <span class="p">(</span><span class="k">int</span><span class="p">));</span>   <span class="c1">// returns cookie</span>
+<span class="k">function</span><span class="o">*</span> <span class="n">remove</span><span class="p">(</span><span class="k">intptr</span> <span class="n">cookie</span><span class="p">);</span>
+<span class="k">function</span><span class="o">*</span> <span class="n">getSnapshot</span><span class="p">();</span>
+<span class="k">void</span> <span class="n">call</span><span class="p">(</span><span class="k">int</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The set() and add() methods return a cookie which can later be used to efficiently remove the function pointer from the multicast.</p>
+<p>Some of these methods have operator aliases:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">multicast</span> <span class="n">m</span><span class="p">();</span>
+<span class="n">m</span><span class="p">.</span><span class="n">setup</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>     <span class="c1">// same as: m = foo;</span>
+<span class="n">m</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bar</span><span class="p">);</span>       <span class="c1">// same as: m += bar;</span>
+<span class="n">m</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cookie</span><span class="p">);</span> <span class="c1">// same as: m -= cookie;</span>
+<span class="n">clear</span><span class="p">();</span>          <span class="c1">// same as: m = null;</span>
+</pre></div>
+</div>
+<p>The following example demonstrates some of the basic operations on multicasts:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">void</span> <span class="n">foo</span><span class="p">(</span><span class="k">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">bar</span><span class="p">(</span>
+    <span class="k">int</span> <span class="n">x</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">y</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">baz</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">multicast</span> <span class="n">m</span><span class="p">(</span><span class="k">int</span><span class="p">);</span>
+    <span class="k">intptr</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span> <span class="c1">// same as: m += foo;</span>
+
+    <span class="n">m</span> <span class="o">+=</span> <span class="n">bar</span><span class="o">~</span><span class="p">(,</span> <span class="mi">200</span><span class="p">);</span> <span class="c1">// add a pointer with partial application</span>
+    <span class="n">m</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span> <span class="c1">// =&gt; foo(100); bar(100, 200);</span>
+
+    <span class="n">m</span> <span class="o">-=</span> <span class="n">fooCookie</span><span class="p">;</span>
+    <span class="n">m</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span> <span class="c1">// =&gt; bar(100, 200);</span>
+    <span class="n">m</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span> <span class="c1">// same as: m = null;</span>
+
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Events are special pointers to multicasts. They restrict access to multicast methods <code class="docutils literal notranslate"><span class="pre">call</span></code>, <code class="docutils literal notranslate"><span class="pre">setup</span></code>, and <code class="docutils literal notranslate"><span class="pre">clear</span></code>.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">void</span> <span class="n">foo</span><span class="p">(</span><span class="k">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">bar</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">multicast</span> <span class="n">m</span><span class="p">(</span><span class="k">int</span><span class="p">);</span>
+
+    <span class="k">event</span><span class="o">*</span> <span class="n">p</span><span class="p">(</span><span class="k">int</span><span class="p">)</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span>
+    <span class="n">p</span> <span class="o">+=</span> <span class="n">foo</span><span class="p">;</span> <span class="c1">// ok</span>
+    <span class="n">p</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>  <span class="c1">// error: &#39;call&#39; is not accessible</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>  <span class="c1">// error: &#39;clear&#39; is not accessible</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Declaring a variable or a field with the event type yields a dual access policy. Friends of the namespace have multicast access to it, aliens have event access only. Read more about the dual access control model here.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">bool</span> <span class="n">work</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+
+        <span class="n">m_onComplete</span><span class="p">();</span> <span class="c1">// ok, friends have multicast access to m_onComplete</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">event</span> <span class="n">m_onComplete</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">bar</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">C1</span> <span class="n">c</span><span class="p">;</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">m_onComplete</span> <span class="o">+=</span> <span class="n">foo</span><span class="p">;</span> <span class="c1">// ok, aliens have event access to m_onComplete</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">work</span><span class="p">();</span>
+
+    <span class="n">c</span><span class="p">.</span><span class="n">m_onComplete</span><span class="p">();</span> <span class="c1">// error: &#39;call&#39; is not accessible</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Converting from a multicast to a function pointer is inherently ambiguous: should the resulting pointer be <strong>live</strong> or <strong>snapshot</strong>? In other words, if after creating a function pointer we modify the multicast, should this function pointer see the changes made to the multicast or not?</p>
+<p>To deal with this ambiguity, Jancy multicast classes provide the getSnapshot () method. Casting a multicast to a function pointer implicitly yields a <strong>live</strong> pointer, while the getSnapshot () method returns a snapshot.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">bar</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">baz</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">multicast</span> <span class="n">m</span><span class="p">()</span> <span class="o">=</span> <span class="n">foo</span><span class="p">;</span>
+
+    <span class="k">function</span><span class="o">*</span> <span class="n">f1</span><span class="p">(</span><span class="k">int</span><span class="p">)</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span>               <span class="c1">// live</span>
+    <span class="k">function</span><span class="o">*</span> <span class="n">f2</span><span class="p">(</span><span class="k">int</span><span class="p">)</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">getSnapshot</span><span class="p">();</span> <span class="c1">// obviously, a snapshot</span>
+
+    <span class="c1">// modify multicast</span>
+
+    <span class="n">m</span> <span class="o">+=</span> <span class="n">bar</span><span class="p">;</span>
+
+    <span class="n">f1</span><span class="p">();</span> <span class="c1">// =&gt; foo(); bar();</span>
+    <span class="n">f2</span><span class="p">();</span> <span class="c1">// =&gt; foo();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="type_ptr_property.html" class="btn btn-neutral float-left" title="Property Pointers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reactive.html" class="btn btn-neutral float-right" title="Reactive Programming" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

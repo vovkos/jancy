@@ -1,0 +1,28 @@
+.. include:: def.rst
+.. index:: pair: enum; RegValueType
+.. _doxid-typesys_regvaluetype:
+
+enum sys.RegValueType
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum RegValueType {
+	    :target:`None<doxid-enum_membersys_regvaluetype_none>`                     = 0,
+	    :target:`Sz<doxid-enum_membersys_regvaluetype_sz>`                       = 1,
+	    :target:`ExpandSz<doxid-enum_membersys_regvaluetype_expandsz>`                 = 2,
+	    :target:`Binary<doxid-enum_membersys_regvaluetype_binary>`                   = 3,
+	    :target:`Dword<doxid-enum_membersys_regvaluetype_dword>`                    = 4,
+	    :target:`DwordBigEndian<doxid-enum_membersys_regvaluetype_dwordbigendian>`           = 5,
+	    :target:`Link<doxid-enum_membersys_regvaluetype_link>`                     = 6,
+	    :target:`MultiSz<doxid-enum_membersys_regvaluetype_multisz>`                  = 7,
+	    :target:`ResourceList<doxid-enum_membersys_regvaluetype_resourcelist>`             = 8,
+	    :target:`FullResourceDescriptor<doxid-enum_membersys_regvaluetype_fullresourcedescriptor>`   = 9,
+	    :target:`ResourceRequirementsList<doxid-enum_membersys_regvaluetype_resourcerequirementslist>` = 10,
+	    :target:`Qword<doxid-enum_membersys_regvaluetype_qword>`                    = 11,
+	};
+

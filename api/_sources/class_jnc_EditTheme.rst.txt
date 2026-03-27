@@ -1,0 +1,59 @@
+.. index:: pair: class; jnc::EditTheme
+.. _doxid-classjnc_1_1_edit_theme:
+
+class jnc::EditTheme
+====================
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_EditTheme_Init.rst
+	enum_jnc_EditTheme_Role.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	class EditTheme {
+	public:
+		// enums
+	
+		enum :ref:`Init<doxid-classjnc_1_1_edit_theme_1ab6cbdd87e04b0ea717072fa4ece97f82>`;
+		enum :ref:`Role<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70b>`;
+
+		// construction
+	
+		:target:`EditTheme<doxid-classjnc_1_1_edit_theme_1a6bf368898302a5f913385de424c6ae91>`(Init init = InitLight);
+
+		// methods
+	
+		bool
+		:target:`isDark<doxid-classjnc_1_1_edit_theme_1a09e2020ee4a291e001bace6a280d4212>`() const;
+	
+		QColor
+		:target:`color<doxid-classjnc_1_1_edit_theme_1a747b6f5b5966ae0a65f43915f76392a7>`(Role role) const;
+	
+		void
+		:target:`setColor<doxid-classjnc_1_1_edit_theme_1a44cd6f00235daec52807b67f6c15c73a>`(
+			Role role,
+			const QColor& color
+		);
+	
+		const QPalette&
+		:target:`palette<doxid-classjnc_1_1_edit_theme_1ae31886a4ec2b720ba24f0465c2ed6229>`() const;
+	
+		const QPalette&
+		:target:`completerPalette<doxid-classjnc_1_1_edit_theme_1aec846972604b2eaa8bc598520d082a45>`() const;
+	
+		const QPalette&
+		:target:`readOnlyPalette<doxid-classjnc_1_1_edit_theme_1a70135f04ff936c110abbf4acc9f9b4c8>`() const;
+	
+		void
+		:target:`setDefaultLightTheme<doxid-classjnc_1_1_edit_theme_1a3e9105761cbac978b0bdded1ce71e63f>`();
+	
+		void
+		:target:`setDefaultDarkTheme<doxid-classjnc_1_1_edit_theme_1a1e929e696d60c1f9bd1f2b63883061a5>`();
+	};

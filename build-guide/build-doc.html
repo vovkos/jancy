@@ -1,0 +1,186 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building Documentation &mdash; Jancy Build Guide</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/axl-pygments.css?v=e88e5af2" />
+      <link rel="stylesheet" type="text/css" href="_static/axl-sphinx_rtd_theme.css?v=2cffecd5" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Samples" href="samples.html" />
+    <link rel="prev" title="Building on Unix" href="build-unix.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Build Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="build.html">Building</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build-windows.html">Building on Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-unix.html">Building on Unix</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Building Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">Samples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Build Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="build.html">Building</a></li>
+      <li class="breadcrumb-item active">Building Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="building-documentation">
+<h1>Building Documentation</h1>
+<p>Jancy contains four documentation packages:</p>
+<ul class="simple">
+<li><p>Build guide</p></li>
+<li><p>Language manual</p></li>
+<li><p>Standard library reference</p></li>
+<li><p>API reference</p></li>
+</ul>
+<p><p>If you have required <a class="reference internal" href="prerequisites-tools.html#optional-tools"><span class="std std-ref">prerequisites</span></a> for building documentation, CMake should have created all the necessary shell scripts under: <code class="docutils literal notranslate"><span class="pre">./build/jancy/doc/&lt;doc-package&gt;</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">sphinx-build</span></code> is always needed; <code class="docutils literal notranslate"><span class="pre">pdflatex</span></code> is also needed to build PDF.</p>
+<p>Resulting HTML pages will be placed at: <code class="docutils literal notranslate"><span class="pre">./build/jancy/doc/&lt;doc-package&gt;/html</span></code></p>
+<p>Resulting PDF will be placed at: <code class="docutils literal notranslate"><span class="pre">./build/jancy/doc/&lt;doc-package&gt;/pdf</span></code></p>
+</p>
+<section id="build-guide">
+<h2>Build Guide</h2>
+<p><p>This is what you are reading right now.</p>
+<p>Documentation sources located at: <code class="docutils literal notranslate"><span class="pre">./doc/build-guide</span></code></p>
+<p>Build steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>./build/jancy/doc/build-guide
+./build-html
+./build-pdf
+</pre></div>
+</div>
+</p>
+</section>
+<section id="language-manual">
+<h2>Language Manual</h2>
+<p>A book on specific features of Jancy language.</p>
+<p>Documentation sources are located at: <code class="docutils literal notranslate"><span class="pre">./doc/language</span></code></p>
+<p>Build steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>./build/jancy/doc/language
+./build-html
+./build-pdf
+</pre></div>
+</div>
+</section>
+<section id="standard-library-reference">
+<h2>Standard Library Reference</h2>
+<p>A reference on Jancy standard library.</p>
+<p>Documentation sources are located at: <code class="docutils literal notranslate"><span class="pre">./doc/stdlib</span></code></p>
+<p>Before building stdlib documentation you need to build Jancy first – <code class="docutils literal notranslate"><span class="pre">jancy</span></code> compiler is required to analyze stdlib sources and extract documentation comments.</p>
+<p><code class="docutils literal notranslate"><span class="pre">doxyrest</span></code> is also needed to convert Doxygen XML database to Re-Structured Text (which will be further passed to <code class="docutils literal notranslate"><span class="pre">sphinx-build</span></code>).</p>
+<p>Once <code class="docutils literal notranslate"><span class="pre">jancy</span></code> and <code class="docutils literal notranslate"><span class="pre">doxyrest</span></code> are ready, you can run the scripts (replace <code class="docutils literal notranslate"><span class="pre">Debug</span></code> with <code class="docutils literal notranslate"><span class="pre">Release</span></code> if you have built <code class="docutils literal notranslate"><span class="pre">jancy</span></code> and <code class="docutils literal notranslate"><span class="pre">doxyrest</span></code> under <code class="docutils literal notranslate"><span class="pre">Release</span></code> configuration).</p>
+<p>Build steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>./build/jancy/doc/language
+./build-xml<span class="w"> </span>Debug<span class="w"> </span><span class="c1"># replace with Release if jancy was built for Release</span>
+./build-rst<span class="w"> </span>Debug<span class="w"> </span><span class="c1"># replace with Release if doxyrest was built for Release</span>
+./build-html
+./build-pdf
+</pre></div>
+</div>
+</section>
+<section id="api-reference">
+<h2>API Reference</h2>
+<p>A reference on Jancy API for C/C++. This is the documentation for those who want to write static or dynamic extension libraries or plan to embed Jancy into their C/C++ applications as a scripting engine.</p>
+<p><p>Documentation source files are located at: <code class="docutils literal notranslate"><span class="pre">./doc/api</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">doxygen</span></code> is additionally needed to analyze API headers and extract documentation comments.</p>
+<p><code class="docutils literal notranslate"><span class="pre">doxyrest</span></code> is also needed to convert Doxygen XML database to reStructured Text (which will be further passed to <code class="docutils literal notranslate"><span class="pre">sphinx-build</span></code>).</p>
+<p>Once <code class="docutils literal notranslate"><span class="pre">doxygen</span></code> and <code class="docutils literal notranslate"><span class="pre">doxyrest</span></code> are ready, you can run the scripts (replace <code class="docutils literal notranslate"><span class="pre">Debug</span></code> with <code class="docutils literal notranslate"><span class="pre">Release</span></code> if you have built <code class="docutils literal notranslate"><span class="pre">doxyrest</span></code> under <code class="docutils literal notranslate"><span class="pre">Release</span></code> configuration).</p>
+<p>Build steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>./build/jancy/doc/api
+./build-xml
+./build-rst<span class="w"> </span>Debug<span class="w"> </span><span class="c1"># replace with Release if doxyrest was built for Release</span>
+./build-html
+./build-pdf
+</pre></div>
+</div>
+</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="build-unix.html" class="btn btn-neutral float-left" title="Building on Unix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="samples.html" class="btn btn-neutral float-right" title="Samples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

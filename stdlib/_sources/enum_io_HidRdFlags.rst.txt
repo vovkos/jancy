@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdFlags
+.. _doxid-typeio_hidrdflags:
+
+bitflag enum io.HidRdFlags
+==========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum HidRdFlags {
+	    :target:`HasReportId<doxid-enum_memberio_hidrdflags_hasreportid>`,
+	};
+

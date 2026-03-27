@@ -1,0 +1,28 @@
+.. index:: pair: struct; jnc_DerivableTypeFuncTable
+.. _doxid-structjnc___derivable_type_func_table:
+
+struct jnc_DerivableTypeFuncTable
+=================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_DerivableTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___derivable_type_func_table_1a9517c55ea83b4204829d5ea6f27d11c8>`;
+		jnc_DerivableType_GetMethodFunc* :target:`m_getStaticConstructorFunc<doxid-structjnc___derivable_type_func_table_1afc43fe0c611b45f5e08c786919ee084f>`;
+		jnc_DerivableType_GetOverloadableMethodFunc* :target:`m_getConstructorFunc<doxid-structjnc___derivable_type_func_table_1a2ba770bd8c34bad45fbae76677d3f479>`;
+		jnc_DerivableType_GetMethodFunc* :target:`m_getDestructorFunc<doxid-structjnc___derivable_type_func_table_1aa7ed3c3ca472c6402c8ae8ddedfa3d76>`;
+		jnc_DerivableType_GetUnaryOperatorFunc* :target:`m_getUnaryOperatorFunc<doxid-structjnc___derivable_type_func_table_1a0e0743f97f6ebacf62643c03bee6ae39>`;
+		jnc_DerivableType_GetBinaryOperatorFunc* :target:`m_getBinaryOperatorFunc<doxid-structjnc___derivable_type_func_table_1acbaf64e531224a5ccf46ecd6347fefbf>`;
+		jnc_DerivableType_GetOverloadableMethodFunc* :target:`m_getCallOperatorFunc<doxid-structjnc___derivable_type_func_table_1a2e27d446e7b1ad21d23a255db76b71dd>`;
+		jnc_DerivableType_FindCastOperatorFunc* :target:`m_findCastOperatorFunc<doxid-structjnc___derivable_type_func_table_1a904bba694905a1e225cd6678644be5b4>`;
+	};

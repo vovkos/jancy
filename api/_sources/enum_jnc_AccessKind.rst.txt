@@ -1,0 +1,20 @@
+.. index:: pair: enum; jnc_AccessKind
+.. _doxid-group__module-item-decl_1gae37cf1474eba0491668ea2a32453731b:
+
+enum jnc_AccessKind
+===================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ModuleItem.h>
+
+	enum jnc_AccessKind {
+	    :target:`jnc_AccessKind_Undefined<doxid-group__module-item-decl_1ggae37cf1474eba0491668ea2a32453731ba8a81c614845f9149130fde470d0d8071>` = 0,
+	    :target:`jnc_AccessKind_Public<doxid-group__module-item-decl_1ggae37cf1474eba0491668ea2a32453731ba862d773041c931937994259397165392>`,
+	    :target:`jnc_AccessKind_Protected<doxid-group__module-item-decl_1ggae37cf1474eba0491668ea2a32453731ba0b0cc97cb6a0febedcd8836a88c3f2fa>`,
+	    :target:`jnc_AccessKind__Count<doxid-group__module-item-decl_1ggae37cf1474eba0491668ea2a32453731ba17ba6cf2a2c2e2b23d1ca98afbf737dc>`,
+	};
+

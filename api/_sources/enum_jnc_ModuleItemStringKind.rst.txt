@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_ModuleItemStringKind
+.. _doxid-group__module-item_1ga12f62d821b2bc3a009cea679f73cb562:
+
+enum jnc_ModuleItemStringKind
+=============================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ModuleItem.h>
+
+	enum jnc_ModuleItemStringKind {
+	    :target:`jnc_ModuleItemStringKind_QualifiedName<doxid-group__module-item_1gga12f62d821b2bc3a009cea679f73cb562aeaa4bdc352b91358b2eb4f4377455c48>` = 0,
+	    :target:`jnc_ModuleItemStringKind_Synopsis<doxid-group__module-item_1gga12f62d821b2bc3a009cea679f73cb562a4afef0d785b13b565bb2a4f471167c9a>`,
+	    :target:`jnc_ModuleItemStringKind__Count<doxid-group__module-item_1gga12f62d821b2bc3a009cea679f73cb562abfa0f03b509f4a3bdb5009dbb955bd01>`,
+	};
+

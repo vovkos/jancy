@@ -1,0 +1,37 @@
+.. include:: def.rst
+.. index:: pair: enum; FunctionKind
+.. _doxid-typejnc_functionkind:
+
+enum jnc.FunctionKind
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum FunctionKind {
+	    :target:`Undefined<doxid-enum_memberjnc_functionkind_undefined>`           = 0,
+	    :target:`Normal<doxid-enum_memberjnc_functionkind_normal>`,
+	    :target:`Getter<doxid-enum_memberjnc_functionkind_getter>`,
+	    :target:`Setter<doxid-enum_memberjnc_functionkind_setter>`,
+	    :target:`Binder<doxid-enum_memberjnc_functionkind_binder>`,
+	    :target:`Constructor<doxid-enum_memberjnc_functionkind_constructor>`,
+	    :target:`Destructor<doxid-enum_memberjnc_functionkind_destructor>`,
+	    :target:`StaticConstructor<doxid-enum_memberjnc_functionkind_staticconstructor>`,
+	    :target:`StaticDestructor<doxid-enum_memberjnc_functionkind_staticdestructor>`,
+	    :target:`CallOperator<doxid-enum_memberjnc_functionkind_calloperator>`,
+	    :target:`CastOperator<doxid-enum_memberjnc_functionkind_castoperator>`,
+	    :target:`UnaryOperator<doxid-enum_memberjnc_functionkind_unaryoperator>`,
+	    :target:`BinaryOperator<doxid-enum_memberjnc_functionkind_binaryoperator>`,
+	    :target:`OperatorVararg<doxid-enum_memberjnc_functionkind_operatorvararg>`,
+	    :target:`OperatorCdeclVararg<doxid-enum_memberjnc_functionkind_operatorcdeclvararg>`,
+	    :target:`Internal<doxid-enum_memberjnc_functionkind_internal>`,
+	    :target:`Thunk<doxid-enum_memberjnc_functionkind_thunk>`,
+	    :target:`SchedLauncher<doxid-enum_memberjnc_functionkind_schedlauncher>`,
+	    :target:`AsyncSchedLauncher<doxid-enum_memberjnc_functionkind_asyncschedlauncher>`,
+	    :target:`AsyncSequencer<doxid-enum_memberjnc_functionkind_asyncsequencer>`,
+	    :target:`_Count<doxid-enum_memberjnc_functionkind__count>`,
+	};
+

@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>struct io.SerialPortDesc &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="class io.Serial" href="class_io_Serial.html" />
+    <link rel="prev" title="enum io.SerialStopBits" href="enum_io_SerialStopBits.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_io-file.html">Generic File IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-socket.html">Socket Communications</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_io-serial.html">Serial Communications</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialEvents.html">bitflag enum io.SerialEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialFlowControl.html">enum io.SerialFlowControl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialLineErrors.html">bitflag enum io.SerialLineErrors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialOptions.html">bitflag enum io.SerialOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialParity.html">enum io.SerialParity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialPortDescFlags.html">bitflag enum io.SerialPortDescFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialStatusLines.html">bitflag enum io.SerialStatusLines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialStopBits.html">enum io.SerialStopBits</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">struct io.SerialPortDesc</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_Serial.html">class io.Serial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_io-serial.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_io-serial.html#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-network-adapter.html">Network Adapter Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssl.html">SSL Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssh.html">SSH Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-websock.html">WebSockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-pcap.html">Pcap (Packet Capturing Library)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usb.html">USB Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usbmon.html">USB Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-hid.html">HID Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-devmon.html">Device Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_io.html">IO (Input/Output) Library</a></li>
+          <li class="breadcrumb-item"><a href="group_io-serial.html">Serial Communications</a></li>
+      <li class="breadcrumb-item active">struct io.SerialPortDesc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="struct-io-serialportdesc">
+<span id="doxid-typeio-serialportdesc"></span><span id="index-0"></span><h1>struct io.SerialPortDesc</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This struct holds information about the serial port device. <a class="reference internal" href="#details-typeio-serialportdesc"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">import</span> <span class="s">&quot;io_base.jncx&quot;</span>
+<span class="k">import</span> <span class="s">&quot;io_Serial.jnc&quot;</span>
+
+<span class="k">struct</span> <span class="n">SerialPortDesc</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <span class="n">io</span><span class="p">.</span><span class="n">SerialPortDesc</span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="#doxid-fieldio-serialportdesc-m-next"><span class="std std-ref">m_next</span></a><span></span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <a class="reference internal" href="#doxid-fieldio-serialportdesc-m-devicename"><span class="std std-ref">m_deviceName</span></a><span></span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <a class="reference internal" href="#doxid-fieldio-serialportdesc-m-description"><span class="std std-ref">m_description</span></a><span></span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <a class="reference internal" href="#doxid-fieldio-serialportdesc-m-manufacturer"><span class="std std-ref">m_manufacturer</span></a><span></span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <a class="reference internal" href="#doxid-fieldio-serialportdesc-m-hardwareids"><span class="std std-ref">m_hardwareIds</span></a><span></span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <a class="reference internal" href="#doxid-fieldio-serialportdesc-m-driver"><span class="std std-ref">m_driver</span></a><span></span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <a class="reference internal" href="#doxid-fieldio-serialportdesc-m-location"><span class="std std-ref">m_location</span></a><span></span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typeio-serialportdesc"></span><h2>Detailed Documentation</h2>
+<p>This struct holds information about the serial port device.</p>
+<p>A list of serial port descriptions is returned by
+<code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="group_io-serial.html#doxid-functionio-enumerateserialports-2"><span class="std std-ref"><span class="pre">io.enumerateSerialPorts</span></span></a></code>.</p>
+<p class="rubric">See also:</p>
+<p><code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="group_io-serial.html#doxid-functionio-enumerateserialports-2"><span class="std std-ref"><span class="pre">io.enumerateSerialPorts</span></span></a></code></p>
+<section id="fields">
+<h3>Fields</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serialportdesc-m-next"><span id="index-1"></span><span></span><span class="n">io</span><span class="p">.</span><span class="n">SerialPortDesc</span> <span class="k">const</span><span class="o">*</span> <span class="n">m_next</span></pre>
+<p>Holds a pointer to the next serial port description or <code class="docutils literal notranslate"><span class="pre">null</span></code> if this
+is the last adapter.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serialportdesc-m-devicename"><span id="index-2"></span><span></span><span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <span class="n">m_deviceName</span></pre>
+<p>Holds the serial port device name; use this name as <code class="docutils literal notranslate"><span class="pre">name</span></code> argument in
+<code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_Serial.html#doxid-functionio-serial-open"><span class="std std-ref"><span class="pre">io.Serial.open</span></span></a></code> method.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serialportdesc-m-description"><span id="index-3"></span><span></span><span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <span class="n">m_description</span></pre>
+<p>Holds a human-readable description of the serial port.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serialportdesc-m-manufacturer"><span id="index-4"></span><span></span><span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <span class="n">m_manufacturer</span></pre>
+<p>Holds the name of the manufacturer of this serial port.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serialportdesc-m-hardwareids"><span id="index-5"></span><span></span><span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <span class="n">m_hardwareIds</span></pre>
+<p>Holds hardware ID(s) of this serial port.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serialportdesc-m-driver"><span id="index-6"></span><span></span><span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <span class="n">m_driver</span></pre>
+<p>Holds information about the device driver for this serial port.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serialportdesc-m-location"><span id="index-7"></span><span></span><span class="k">typedef</span> <span class="n">String</span> <span class="n">string_t</span> <span class="n">m_location</span></pre>
+<p>Holds a string identifying the location of this serial port in the system device tree.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enum_io_SerialStopBits.html" class="btn btn-neutral float-left" title="enum io.SerialStopBits" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="class_io_Serial.html" class="btn btn-neutral float-right" title="class io.Serial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

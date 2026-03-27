@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.Unit
+.. _doxid-typejnc_unit:
+
+class jnc.Unit
+==============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class Unit {
+		// properties
+	
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_filePath<doxid-propertyjnc_unit_m_filepath>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_unit_construct>`(long p);
+	};

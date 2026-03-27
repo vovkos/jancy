@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_FunctionFlag
+.. _doxid-group__function_1ga9c7d9350e813468b9dc08c05b2934f8b:
+
+enum jnc_FunctionFlag
+=====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Function.h>
+
+	enum jnc_FunctionFlag {
+	    :target:`jnc_FunctionFlag_Compilable<doxid-group__function_1gga9c7d9350e813468b9dc08c05b2934f8bae293a3128308eb924e40a1619f75abc1>`     = 0x0100,
+	    :target:`jnc_FunctionFlag_CompilePending<doxid-group__function_1gga9c7d9350e813468b9dc08c05b2934f8bab9e9ae4bbb7213e18c02dfefe8e656ce>` = 0x0200,
+	    :target:`jnc_FunctionFlag_HasLandingPads<doxid-group__function_1gga9c7d9350e813468b9dc08c05b2934f8bac26365e80e1cc2eaddcc7c17c80691b0>` = 0x0400,
+	};
+

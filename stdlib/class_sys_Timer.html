@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class sys.Timer &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Thread Management" href="group_sys-thread.html" />
+    <link rel="prev" title="Time &amp; Timers" href="group_sys-time.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_sys.html">System Facilities</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="group_sys-time.html">Time &amp; Timers</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class sys.Timer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="group_sys-time.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_sys-time.html#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_sys-thread.html">Thread Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_sys-sync.html">Synchronization Facilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_sys-registry.html">Windows Registry Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_sys.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_sys.html#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_sys.html">System Facilities</a></li>
+          <li class="breadcrumb-item"><a href="group_sys-time.html">Time &amp; Timers</a></li>
+      <li class="breadcrumb-item active">class sys.Timer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-sys-timer">
+<span id="doxid-typesys-timer"></span><span id="index-0"></span><h1>class sys.Timer</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This class provides facilities to manage both peridodic(repetitive)
+and non-periodic(single-shot) timers. <a class="reference internal" href="#details-typesys-timer"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">import</span> <span class="s">&quot;sys_Timer.jnc&quot;</span>
+
+<span class="k">class</span> <span class="n">Timer</span> <span class="p">{</span>
+    <span class="c1">// construction</span>
+
+    <span class="doxyrest-code-target target" id="doxid-functionsys-timer-construct"><span></span><span class="k">construct</span></span><span></span><span class="p">();</span>
+    <span class="doxyrest-code-target target" id="doxid-functionsys-timer-destruct"><span></span><span class="k">destruct</span></span><span></span><span class="p">();</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionsys-timer-start"><span class="std std-ref">start</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="n">dueTime</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">interval</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionsys-timer-stop"><span class="std std-ref">stop</span></a><span></span><span class="p">();</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionsys-timer-startduetimer"><span class="std std-ref">startDueTimer</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="n">dueTime</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionsys-timer-startperiodictimer"><span class="std std-ref">startPeriodicTimer</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">interval</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionsys-timer-startsingleshottimer"><span class="std std-ref">startSingleShotTimer</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">delay</span>
+    <span class="p">);</span>
+
+    <span class="c1">// aliases</span>
+
+    <span class="k">alias</span> <a class="reference internal" href="#doxid-aliassys-timer-dispose"><span class="std std-ref">dispose</span></a><span></span> <span class="o">=</span> <span class="n">stop</span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typesys-timer"></span><h2>Detailed Documentation</h2>
+<p>This class provides facilities to manage both peridodic(repetitive)
+and non-periodic(single-shot) timers.</p>
+<p>Each instance of <code class="docutils literal notranslate"><span class="pre">sys.Timer</span></code> manages a single timer(either periodic, or
+single-shot). You start the timer with <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">startDueTimer</span></code>,
+<code class="docutils literal notranslate"><span class="pre">startSingleShotTimer</span></code>, <code class="docutils literal notranslate"><span class="pre">startPeriodicTimer</span></code> methods. When the timer is
+due, it will call the function you have supplied as an argument to one of
+aforementioned methods.</p>
+<p>To stop the timer, invoke <code class="docutils literal notranslate"><span class="pre">stop</span></code> method. For local timers it is
+recommended to use <em>disposable</em> pattern <a class="footnote-reference superscript" href="#f1" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Code sample:</p>
+<div class="highlight-jancy notranslate"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="s">&quot;sys_Timer.jnc&quot;</span>
+
+<span class="n">onTimer</span><span class="p">(</span><span class="k">int</span> <span class="n">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+
+    <span class="k">disposable</span> <span class="n">sys</span><span class="p">.</span><span class="n">Timer</span> <span class="n">timer</span><span class="p">;</span>
+    <span class="n">timer</span><span class="p">.</span><span class="n">startPeriodic</span><span class="p">(</span><span class="n">onTimer</span> <span class="o">~</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1000</span><span class="p">);</span>
+
+    <span class="c1">// ...</span>
+<span class="p">}</span> <span class="c1">// &lt;-- timer.stop will be called</span>
+</pre></div>
+</div>
+<p class="rubric">See also:</p>
+<p><code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="group_sys-time.html#doxid-functionsys-gettimestamp"><span class="std std-ref"><span class="pre">sys.getTimestamp</span></span></a></code></p>
+<section id="methods">
+<h3>Methods</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionsys-timer-start"><span id="index-1"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">start</span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="n">dueTime</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">interval</span>
+<span class="p">)</span></pre>
+<p>Starts a new peridodic or non-periodic timer.</p>
+<p>The function accepts three arguments. The first one, <code class="docutils literal notranslate"><span class="pre">timerFunc</span></code>
+specifies the function pointer to the timer function to be called when
+the timer is due. The second one, <code class="docutils literal notranslate"><span class="pre">dueTime</span></code>, specifies the <em>timestamp</em>
+of the moment when the timer function should be <em>first</em> called. The last
+one, <code class="docutils literal notranslate"><span class="pre">period</span></code>, specifies the period in milliseconds for a periodic
+timer, or <code class="docutils literal notranslate"><span class="pre">0</span></code> if this is a single-shot timer.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If the timer could not be started, error
+supplied by operating system is set and then the function returns
+<code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f2" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<p>If the timer has been already started, <code class="docutils literal notranslate"><span class="pre">start</span></code> method stops the
+previous timer first.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionsys-timer-stop"><span id="index-2"></span><span></span><span class="k">void</span> <span class="n">stop</span><span class="p">()</span></pre>
+<p>Stops a previously started timer, does nothing if the timer is not
+started. This function always succeeds.</p>
+<p>For local timers it is recommended to use <em>disposable</em> pattern <a class="footnote-reference superscript" href="#f1" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionsys-timer-startduetimer"><span id="index-3"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">startDueTimer</span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="n">dueTime</span>
+<span class="p">)</span></pre>
+<p>Starts a non-periodic due timer, i.e. you specify the <em>timestamp</em> of the
+moment when your function should be called.</p>
+<p>Technically calling startDueTimer is equivalent to calling <code class="docutils literal notranslate"><span class="pre">start</span></code>
+with the last <code class="docutils literal notranslate"><span class="pre">interval</span></code> argument set to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionsys-timer-startperiodictimer"><span id="index-4"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">startPeriodicTimer</span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">interval</span>
+<span class="p">)</span></pre>
+<p>Starts a periodic timer, i.e. the timer will invoke your function each
+<code class="docutils literal notranslate"><span class="pre">interval</span></code> milliseconds.</p>
+<p>This is probably the most common type of timer. Technically calling
+startDueTimer is equivalent to calling <code class="docutils literal notranslate"><span class="pre">start</span></code> with the <code class="docutils literal notranslate"><span class="pre">dueTime</span></code>
+argument calculated as <code class="docutils literal notranslate"><span class="pre">sys.getTimestamp()</span> <span class="pre">+</span> <span class="pre">interval</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionsys-timer-startsingleshottimer"><span id="index-5"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">startSingleShotTimer</span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">func</span><span class="p">(),</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">delay</span>
+<span class="p">)</span></pre>
+<p>Starts a single-shot non-periodic timer, i.e. you specify the delay in
+milliseconds after passing of which your function will be invoked.</p>
+<p>Technically calling startDueTimer is equivalent to calling <code class="docutils literal notranslate"><span class="pre">start</span></code>
+with the <code class="docutils literal notranslate"><span class="pre">dueTime</span></code> argument calculated as
+<code class="docutils literal notranslate"><span class="pre">sys.getTimestamp()</span> <span class="pre">+</span> <span class="pre">interval</span></code> and <code class="docutils literal notranslate"><span class="pre">interval</span></code> set to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</section>
+<section id="aliases">
+<h3>Aliases</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-aliassys-timer-dispose"><span id="index-6"></span><span></span><span class="k">alias</span> <span class="n">dispose</span> <span class="o">=</span> <span class="n">stop</span></pre>
+<p>Effectively makes <code class="docutils literal notranslate"><span class="pre">sys.Timer</span></code> a <em>disposable</em> class <a class="footnote-reference superscript" href="#f1" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<hr class="docutils" />
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list superscript">
+<aside class="footnote superscript" id="f1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>You can ensure timely release of resources by using <em>disposable</em> pattern. For more details refer to <a class="reference internal" href="disposable.html#disposable"><span class="std std-ref">‘disposable’ Variables</span></a>.</p>
+</aside>
+<aside class="footnote superscript" id="f2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>You can use exception semantics to handle the erroneous return values of <code class="docutils literal notranslate"><span class="pre">errorcode</span></code> functions. For more details refer to <a class="reference internal" href="errorcode.html#errorcode"><span class="std std-ref">‘errorcode’ Functions</span></a>.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="group_sys-time.html" class="btn btn-neutral float-left" title="Time &amp; Timers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="group_sys-thread.html" class="btn btn-neutral float-right" title="Thread Management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

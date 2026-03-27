@@ -1,0 +1,113 @@
+.. include:: def.rst
+.. index:: pair: enum; SshEvents
+.. _doxid-typeio_sshevents:
+
+bitflag enum io.SshEvents
+=========================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.SshChannel` object. The set of *active* events is accessible
+via `io.SshChannel.m_activeEvents`. :ref:`More...<details-typeio_sshevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SshEvents: :ref:`io.SocketEvents<doxid-typeio_socketevents>` {
+	    :ref:`SshHandshakeCompleted<doxid-enum_memberio_sshevents_sshhandshakecompleted>`,
+	    :ref:`SshAuthenticateError<doxid-enum_memberio_sshevents_sshauthenticateerror>`,
+	    :ref:`SshAuthenticateCompleted<doxid-enum_memberio_sshevents_sshauthenticatecompleted>`,
+	    :ref:`SshChannelOpened<doxid-enum_memberio_sshevents_sshchannelopened>`,
+	    :ref:`SshPtyRequestCompleted<doxid-enum_memberio_sshevents_sshptyrequestcompleted>`,
+	    :ref:`SshConnectCompleted<doxid-enum_memberio_sshevents_sshconnectcompleted>`,
+	};
+
+.. _details-typeio_sshevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.SshChannel` object. The set of *active* events is accessible
+via `io.SshChannel.m_activeEvents`.
+
+
+
+.. rubric:: See also:
+
+`io.SshChannel`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; SshHandshakeCompleted
+.. _doxid-enum_memberio_sshevents_sshhandshakecompleted:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	SshHandshakeCompleted
+
+``SSH`` handshake and protocol information exchange has been completed
+successfully; an authentication request has been set.
+
+.. index:: pair: enumvalue; SshAuthenticateError
+.. _doxid-enum_memberio_sshevents_sshauthenticateerror:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	SshAuthenticateError
+
+``SSH`` authentication has failed. You have a chance to re-authenticate:
+ask user for new credentials and then call `io.SshChannel.authenticate`.
+
+.. index:: pair: enumvalue; SshAuthenticateCompleted
+.. _doxid-enum_memberio_sshevents_sshauthenticatecompleted:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	SshAuthenticateCompleted
+
+``SSH`` authentication has been completed successfully; a request to
+open a channel has been sent.
+
+.. index:: pair: enumvalue; SshChannelOpened
+.. _doxid-enum_memberio_sshevents_sshchannelopened:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	SshChannelOpened
+
+``SSH`` channel to the server has been opened successfully; a request
+for a specific pseudo-terminal(such as ``xterm``) has been sent.
+
+.. index:: pair: enumvalue; SshPtyRequestCompleted
+.. _doxid-enum_memberio_sshevents_sshptyrequestcompleted:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	SshPtyRequestCompleted
+
+Request to the ``SSH`` server for a specific pseudo-terminal(such as
+``xterm``) has been completed successfully; request to start a remote
+process(such as ``shell``) has been sent.
+
+.. index:: pair: enumvalue; SshConnectCompleted
+.. _doxid-enum_memberio_sshevents_sshconnectcompleted:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	SshConnectCompleted
+
+A remote process(such as ``shell``) has been started; the full ``SSH``
+connect sequence has been completed successfully. ``SSH`` channel is
+ready to use.
+

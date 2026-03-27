@@ -1,0 +1,136 @@
+.. index:: pair: group; Derivable Type
+.. _doxid-group__derivable-type:
+
+Derivable Type
+==============
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_FieldFlag.rst
+	struct_jnc_DerivableType.rst
+
+Derivable type is the base type for structs, unions and classes.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_DerivableType.h>
+	
+	// enums
+
+	enum :ref:`jnc_FieldFlag<doxid-group__derivable-type_1ga950b07628a14a791df4e69d313bb0958>`;
+
+	// structs
+
+	struct :ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`;
+
+	// global functions
+
+	static
+	:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`*
+	:target:`jnc_BaseTypeSlot_getType<doxid-group__derivable-type_1gaa61a91b199bf8161e8343ed2385a5690>`(jnc_BaseTypeSlot* baseType);
+
+	size_t
+	:target:`jnc_BaseTypeSlot_getOffset<doxid-group__derivable-type_1ga45764a6d2f5cce3e295e9d02da061cf7>`(jnc_BaseTypeSlot* baseType);
+
+	size_t
+	:target:`jnc_BaseTypeSlot_getVtableIndex<doxid-group__derivable-type_1gaa0aaa0e799c16988d8ed60af8cf6630d>`(jnc_BaseTypeSlot* baseType);
+
+	:ref:`jnc_Type<doxid-structjnc___type>`*
+	:target:`jnc_Field_getType<doxid-group__derivable-type_1ga9489b245b6406bf7e169358eba2d0d1b>`(jnc_Field* field);
+
+	uint_t
+	:target:`jnc_Field_getBitOffset<doxid-group__derivable-type_1ga5b454c73f43688efea1d36cc5f802027>`(jnc_Field* field);
+
+	uint_t
+	:target:`jnc_Field_getBitCount<doxid-group__derivable-type_1ga35a42ba9b05fdc5adac4d748f66ee237>`(jnc_Field* field);
+
+	uint_t
+	:target:`jnc_Field_getPtrTypeFlags<doxid-group__derivable-type_1gacc86b3c03279e101d36f156f397bf841>`(jnc_Field* field);
+
+	size_t
+	:target:`jnc_Field_getOffset<doxid-group__derivable-type_1gae6b27376f31985b7aba3ce995029ee3b>`(jnc_Field* field);
+
+	:ref:`jnc_Function<doxid-structjnc___function>`*
+	:target:`jnc_DerivableType_getStaticConstructor<doxid-group__derivable-type_1ga29d688641ad5556c213088c230aa3f2d>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	:ref:`jnc_OverloadableFunction<doxid-unionjnc___overloadable_function>`
+	:target:`jnc_DerivableType_getConstructor<doxid-group__derivable-type_1gab1d14a5f26fcd3e310deb4c6c64b8da4>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	:ref:`jnc_Function<doxid-structjnc___function>`*
+	:target:`jnc_DerivableType_getDestructor<doxid-group__derivable-type_1gaf226eb2ffe774866667b82d811848f78>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	:ref:`jnc_OverloadableFunction<doxid-unionjnc___overloadable_function>`
+	:target:`jnc_DerivableType_getUnaryOperator<doxid-group__derivable-type_1ga174dfbe9d8eab133ca87866dcc8c7d9d>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		jnc_UnOpKind opKind
+	);
+
+	:ref:`jnc_OverloadableFunction<doxid-unionjnc___overloadable_function>`
+	:target:`jnc_DerivableType_getBinaryOperator<doxid-group__derivable-type_1ga5a08083c74daebba23d41213edb060b0>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		jnc_BinOpKind opKind
+	);
+
+	:ref:`jnc_OverloadableFunction<doxid-unionjnc___overloadable_function>`
+	:target:`jnc_DerivableType_getCallOperator<doxid-group__derivable-type_1gaa8971695fbc175bebdc46e2769af400b>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	:ref:`jnc_Function<doxid-structjnc___function>`*
+	:target:`jnc_DerivableType_findCastOperator<doxid-group__derivable-type_1ga2bb80af7a0f9d69f98086128f70b5518>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		:ref:`jnc_Type<doxid-structjnc___type>`* targetType
+	);
+
+	size_t
+	:target:`jnc_DerivableType_getBaseTypeCount<doxid-group__derivable-type_1gaf498aab4c9ebca37325beed0ddf817fe>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	jnc_BaseTypeSlot*
+	:target:`jnc_DerivableType_getBaseType<doxid-group__derivable-type_1gab0e9ac24c29ac20b65f1be8076826117>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		size_t index
+	);
+
+	size_t
+	:target:`jnc_DerivableType_findBaseTypeOffset<doxid-group__derivable-type_1gafc8167b01fc177329c1a94d2dacc3971>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		:ref:`jnc_Type<doxid-structjnc___type>`* baseType
+	);
+
+	size_t
+	:target:`jnc_DerivableType_getStaticVariableCount<doxid-group__derivable-type_1ga63ea940d06e6c107325734cd0118966c>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	:ref:`jnc_Variable<doxid-structjnc___variable>`*
+	:target:`jnc_DerivableType_getStaticVariable<doxid-group__derivable-type_1gaec776fa761bf3bcb70c79b5705a03fce>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		size_t index
+	);
+
+	size_t
+	:target:`jnc_DerivableType_getFieldCount<doxid-group__derivable-type_1ga49d5a89a9c7b6076092c357d67da70b1>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	jnc_Field*
+	:target:`jnc_DerivableType_getField<doxid-group__derivable-type_1gadef9a4914aa4d2ebbfa816a9703b8bc0>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		size_t index
+	);
+
+	size_t
+	:target:`jnc_DerivableType_getMethodCount<doxid-group__derivable-type_1gafd7da68981f4026d0d95002170d37066>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	:ref:`jnc_Function<doxid-structjnc___function>`*
+	:target:`jnc_DerivableType_getMethod<doxid-group__derivable-type_1ga2bd0008c79747a2682729d2462f3bb7e>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		size_t index
+	);
+
+	size_t
+	:target:`jnc_DerivableType_getPropertyCount<doxid-group__derivable-type_1ga8c26b9a49efb00d27313edface1a78fc>`(:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type);
+
+	:ref:`jnc_Property<doxid-structjnc___property>`*
+	:target:`jnc_DerivableType_getProperty<doxid-group__derivable-type_1gae3eef9802d95f5d93dda7bce48fc8d3d>`(
+		:ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`* type,
+		size_t index
+	);
+

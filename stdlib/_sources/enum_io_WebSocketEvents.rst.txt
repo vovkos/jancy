@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; WebSocketEvents
+.. _doxid-typeio_websocketevents:
+
+bitflag enum io.WebSocketEvents
+===============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum WebSocketEvents: :ref:`io.SslSocketEvents<doxid-typeio_sslsocketevents>` {
+	    :target:`WebSocketHandshakeRequested<doxid-enum_memberio_websocketevents_websockethandshakerequested>`,
+	    :target:`WebSocketHandshakeCompleted<doxid-enum_memberio_websocketevents_websockethandshakecompleted>`,
+	    :target:`WebSocketCloseRequested<doxid-enum_memberio_websocketevents_websocketcloserequested>`,
+	    :target:`WebSocketCloseCompleted<doxid-enum_memberio_websocketevents_websocketclosecompleted>`,
+	};
+

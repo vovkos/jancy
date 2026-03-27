@@ -1,0 +1,36 @@
+.. index:: pair: group; Template
+.. _doxid-group__template:
+
+Template
+========
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// global functions
+
+	:ref:`jnc_Type<doxid-structjnc___type>`*
+	:target:`jnc_TemplateArgType_getDefaultType<doxid-group__template_1ga707f4499d0fc3233bc3485b0ee158089>`(jnc_TemplateArgType* type);
+
+	jnc_TypeKind
+	:target:`jnc_Template_getDerivableTypeKind<doxid-group__template_1ga731f73d54be1ebc9289aea8e073db398>`(jnc_Template* templ);
+
+	:ref:`jnc_Type<doxid-structjnc___type>`*
+	:target:`jnc_Template_getDeclType<doxid-group__template_1gad2d9dade15b8ccb1d156c6b75d4403c9>`(jnc_Template* templ);
+
+	size_t
+	:target:`jnc_Template_getArgCount<doxid-group__template_1ga94346cac0fd4256872f45fa5490c7ea2>`(jnc_Template* templ);
+
+	jnc_TemplateArgType*
+	:target:`jnc_Template_getArg<doxid-group__template_1ga97d97f62f4ea96e4fa4ba56358c23345>`(
+		jnc_Template* templ,
+		size_t index
+	);
+

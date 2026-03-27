@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_ClassPtrTypeFuncTable
+.. _doxid-structjnc___class_ptr_type_func_table:
+
+struct jnc_ClassPtrTypeFuncTable
+================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ClassPtrTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___class_ptr_type_func_table_1a6b3559b6327e601a1ba92603103ffeee>`;
+		jnc_ClassPtrType_GetPtrKindFunc* :target:`m_getPtrKindFunc<doxid-structjnc___class_ptr_type_func_table_1a96d67387edc7d9a68fe91f6d9c95a370>`;
+		jnc_ClassPtrType_GetTargetTypeFunc* :target:`m_getTargetTypeFunc<doxid-structjnc___class_ptr_type_func_table_1a663943ecf637cce10d4863703ad4712b>`;
+	};

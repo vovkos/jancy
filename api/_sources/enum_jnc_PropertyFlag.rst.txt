@@ -1,0 +1,21 @@
+.. index:: pair: enum; jnc_PropertyFlag
+.. _doxid-group__property_1gad1c70cf3d3d86c79bf60c84d6d77f1be:
+
+enum jnc_PropertyFlag
+=====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Property.h>
+
+	enum jnc_PropertyFlag {
+	    :target:`jnc_PropertyFlag_Const<doxid-group__property_1ggad1c70cf3d3d86c79bf60c84d6d77f1bea225f9129a6c2a074056cd68c0795b61d>`     = 0x0100,
+	    :target:`jnc_PropertyFlag_Bindable<doxid-group__property_1ggad1c70cf3d3d86c79bf60c84d6d77f1beacbfc25af902390420da9971b1e6aaf9f>`  = 0x0200,
+	    :target:`jnc_PropertyFlag_AutoGet<doxid-group__property_1ggad1c70cf3d3d86c79bf60c84d6d77f1beab6ec66f9cb41c37e6586ef040c6aadb4>`   = 0x1000,
+	    :target:`jnc_PropertyFlag_AutoSet<doxid-group__property_1ggad1c70cf3d3d86c79bf60c84d6d77f1beae2bc74955cf9af2a1da25f7e999ca39b>`   = 0x2000,
+	    :target:`jnc_PropertyFlag_Finalized<doxid-group__property_1ggad1c70cf3d3d86c79bf60c84d6d77f1bea59a7218e6dfb53b6995dc99e15166191>` = 0x8000,
+	};
+

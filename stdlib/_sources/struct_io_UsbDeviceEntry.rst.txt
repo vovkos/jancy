@@ -1,0 +1,40 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbDeviceEntry
+.. _doxid-typeio_usbdeviceentry:
+
+struct io.UsbDeviceEntry
+========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbDeviceEntry: :ref:`io.UsbDeviceStrings<doxid-typeio_usbdevicestrings>` {
+		// fields
+	
+		io.UsbDeviceEntry const* :target:`m_next<doxid-fieldio_usbdeviceentry_m_next>`;
+		:ref:`io.UsbDevice<doxid-typeio_usbdevice>`* :target:`m_device<doxid-fieldio_usbdeviceentry_m_device>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef String string_t :ref:`m_description<doxid-fieldio_usbdevicestrings_m_description>`;
+		typedef String string_t :ref:`m_manufacturer<doxid-fieldio_usbdevicestrings_m_manufacturer>`;
+		typedef String string_t :ref:`m_driver<doxid-fieldio_usbdevicestrings_m_driver>`;
+		typedef String string_t :ref:`m_manufacturerDescriptor<doxid-fieldio_usbdevicestrings_m_manufacturerdescriptor>`;
+		typedef String string_t :ref:`m_productDescriptor<doxid-fieldio_usbdevicestrings_m_productdescriptor>`;
+		typedef String string_t :ref:`m_serialNumberDescriptor<doxid-fieldio_usbdevicestrings_m_serialnumberdescriptor>`;
+

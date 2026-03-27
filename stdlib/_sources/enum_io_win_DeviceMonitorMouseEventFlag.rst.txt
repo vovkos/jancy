@@ -1,0 +1,31 @@
+.. include:: def.rst
+.. index:: pair: enum; DeviceMonitorMouseEventFlag
+.. _doxid-typeio_win_devicemonitormouseeventflag:
+
+enum io.win.DeviceMonitorMouseEventFlag
+=======================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DeviceMonitorMouseEventFlag {
+	    :target:`DeviceMonitorMouseEventFlag_RelativeCoordinates<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_relativecoordinates>` = 0x0001,
+	    :target:`DeviceMonitorMouseEventFlag_AbsoluteCoordinates<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_absolutecoordinates>` = 0x0002,
+	    :target:`DeviceMonitorMouseEventFlag_VirtualDesktop<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_virtualdesktop>`      = 0x0004,
+	    :target:`DeviceMonitorMouseEventFlag_MoveNoCoalesce<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_movenocoalesce>`      = 0x0008,
+	    :target:`DeviceMonitorMouseEventFlag_LeftButtonDown<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_leftbuttondown>`      = 0x0010,
+	    :target:`DeviceMonitorMouseEventFlag_LeftButtonUp<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_leftbuttonup>`        = 0x0020,
+	    :target:`DeviceMonitorMouseEventFlag_RightButtonDown<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_rightbuttondown>`     = 0x0040,
+	    :target:`DeviceMonitorMouseEventFlag_RightButtonUp<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_rightbuttonup>`       = 0x0080,
+	    :target:`DeviceMonitorMouseEventFlag_MiddleButtonDown<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_middlebuttondown>`    = 0x0100,
+	    :target:`DeviceMonitorMouseEventFlag_MiddleButtonUp<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_middlebuttonup>`      = 0x0200,
+	    :target:`DeviceMonitorMouseEventFlag_Button4Down<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_button4down>`         = 0x0400,
+	    :target:`DeviceMonitorMouseEventFlag_Button4Up<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_button4up>`           = 0x0800,
+	    :target:`DeviceMonitorMouseEventFlag_Button5Down<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_button5down>`         = 0x1000,
+	    :target:`DeviceMonitorMouseEventFlag_Button5Up<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_button5up>`           = 0x2000,
+	    :target:`DeviceMonitorMouseEventFlag_Wheel<doxid-enum_memberio_win_devicemonitormouseeventflag_devicemonitormouseeventflag_wheel>`               = 0x4000,
+	};
+

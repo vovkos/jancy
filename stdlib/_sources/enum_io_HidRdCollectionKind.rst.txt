@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdCollectionKind
+.. _doxid-typeio_hidrdcollectionkind:
+
+enum io.HidRdCollectionKind
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum HidRdCollectionKind {
+	    :target:`Physical<doxid-enum_memberio_hidrdcollectionkind_physical>`      = 0x00,
+	    :target:`Application<doxid-enum_memberio_hidrdcollectionkind_application>`   = 0x01,
+	    :target:`Logical<doxid-enum_memberio_hidrdcollectionkind_logical>`       = 0x02,
+	    :target:`Report<doxid-enum_memberio_hidrdcollectionkind_report>`        = 0x03,
+	    :target:`NamedArray<doxid-enum_memberio_hidrdcollectionkind_namedarray>`    = 0x04,
+	    :target:`UsageSwitch<doxid-enum_memberio_hidrdcollectionkind_usageswitch>`   = 0x05,
+	    :target:`UsageModifier<doxid-enum_memberio_hidrdcollectionkind_usagemodifier>` = 0x06,
+	};
+

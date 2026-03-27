@@ -1,0 +1,93 @@
+.. index:: pair: namespace; jnc
+.. _doxid-namespacejnc:
+
+namespace jnc
+=============
+
+.. toctree::
+	:hidden:
+
+	class_jnc_Edit.rst
+	class_jnc_EditBase.rst
+	class_jnc_EditTheme.rst
+	class_jnc_HighlighterBase.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	namespace jnc {
+
+	// classes
+
+	class :ref:`Edit<doxid-classjnc_1_1_edit>`;
+	class :ref:`EditBase<doxid-classjnc_1_1_edit_base>`;
+	class :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`;
+	class :ref:`HighlighterBase<doxid-classjnc_1_1_highlighter_base>`;
+
+	// global functions
+
+	lex::LineCol
+	:target:`getCursorLineCol<doxid-jnc___cursor_utils_8h_1a2f8eff28f11c4dbd9eb9736d1fb513be>`(const QTextCursor& cursor0);
+
+	bool
+	:target:`isCursorMultiLineSelection<doxid-jnc___cursor_utils_8h_1a97d1302c85854442277246a141172b74>`(const QTextCursor& cursor0);
+
+	bool
+	:target:`isCursorAtStartOfLine<doxid-jnc___cursor_utils_8h_1ae0e4d0853fe4d415aa89a34e51949087>`(const QTextCursor& cursor0);
+
+	bool
+	:target:`isCursorAtEndOfLineIgnoreSpace<doxid-jnc___cursor_utils_8h_1afc4fe8134596b7bfe7af9569999b53e9>`(const QTextCursor& cursor0);
+
+	int
+	:target:`getCursorStartOfLinePosition<doxid-jnc___cursor_utils_8h_1a0760d01bfb4a6b9706ee0a2c5638498a>`(const QTextCursor& cursor0);
+
+	int
+	:target:`getCursorEndOfLinePosition<doxid-jnc___cursor_utils_8h_1adb5683dda6a07b58c624a723dc347f69>`(const QTextCursor& cursor0);
+
+	QString
+	:target:`getCursorLinePrefix<doxid-jnc___cursor_utils_8h_1a100fa24f852db6347a023eecba624bc4>`(const QTextCursor& cursor0);
+
+	QString
+	:target:`getCursorLineSuffix<doxid-jnc___cursor_utils_8h_1a40aa0040295dcddc80840555291ada2e>`(const QTextCursor& cursor0);
+
+	bool
+	:target:`isCursorLineEmpty<doxid-jnc___cursor_utils_8h_1a571ec7db54b39184a7e08015d18b716c>`(const QTextCursor& cursor0);
+
+	bool
+	:target:`isCursorNextLineEmpty<doxid-jnc___cursor_utils_8h_1a876ec35c26497496516aa3f3026c2bce>`(const QTextCursor& cursor0);
+
+	QString
+	:target:`getCursorPrevWord<doxid-jnc___cursor_utils_8h_1adb8ed8d3eb400f06b858007a5cce325c>`(const QTextCursor& cursor0);
+
+	QChar
+	:target:`getCursorPrevChar<doxid-jnc___cursor_utils_8h_1acee8e8d7c61dc43779c80bf5e28667f1>`(const QTextCursor& cursor0);
+
+	QChar
+	:target:`getCursorNextChar<doxid-jnc___cursor_utils_8h_1a6c141dbd844aaf0afb1c9c232f3661c6>`(const QTextCursor& cursor0);
+
+	bool
+	:target:`isCursorOnIndent<doxid-jnc___cursor_utils_8h_1a12a1e62b8f434a00404fa1f13954da30>`(const QTextCursor& cursor0);
+
+	bool
+	:target:`hasCursorHighlightColor<doxid-jnc___cursor_utils_8h_1a5d61b9c0e254e3d3bb7d046d5c0d2aec>`(const QTextCursor& cursor);
+
+	void
+	:target:`moveCursorWithLimit<doxid-jnc___cursor_utils_8h_1a7ddf778c6d222c6c2fc5bb972e3a1094>`(
+		QTextCursor* cursor,
+		const QTextCursor& limitCursor,
+		QTextCursor::MoveOperation op,
+		QTextCursor::MoveMode mode = QTextCursor::MoveAnchor,
+		int n = 1
+	);
+
+	AXL_SELECT_ANY :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`
+	:target:`g_defaultLightTheme<doxid-jnc___edit_theme_8h_1a742ad1b018d9a343c9a9e56045c00bc8>`(EditTheme::InitLight);
+
+	AXL_SELECT_ANY :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`
+	:target:`g_defaultDarkTheme<doxid-jnc___edit_theme_8h_1a93ac6ad152df30e686383703e09c92b1>`(EditTheme::InitDark);
+
+	} // namespace jnc

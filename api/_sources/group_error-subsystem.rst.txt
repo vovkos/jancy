@@ -1,0 +1,129 @@
+.. index:: pair: group; Error Subsystem
+.. _doxid-group__error-subsystem:
+
+Error Subsystem
+===============
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Error.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities for setting and retrieving error information. :ref:`More...<details-group__error-subsystem>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Error.h>
+	
+	// structs
+
+	struct :ref:`jnc_Error<doxid-structjnc___error>`;
+
+	// global functions
+
+	void
+	:target:`jnc_setErrorRouter<doxid-group__error-subsystem_1ga997aef3478e43e779fd8b0dbd0e5d900>`(jnc_ErrorRouter* router);
+
+	const :ref:`jnc_Error<doxid-structjnc___error>`*
+	:ref:`jnc_getLastError<doxid-group__error-subsystem_1gaee88847c0012d586d8ac9bfe8bd83a6f>`();
+
+	void
+	:ref:`jnc_setError<doxid-group__error-subsystem_1gafb765872a1b877f1163397d46455e5b5>`(const :ref:`jnc_Error<doxid-structjnc___error>`* error);
+
+	void
+	:ref:`jnc_setErrno<doxid-group__error-subsystem_1ga784c57a790ba4248434303543247a6f2>`(int code);
+
+	void
+	:ref:`jnc_setStringError<doxid-group__error-subsystem_1ga8d7d3b6538abc2d983207b8f421c3f6e>`(const char* string);
+
+	const char*
+	:ref:`jnc_getErrorDescription_v<doxid-group__error-subsystem_1ga74a4649db168284286601efd8ffacbc6>`(const :ref:`jnc_Error<doxid-structjnc___error>`* error);
+
+	static
+	const char*
+	:ref:`jnc_getLastErrorDescription_v<doxid-group__error-subsystem_1gac5cd36d6f55330d04cbabc2be4ea3e49>`();
+
+.. _details-group__error-subsystem:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities for setting and retrieving error information.
+
+Global Functions
+----------------
+
+.. index:: pair: function; jnc_getLastError
+.. _doxid-group__error-subsystem_1gaee88847c0012d586d8ac9bfe8bd83a6f:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	const :ref:`jnc_Error<doxid-structjnc___error>`*
+	jnc_getLastError()
+
+Returns a pointer to the last error set in the context of the current thread.
+
+.. index:: pair: function; jnc_setError
+.. _doxid-group__error-subsystem_1gafb765872a1b877f1163397d46455e5b5:
+.. index:: pair: function; jnc_setErrno
+.. _doxid-group__error-subsystem_1ga784c57a790ba4248434303543247a6f2:
+.. index:: pair: function; jnc_setStringError
+.. _doxid-group__error-subsystem_1ga8d7d3b6538abc2d983207b8f421c3f6e:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	void
+	jnc_setError(const :ref:`jnc_Error<doxid-structjnc___error>`* error)
+
+	void
+	jnc_setErrno(int code)
+
+	void
+	jnc_setStringError(const char* string)
+
+These functions set the last error to the TLS buffer of the current thread.
+
+* ``jnc_setError`` sets Jancy `jnc_Error` pointed to by ``error``;
+* ``jnc_setErrno`` sets POSIX *errno* identifed by ``code``;
+* ``jnc_setStringError`` sets string error described by a null-terminated string pointed to by ``string``.
+
+.. index:: pair: function; jnc_getErrorDescription_v
+.. _doxid-group__error-subsystem_1ga74a4649db168284286601efd8ffacbc6:
+.. index:: pair: function; jnc_getLastErrorDescription_v
+.. _doxid-group__error-subsystem_1gac5cd36d6f55330d04cbabc2be4ea3e49:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	const char*
+	jnc_getErrorDescription_v(const :ref:`jnc_Error<doxid-structjnc___error>`* error)
+
+	static
+	const char*
+	jnc_getLastErrorDescription_v()
+
+Creates and returns a human-readable description of the error.
+
+Suffix ``_v`` is used to denote the **volatile** nature of the returned pointer. The buffer will be overwritten by the very next call to any ``_v`` function invoked in the same thread. *Do NOT* save it to be re-used later; copy it to some buffer if it's necessary.
+
+``jnc_getLastErrorDescription_v`` is equivalent to:
+
+.. code-block:: c
+
+    jnc_getErrorDescription_v(jnc_getLastError())
+
+.. rubric:: Sample:
+
+.. code-block:: c
+
+    // try to compile some Jancy code, and it fails...
+
+    printf("error: %s\n", jnc_getLastErrorDescription_v ());
+

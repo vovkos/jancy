@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; SslSocketEvents
+.. _doxid-typeio_sslsocketevents:
+
+bitflag enum io.SslSocketEvents
+===============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SslSocketEvents: :ref:`io.SocketEvents<doxid-typeio_socketevents>` {
+	    :target:`SslHandshakeCompleted<doxid-enum_memberio_sslsocketevents_sslhandshakecompleted>`,
+	};
+

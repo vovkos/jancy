@@ -1,0 +1,18 @@
+.. index:: pair: enum; jnc_McSnapshotMethodKind
+.. _doxid-group__class-type_1ga3d91403e9792f9daedf0a9910587442b:
+
+enum jnc_McSnapshotMethodKind
+=============================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_McSnapshotMethodKind {
+	    :target:`jnc_McSnapshotMethodKind_Call<doxid-group__class-type_1gga3d91403e9792f9daedf0a9910587442ba2183a99ff9229ae63eee911d06913ad6>`,
+	    :target:`jnc_McSnapshotMethodKind__Count<doxid-group__class-type_1gga3d91403e9792f9daedf0a9910587442bac8f1c2ac643059388a1906c3f2394424>`,
+	};
+

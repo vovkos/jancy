@@ -1,0 +1,32 @@
+.. index:: pair: enum; jnc_ModuleCompileFlag
+.. _doxid-group__module_1gaa8e1ffdc92b2f7b1ba69622f7d5bc7ae:
+
+enum jnc_ModuleCompileFlag
+==========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Module.h>
+
+	enum jnc_ModuleCompileFlag {
+	    :target:`jnc_ModuleCompileFlag_DebugInfo<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aeabcce9e318b9fbb800b30b69f4a516b9a>`                     = 0x00000001,
+	    :target:`jnc_ModuleCompileFlag_Assert<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aeafe6855af17b230481aafb06b72214563>`                        = 0x00000002,
+	    :target:`jnc_ModuleCompileFlag_SimpleGcSafePoint<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea4fbc6af6a2c02dbb2020a03d123901e5>`             = 0x00000004,
+	    :target:`jnc_ModuleCompileFlag_GcSafePointInPrologue<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea242efda61dc6cb3e8eb2481da629024f>`         = 0x00000010,
+	    :target:`jnc_ModuleCompileFlag_GcSafePointInInternalPrologue<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aeacd4edcea143186339a9db5177f39df96>` = 0x00000020,
+	    :target:`jnc_ModuleCompileFlag_ExternalExtensionBin<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea75aaf5bfc4d4ae3edb78c93c2f7c3cc2>`          = 0x00000040,
+	    :target:`jnc_ModuleCompileFlag_DisableCodeGen<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea696949762c30e9942d0098565cb9a474>`                = 0x00000080,
+	    :target:`jnc_ModuleCompileFlag_Documentation<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aeac0dd66f229581ed89d6f598569f49e80>`                 = 0x00000200,
+	    :target:`jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea5a195c66c3197f35565196b3865d64f7>`     = 0x00000400,
+	    :target:`jnc_ModuleCompileFlag_KeepTypedefShadow<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea187cbdc33181fc8ea20d592fffd0b05f>`             = 0x00000800,
+	    :target:`jnc_ModuleCompileFlag_StdLibDoc<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea10406e891a65ce916ad42348458039ff>`                     = 0x00001000,
+	    :target:`jnc_ModuleCompileFlag_DisableDoxyComment1<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aeadb0cb755518c605d4e71db8fa7b15a65>`           = 0x00002000,
+	    :target:`jnc_ModuleCompileFlag_DisableDoxyComment2<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea3011a880dc0afcac6e13010715f6ca95>`           = 0x00004000,
+	    :target:`jnc_ModuleCompileFlag_DisableDoxyComment3<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea6bd9bde506fb257b33c37eb1447022cf>`           = 0x00008000,
+	    :target:`jnc_ModuleCompileFlag_DisableDoxyComment4<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea8de7bd8098c5afd0700fbc148fd9ce6d>`           = 0x00010000,
+	    :target:`jnc_ModuleCompileFlag_StdFlags<doxid-group__module_1ggaa8e1ffdc92b2f7b1ba69622f7d5bc7aea13ec3b930e28b3bebefbc618414d6c60>`                      = 0,
+	};
+

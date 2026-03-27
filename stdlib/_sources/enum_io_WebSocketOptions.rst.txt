@@ -1,0 +1,82 @@
+.. include:: def.rst
+.. index:: pair: enum; WebSocketOptions
+.. _doxid-typeio_websocketoptions:
+
+bitflag enum io.WebSocketOptions
+================================
+
+Overview
+~~~~~~~~
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum WebSocketOptions: :ref:`io.SocketOptions<doxid-typeio_socketoptions>` {
+	    :ref:`IncludeControlFrames<doxid-enum_memberio_websocketoptions_includecontrolframes>`,
+	    :ref:`DisableServerHandshakeResponse<doxid-enum_memberio_websocketoptions_disableserverhandshakeresponse>`,
+	    :ref:`DisableCloseResponse<doxid-enum_memberio_websocketoptions_disablecloseresponse>`,
+	    :ref:`DisablePongResponse<doxid-enum_memberio_websocketoptions_disablepongresponse>`,
+	};
+
+.. _details-typeio_websocketoptions:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; IncludeControlFrames
+.. _doxid-enum_memberio_websocketoptions_includecontrolframes:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	IncludeControlFrames
+
+Make incoming control frames such as ``Close``, ``Ping`` & ``Pong``
+available via `io.WebSocket.read`
+
+.. index:: pair: enumvalue; DisableServerHandshakeResponse
+.. _doxid-enum_memberio_websocketoptions_disableserverhandshakeresponse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	DisableServerHandshakeResponse
+
+Disable automatic transmission of ``101 Switching Protocols`` handshake
+response from the server. After accepting a conneciton, you can inspect
+the handshake request via `io.WebSocket.m_handshakeRequest` and then
+issue a handshake response via `io.WebSocket.serverHandshake` (thus
+either accepting or rejecting the incoming WebSocket upgrade request).
+
+.. index:: pair: enumvalue; DisableCloseResponse
+.. _doxid-enum_memberio_websocketoptions_disablecloseresponse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	DisableCloseResponse
+
+Disable automatic transmission of ``Close`` replies. If you still want
+to support WebSocket graceful close, read incoming control ``Close``
+frame, then manually send a ``Close`` with `io.WebSocket.writeClose`.
+
+.. index:: pair: enumvalue; DisablePongResponse
+.. _doxid-enum_memberio_websocketoptions_disablepongresponse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	DisablePongResponse
+
+Disable automatic transmission of ``Pong`` replies. You would need to
+read incoming control ``Ping`` frame, then manually send a ``Pong``
+using `io.WebSocket.writePong`.
+

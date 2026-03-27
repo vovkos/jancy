@@ -1,0 +1,37 @@
+.. index:: pair: enum; jnc_PtrTypeFlag
+.. _doxid-group__type_1ga7e0413b396878f235f34a74d9e93cf40:
+
+enum jnc_PtrTypeFlag
+====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Type.h>
+
+	enum jnc_PtrTypeFlag {
+	    :target:`jnc_PtrTypeFlag_ConstKind_0<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40adfc30e8cbc92a913f4b968f34b262419>`   = 0x00010000,
+	    :target:`jnc_PtrTypeFlag_ConstKind_1<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a65cd0ac366f32a8818c1fea1bc5dcca0>`   = 0x00020000,
+	    :target:`jnc_PtrTypeFlag_ConstKind_2<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40aea69f672d8aceb35ee954bb2b21b63f9>`   = 0x00040000,
+	    :target:`jnc_PtrTypeFlag_ConstKind_3<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a5b15550be9b5328677c9891d5e86f132>`   = 0x00080000,
+	    :target:`jnc_PtrTypeFlag_ConstKindMask<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a577368673b5d0be0d41d03c3ced70bd2>` = 0x000f0000,
+	    :target:`jnc_PtrTypeFlag_PtrKind_0<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40af56f301a03e84703f6a6c8ac9482949b>`     = 0x00100000,
+	    :target:`jnc_PtrTypeFlag_PtrKind_1<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40ac938cd98fd9d8285b6351576822ecc46>`     = 0x00200000,
+	    :target:`jnc_PtrTypeFlag_PtrKindMask<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40ad178dc56b967eb99845d1cd946303952>`   = 0x00300000,
+	    :target:`jnc_PtrTypeFlag_Volatile<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40ab1aee93e9a2bde9450ea688161681dfb>`      = 0x00400000,
+	    :target:`jnc_PtrTypeFlag_Safe<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a38faad40fb0e7c98c708f5282131cf49>`          = 0x00800000,
+	    :target:`jnc_PtrTypeFlag_Event<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a7dde7ddbb42f57bbbee7ecd3b4be71ee>`         = 0x01000000,
+	    :target:`jnc_PtrTypeFlag_AutoEvent<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a41d18c6970e2c308aad66cea47f5f4b9>`     = 0x02000000,
+	    :target:`jnc_PtrTypeFlag_Bindable<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a51a895d650d32c1866921265ff6d367a>`      = 0x04000000,
+	    :target:`jnc_PtrTypeFlag_AutoGet<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a4487885013f56e879ba3e05e0f922193>`       = 0x08000000,
+	    :target:`jnc_PtrTypeFlag_BigEndian<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a0a2c44d2d1f9c9273240472ba3e505c8>`     = 0x10000000,
+	    :target:`jnc_PtrTypeFlag_BitField<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a9547e8466ba68c36100886247496bbbc>`      = 0x20000000,
+	    :target:`jnc_PtrTypeFlag_ThinThis<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a22006a2d897c63ac5f07291174145cc6>`      = 0x40000000,
+	    :target:`jnc_PtrTypeFlag_All<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40ad850725bafdd31b52ffb8831608c55c9>`           = 0x7fff0000,
+	    :target:`jnc_PtrTypeFlag__ConstKindBit<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a716634b813689ef4d005b44719f4a62d>` = 16,
+	    :target:`jnc_PtrTypeFlag__PtrKindBit<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40acfc27c62719d48a35d5536da9d2f494a>`   = 20,
+	    :target:`jnc_PtrTypeFlag__FlagBit<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40ac3151a19f9485a70e9c9dc7073f914ed>`      = 22,
+	};
+

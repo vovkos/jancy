@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; HostNameResolverEvents
+.. _doxid-typeio_hostnameresolverevents:
+
+bitflag enum io.HostNameResolverEvents
+======================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum HostNameResolverEvents {
+	    :target:`Error<doxid-enum_memberio_hostnameresolverevents_error>`,
+	    :target:`Resolved<doxid-enum_memberio_hostnameresolverevents_resolved>`,
+	};
+

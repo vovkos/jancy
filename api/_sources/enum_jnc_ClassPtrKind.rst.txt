@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_ClassPtrKind
+.. _doxid-group__class-type_1gadd393a6fe34e85ab811764000bd2755b:
+
+enum jnc_ClassPtrKind
+=====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_ClassPtrKind {
+	    :target:`jnc_ClassPtrKind_Normal<doxid-group__class-type_1ggadd393a6fe34e85ab811764000bd2755ba5635dd0bbf6621a9d4183c74b20db096>` = 0x000000,
+	    :target:`jnc_ClassPtrKind_Weak<doxid-group__class-type_1ggadd393a6fe34e85ab811764000bd2755bafdbd82daad601eeef816be33710764af>`   = 0x100000,
+	    :target:`jnc_ClassPtrKind__Count<doxid-group__class-type_1ggadd393a6fe34e85ab811764000bd2755ba0e0010ab1f68f41ccbe2fa4794962526>` = 2,
+	};
+

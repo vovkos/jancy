@@ -1,0 +1,211 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enum io.win.URB_FUNCTION &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enum io.win.USBD_STATUS" href="enum_io_win_USBD_STATUS.html" />
+    <link rel="prev" title="USB Monitoring" href="group_io-usbmon.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_io-file.html">Generic File IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-socket.html">Socket Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-serial.html">Serial Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-network-adapter.html">Network Adapter Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssl.html">SSL Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssh.html">SSH Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-websock.html">WebSockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-pcap.html">Pcap (Packet Capturing Library)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usb.html">USB Communications</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_io-usbmon.html">USB Monitoring</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">enum io.win.URB_FUNCTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_win_USBD_STATUS.html">enum io.win.USBD_STATUS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_UsbEnumFlags.html">bitflag enum io.UsbEnumFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_UsbMonEnumFlags.html">bitflag enum io.UsbMonEnumFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_UsbMonOptions.html">bitflag enum io.UsbMonOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_UsbMonTransferFlags.html">bitflag enum io.UsbMonTransferFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_UsbDeviceEntry.html">struct io.UsbDeviceEntry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_UsbMonDeviceDesc.html">struct io.UsbMonDeviceDesc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_UsbMonDeviceDescBase.html">struct io.UsbMonDeviceDescBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_UsbMonTransferHdr.html">struct io.UsbMonTransferHdr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_UsbMonitor.html">class io.UsbMonitor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-hid.html">HID Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-devmon.html">Device Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_io.html">IO (Input/Output) Library</a></li>
+          <li class="breadcrumb-item"><a href="group_io-usbmon.html">USB Monitoring</a></li>
+      <li class="breadcrumb-item active">enum io.win.URB_FUNCTION</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="enum-io-win-urb-function">
+<span id="doxid-typeio-win-urb-function"></span><span id="index-0"></span><h1>enum io.win.URB_FUNCTION</h1>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">enum</span> <span class="n">URB_FUNCTION</span> <span class="p">{</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-select-configuration"><span></span><span class="n">URB_FUNCTION_SELECT_CONFIGURATION</span></span><span></span>                         <span class="o">=</span> <span class="mh">0x0000</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-select-interface"><span></span><span class="n">URB_FUNCTION_SELECT_INTERFACE</span></span><span></span>                             <span class="o">=</span> <span class="mh">0x0001</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-abort-pipe"><span></span><span class="n">URB_FUNCTION_ABORT_PIPE</span></span><span></span>                                   <span class="o">=</span> <span class="mh">0x0002</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-take-frame-length-control"><span></span><span class="n">URB_FUNCTION_TAKE_FRAME_LENGTH_CONTROL</span></span><span></span>                    <span class="o">=</span> <span class="mh">0x0003</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-release-frame-length-control"><span></span><span class="n">URB_FUNCTION_RELEASE_FRAME_LENGTH_CONTROL</span></span><span></span>                 <span class="o">=</span> <span class="mh">0x0004</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-frame-length"><span></span><span class="n">URB_FUNCTION_GET_FRAME_LENGTH</span></span><span></span>                             <span class="o">=</span> <span class="mh">0x0005</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-frame-length"><span></span><span class="n">URB_FUNCTION_SET_FRAME_LENGTH</span></span><span></span>                             <span class="o">=</span> <span class="mh">0x0006</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-current-frame-number"><span></span><span class="n">URB_FUNCTION_GET_CURRENT_FRAME_NUMBER</span></span><span></span>                     <span class="o">=</span> <span class="mh">0x0007</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-control-transfer"><span></span><span class="n">URB_FUNCTION_CONTROL_TRANSFER</span></span><span></span>                             <span class="o">=</span> <span class="mh">0x0008</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-bulk-or-interrupt-transfer"><span></span><span class="n">URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER</span></span><span></span>                   <span class="o">=</span> <span class="mh">0x0009</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-isoch-transfer"><span></span><span class="n">URB_FUNCTION_ISOCH_TRANSFER</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x000A</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-descriptor-from-device"><span></span><span class="n">URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE</span></span><span></span>                   <span class="o">=</span> <span class="mh">0x000B</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-descriptor-to-device"><span></span><span class="n">URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE</span></span><span></span>                     <span class="o">=</span> <span class="mh">0x000C</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-feature-to-device"><span></span><span class="n">URB_FUNCTION_SET_FEATURE_TO_DEVICE</span></span><span></span>                        <span class="o">=</span> <span class="mh">0x000D</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-feature-to-interface"><span></span><span class="n">URB_FUNCTION_SET_FEATURE_TO_INTERFACE</span></span><span></span>                     <span class="o">=</span> <span class="mh">0x000E</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-feature-to-endpoint"><span></span><span class="n">URB_FUNCTION_SET_FEATURE_TO_ENDPOINT</span></span><span></span>                      <span class="o">=</span> <span class="mh">0x000F</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-clear-feature-to-device"><span></span><span class="n">URB_FUNCTION_CLEAR_FEATURE_TO_DEVICE</span></span><span></span>                      <span class="o">=</span> <span class="mh">0x0010</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-clear-feature-to-interface"><span></span><span class="n">URB_FUNCTION_CLEAR_FEATURE_TO_INTERFACE</span></span><span></span>                   <span class="o">=</span> <span class="mh">0x0011</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-clear-feature-to-endpoint"><span></span><span class="n">URB_FUNCTION_CLEAR_FEATURE_TO_ENDPOINT</span></span><span></span>                    <span class="o">=</span> <span class="mh">0x0012</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-status-from-device"><span></span><span class="n">URB_FUNCTION_GET_STATUS_FROM_DEVICE</span></span><span></span>                       <span class="o">=</span> <span class="mh">0x0013</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-status-from-interface"><span></span><span class="n">URB_FUNCTION_GET_STATUS_FROM_INTERFACE</span></span><span></span>                    <span class="o">=</span> <span class="mh">0x0014</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-status-from-endpoint"><span></span><span class="n">URB_FUNCTION_GET_STATUS_FROM_ENDPOINT</span></span><span></span>                     <span class="o">=</span> <span class="mh">0x0015</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserved-0x0016"><span></span><span class="n">URB_FUNCTION_RESERVED_0X0016</span></span><span></span>                              <span class="o">=</span> <span class="mh">0x0016</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-vendor-device"><span></span><span class="n">URB_FUNCTION_VENDOR_DEVICE</span></span><span></span>                                <span class="o">=</span> <span class="mh">0x0017</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-vendor-interface"><span></span><span class="n">URB_FUNCTION_VENDOR_INTERFACE</span></span><span></span>                             <span class="o">=</span> <span class="mh">0x0018</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-vendor-endpoint"><span></span><span class="n">URB_FUNCTION_VENDOR_ENDPOINT</span></span><span></span>                              <span class="o">=</span> <span class="mh">0x0019</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-class-device"><span></span><span class="n">URB_FUNCTION_CLASS_DEVICE</span></span><span></span>                                 <span class="o">=</span> <span class="mh">0x001A</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-class-interface"><span></span><span class="n">URB_FUNCTION_CLASS_INTERFACE</span></span><span></span>                              <span class="o">=</span> <span class="mh">0x001B</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-class-endpoint"><span></span><span class="n">URB_FUNCTION_CLASS_ENDPOINT</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x001C</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x001d"><span></span><span class="n">URB_FUNCTION_RESERVE_0X001D</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x001D</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-sync-reset-pipe-and-clear-stall"><span></span><span class="n">URB_FUNCTION_SYNC_RESET_PIPE_AND_CLEAR_STALL</span></span><span></span>              <span class="o">=</span> <span class="mh">0x001E</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-class-other"><span></span><span class="n">URB_FUNCTION_CLASS_OTHER</span></span><span></span>                                  <span class="o">=</span> <span class="mh">0x001F</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-vendor-other"><span></span><span class="n">URB_FUNCTION_VENDOR_OTHER</span></span><span></span>                                 <span class="o">=</span> <span class="mh">0x0020</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-status-from-other"><span></span><span class="n">URB_FUNCTION_GET_STATUS_FROM_OTHER</span></span><span></span>                        <span class="o">=</span> <span class="mh">0x0021</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-clear-feature-to-other"><span></span><span class="n">URB_FUNCTION_CLEAR_FEATURE_TO_OTHER</span></span><span></span>                       <span class="o">=</span> <span class="mh">0x0022</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-feature-to-other"><span></span><span class="n">URB_FUNCTION_SET_FEATURE_TO_OTHER</span></span><span></span>                         <span class="o">=</span> <span class="mh">0x0023</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-descriptor-from-endpoint"><span></span><span class="n">URB_FUNCTION_GET_DESCRIPTOR_FROM_ENDPOINT</span></span><span></span>                 <span class="o">=</span> <span class="mh">0x0024</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-descriptor-to-endpoint"><span></span><span class="n">URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT</span></span><span></span>                   <span class="o">=</span> <span class="mh">0x0025</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-configuration"><span></span><span class="n">URB_FUNCTION_GET_CONFIGURATION</span></span><span></span>                            <span class="o">=</span> <span class="mh">0x0026</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-interface"><span></span><span class="n">URB_FUNCTION_GET_INTERFACE</span></span><span></span>                                <span class="o">=</span> <span class="mh">0x0027</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-descriptor-from-interface"><span></span><span class="n">URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE</span></span><span></span>                <span class="o">=</span> <span class="mh">0x0028</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-set-descriptor-to-interface"><span></span><span class="n">URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE</span></span><span></span>                  <span class="o">=</span> <span class="mh">0x0029</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-get-ms-feature-descriptor"><span></span><span class="n">URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR</span></span><span></span>                    <span class="o">=</span> <span class="mh">0x002A</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x002b"><span></span><span class="n">URB_FUNCTION_RESERVE_0X002B</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x002B</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x002c"><span></span><span class="n">URB_FUNCTION_RESERVE_0X002C</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x002C</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x002d"><span></span><span class="n">URB_FUNCTION_RESERVE_0X002D</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x002D</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x002e"><span></span><span class="n">URB_FUNCTION_RESERVE_0X002E</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x002E</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x002f"><span></span><span class="n">URB_FUNCTION_RESERVE_0X002F</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x002F</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-sync-reset-pipe"><span></span><span class="n">URB_FUNCTION_SYNC_RESET_PIPE</span></span><span></span>                              <span class="o">=</span> <span class="mh">0x0030</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-sync-clear-stall"><span></span><span class="n">URB_FUNCTION_SYNC_CLEAR_STALL</span></span><span></span>                             <span class="o">=</span> <span class="mh">0x0031</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-control-transfer-ex"><span></span><span class="n">URB_FUNCTION_CONTROL_TRANSFER_EX</span></span><span></span>                          <span class="o">=</span> <span class="mh">0x0032</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x0033"><span></span><span class="n">URB_FUNCTION_RESERVE_0X0033</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x0033</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-reserve-0x0034"><span></span><span class="n">URB_FUNCTION_RESERVE_0X0034</span></span><span></span>                               <span class="o">=</span> <span class="mh">0x0034</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-open-static-streams"><span></span><span class="n">URB_FUNCTION_OPEN_STATIC_STREAMS</span></span><span></span>                          <span class="o">=</span> <span class="mh">0x0035</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-close-static-streams"><span></span><span class="n">URB_FUNCTION_CLOSE_STATIC_STREAMS</span></span><span></span>                         <span class="o">=</span> <span class="mh">0x0036</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-bulk-or-interrupt-transfer-using-chained-mdl"><span></span><span class="n">URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER_USING_CHAINED_MDL</span></span><span></span> <span class="o">=</span> <span class="mh">0x0037</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-win-urb-function-urb-function-isoch-transfer-using-chained-mdl"><span></span><span class="n">URB_FUNCTION_ISOCH_TRANSFER_USING_CHAINED_MDL</span></span><span></span>             <span class="o">=</span> <span class="mh">0x0038</span><span class="p">,</span>
+<span class="p">};</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="group_io-usbmon.html" class="btn btn-neutral float-left" title="USB Monitoring" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enum_io_win_USBD_STATUS.html" class="btn btn-neutral float-right" title="enum io.win.USBD_STATUS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

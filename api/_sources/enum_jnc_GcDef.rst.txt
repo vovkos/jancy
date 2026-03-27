@@ -1,0 +1,21 @@
+.. index:: pair: enum; jnc_GcDef
+.. _doxid-group__gc-heap_1ga7919fa861c6ea4f7daa2446dbd2f1d86:
+
+enum jnc_GcDef
+==============
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_GcHeap.h>
+
+	enum jnc_GcDef {
+	    :target:`jnc_GcDef_AllocSizeTrigger<doxid-group__gc-heap_1gga7919fa861c6ea4f7daa2446dbd2f1d86a26849638935bb3c3c2b8bf64f666ca14>`         = -1,
+	    :target:`jnc_GcDef_PeriodSizeTrigger<doxid-group__gc-heap_1gga7919fa861c6ea4f7daa2446dbd2f1d86a00801d6fba87f0a3b6f9e62c413a97f9>`        = 0,
+	    :target:`jnc_GcDef_DataPtrValidatorPoolSize<doxid-group__gc-heap_1gga7919fa861c6ea4f7daa2446dbd2f1d86a2aae8849581f898960477e28bb74f595>` = 1,
+	    :target:`jnc_GcDef_ForeignDataBoxPoolSize<doxid-group__gc-heap_1gga7919fa861c6ea4f7daa2446dbd2f1d86ad3c3fe7abad29ac76bed76a00cc41ddf>`   = 1,
+	    :target:`jnc_GcDef_ShutdownIterationLimit<doxid-group__gc-heap_1gga7919fa861c6ea4f7daa2446dbd2f1d86a733d432221d90dbf0bddb405f2b7cc4d>`   = 3,
+	};
+

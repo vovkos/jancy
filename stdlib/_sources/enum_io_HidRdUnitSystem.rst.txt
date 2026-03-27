@@ -1,0 +1,21 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdUnitSystem
+.. _doxid-typeio_hidrdunitsystem:
+
+enum io.HidRdUnitSystem
+=======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum HidRdUnitSystem {
+	    :target:`None<doxid-enum_memberio_hidrdunitsystem_none>`            = 0x00,
+	    :target:`SiLinear<doxid-enum_memberio_hidrdunitsystem_silinear>`        = 0x01,
+	    :target:`SiRotation<doxid-enum_memberio_hidrdunitsystem_sirotation>`      = 0x02,
+	    :target:`EnglishLinear<doxid-enum_memberio_hidrdunitsystem_englishlinear>`   = 0x03,
+	    :target:`EnglishRotation<doxid-enum_memberio_hidrdunitsystem_englishrotation>` = 0x04,
+	};
+

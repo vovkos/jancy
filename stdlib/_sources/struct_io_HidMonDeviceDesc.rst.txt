@@ -1,0 +1,57 @@
+.. include:: def.rst
+.. index:: pair: struct; io.HidMonDeviceDesc
+.. _doxid-typeio_hidmondevicedesc:
+
+struct io.HidMonDeviceDesc
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct HidMonDeviceDesc: :ref:`io.UsbMonDeviceDescBase<doxid-typeio_usbmondevicedescbase>` {
+		// fields
+	
+		io.HidMonDeviceDesc const* :target:`m_next<doxid-fieldio_hidmondevicedesc_m_next>`;
+		typedef String string_t :target:`m_hidDeviceName<doxid-fieldio_hidmondevicedesc_m_hiddevicename>`;
+		void const* :target:`m_reportDescriptor<doxid-fieldio_hidmondevicedesc_m_reportdescriptor>`;
+		typedef unsigned long size_t :target:`m_reportDescriptorSize<doxid-fieldio_hidmondevicedesc_m_reportdescriptorsize>`;
+		typedef unsigned short uint16_t :target:`m_usagePage<doxid-fieldio_hidmondevicedesc_m_usagepage>`;
+		typedef unsigned short uint16_t :target:`m_usage<doxid-fieldio_hidmondevicedesc_m_usage>`;
+		typedef unsigned short uint16_t :target:`m_releaseNumber<doxid-fieldio_hidmondevicedesc_m_releasenumber>`;
+		typedef unsigned char uint8_t :target:`m_interfaceId<doxid-fieldio_hidmondevicedesc_m_interfaceid>`;
+		typedef unsigned char uint8_t :target:`m_inEndpointId<doxid-fieldio_hidmondevicedesc_m_inendpointid>`;
+		typedef unsigned char uint8_t :target:`m_outEndpointId<doxid-fieldio_hidmondevicedesc_m_outendpointid>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef String string_t :ref:`m_description<doxid-fieldio_usbdevicestrings_m_description>`;
+		typedef String string_t :ref:`m_manufacturer<doxid-fieldio_usbdevicestrings_m_manufacturer>`;
+		typedef String string_t :ref:`m_driver<doxid-fieldio_usbdevicestrings_m_driver>`;
+		typedef String string_t :ref:`m_manufacturerDescriptor<doxid-fieldio_usbdevicestrings_m_manufacturerdescriptor>`;
+		typedef String string_t :ref:`m_productDescriptor<doxid-fieldio_usbdevicestrings_m_productdescriptor>`;
+		typedef String string_t :ref:`m_serialNumberDescriptor<doxid-fieldio_usbdevicestrings_m_serialnumberdescriptor>`;
+		typedef String string_t :ref:`m_captureDeviceName<doxid-fieldio_usbmondevicedescbase_m_capturedevicename>`;
+		typedef unsigned int uint_t :ref:`m_captureDeviceId<doxid-fieldio_usbmondevicedescbase_m_capturedeviceid>`;
+		typedef unsigned short uint16_t :ref:`m_vendorId<doxid-fieldio_usbmondevicedescbase_m_vendorid>`;
+		typedef unsigned short uint16_t :ref:`m_productId<doxid-fieldio_usbmondevicedescbase_m_productid>`;
+		typedef unsigned char uint8_t :ref:`m_address<doxid-fieldio_usbmondevicedescbase_m_address>`;
+		typedef unsigned char uint8_t :ref:`m_port<doxid-fieldio_usbmondevicedescbase_m_port>`;
+		typedef unsigned char uint8_t :ref:`m_class<doxid-fieldio_usbmondevicedescbase_m_class>`;
+		typedef unsigned char uint8_t :ref:`m_subClass<doxid-fieldio_usbmondevicedescbase_m_subclass>`;
+		:ref:`io.UsbSpeed<doxid-typeio_usbspeed>` :ref:`m_speed<doxid-fieldio_usbmondevicedescbase_m_speed>`;
+

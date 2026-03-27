@@ -1,0 +1,59 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.Variable
+.. _doxid-typejnc_variable:
+
+class jnc.Variable
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class Variable:
+	    :ref:`jnc.ModuleItem<doxid-typejnc_moduleitem>`,
+	    :ref:`jnc.ModuleItemDecl<doxid-typejnc_moduleitemdecl>`,
+	    :ref:`jnc.ModuleItemInitializer<doxid-typejnc_moduleiteminitializer>` {
+		// properties
+	
+		:ref:`jnc.Type<doxid-typejnc_type>`* const property :target:`m_type<doxid-propertyjnc_variable_m_type>`;
+		:ref:`jnc.PtrTypeFlags<doxid-typejnc_ptrtypeflags>` const property :target:`m_ptrTypeFlags<doxid-propertyjnc_variable_m_ptrtypeflags>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_variable_construct>`(long p);
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// properties
+	
+		:ref:`jnc.Module<doxid-typejnc_module>`* const property :ref:`m_module<doxid-propertyjnc_moduleitem_m_module>`;
+		:ref:`jnc.ModuleItemKind<doxid-typejnc_moduleitemkind>` const property :ref:`m_itemKind<doxid-propertyjnc_moduleitem_m_itemkind>`;
+		:ref:`uint_t<doxid-typedefuint_t>` const property :ref:`m_flags<doxid-propertyjnc_moduleitem_m_flags>`;
+		:ref:`jnc.Type<doxid-typejnc_type>`* const property :ref:`m_type<doxid-propertyjnc_moduleitem_m_type>`;
+		:ref:`string_t<doxid-typedefstring_t>` const property :ref:`m_name<doxid-propertyjnc_moduleitemdecl_m_name>`;
+		:ref:`jnc.StorageKind<doxid-typejnc_storagekind>` const property :ref:`m_storageKind<doxid-propertyjnc_moduleitemdecl_m_storagekind>`;
+		:ref:`jnc.AccessKind<doxid-typejnc_accesskind>` const property :ref:`m_accessKind<doxid-propertyjnc_moduleitemdecl_m_accesskind>`;
+		:ref:`jnc.AttributeBlock<doxid-typejnc_attributeblock>`* const property :ref:`m_attributeBlock<doxid-propertyjnc_moduleitemdecl_m_attributeblock>`;
+		:ref:`jnc.Namespace<doxid-typejnc_namespace>`* const property :ref:`m_parentNamespace<doxid-propertyjnc_moduleitemdecl_m_parentnamespace>`;
+		:ref:`jnc.Unit<doxid-typejnc_unit>`* const property :ref:`m_parentUnit<doxid-propertyjnc_moduleitemdecl_m_parentunit>`;
+		int const property :ref:`m_line<doxid-propertyjnc_moduleitemdecl_m_line>`;
+		int const property :ref:`m_col<doxid-propertyjnc_moduleitemdecl_m_col>`;
+		:ref:`string_t<doxid-typedefstring_t>` const property :ref:`m_initializer<doxid-propertyjnc_moduleiteminitializer_m_initializer>`;
+
+		// methods
+	
+		:ref:`jnc.Attribute<doxid-typejnc_attribute>`* :ref:`findAttribute<doxid-functionjnc_moduleitemdecl_findattribute>`(:ref:`string_t<doxid-typedefstring_t>` name) const;
+		:ref:`variant_t<doxid-typedefvariant_t>` :ref:`findAttributeValue<doxid-functionjnc_moduleitemdecl_findattributevalue>`(:ref:`string_t<doxid-typedefstring_t>` name) const;
+
