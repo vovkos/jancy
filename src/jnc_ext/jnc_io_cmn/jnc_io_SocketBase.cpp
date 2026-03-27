@@ -17,6 +17,10 @@
 #	define IPV6_HDRINCL IP_HDRINCL
 #endif
 
+#if (_AXL_OS_DARWIN)
+#	define TCP_KEEPIDLE TCP_KEEPALIVE
+#endif
+
 namespace jnc {
 namespace io {
 
