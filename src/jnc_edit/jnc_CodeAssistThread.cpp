@@ -44,15 +44,20 @@ CodeAssistThread::run() {
 	for (; it != m_importList.end(); it++)
 		m_module->addImport((*it).toUtf8().constData());
 
-	if (!m_extraSource.isEmpty())
-		m_module->addSourceImport(NULL, m_extraSource.cp(), m_extraSource.getLength());
+	if (!m_extraSource.isEmpty()) {
+		QByteArray src = m_extraSource.toUtf8();
+		m_module->addSourceImport(NULL, src.constData(), src.length());
+	}
+
+	QByteArray source = m_source.toUtf8();
+	size_t offset = m_source.left(m_position).toUtf8().count();
 
 	m_module->generateCodeAssist(
-		m_fileName.cp(),
+		m_fileName.toUtf8().constData(),
 		m_codeAssistKind,
-		m_offset,
-		m_source.cp(),
-		m_source.getLength()
+		offset,
+		source.constData(),
+		source.length()
 	);
 
 	m_module->unloadDynamicLibs();

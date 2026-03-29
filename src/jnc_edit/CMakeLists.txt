@@ -23,18 +23,18 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 set(
 	LIB_H_LIST
-	${JANCY_ROOT_DIR}/include/jnc_HighlighterBase.h
 	${JANCY_ROOT_DIR}/include/jnc_EditTheme.h
 	${JANCY_ROOT_DIR}/include/jnc_EditBase.h
 	${JANCY_ROOT_DIR}/include/jnc_Edit.h
+	${JANCY_ROOT_DIR}/include/jnc_HighlighterBase.h
+	${JANCY_ROOT_DIR}/include/jnc_CodeAssistThreadBase.h
 	${JANCY_ROOT_DIR}/include/jnc_CursorUtils.h
-	jnc_Highlighter.h
 	jnc_EditBase_p.h
 	jnc_Edit_p.h
-	jnc_LineNumberMargin.h
-	jnc_CodeAssistThreadBase.h
+	jnc_Highlighter.h
 	jnc_CodeAssistThread.h
 	jnc_CodeTip.h
+	jnc_LineNumberMargin.h
 )
 
 set(
@@ -42,12 +42,12 @@ set(
 	jnc_EditTheme.cpp
 	jnc_EditBase_p.cpp
 	jnc_Edit_p.cpp
-	jnc_LineNumberMargin.cpp
 	jnc_Highlighter.cpp
 	jnc_CodeAssistThreadBase.cpp
 	jnc_CodeAssistThread.cpp
 	jnc_CodeTip.cpp
 	jnc_CursorUtils.cpp
+	jnc_LineNumberMargin.cpp
 )
 
 set(
@@ -97,10 +97,10 @@ set(
 	MOC_H_LIST
 	${JANCY_ROOT_DIR}/include/jnc_EditBase.h
 	${JANCY_ROOT_DIR}/include/jnc_Edit.h
+	${JANCY_ROOT_DIR}/include/jnc_CodeAssistThreadBase.h
 	jnc_EditBase_p.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
-	jnc_CodeAssistThreadBase.h
 	jnc_CodeAssistThread.h
 	jnc_CodeTip.h
 )

@@ -19,15 +19,15 @@ class CodeAssistThreadBase: public QThread {
 	Q_OBJECT
 
 protected:
-	sl::String m_fileName;
-	sl::String m_source;
+	QString m_fileName;
+	QString m_source;
 	CodeAssistKind m_codeAssistKind;
-	size_t m_offset;
+	int m_position;
 
 public:
 	QStringList m_importDirList;
 	QStringList m_importList;
-	sl::String m_extraSource;
+	QString m_extraSource;
 
 public:
 	CodeAssistThreadBase(QObject* parent = NULL);
@@ -36,40 +36,49 @@ public:
 		wait();
 	}
 
-	CodeAssistKind
-	getCodeAssistKind() {
+	CodeAssistKind getCodeAssistKind() {
 		return m_codeAssistKind;
 	}
 
-	void
-	request(
+	void request(
 		const QString& fileName,
 		CodeAssistKind kind,
 		int position,
 		const QString& source
 	);
 
-	void
-	request(
-		const sl::StringRef& fileName,
-		CodeAssistKind kind,
-		size_t offset,
-		const sl::StringRef& source
-	);
-
-	virtual
-	void
-	cancel() = 0;
+	virtual void cancel() = 0;
 
 protected:
-	virtual
-	void
-	run() = 0;
+	virtual void run() = 0;
 
 signals:
-	void error(const lex::LineCol& lineCol, size_t length);
+	void error(int line, int col, size_t length);
 	void ready();
 };
+
+//..............................................................................
+
+inline
+CodeAssistThreadBase::CodeAssistThreadBase(QObject* parent):
+	QThread(parent) {
+	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_position = 0;
+}
+
+inline
+void CodeAssistThreadBase::request(
+	const QString& fileName,
+	CodeAssistKind kind,
+	int position,
+	const QString& source
+) {
+	m_fileName = fileName;
+	m_codeAssistKind = kind;
+	m_position = position;
+	m_source = source;
+	start();
+}
 
 //..............................................................................
 

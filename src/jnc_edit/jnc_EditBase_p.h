@@ -90,9 +90,8 @@ protected:
 	QStringList m_importList;
 	QString m_extraSource;
 	CodeAssistThreadBase* m_thread;
-	CodeAssistKind m_lastCodeAssistKind;
-	size_t m_lastCodeAssistOffset;
-	int m_lastCodeAssistPosition;
+	CodeAssistKind m_activeCodeAssistKind;
+	int m_activeCodeAssistPosition;
 	CodeAssistKind m_pendingCodeAssistKind;
 	int m_pendingCodeAssistPosition;
 	CodeTip* m_codeTip;
@@ -136,13 +135,13 @@ protected:
 	updateExtraSelections();
 
 	QTextCursor
-	getCursorFromLineCol(
+	cursorFromLineCol(
 		int line,
 		int col
 	);
 
 	QTextCursor
-	getCursorFromOffset(size_t offset);
+	cursorFromOffset(size_t offset);
 
 	void
 	highlightCurrentLine();
@@ -216,21 +215,19 @@ protected:
 	applyCompleter();
 
 	QTextCursor
-	getLastCodeAssistCursor();
+	activeCodeAssistCursor();
 
 	QRect
-	getLastCodeAssistCursorRect();
+	activeCodeAssistCursorRect();
 
 	int
-	getLastCodeAssistPosition() {
-		return m_lastCodeAssistPosition != -1 ? m_lastCodeAssistPosition : calcLastCodeAssistPosition();
+	activeCodeAssistPosition() {
+		Q_Q(EditBase);
+		return m_activeCodeAssistPosition != -1 ? m_activeCodeAssistPosition : q->calcActiveCodeAssistPosition();
 	}
 
-	int
-	calcLastCodeAssistPosition();
-
 	QPoint
-	getLastCodeTipPoint(bool isBelowCurrentCursor = false);
+	activeCodeTipPoint(bool isBelowCurrentCursor = false);
 
 	void
 	keyPressHome(QKeyEvent* e);

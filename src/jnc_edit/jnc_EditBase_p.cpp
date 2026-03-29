@@ -345,13 +345,58 @@ EditBase::gotoDefinition() {
 	d->requestCodeAssist(0, CodeAssistKind_GotoDefinition);
 }
 
+CodeAssistKind
+EditBase::activeCodeAssistKind() {
+	Q_D(EditBase);
+	return d->m_activeCodeAssistKind;
+}
+
+int
+EditBase::activeCodeAssistPosition() {
+	Q_D(EditBase);
+	return d->activeCodeAssistPosition();
+}
+
+QTextCursor
+EditBase::activeCodeAssistCursor() {
+	Q_D(EditBase);
+	return d->activeCodeAssistCursor();
+}
+
+QRect
+EditBase::activeCodeAssistCursorRect() {
+	Q_D(EditBase);
+	return d->activeCodeAssistCursorRect();
+}
+
+QPoint
+EditBase::activeCodeTipPoint(bool isBelowCurrentCursor) {
+	Q_D(EditBase);
+	return d->activeCodeTipPoint(isBelowCurrentCursor);
+}
+
+QTextCursor
+EditBase::cursorFromOffset(size_t offset) {
+	Q_D(EditBase);
+	return d->cursorFromOffset(offset);
+}
+
+QTextCursor
+EditBase::cursorFromLineCol(
+	int line,
+	int col
+) {
+	Q_D(EditBase);
+	return d->cursorFromLineCol(line, col);
+}
+
 void
 EditBase::setTextCursorLineCol(
 	int line,
 	int col
 ) {
 	Q_D(EditBase);
-	setTextCursor(d->getCursorFromLineCol(line, col));
+	setTextCursor(d->cursorFromLineCol(line, col));
 }
 
 void
@@ -363,7 +408,7 @@ EditBase::highlightLineTemp(
 	Q_D(EditBase);
 
 	QTextEdit::ExtraSelection selection;
-	selection.cursor = d->getCursorFromLineCol(line, 0);
+	selection.cursor = d->cursorFromLineCol(line, 0);
 	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
 
 	if (backColor.isValid())
@@ -411,12 +456,6 @@ EditBase::autoIndent(
 ) {
 	cursor->insertText(QChar('\n'));
 	cursor->insertText(baseIndent);
-}
-
-void
-EditBase::hideCodeAssist() {
-	Q_D(EditBase);
-	d->hideCodeAssist();
 }
 
 void
@@ -602,7 +641,8 @@ EditBase::mouseMoveEvent(QMouseEvent* e) {
 	QPlainTextEdit::mouseMoveEvent(e);
 
 	if (!d->isCompleterVisible() &&
-		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier))
+		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)
+	)
 		d->requestQuickInfoTip(EditBasePrivate::CodeAssistDelay_QuickInfoTip, e->pos());
 }
 
@@ -613,8 +653,8 @@ EditBase::enterEvent(QEvent* e) {
 	QPlainTextEdit::enterEvent(e);
 
 	if (!d->isCompleterVisible() &&
-		d->m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip &&
-		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)) {
+		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)
+	) {
 		QPoint pos = mapFromGlobal(QCursor::pos());
 		d->requestQuickInfoTip(EditBasePrivate::CodeAssistDelay_QuickInfoTip, pos);
 	}
@@ -624,27 +664,18 @@ void
 EditBase::activateCompleter(const QModelIndex& index) {
 	Q_D(EditBase);
 
-	QTextCursor cursor = textCursor();
-
 	QModelIndex nameIndex = index.sibling(index.row(), EditBasePrivate::Column_Name); // user could have clicked on synopsis
 	QString completion = d->m_completer->popup()->model()->data(nameIndex, Qt::DisplayRole).toString();
-	int basePosition = d->getLastCodeAssistPosition();
+	int basePosition = d->activeCodeAssistPosition();
 
-	if (d->m_lastCodeAssistKind == CodeAssistKind_ImportAutoComplete) {
-		QString quotedCompletion = '"' + completion + '"';
-		cursor.setPosition(basePosition);
-		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-		cursor.insertText(quotedCompletion);
-	} else {
-		cursor.setPosition(basePosition);
+	QTextCursor cursor = textCursor();
+	cursor.setPosition(basePosition);
 
-		QChar c = getCursorNextChar(cursor);
-		if (c.isLetterOrNumber() || c == '_')
-			cursor.select(QTextCursor::WordUnderCursor);
+	QChar c = getCursorNextChar(cursor);
+	if (c.isLetterOrNumber() || c == '_')
+		cursor.select(QTextCursor::WordUnderCursor);
 
-		cursor.insertText(completion);
-	}
-
+	cursor.insertText(completion);
 	setTextCursor(cursor);
 }
 
@@ -662,9 +693,8 @@ EditBasePrivate::EditBasePrivate() {
 	m_thread = NULL;
 	m_codeTip = NULL;
 	m_completer = NULL;
-	m_lastCodeAssistKind = CodeAssistKind_Undefined;
-	m_lastCodeAssistOffset = -1;
-	m_lastCodeAssistPosition = -1;
+	m_activeCodeAssistKind = CodeAssistKind_Undefined;
+	m_activeCodeAssistPosition = -1;
 	m_pendingCodeAssistKind = CodeAssistKind_Undefined;
 	m_pendingCodeAssistPosition = -1;
 
@@ -919,7 +949,7 @@ EditBasePrivate::highlightCurrentLine() {
 }
 
 QTextCursor
-EditBasePrivate::getCursorFromLineCol(
+EditBasePrivate::cursorFromLineCol(
 	int line,
 	int col
 ) {
@@ -933,7 +963,7 @@ EditBasePrivate::getCursorFromLineCol(
 }
 
 QTextCursor
-EditBasePrivate::getCursorFromOffset(size_t offset) {
+EditBasePrivate::cursorFromOffset(size_t offset) {
 	Q_Q(EditBase);
 
 	QString prefix = q->toPlainText().toUtf8().left(offset);
@@ -1392,7 +1422,7 @@ EditBasePrivate::updateCompleter(bool isForced) {
 
 	QTextCursor cursor = q->textCursor();
 	int position = cursor.position();
-	int anchorPosition = getLastCodeAssistPosition();
+	int anchorPosition = activeCodeAssistPosition();
 	if (position < anchorPosition) {
 		hideCodeAssist();
 		return;
@@ -1402,7 +1432,7 @@ EditBasePrivate::updateCompleter(bool isForced) {
 	cursor.setPosition(anchorPosition, QTextCursor::KeepAnchor);
 	QString prefix = cursor.selectedText();
 
-	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoComplete)
+	if (m_activeCodeAssistKind == CodeAssistKind_ImportAutoComplete)
 		prefix.remove(0, 1); // opening quotation mark
 
 	if (!isForced && prefix == m_completer->completionPrefix())
@@ -1447,20 +1477,20 @@ EditBasePrivate::applyCompleter() {
 }
 
 QTextCursor
-EditBasePrivate::getLastCodeAssistCursor() {
+EditBasePrivate::activeCodeAssistCursor() {
 	Q_Q(EditBase);
 
-	int position = getLastCodeAssistPosition();
+	int position = activeCodeAssistPosition();
 	QTextCursor cursor = q->textCursor();
 	cursor.setPosition(position);
 	return cursor;
 }
 
 QRect
-EditBasePrivate::getLastCodeAssistCursorRect() {
+EditBasePrivate::activeCodeAssistCursorRect() {
 	Q_Q(EditBase);
 
-	QTextCursor cursor = getLastCodeAssistCursor();
+	QTextCursor cursor = activeCodeAssistCursor();
 	QRect rect = q->cursorRect(cursor);
 
 #if (QT_VERSION >= 0x050500)
@@ -1472,20 +1502,11 @@ EditBasePrivate::getLastCodeAssistCursorRect() {
 	return rect;
 }
 
-int
-EditBasePrivate::calcLastCodeAssistPosition() {
-	ASSERT(m_lastCodeAssistKind && m_lastCodeAssistPosition == -1);
-
-	QTextCursor cursor = getCursorFromOffset(m_lastCodeAssistOffset);
-	m_lastCodeAssistPosition = cursor.position();
-	return m_lastCodeAssistPosition;
-}
-
 QPoint
-EditBasePrivate::getLastCodeTipPoint(bool isBelowCurrentCursor) {
+EditBasePrivate::activeCodeTipPoint(bool isBelowCurrentCursor) {
 	Q_Q(EditBase);
 
-	QRect rect = getLastCodeAssistCursorRect();
+	QRect rect = activeCodeAssistCursorRect();
 
 	if (isBelowCurrentCursor)
 		rect.moveTop(q->cursorRect().top());
@@ -1495,20 +1516,24 @@ EditBasePrivate::getLastCodeTipPoint(bool isBelowCurrentCursor) {
 
 void
 EditBasePrivate::hideCodeAssist() {
+	Q_Q(EditBase);
+
 	if (m_completer)
 		m_completer->popup()->hide();
 
 	if (m_codeTip)
 		m_codeTip->close();
 
-	m_lastCodeAssistKind = CodeAssistKind_Undefined;
-	m_lastCodeAssistPosition = -1;
-	m_thread = NULL;
+	m_thread = NULL; // prevent any pending code assist to pop
+	m_activeCodeAssistKind = CodeAssistKind_Undefined;
+	m_activeCodeAssistPosition = -1;
+
+	q->releaseCodeAssist();
 }
 
 void
 EditBasePrivate::onCursorPositionChanged() {
-	switch (m_lastCodeAssistKind) {
+	switch (m_activeCodeAssistKind) {
 	case CodeAssistKind_QuickInfoTip:
 		hideCodeAssist();
 		break;

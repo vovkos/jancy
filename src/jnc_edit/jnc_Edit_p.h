@@ -30,9 +30,14 @@ protected:
 	};
 
 protected:
-	rc::Ptr<Module> m_lastCodeAssistModule;
+	rc::Ptr<Module> m_activeCodeAssistModule;
+	size_t m_activeCodeAssistOffset;
 
 protected:
+	EditPrivate() {
+		m_activeCodeAssistOffset = -1;
+	}
+
 	void
 	createCodeAssist(
 		const rc::Ptr<Module>& module,
@@ -74,6 +79,9 @@ protected:
 
 	Function*
 	getPrototypeFunction(const QModelIndex& index);
+
+	int
+	calcActiveCodeAssistPosition();
 };
 
 //..............................................................................

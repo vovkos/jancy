@@ -124,8 +124,20 @@ public slots:
 protected:
 	// code assist utils
 
-	void
-	addFile(
+	CodeAssistKind activeCodeAssistKind();
+	int activeCodeAssistPosition();
+	QTextCursor activeCodeAssistCursor();
+	QRect activeCodeAssistCursorRect();
+	QPoint activeCodeTipPoint(bool isBelowCurrentCursor = false);
+
+	QTextCursor cursorFromLineCol(
+		int line,
+		int col
+	);
+
+	QTextCursor cursorFromOffset(size_t offset); // utf8 offset
+
+	void addFile(
 		QStandardItemModel* model,
 		const QString& fileName
 	);
@@ -135,6 +147,7 @@ protected:
 
 	virtual HighlighterBase* createSyntaxHighlighter() = 0;
 	virtual CodeAssistThreadBase* createCodeAssistThread() = 0;
+	virtual int calcActiveCodeAssistPosition() = 0;
 
 	virtual void autoIndent(
 		QTextCursor* cursor,
@@ -144,7 +157,7 @@ protected:
 
 	virtual void activateCompleter(const QModelIndex& index);
 	virtual void showCodeAssist(CodeAssistThreadBase* thread) = 0;
-	virtual void hideCodeAssist();
+	virtual void releaseCodeAssist() {}
 
 	virtual void changeEvent(QEvent* e);
 	virtual void resizeEvent(QResizeEvent* e);

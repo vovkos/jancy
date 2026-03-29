@@ -125,6 +125,16 @@ Edit::autoIndent(
 	}
 }
 
+int
+Edit::calcActiveCodeAssistPosition() {
+	Q_D(Edit);
+
+	ASSERT(d->m_activeCodeAssistKind && d->m_activeCodeAssistOffset != -1 && d->m_activeCodeAssistPosition == -1);
+
+	QTextCursor cursor = d->cursorFromOffset(d->m_activeCodeAssistOffset);
+	return cursor.position();
+}
+
 void
 Edit::activateCompleter(const QModelIndex& index) {
 	Q_D(Edit);
@@ -132,21 +142,26 @@ Edit::activateCompleter(const QModelIndex& index) {
 	QTextCursor cursor = textCursor();
 
 	Function* function = d->getPrototypeFunction(index);
-	if (!function || !getCursorLineSuffix(cursor).trimmed().isEmpty()) {
+	if (function && getCursorLineSuffix(cursor).trimmed().isEmpty()) {
+		bool isNextLineEmpty = isCursorNextLineEmpty(cursor);
+		QString completion = getPrototypeDeclString(function, isNextLineEmpty);
+		cursor.select(QTextCursor::LineUnderCursor);
+		cursor.insertText(completion);
+
+		int delta = isNextLineEmpty ? 2 : 3; // inside body after \t
+		cursor.setPosition(cursor.position() - delta);
+		setTextCursor(cursor);
+	} else if (d->m_activeCodeAssistKind == CodeAssistKind_ImportAutoComplete) {
+		QModelIndex nameIndex = index.sibling(index.row(), EditBasePrivate::Column_Name); // user could have clicked on synopsis
+		QString completion = d->m_completer->popup()->model()->data(nameIndex, Qt::DisplayRole).toString();
+		int basePosition = d->activeCodeAssistPosition();
+		QString quotedCompletion = '"' + completion + '"';
+		cursor.setPosition(basePosition);
+		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+		cursor.insertText(quotedCompletion);
+	} else
 		EditBase::activateCompleter(index);
-		return;
-	}
-
-	bool isNextLineEmpty = isCursorNextLineEmpty(cursor);
-	QString completion = getPrototypeDeclString(function, isNextLineEmpty);
-	cursor.select(QTextCursor::LineUnderCursor);
-	cursor.insertText(completion);
-
-	int delta = isNextLineEmpty ? 2 : 3; // inside body after \t
-	cursor.setPosition(cursor.position() - delta);
-	setTextCursor(cursor);
 }
-
 
 void
 Edit::showCodeAssist(CodeAssistThreadBase* thread0) {
@@ -158,9 +173,9 @@ Edit::showCodeAssist(CodeAssistThreadBase* thread0) {
 	CodeAssist* codeAssist = thread->getModule()->getCodeAssist();
 	if (!codeAssist) {
 		if (thread->getCodeAssistKind() != CodeAssistKind_QuickInfoTip ||
-			d->m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip
+			d->m_activeCodeAssistKind == CodeAssistKind_QuickInfoTip
 		) // don't let failed quick-info ruin other code-assists
-			hideCodeAssist();
+			d->hideCodeAssist();
 
 		return;
 	}
@@ -169,10 +184,11 @@ Edit::showCodeAssist(CodeAssistThreadBase* thread0) {
 }
 
 void
-Edit::hideCodeAssist() {
+Edit::releaseCodeAssist() {
 	Q_D(Edit);
-	EditBase::hideCodeAssist();
-	d->m_lastCodeAssistModule = rc::g_nullPtr; // drop cache
+	EditBase::releaseCodeAssist();
+	d->m_activeCodeAssistModule = rc::g_nullPtr; // drop cache
+	d->m_activeCodeAssistOffset = -1;
 }
 
 void
@@ -228,7 +244,7 @@ Edit::keyPressPrintChar(QKeyEvent* e) {
 		EditBase::keyPressPrintChar(e);
 
 		if (isImportAutoComplete)
-			d->requestCodeAssist(EditPrivate::CodeAssistDelay_AutoComplete, CodeAssistKind_AutoComplete);
+			d->requestCodeAssist(EditPrivate::CodeAssistDelay_AutoComplete, CodeAssistKind_ImportAutoComplete);
 
 		break;
 
@@ -244,12 +260,12 @@ EditPrivate::createCodeAssist(
 	const rc::Ptr<Module>& module,
 	CodeAssist* codeAssist
 ) {
-	m_lastCodeAssistModule = module; // cache
-	m_lastCodeAssistKind = codeAssist->getCodeAssistKind();
-	m_lastCodeAssistOffset = codeAssist->getOffset();
-	m_lastCodeAssistPosition = -1;
+	m_activeCodeAssistModule = module; // cache
+	m_activeCodeAssistKind = codeAssist->getCodeAssistKind();
+	m_activeCodeAssistOffset = codeAssist->getOffset();
+	m_activeCodeAssistPosition = -1;
 
-	switch (m_lastCodeAssistKind) {
+	switch (m_activeCodeAssistKind) {
 	case CodeAssistKind_QuickInfoTip:
 		createQuickInfoTip(codeAssist->getModuleItem());
 		break;
@@ -285,7 +301,7 @@ void
 EditPrivate::createQuickInfoTip(ModuleItem* item) {
 	Q_Q(Edit);
 
-	QPoint point = getLastCodeTipPoint();
+	QPoint point = activeCodeTipPoint();
 
 	ensureCodeTip();
 	m_codeTip->showQuickInfoTip(point, item);
@@ -298,7 +314,7 @@ EditPrivate::createArgumentTip(
 ) {
 	Q_Q(Edit);
 
-	QPoint point = getLastCodeTipPoint();
+	QPoint point = activeCodeTipPoint();
 
 	ensureCodeTip();
 	m_codeTip->showArgumentTip(point, typeOverload, argumentIdx);
@@ -311,7 +327,7 @@ EditPrivate::createArgumentTip(
 ) {
 	Q_Q(Edit);
 
-	QPoint point = getLastCodeTipPoint();
+	QPoint point = activeCodeTipPoint();
 
 	ensureCodeTip();
 	m_codeTip->showArgumentTip(point, templ, argumentIdx);
@@ -429,7 +445,7 @@ EditPrivate::createAutoComplete(
 	Q_Q(Edit);
 
 	if (flags & CodeAssistFlag_AutoCompleteFallback) {
-		QTextCursor cursor = getLastCodeAssistCursor();
+		QTextCursor cursor = activeCodeAssistCursor();
 		if (hasCursorHighlightColor(cursor) || // not within keywords/literals/comments/etc...
 			!(flags & CodeAssistFlag_QualifiedName) && getCursorPrevChar(cursor) == '.' // ...and not after member operators
 		) {
@@ -460,7 +476,7 @@ EditPrivate::createAutoComplete(
 	m_completer->setWrapAround(false);
 	m_completer->setCompletionPrefix(QString());
 
-	m_completerRect = getLastCodeAssistCursorRect();
+	m_completerRect = activeCodeAssistCursorRect();
 	updateCompleter(true);
 }
 
@@ -502,7 +518,7 @@ EditPrivate::createImportAutoComplete(Module* module) {
 	m_completer->setWrapAround(false);
 	m_completer->setCompletionPrefix(QString());
 
-	m_completerRect = getLastCodeAssistCursorRect();
+	m_completerRect = activeCodeAssistCursorRect();
 	updateCompleter(true);
 }
 
@@ -513,7 +529,7 @@ EditPrivate::getPrototypeFunction(const QModelIndex& index) {
 		return NULL;
 
 	ModuleItemDecl* decl = item->getDecl();
-	if (decl->getParentNamespace() != m_lastCodeAssistModule->getCodeAssist()->getNamespace())
+	if (decl->getParentNamespace() != m_activeCodeAssistModule->getCodeAssist()->getNamespace())
 		return NULL;
 
 	AttributeBlock* block = decl->getAttributeBlock();
