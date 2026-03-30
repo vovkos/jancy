@@ -1,5 +1,7 @@
 #pragma once
 
+#include "jnc_Pch.h"
+
 namespace jnc {
 
 class EditTheme;

@@ -11,32 +11,17 @@
 
 #pragma once
 
-#include "jnc_Pch.h"
-
-namespace jnc {
-
-class EditBase;
-
 //..............................................................................
 
-class LineNumberMargin: public QWidget {
-	Q_OBJECT
+#include <QPlainTextEdit>
+#include <QPalette>
 
-protected:
-	int m_anchorPos;
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-public:
-	LineNumberMargin(EditBase* edit);
-
-	void
-	updateFontMetrics();
-
-protected:
-	virtual
-	void
-	paintEvent(QPaintEvent* e);
-};
+#if (_JNC_EDIT_DLL)
+#  define JNC_EDIT_EXPORT Q_DECL_EXPORT
+#else
+#  define JNC_EDIT_EXPORT Q_DECL_IMPORT
+#endif
 
 //..............................................................................
-
-} // namespace jnc

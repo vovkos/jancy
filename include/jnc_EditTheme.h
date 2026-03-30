@@ -11,15 +11,9 @@
 
 #pragma once
 
-#include <QColor>
+#include "jnc_EditPch.h"
 
 namespace jnc {
-
-#if (_JNC_EDIT_DLL)
-#  define JNC_EDIT_EXPORT Q_DECL_EXPORT
-#else
-#  define JNC_EDIT_EXPORT Q_DECL_IMPORT
-#endif
 
 //..............................................................................
 

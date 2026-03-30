@@ -11,11 +11,13 @@
 
 #pragma once
 
+#include "jnc_EditPch.h"
+
 namespace jnc {
 
 //..............................................................................
 
-class CodeAssistThreadBase: public QThread {
+class JNC_EDIT_EXPORT CodeAssistThreadBase: public QThread {
 	Q_OBJECT
 
 protected:
@@ -36,8 +38,12 @@ public:
 		wait();
 	}
 
-	CodeAssistKind getCodeAssistKind() {
+	CodeAssistKind codeAssistKind() {
 		return m_codeAssistKind;
+	}
+
+	int position() {
+		return m_position;
 	}
 
 	void request(
@@ -47,7 +53,7 @@ public:
 		const QString& source
 	);
 
-	virtual void cancel() = 0;
+	virtual void cancel() {}
 
 protected:
 	virtual void run() = 0;

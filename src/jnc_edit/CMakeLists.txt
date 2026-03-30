@@ -146,12 +146,16 @@ source_group(
 # pch folder
 #
 
-set(PCH_H pch.h)
+set(
+	PCH_H_LIST
+	pch.h
+	${JANCY_ROOT_DIR}/include/jnc_EditPch.h
+)
 
 source_group(
 	pch
 	FILES
-	${PCH_H}
+	${PCH_H_LIST}
 	REGULAR_EXPRESSION cmake_pch
 )
 
@@ -186,7 +190,7 @@ add_definitions(
 add_library(
 	jnc_edit
 	SHARED
-	${PCH_H}
+	${PCH_H_LIST}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${LIB_RL_LIST}

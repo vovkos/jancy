@@ -52,6 +52,7 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_StdHashTable.h
 	${JANCY_ROOT_DIR}/include/jnc_StdBuffer.h
 	${JANCY_ROOT_DIR}/include/jnc_DynamicLayout.h
+	${JANCY_ROOT_DIR}/include/jnc_CodeAssistKind.h
 	${JANCY_ROOT_DIR}/include/jnc_CodeAssist.h
 	${JANCY_ROOT_DIR}/include/jnc_Capability.h
 	${JANCY_ROOT_DIR}/include/jnc_WarningSuppression.h

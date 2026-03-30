@@ -26,12 +26,6 @@ class EditBasePrivate: public QObject {
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(EditBase)
 
-public:
-	enum Column {
-		Column_Name     = 0,
-		Column_Synopsis = 1,
-	};
-
 protected:
 	enum HighlightKind {
 		HighlightKind_CurrentLine,
@@ -45,24 +39,6 @@ protected:
 		Limit_MaxVisibleItemCount = 16,
 		Limit_MaxNameWidth        = 256,
 		Limit_MaxSynopsisWidth    = 512,
-	};
-
-	enum Role {
-		Role_CaseInsensitiveSort = Qt::UserRole + 1,
-	};
-
-	enum Icon {
-		Icon_Object = 0,
-		Icon_Namespace,
-		Icon_Event,
-		Icon_Function,
-		Icon_Property,
-		Icon_Variable,
-		Icon_Field,
-		Icon_Const,
-		Icon_Type,
-		Icon_Typedef,
-		Icon__Count,
 	};
 
 	enum CodeAssistDelay {
@@ -97,9 +73,8 @@ protected:
 	CodeTip* m_codeTip;
 	QCompleter* m_completer;
 	QRect m_completerRect;
-	QIcon m_iconTable[Icon__Count];
+	QIcon m_iconTable[EditBase::CompleterIconCount];
 	QBasicTimer m_codeAssistTimer;
-	QFileIconProvider m_fileIconProvider;
 
 protected:
 	EditBasePrivate();
@@ -205,7 +180,7 @@ protected:
 		return m_codeTip && m_codeTip->isVisible();
 	}
 
-	void
+	QCompleter*
 	ensureCompleter();
 
 	void
@@ -219,12 +194,6 @@ protected:
 
 	QRect
 	activeCodeAssistCursorRect();
-
-	int
-	activeCodeAssistPosition() {
-		Q_Q(EditBase);
-		return m_activeCodeAssistPosition != -1 ? m_activeCodeAssistPosition : q->calcActiveCodeAssistPosition();
-	}
 
 	QPoint
 	activeCodeTipPoint(bool isBelowCurrentCursor = false);

@@ -11,12 +11,13 @@
 
 #pragma once
 
-#include <QPlainTextEdit>
 #include "jnc_EditTheme.h"
+#include "jnc_CodeAssistKind.h"
 
 namespace jnc {
 
 class EditBasePrivate;
+class EditTheme;
 class LineNumberMargin;
 class HighlighterBase;
 class CodeAssistThreadBase;
@@ -62,6 +63,30 @@ public:
 	};
 
 	Q_DECLARE_FLAGS(CodeAssistTriggers, CodeAssistTrigger)
+
+	enum CompleterColumn {
+		NameColumn   = 0,
+		DetailColumn = 1,
+	};
+
+	enum CompleterIcon {
+		FileIcon = 0,
+		ObjectIcon,
+		NamespaceIcon,
+		EventIcon,
+		FunctionIcon,
+		PropertyIcon,
+		VariableIcon,
+		FieldIcon,
+		ConstIcon,
+		TypeIcon,
+		TypedefIcon,
+		CompleterIconCount,
+	};
+
+	enum Role {
+		CaseInsensitiveSortRole = Qt::UserRole + 1,
+	};
 
 protected:
 	EditBase(
@@ -116,6 +141,7 @@ public:
 public slots:
 	void indentSelection();
 	void unindentSelection();
+	void hideCodeAssist();
 	void quickInfoTip();
 	void argumentTip();
 	void autoComplete();
@@ -124,11 +150,20 @@ public slots:
 protected:
 	// code assist utils
 
+	void setActiveCodeAssist(
+		CodeAssistKind codeAssistKind,
+		int position
+	);
+
 	CodeAssistKind activeCodeAssistKind();
 	int activeCodeAssistPosition();
 	QTextCursor activeCodeAssistCursor();
 	QRect activeCodeAssistCursorRect();
 	QPoint activeCodeTipPoint(bool isBelowCurrentCursor = false);
+	QCompleter* ensureCompleter();
+	QIcon completerIcon(CompleterIcon icon);
+
+	void updateCompleter(bool isForced = false);
 
 	QTextCursor cursorFromLineCol(
 		int line,
@@ -147,17 +182,15 @@ protected:
 
 	virtual HighlighterBase* createSyntaxHighlighter() = 0;
 	virtual CodeAssistThreadBase* createCodeAssistThread() = 0;
-	virtual int calcActiveCodeAssistPosition() = 0;
+	virtual void activateCompleter(const QModelIndex& index);
+	virtual void showCodeAssist(CodeAssistThreadBase* thread) = 0;
+	virtual void releaseCodeAssist() {}
 
 	virtual void autoIndent(
 		QTextCursor* cursor,
 		const QString& baseIndent,
 		const QString& tailWord
 	);
-
-	virtual void activateCompleter(const QModelIndex& index);
-	virtual void showCodeAssist(CodeAssistThreadBase* thread) = 0;
-	virtual void releaseCodeAssist() {}
 
 	virtual void changeEvent(QEvent* e);
 	virtual void resizeEvent(QResizeEvent* e);

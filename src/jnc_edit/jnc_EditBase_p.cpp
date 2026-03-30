@@ -345,6 +345,16 @@ EditBase::gotoDefinition() {
 	d->requestCodeAssist(0, CodeAssistKind_GotoDefinition);
 }
 
+void
+EditBase::setActiveCodeAssist(
+	CodeAssistKind codeAssistKind,
+	int position
+) {
+	Q_D(EditBase);
+	d->m_activeCodeAssistKind = codeAssistKind;
+	d->m_activeCodeAssistPosition = position;
+}
+
 CodeAssistKind
 EditBase::activeCodeAssistKind() {
 	Q_D(EditBase);
@@ -354,7 +364,7 @@ EditBase::activeCodeAssistKind() {
 int
 EditBase::activeCodeAssistPosition() {
 	Q_D(EditBase);
-	return d->activeCodeAssistPosition();
+	return d->m_activeCodeAssistPosition;
 }
 
 QTextCursor
@@ -373,6 +383,24 @@ QPoint
 EditBase::activeCodeTipPoint(bool isBelowCurrentCursor) {
 	Q_D(EditBase);
 	return d->activeCodeTipPoint(isBelowCurrentCursor);
+}
+
+QCompleter*
+EditBase::ensureCompleter() {
+	Q_D(EditBase);
+	return d->ensureCompleter();
+}
+
+void
+EditBase::updateCompleter(bool isForced) {
+	Q_D(EditBase);
+	d->updateCompleter(isForced);
+}
+
+QIcon
+EditBase::completerIcon(CompleterIcon icon) {
+	Q_D(EditBase);
+	return (size_t)icon < countof(d->m_iconTable) ? d->m_iconTable[icon] : QIcon();
 }
 
 QTextCursor
@@ -434,6 +462,12 @@ EditBase::unindentSelection() {
 }
 
 void
+EditBase::hideCodeAssist() {
+	Q_D(EditBase);
+	return d->hideCodeAssist();
+}
+
+void
 EditBase::addFile(
 	QStandardItemModel* model,
 	const QString& fileName
@@ -442,8 +476,8 @@ EditBase::addFile(
 
 	QStandardItem* qtItem = new QStandardItem;
 	qtItem->setText(fileName);
-	qtItem->setData(fileName.toLower(), EditBasePrivate::Role_CaseInsensitiveSort);
-	qtItem->setIcon(d->m_fileIconProvider.icon(QFileIconProvider::File));
+	qtItem->setData(fileName.toLower(), EditBase::CaseInsensitiveSortRole);
+	qtItem->setIcon(d->m_iconTable[FileIcon]);
 
 	model->appendRow(qtItem);
 }
@@ -664,12 +698,11 @@ void
 EditBase::activateCompleter(const QModelIndex& index) {
 	Q_D(EditBase);
 
-	QModelIndex nameIndex = index.sibling(index.row(), EditBasePrivate::Column_Name); // user could have clicked on synopsis
+	QModelIndex nameIndex = index.sibling(index.row(), NameColumn); // user could have clicked on synopsis
 	QString completion = d->m_completer->popup()->model()->data(nameIndex, Qt::DisplayRole).toString();
-	int basePosition = d->activeCodeAssistPosition();
 
 	QTextCursor cursor = textCursor();
-	cursor.setPosition(basePosition);
+	cursor.setPosition(d->m_activeCodeAssistPosition);
 
 	QChar c = getCursorNextChar(cursor);
 	if (c.isLetterOrNumber() || c == '_')
@@ -710,23 +743,27 @@ EditBasePrivate::EditBasePrivate() {
 		EditBase::GotoDefinitionOnCtrlClick;
 
 	static const size_t iconIdxTable[] = {
-		0,  // Icon_Object
-		1,  // Icon_Namespace
-		2,  // Icon_Event
-		4,  // Icon_Function
-		6,  // Icon_Property
-		7,  // Icon_Variable
-		12, // Icon_Field
-		11, // Icon_Const
-		10, // Icon_Type
-		9,  // Icon_Typedef
+		0,  // FileIcon = 0
+		0,  // ObjectIcon
+		1,  // NamespaceIcon
+		2,  // EventIcon
+		4,  // FunctionIcon
+		6,  // PropertyIcon
+		7,  // VariableIcon
+		12, // FieldIcon
+		11, // ConstIcon
+		10, // TypeIcon
+		9,  // TypedefIcon
 	};
 
 	QPixmap imageList(":/Images/ObjectIcons");
 	int iconSize = imageList.height();
 
-	for (size_t i = 0; i < countof(m_iconTable); i++)
+	for (size_t i = 1; i < countof(m_iconTable); i++)
 		m_iconTable[i] = imageList.copy(iconIdxTable[i] * iconSize, 0, iconSize, iconSize);
+
+	QFileIconProvider fip;
+	m_iconTable[EditBase::FileIcon] = fip.icon(QFileIconProvider::File);
 }
 
 void
@@ -1384,10 +1421,10 @@ EditBasePrivate::ensureCodeTip() {
 	m_codeTip->setFont(q->font());
 }
 
-void
+QCompleter*
 EditBasePrivate::ensureCompleter() {
 	if (m_completer)
-		return;
+		return m_completer;
 
 	Q_Q(EditBase);
 
@@ -1399,8 +1436,8 @@ EditBasePrivate::ensureCompleter() {
 	popup->setFont(q->font());
 	popup->setPalette(m_theme.completerPalette());
 
-	popup->setItemDelegateForColumn(Column_Name, itemDelegate);
-	popup->setItemDelegateForColumn(Column_Synopsis, itemDelegate);
+	popup->setItemDelegateForColumn(EditBase::NameColumn, itemDelegate);
+	popup->setItemDelegateForColumn(EditBase::DetailColumn, itemDelegate);
 
 	m_completer = new QCompleter(q);
 	m_completer->setWidget(q);
@@ -1412,6 +1449,8 @@ EditBasePrivate::ensureCompleter() {
 		m_completer, SIGNAL(activated(const QModelIndex&)),
 		this, SLOT(onCompleterActivated(const QModelIndex&))
 	);
+
+	return m_completer;
 }
 
 void
@@ -1422,20 +1461,21 @@ EditBasePrivate::updateCompleter(bool isForced) {
 
 	QTextCursor cursor = q->textCursor();
 	int position = cursor.position();
-	int anchorPosition = activeCodeAssistPosition();
-	if (position < anchorPosition) {
+	if (position < m_activeCodeAssistPosition) {
 		hideCodeAssist();
 		return;
 	}
 
 	cursor.setPosition(position, QTextCursor::MoveAnchor);
-	cursor.setPosition(anchorPosition, QTextCursor::KeepAnchor);
+	cursor.setPosition(m_activeCodeAssistPosition, QTextCursor::KeepAnchor);
 	QString prefix = cursor.selectedText();
 
 	if (m_activeCodeAssistKind == CodeAssistKind_ImportAutoComplete)
 		prefix.remove(0, 1); // opening quotation mark
 
-	if (!isForced && prefix == m_completer->completionPrefix())
+	if (isForced)
+		m_completerRect = activeCodeAssistCursorRect();
+	else if (prefix == m_completer->completionPrefix())
 		return;
 
 	QAbstractItemView* popup = (QTreeView*)m_completer->popup();
@@ -1446,8 +1486,8 @@ EditBasePrivate::updateCompleter(bool isForced) {
 	QMargins margins = treeView->contentsMargins();
 	int marginWidth = margins.left() + margins.right();
 	int scrollWidth = popup->verticalScrollBar()->sizeHint().width();
-	int nameWidth = popup->sizeHintForColumn(Column_Name);
-	int synopsisWidth = popup->sizeHintForColumn(Column_Synopsis);
+	int nameWidth = popup->sizeHintForColumn(EditBase::NameColumn);
+	int synopsisWidth = popup->sizeHintForColumn(EditBase::DetailColumn);
 
 	if (nameWidth > Limit_MaxNameWidth)
 		nameWidth = Limit_MaxNameWidth;
@@ -1455,8 +1495,8 @@ EditBasePrivate::updateCompleter(bool isForced) {
 	if (synopsisWidth > Limit_MaxSynopsisWidth)
 		synopsisWidth = Limit_MaxSynopsisWidth;
 
-	treeView->setColumnWidth(Column_Name, nameWidth);
-	treeView->setColumnWidth(Column_Synopsis, synopsisWidth);
+	treeView->setColumnWidth(EditBase::NameColumn, nameWidth);
+	treeView->setColumnWidth(EditBase::DetailColumn, synopsisWidth);
 
 	int fullWidth = nameWidth + synopsisWidth + scrollWidth + marginWidth;
 	m_completerRect.setWidth(fullWidth);
@@ -1480,9 +1520,8 @@ QTextCursor
 EditBasePrivate::activeCodeAssistCursor() {
 	Q_Q(EditBase);
 
-	int position = activeCodeAssistPosition();
 	QTextCursor cursor = q->textCursor();
-	cursor.setPosition(position);
+	cursor.setPosition(m_activeCodeAssistPosition);
 	return cursor;
 }
 
@@ -1513,6 +1552,11 @@ EditBasePrivate::activeCodeTipPoint(bool isBelowCurrentCursor) {
 
 	return q->mapToGlobal(rect.bottomLeft());
 }
+
+	void setActiveCodeAssist(
+		CodeAssistKind codeAssistKind,
+		int position
+	);
 
 void
 EditBasePrivate::hideCodeAssist() {
@@ -1599,7 +1643,7 @@ CompleterItemDelegate::paint(
 	const QStyleOptionViewItem& option,
 	const QModelIndex& index
 ) const {
-	if (index.column() != EditBasePrivate::Column_Synopsis) {
+	if (index.column() != EditBase::DetailColumn) {
 		QStyledItemDelegate::paint(painter, option, index);
 		return;
 	}

@@ -12,20 +12,7 @@
 #pragma once
 
 #include "jnc_ModuleItem.h"
-
-//..............................................................................
-
-enum jnc_CodeAssistKind {
-	jnc_CodeAssistKind_Undefined,
-	jnc_CodeAssistKind_QuickInfoTip,
-	jnc_CodeAssistKind_ArgumentTip,
-	jnc_CodeAssistKind_AutoComplete,
-	jnc_CodeAssistKind_ImportAutoComplete,
-	jnc_CodeAssistKind_GotoDefinition,
-	jnc_CodeAssistKind__Count,
-};
-
-typedef enum jnc_CodeAssistKind jnc_CodeAssistKind;
+#include "jnc_CodeAssistKind.h"
 
 //..............................................................................
 
@@ -134,19 +121,6 @@ struct jnc_CodeAssist {
 namespace jnc {
 
 //..............................................................................
-
-typedef jnc_CodeAssistKind CodeAssistKind;
-
-const CodeAssistKind
-	CodeAssistKind_Undefined          = jnc_CodeAssistKind_Undefined,
-	CodeAssistKind_QuickInfoTip       = jnc_CodeAssistKind_QuickInfoTip,
-	CodeAssistKind_ArgumentTip        = jnc_CodeAssistKind_ArgumentTip,
-	CodeAssistKind_AutoComplete       = jnc_CodeAssistKind_AutoComplete,
-	CodeAssistKind_ImportAutoComplete = jnc_CodeAssistKind_ImportAutoComplete,
-	CodeAssistKind_GotoDefinition     = jnc_CodeAssistKind_GotoDefinition,
-	CodeAssistKind__Count             = jnc_CodeAssistKind__Count;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef jnc_CodeAssistFlag CodeAssistFlag;
 

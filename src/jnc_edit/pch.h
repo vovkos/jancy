@@ -20,6 +20,8 @@
 #	define WIN32_LEAN_AND_MEAN     // prevent winsock.h vs winsock2.h conflict
 #endif
 
+#include "jnc_EditPch.h"
+
 // QT
 
 #include <QApplication>

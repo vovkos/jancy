@@ -31,7 +31,6 @@ public:
 protected:
 	virtual HighlighterBase* createSyntaxHighlighter();
 	virtual CodeAssistThreadBase* createCodeAssistThread();
-	virtual int calcActiveCodeAssistPosition();
 	virtual void activateCompleter(const QModelIndex& index);
 
 	virtual void autoIndent(

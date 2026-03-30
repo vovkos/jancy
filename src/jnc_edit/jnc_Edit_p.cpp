@@ -125,16 +125,6 @@ Edit::autoIndent(
 	}
 }
 
-int
-Edit::calcActiveCodeAssistPosition() {
-	Q_D(Edit);
-
-	ASSERT(d->m_activeCodeAssistKind && d->m_activeCodeAssistOffset != -1 && d->m_activeCodeAssistPosition == -1);
-
-	QTextCursor cursor = d->cursorFromOffset(d->m_activeCodeAssistOffset);
-	return cursor.position();
-}
-
 void
 Edit::activateCompleter(const QModelIndex& index) {
 	Q_D(Edit);
@@ -152,9 +142,9 @@ Edit::activateCompleter(const QModelIndex& index) {
 		cursor.setPosition(cursor.position() - delta);
 		setTextCursor(cursor);
 	} else if (d->m_activeCodeAssistKind == CodeAssistKind_ImportAutoComplete) {
-		QModelIndex nameIndex = index.sibling(index.row(), EditBasePrivate::Column_Name); // user could have clicked on synopsis
+		QModelIndex nameIndex = index.sibling(index.row(), NameColumn); // user could have clicked on synopsis
 		QString completion = d->m_completer->popup()->model()->data(nameIndex, Qt::DisplayRole).toString();
-		int basePosition = d->activeCodeAssistPosition();
+		int basePosition = d->m_activeCodeAssistPosition;
 		QString quotedCompletion = '"' + completion + '"';
 		cursor.setPosition(basePosition);
 		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
@@ -172,7 +162,7 @@ Edit::showCodeAssist(CodeAssistThreadBase* thread0) {
 
 	CodeAssist* codeAssist = thread->getModule()->getCodeAssist();
 	if (!codeAssist) {
-		if (thread->getCodeAssistKind() != CodeAssistKind_QuickInfoTip ||
+		if (thread->codeAssistKind() != CodeAssistKind_QuickInfoTip ||
 			d->m_activeCodeAssistKind == CodeAssistKind_QuickInfoTip
 		) // don't let failed quick-info ruin other code-assists
 			d->hideCodeAssist();
@@ -188,7 +178,6 @@ Edit::releaseCodeAssist() {
 	Q_D(Edit);
 	EditBase::releaseCodeAssist();
 	d->m_activeCodeAssistModule = rc::g_nullPtr; // drop cache
-	d->m_activeCodeAssistOffset = -1;
 }
 
 void
@@ -262,8 +251,7 @@ EditPrivate::createCodeAssist(
 ) {
 	m_activeCodeAssistModule = module; // cache
 	m_activeCodeAssistKind = codeAssist->getCodeAssistKind();
-	m_activeCodeAssistOffset = codeAssist->getOffset();
-	m_activeCodeAssistPosition = -1;
+	m_activeCodeAssistPosition = cursorFromOffset(codeAssist->getOffset()).position();
 
 	switch (m_activeCodeAssistKind) {
 	case CodeAssistKind_QuickInfoTip:
@@ -341,30 +329,30 @@ EditPrivate::getItemIconIdx(ModuleItem* item) {
 		return
 			templ->getDerivableTypeKind() != TypeKind_Void ||
 			templ->getDecl()->getStorageKind() == StorageKind_Typedef ?
-				Icon_Type :
-				Icon_Function;
+				Edit::TypeIcon :
+				Edit::FunctionIcon;
 	}
 
 	static const size_t iconTable[ModuleItemKind__Count] = {
-		Icon_Object,    // ModuleItemKind_Undefined
-		Icon_Namespace, // ModuleItemKind_Namespace
-		Icon_Object,    // ModuleItemKind_Attribute
-		Icon_Object,    // ModuleItemKind_AttributeBlock
-		Icon_Object,    // ModuleItemKind_Scope
-		Icon_Type,      // ModuleItemKind_Type
-		Icon_Typedef,   // ModuleItemKind_Typedef
-		Icon_Object,    // ModuleItemKind_Alias
-		Icon_Const,     // ModuleItemKind_Const
-		Icon_Variable,  // ModuleItemKind_Variable
-		Icon_Function,  // ModuleItemKind_Function
-		Icon_Variable,  // ModuleItemKind_FunctionArg
-		Icon_Function,  // ModuleItemKind_FunctionOverload
-		Icon_Property,  // ModuleItemKind_Property
-		Icon_Property,  // ModuleItemKind_PropertyTemplate
-		Icon_Const,     // ModuleItemKind_EnumConst
-		Icon_Variable,  // ModuleItemKind_Field
-		Icon_Type,      // ModuleItemKind_BaseTypeSlot
-		Icon_Function,  // ModuleItemKind_Orphan
+		Edit::ObjectIcon,    // ModuleItemKind_Undefined
+		Edit::NamespaceIcon, // ModuleItemKind_Namespace
+		Edit::ObjectIcon,    // ModuleItemKind_Attribute
+		Edit::ObjectIcon,    // ModuleItemKind_AttributeBlock
+		Edit::ObjectIcon,    // ModuleItemKind_Scope
+		Edit::TypeIcon,      // ModuleItemKind_Type
+		Edit::TypedefIcon,   // ModuleItemKind_Typedef
+		Edit::ObjectIcon,    // ModuleItemKind_Alias
+		Edit::ConstIcon,     // ModuleItemKind_Const
+		Edit::VariableIcon,  // ModuleItemKind_Variable
+		Edit::FunctionIcon,  // ModuleItemKind_Function
+		Edit::VariableIcon,  // ModuleItemKind_FunctionArg
+		Edit::FunctionIcon,  // ModuleItemKind_FunctionOverload
+		Edit::PropertyIcon,  // ModuleItemKind_Property
+		Edit::PropertyIcon,  // ModuleItemKind_PropertyTemplate
+		Edit::ConstIcon,     // ModuleItemKind_EnumConst
+		Edit::VariableIcon,  // ModuleItemKind_Field
+		Edit::TypeIcon,      // ModuleItemKind_BaseTypeSlot
+		Edit::FunctionIcon,  // ModuleItemKind_Orphan
 	};
 
 	ASSERT((size_t)itemKind < countof(iconTable));
@@ -420,7 +408,7 @@ EditPrivate::addAutoCompleteNamespace(
 
 		QStandardItem* nameItem = new QStandardItem;
 		nameItem->setText(name);
-		nameItem->setData(name.toLower(), Role_CaseInsensitiveSort);
+		nameItem->setData(name.toLower(), Edit::CaseInsensitiveSortRole);
 		nameItem->setData(QVariant::fromValue((void*)item), Role_ModuleItem);
 
 		QStandardItem* synopsisItem = new QStandardItem;
@@ -467,7 +455,7 @@ EditPrivate::createAutoComplete(
 		}
 	}
 
-	model->setSortRole(Role_CaseInsensitiveSort);
+	model->setSortRole(Edit::CaseInsensitiveSortRole);
 	model->sort(0);
 
 	m_completer->setModel(model);
@@ -476,7 +464,6 @@ EditPrivate::createAutoComplete(
 	m_completer->setWrapAround(false);
 	m_completer->setCompletionPrefix(QString());
 
-	m_completerRect = activeCodeAssistCursorRect();
 	updateCompleter(true);
 }
 
@@ -509,7 +496,7 @@ EditPrivate::createImportAutoComplete(Module* module) {
 
 	ensureCompleter();
 
-	model->setSortRole(Role_CaseInsensitiveSort);
+	model->setSortRole(Edit::CaseInsensitiveSortRole);
 	model->sort(0);
 
 	m_completer->setModel(model);
@@ -518,7 +505,6 @@ EditPrivate::createImportAutoComplete(Module* module) {
 	m_completer->setWrapAround(false);
 	m_completer->setCompletionPrefix(QString());
 
-	m_completerRect = activeCodeAssistCursorRect();
 	updateCompleter(true);
 }
 

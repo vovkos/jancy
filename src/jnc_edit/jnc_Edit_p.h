@@ -26,18 +26,13 @@ class EditPrivate: public EditBasePrivate {
 
 protected:
 	enum Role {
-		Role_ModuleItem = Role_CaseInsensitiveSort + 1
+		Role_ModuleItem = EditBase::CaseInsensitiveSortRole + 1
 	};
 
 protected:
 	rc::Ptr<Module> m_activeCodeAssistModule;
-	size_t m_activeCodeAssistOffset;
 
 protected:
-	EditPrivate() {
-		m_activeCodeAssistOffset = -1;
-	}
-
 	void
 	createCodeAssist(
 		const rc::Ptr<Module>& module,
