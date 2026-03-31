@@ -14,7 +14,7 @@
 //..............................................................................
 
 enum jnc_CodeAssistKind {
-	jnc_CodeAssistKind_Undefined,
+	jnc_CodeAssistKind_None,
 	jnc_CodeAssistKind_QuickInfoTip,
 	jnc_CodeAssistKind_ArgumentTip,
 	jnc_CodeAssistKind_AutoComplete,
@@ -34,7 +34,7 @@ namespace jnc {
 typedef jnc_CodeAssistKind CodeAssistKind;
 
 const CodeAssistKind
-	CodeAssistKind_Undefined          = jnc_CodeAssistKind_Undefined,
+	CodeAssistKind_None               = jnc_CodeAssistKind_None,
 	CodeAssistKind_QuickInfoTip       = jnc_CodeAssistKind_QuickInfoTip,
 	CodeAssistKind_ArgumentTip        = jnc_CodeAssistKind_ArgumentTip,
 	CodeAssistKind_AutoComplete       = jnc_CodeAssistKind_AutoComplete,

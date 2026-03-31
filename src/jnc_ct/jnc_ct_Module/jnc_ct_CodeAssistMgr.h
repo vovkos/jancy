@@ -99,7 +99,7 @@ public:
 
 inline
 CodeAssist::CodeAssist() {
-	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssistKind = CodeAssistKind_None;
 	m_offset = 0;
 	m_module = NULL;
 	m_flags = 0;
@@ -228,7 +228,7 @@ public:
 
 	CodeAssist*
 	createEmptyCodeAssist(size_t offset) {
-		return createModuleItemCodeAssist(CodeAssistKind_Undefined, offset, NULL);
+		return createModuleItemCodeAssist(CodeAssistKind_None, offset, NULL);
 	}
 
 	CodeAssist*

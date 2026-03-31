@@ -23,7 +23,7 @@ CodeAssistMgr::CodeAssistMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
-	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssistKind = CodeAssistKind_None;
 	m_codeAssist = NULL;
 	m_offset = -1;
 	m_containerItem = NULL;
@@ -33,7 +33,7 @@ CodeAssistMgr::CodeAssistMgr() {
 void
 CodeAssistMgr::clear() {
 	freeCodeAssist();
-	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssistKind = CodeAssistKind_None;
 	m_codeAssist = NULL;
 	m_offset = -1;
 	m_containerItem = NULL;

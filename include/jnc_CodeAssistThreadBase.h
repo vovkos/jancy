@@ -68,7 +68,7 @@ signals:
 inline
 CodeAssistThreadBase::CodeAssistThreadBase(QObject* parent):
 	QThread(parent) {
-	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssistKind = CodeAssistKind_None;
 	m_position = 0;
 }
 
