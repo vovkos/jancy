@@ -403,6 +403,12 @@ EditBase::completerIcon(CompleterIcon icon) {
 	return (size_t)icon < countof(d->m_iconTable) ? d->m_iconTable[icon] : QIcon();
 }
 
+CodeTipBase*
+EditBase::ensureCodeTip() {
+	Q_D(EditBase);
+	return d->ensureCodeTip();
+}
+
 QTextCursor
 EditBase::cursorFromOffset(size_t offset) {
 	Q_D(EditBase);
@@ -560,12 +566,12 @@ EditBase::keyPressEvent(QKeyEvent* e) {
 
 		case Qt::Key_Up:
 		case Qt::Key_Down:
-			if (!d->isCodeTipVisible() || !d->m_codeTip->isFunctionTypeOverload())
+			if (!d->isCodeTipVisible() || !d->m_codeTip->isMultiTip())
 				QPlainTextEdit::keyPressEvent(e);
 			else if (key == Qt::Key_Up)
-				d->m_codeTip->prevFunctionTypeOverload();
+				d->m_codeTip->prevTip();
 			else
-				d->m_codeTip->nextFunctionTypeOverload();
+				d->m_codeTip->nextTip();
 
 			break;
 
@@ -726,9 +732,9 @@ EditBasePrivate::EditBasePrivate() {
 	m_thread = NULL;
 	m_codeTip = NULL;
 	m_completer = NULL;
-	m_activeCodeAssistKind = CodeAssistKind_Undefined;
+	m_activeCodeAssistKind = CodeAssistKind_None;
 	m_activeCodeAssistPosition = -1;
-	m_pendingCodeAssistKind = CodeAssistKind_Undefined;
+	m_pendingCodeAssistKind = CodeAssistKind_None;
 	m_pendingCodeAssistPosition = -1;
 
 	m_codeAssistTriggers =
@@ -1410,15 +1416,14 @@ EditBasePrivate::startCodeAssistThread(
 	);
 }
 
-void
+CodeTipBase*
 EditBasePrivate::ensureCodeTip() {
 	if (m_codeTip)
-		return;
+		return m_codeTip;
 
 	Q_Q(EditBase);
-
-	m_codeTip = new CodeTip(q, &m_theme);
-	m_codeTip->setFont(q->font());
+	m_codeTip = q->createCodeTip();
+	return m_codeTip;
 }
 
 QCompleter*
@@ -1569,7 +1574,7 @@ EditBasePrivate::hideCodeAssist() {
 		m_codeTip->close();
 
 	m_thread = NULL; // prevent any pending code assist to pop
-	m_activeCodeAssistKind = CodeAssistKind_Undefined;
+	m_activeCodeAssistKind = CodeAssistKind_None;
 	m_activeCodeAssistPosition = -1;
 
 	q->releaseCodeAssist();

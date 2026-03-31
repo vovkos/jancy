@@ -90,6 +90,12 @@ Edit::createCodeAssistThread() {
 	return new CodeAssistThread(this);
 }
 
+CodeTipBase*
+Edit::createCodeTip() {
+	Q_D(Edit);
+	return new CodeTip(this);
+}
+
 void
 Edit::autoIndent(
 	QTextCursor* cursor,
@@ -289,10 +295,11 @@ void
 EditPrivate::createQuickInfoTip(ModuleItem* item) {
 	Q_Q(Edit);
 
-	QPoint point = activeCodeTipPoint();
+	CodeTip* codeTip = qobject_cast<CodeTip*>(ensureCodeTip());
+	ASSERT(codeTip);
 
-	ensureCodeTip();
-	m_codeTip->showQuickInfoTip(point, item);
+	QPoint point = activeCodeTipPoint();
+	codeTip->showQuickInfoTip(point, item);
 }
 
 void
@@ -302,10 +309,11 @@ EditPrivate::createArgumentTip(
 ) {
 	Q_Q(Edit);
 
-	QPoint point = activeCodeTipPoint();
+	CodeTip* codeTip = qobject_cast<CodeTip*>(ensureCodeTip());
+	ASSERT(codeTip);
 
-	ensureCodeTip();
-	m_codeTip->showArgumentTip(point, typeOverload, argumentIdx);
+	QPoint point = activeCodeTipPoint();
+	codeTip->showArgumentTip(point, typeOverload, argumentIdx);
 }
 
 void
@@ -315,10 +323,11 @@ EditPrivate::createArgumentTip(
 ) {
 	Q_Q(Edit);
 
-	QPoint point = activeCodeTipPoint();
+	CodeTip* codeTip = qobject_cast<CodeTip*>(ensureCodeTip());
+	ASSERT(codeTip);
 
-	ensureCodeTip();
-	m_codeTip->showArgumentTip(point, templ, argumentIdx);
+	QPoint point = activeCodeTipPoint();
+	codeTip->showArgumentTip(point, templ, argumentIdx);
 }
 
 size_t

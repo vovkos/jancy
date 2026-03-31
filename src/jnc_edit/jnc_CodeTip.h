@@ -1,6 +1,6 @@
 #pragma once
 
-#include "jnc_Pch.h"
+#include "jnc_CodeTipBase.h"
 
 namespace jnc {
 
@@ -8,32 +8,15 @@ class EditTheme;
 
 //..............................................................................
 
-class CodeTip: public QLabel {
+class CodeTip: public CodeTipBase {
 	Q_OBJECT
 
 protected:
-	const EditTheme* m_theme;
 	Template* m_template;
 	FunctionTypeOverload* m_functionTypeOverload;
-	size_t m_functionTypeOverloadIdx;
-	size_t m_argumentIdx;
 
 public:
-	CodeTip(
-		QWidget* parent,
-		const EditTheme* theme
-	);
-
-	bool
-	isFunctionTypeOverload() {
-		return m_functionTypeOverload && m_functionTypeOverload->getOverloadCount() > 1;
-	}
-
-	void
-	nextFunctionTypeOverload();
-
-	void
-	prevFunctionTypeOverload();
+	CodeTip(EditBase* parent);
 
 	void
 	showQuickInfoTip(
@@ -57,25 +40,16 @@ public:
 
 protected:
 	virtual
-	bool
-	eventFilter(
-		QObject* o,
-		QEvent* e
-	);
-
-	virtual
-	void
-	paintEvent(QPaintEvent* e);
-
-	virtual
-	void
-	resizeEvent(QResizeEvent* e);
-
-	virtual
-	void
-	leaveEvent(QEvent* e);
+	QString
+	createMultiTipText(size_t tipIdx) {
+		ASSERT(codeAssistKind() == CodeAssistKind_ArgumentTip);
+		return getArgumentTipText(tipIdx);
+	}
 
 protected:
+	QString
+	getArgumentTipText(size_t overloadIdx);
+
 	QString
 	getArgumentTipText(
 		FunctionType* type,
@@ -87,27 +61,6 @@ protected:
 		Template* templ,
 		size_t argumentIdx
 	);
-
-	QString
-	getArgumentTipText();
-
-	void
-	showText(
-		const QPoint& pos,
-		const QString& text
-	);
-
-	int
-	getTipScreen(const QPoint &pos);
-
-	void
-	setTipText(const QString &text);
-
-	void
-	placeTip(const QPoint &pos);
-
-	void
-	onLeave();
 };
 
 //..............................................................................

@@ -11,40 +11,44 @@
 
 #pragma once
 
-#include "jnc_EditBase.h"
+#include "jnc_CodeTipBase.h"
 
 namespace jnc {
 
-class EditPrivate;
-
 //..............................................................................
 
-class JNC_EDIT_EXPORT Edit: public EditBase {
+class CodeTipBasePrivate: public QObject {
 	Q_OBJECT
-	Q_DECLARE_PRIVATE(Edit)
-	Q_DISABLE_COPY(Edit)
-
-public:
-	Edit(QWidget* parent = NULL);
-	~Edit();
+	Q_DECLARE_PUBLIC(CodeTipBase)
 
 protected:
-	virtual HighlighterBase* createSyntaxHighlighter();
-	virtual CodeAssistThreadBase* createCodeAssistThread();
-	virtual CodeTipBase* createCodeTip();
+	CodeTipBase* q_ptr;
+	const EditTheme* m_theme;
+	CodeAssistKind m_codeAssistKind;
+	size_t m_tipCount;
+	size_t m_tipIdx;
+	size_t m_argumentIdx;
 
-	virtual void autoIndent(
-		QTextCursor* cursor,
-		const QString& baseIndent,
-		const QString& tailWord
-	);
+protected:
+	CodeTipBasePrivate() {
+		m_theme = NULL;
+		reset();
+	}
 
-	virtual void showCodeAssist(CodeAssistThreadBase* thread);
-	virtual void releaseCodeAssist();
-	virtual void activateCompleter(const QModelIndex& index);
-
-	virtual void keyPressPrintChar(QKeyEvent* e);
+	void
+	reset();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+CodeTipBasePrivate::reset() {
+	m_codeAssistKind = CodeAssistKind_None;
+	m_tipCount = 0;
+	m_tipIdx = 0;
+	m_argumentIdx = 0;
+}
 
 //..............................................................................
 

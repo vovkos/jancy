@@ -12,7 +12,7 @@
 #pragma once
 
 #include "jnc_EditBase.h"
-#include "jnc_CodeTip.h"
+#include "jnc_CodeTipBase.h"
 
 namespace jnc {
 
@@ -70,7 +70,7 @@ protected:
 	int m_activeCodeAssistPosition;
 	CodeAssistKind m_pendingCodeAssistKind;
 	int m_pendingCodeAssistPosition;
-	CodeTip* m_codeTip;
+	CodeTipBase* m_codeTip;
 	QCompleter* m_completer;
 	QRect m_completerRect;
 	QIcon m_iconTable[EditBase::CompleterIconCount];
@@ -167,7 +167,7 @@ protected:
 	void
 	hideCodeAssist();
 
-	void
+	CodeTipBase*
 	ensureCodeTip();
 
 	bool

@@ -74,9 +74,6 @@ protected:
 
 	Function*
 	getPrototypeFunction(const QModelIndex& index);
-
-	int
-	calcActiveCodeAssistPosition();
 };
 
 //..............................................................................

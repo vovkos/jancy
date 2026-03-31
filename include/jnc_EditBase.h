@@ -21,6 +21,7 @@ class EditTheme;
 class LineNumberMargin;
 class HighlighterBase;
 class CodeAssistThreadBase;
+class CodeTipBase;
 
 //..............................................................................
 
@@ -162,8 +163,8 @@ protected:
 	QPoint activeCodeTipPoint(bool isBelowCurrentCursor = false);
 	QCompleter* ensureCompleter();
 	QIcon completerIcon(CompleterIcon icon);
-
 	void updateCompleter(bool isForced = false);
+	CodeTipBase* ensureCodeTip();
 
 	QTextCursor cursorFromLineCol(
 		int line,
@@ -182,9 +183,11 @@ protected:
 
 	virtual HighlighterBase* createSyntaxHighlighter() = 0;
 	virtual CodeAssistThreadBase* createCodeAssistThread() = 0;
-	virtual void activateCompleter(const QModelIndex& index);
+	virtual CodeTipBase* createCodeTip() = 0;
+
 	virtual void showCodeAssist(CodeAssistThreadBase* thread) = 0;
 	virtual void releaseCodeAssist() {}
+	virtual void activateCompleter(const QModelIndex& index);
 
 	virtual void autoIndent(
 		QTextCursor* cursor,
