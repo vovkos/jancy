@@ -7,6 +7,8 @@
 
 namespace jnc {
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
+
 //..............................................................................
 
 CodeTipBase::CodeTipBase(EditBase* parent):
