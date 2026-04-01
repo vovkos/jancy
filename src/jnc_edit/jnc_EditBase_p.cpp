@@ -203,7 +203,8 @@ EditBase::enableLineNumberMargin(bool isEnabled) {
 	d->enableLineNumberMargin(isEnabled);
 }
 
-int EditBase::lineNumberMarginWidth() {
+int
+EditBase::lineNumberMarginWidth() {
 	Q_D(EditBase);
 	return d->m_lineNumberMargin ? d->m_lineNumberMargin->width() : 0;
 }
@@ -322,21 +323,21 @@ EditBase::setExtraSource(const QString& source) {
 }
 
 void
-EditBase::quickInfoTip() {
+EditBase::quickInfoTip(int delay) {
 	Q_D(EditBase);
-	d->requestCodeAssist(0, CodeAssistKind_QuickInfoTip);
+	d->requestCodeAssist(delay, CodeAssistKind_QuickInfoTip);
 }
 
 void
-EditBase::argumentTip() {
+EditBase::argumentTip(int delay) {
 	Q_D(EditBase);
-	d->requestCodeAssist(0, CodeAssistKind_ArgumentTip);
+	d->requestCodeAssist(delay, CodeAssistKind_ArgumentTip);
 }
 
 void
-EditBase::autoComplete() {
+EditBase::autoComplete(int delay) {
 	Q_D(EditBase);
-	d->requestCodeAssist(0, CodeAssistKind_AutoComplete);
+	d->requestCodeAssist(delay, CodeAssistKind_AutoComplete);
 }
 
 void
@@ -383,6 +384,23 @@ QPoint
 EditBase::activeCodeTipPoint(bool isBelowCurrentCursor) {
 	Q_D(EditBase);
 	return d->activeCodeTipPoint(isBelowCurrentCursor);
+}
+
+void
+EditBase::cancelQuickInfoTip() {
+	Q_D(EditBase);
+
+	if (d->m_pendingCodeAssistKind == CodeAssistKind_QuickInfoTip) {
+		if (d->m_codeAssistThread) {
+			d->m_codeAssistThread->cancel();
+			d->m_codeAssistThread = NULL;
+		}
+
+		d->m_pendingCodeAssistKind = CodeAssistKind_None;
+	}
+
+	if (d->m_activeCodeAssistKind == CodeAssistKind_QuickInfoTip)
+		d->hideCodeAssist();
 }
 
 QCompleter*
@@ -683,7 +701,7 @@ EditBase::mouseMoveEvent(QMouseEvent* e) {
 	if (!d->isCompleterVisible() &&
 		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)
 	)
-		d->requestQuickInfoTip(EditBasePrivate::CodeAssistDelay_QuickInfoTip, e->pos());
+		d->requestQuickInfoTip(QuickInfoTipDelay, e->pos());
 }
 
 void
@@ -696,8 +714,16 @@ EditBase::enterEvent(QEvent* e) {
 		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)
 	) {
 		QPoint pos = mapFromGlobal(QCursor::pos());
-		d->requestQuickInfoTip(EditBasePrivate::CodeAssistDelay_QuickInfoTip, pos);
+		d->requestQuickInfoTip(QuickInfoTipDelay, pos);
 	}
+}
+
+void
+EditBase::leaveEvent(QEvent* e) {
+	Q_D(EditBase);
+
+	QPlainTextEdit::leaveEvent(e);
+	cancelQuickInfoTip();
 }
 
 void
@@ -729,13 +755,13 @@ EditBasePrivate::EditBasePrivate() {
 	m_isExtraSelectionUpdateRequired = false;
 	m_isTabsToSpacesEnabled = false;
 	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
-	m_thread = NULL;
+	m_codeAssistThread = NULL;
 	m_codeTip = NULL;
 	m_completer = NULL;
-	m_activeCodeAssistKind = CodeAssistKind_None;
-	m_activeCodeAssistPosition = -1;
 	m_pendingCodeAssistKind = CodeAssistKind_None;
 	m_pendingCodeAssistPosition = -1;
+	m_activeCodeAssistKind = CodeAssistKind_None;
+	m_activeCodeAssistPosition = -1;
 
 	m_codeAssistTriggers =
 		EditBase::QuickInfoTipOnMouseOverIdentifier |
@@ -1253,7 +1279,9 @@ EditBasePrivate::timerEvent(QTimerEvent* e) {
 		return;
 
 	m_codeAssistTimer.stop();
-	startCodeAssistThread(m_pendingCodeAssistKind, m_pendingCodeAssistPosition);
+
+	if (m_pendingCodeAssistKind)
+		startCodeAssistThread(m_pendingCodeAssistKind, m_pendingCodeAssistPosition);
 }
 
 void
@@ -1353,9 +1381,9 @@ EditBasePrivate::requestCodeAssist(
 ) {
 	Q_Q(EditBase);
 
-	if (m_thread) {
-		m_thread->cancel();
-		m_thread = NULL;
+	if (m_codeAssistThread) {
+		m_codeAssistThread->cancel();
+		m_codeAssistThread = NULL;
 	}
 
 	if (!delay) {
@@ -1375,8 +1403,13 @@ EditBasePrivate::requestQuickInfoTip(
 ) {
 	Q_Q(EditBase);
 
-	QTextCursor cursor = q->cursorForPosition(pos);
-	requestCodeAssist(delay, CodeAssistKind_QuickInfoTip, cursor.position());
+	int position = q->cursorForPosition(pos).position();
+	if (m_activeCodeAssistKind == CodeAssistKind_QuickInfoTip &&
+		m_activeCodeAssistPosition == position
+	)
+		return;
+
+	requestCodeAssist(delay, CodeAssistKind_QuickInfoTip, position);
 }
 
 void
@@ -1386,34 +1419,35 @@ EditBasePrivate::startCodeAssistThread(
 ) {
 	Q_Q(EditBase);
 
-	if (m_thread)
-		m_thread->cancel();
-
-	m_thread = q->createCodeAssistThread();
-	m_thread->m_importDirList = m_importDirList;
-	m_thread->m_importList = m_importList;
+	CodeAssistThreadBase* thread = q->createCodeAssistThread();
+	thread->m_importDirList = m_importDirList;
+	thread->m_importList = m_importList;
 
 	if (!m_extraSource.isEmpty()) {
 		QByteArray source = m_extraSource.toUtf8();
-		m_thread->m_extraSource = sl::String(source.constData(), source.length());
+		thread->m_extraSource = sl::String(source.constData(), source.length());
 	}
 
 	QObject::connect(
-		m_thread, SIGNAL(ready()),
+		thread, SIGNAL(ready()),
 		this, SLOT(onCodeAssistThreadReady())
 	);
 
 	QObject::connect(
-		m_thread, SIGNAL(finished()),
+		thread, SIGNAL(finished()),
 		this, SLOT(onCodeAssistThreadFinished())
 	);
 
-	m_thread->request(
+	thread->request(
 		!m_fileName.isEmpty() ? m_fileName : QStringLiteral("untitled-source"),
 		kind,
 		position,
 		q->toPlainText()
 	);
+
+	m_codeAssistThread = thread;
+	m_pendingCodeAssistKind = kind;
+	m_pendingCodeAssistPosition = position;
 }
 
 CodeTipBase*
@@ -1558,11 +1592,6 @@ EditBasePrivate::activeCodeTipPoint(bool isBelowCurrentCursor) {
 	return q->mapToGlobal(rect.bottomLeft());
 }
 
-	void setActiveCodeAssist(
-		CodeAssistKind codeAssistKind,
-		int position
-	);
-
 void
 EditBasePrivate::hideCodeAssist() {
 	Q_Q(EditBase);
@@ -1573,10 +1602,14 @@ EditBasePrivate::hideCodeAssist() {
 	if (m_codeTip)
 		m_codeTip->close();
 
-	m_thread = NULL; // prevent any pending code assist to pop
+	if (m_codeAssistThread) {
+		m_codeAssistThread->cancel();
+		m_codeAssistThread = NULL;
+	}
+
+	m_pendingCodeAssistKind = CodeAssistKind_None;
 	m_activeCodeAssistKind = CodeAssistKind_None;
 	m_activeCodeAssistPosition = -1;
-
 	q->releaseCodeAssist();
 }
 
@@ -1588,7 +1621,7 @@ EditBasePrivate::onCursorPositionChanged() {
 		break;
 
 	case CodeAssistKind_ArgumentTip:
-		requestCodeAssist(CodeAssistDelay_ArgumentTipPos, CodeAssistKind_ArgumentTip);
+		requestCodeAssist(EditBase::ArgumentTipPosDelay, CodeAssistKind_ArgumentTip);
 		break;
 
 	case CodeAssistKind_AutoComplete:
@@ -1625,7 +1658,7 @@ EditBasePrivate::onCodeAssistThreadReady() {
 	CodeAssistThreadBase* thread = qobject_cast<CodeAssistThreadBase*>(sender());
 	ASSERT(thread);
 
-	if (thread == m_thread)
+	if (thread == m_codeAssistThread)
 		q->showCodeAssist(thread);
 }
 
@@ -1634,8 +1667,8 @@ EditBasePrivate::onCodeAssistThreadFinished() {
 	CodeAssistThreadBase* thread = qobject_cast<CodeAssistThreadBase*>(sender());
 	ASSERT(thread);
 
-	if (thread == m_thread)
-		m_thread = NULL;
+	if (thread == m_codeAssistThread)
+		m_codeAssistThread = NULL;
 
 	thread->deleteLater();
 }

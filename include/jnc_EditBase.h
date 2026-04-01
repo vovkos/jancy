@@ -65,6 +65,14 @@ public:
 
 	Q_DECLARE_FLAGS(CodeAssistTriggers, CodeAssistTrigger)
 
+	enum CodeAssistDelay {
+		AutoCompleteDelay       = 100,
+		ArgumentTipInitialDelay = 100,
+		ArgumentTipCommaDelay   = 250,
+		ArgumentTipPosDelay     = 250,
+		QuickInfoTipDelay       = 250,
+	};
+
 	enum CompleterColumn {
 		NameColumn   = 0,
 		DetailColumn = 1,
@@ -143,9 +151,10 @@ public slots:
 	void indentSelection();
 	void unindentSelection();
 	void hideCodeAssist();
-	void quickInfoTip();
-	void argumentTip();
-	void autoComplete();
+
+	void quickInfoTip(int delay = 0);
+	void argumentTip(int delay = 0);
+	void autoComplete(int delay = 0);
 	void gotoDefinition();
 
 protected:
@@ -156,6 +165,7 @@ protected:
 		int position
 	);
 
+	void cancelQuickInfoTip();
 	CodeAssistKind activeCodeAssistKind();
 	int activeCodeAssistPosition();
 	QTextCursor activeCodeAssistCursor();
@@ -200,6 +210,7 @@ protected:
 	virtual void mousePressEvent(QMouseEvent* e);
 	virtual void mouseMoveEvent(QMouseEvent* e);
 	virtual void enterEvent(QEvent* e);
+	virtual void leaveEvent(QEvent* e);
 	virtual void keyPressEvent(QKeyEvent* e);
 	virtual void keyPressPrintChar(QKeyEvent* e);
 

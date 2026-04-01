@@ -23,7 +23,7 @@ CodeTip::showQuickInfoTip(
 	m_functionTypeOverload = NULL;
 
 	const char* synopsis = item->getItemString(ModuleItemStringKind_Synopsis);
-	QString text = highlightJancySource(synopsis, theme());
+	QString text = JancyHighlighter::highlightString(synopsis, theme());
 
 	showTip(
 		CodeAssistKind_QuickInfoTip,
@@ -125,7 +125,7 @@ CodeTip::getArgumentTipText(
 	bool isMl = argCount >= 2;
 
 	const EditTheme* theme = this->theme();
-	QString text = highlightJancySource(returnType->getTypeString(), theme);
+	QString text = JancyHighlighter::highlightString(returnType->getTypeString(), theme);
 	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
 
 	for (size_t i = 0; i < argCount; i++) {
@@ -135,14 +135,14 @@ CodeTip::getArgumentTipText(
 		if (i == argumentIdx)
 			text += "<b>";
 
-		text += highlightJancySource(argType->getTypeStringPrefix(), theme);
+		text += JancyHighlighter::highlightString(argType->getTypeStringPrefix(), theme);
 		text += ' ';
 		text += arg->getDecl()->getName();
-		text += highlightJancySource(argType->getTypeStringSuffix(), theme);
+		text += JancyHighlighter::highlightString(argType->getTypeStringSuffix(), theme);
 
 		if (arg->hasDefaultValue()) {
 			text += " = ";
-			text += highlightJancySource(arg->getDefaultValueString(), theme);
+			text += JancyHighlighter::highlightString(arg->getDefaultValueString(), theme);
 		}
 
 		if (i == argumentIdx)
@@ -158,7 +158,7 @@ CodeTip::getArgumentTipText(
 	text += isMl ? "<br>)" : ")";
 
 	if (isConst)
-		text += highlightJancySource(" const", theme);
+		text += JancyHighlighter::highlightString(" const", theme);
 
 	return text;
 }
@@ -183,7 +183,7 @@ CodeTip::getArgumentTipText(
 		Type* defaultType = arg->getDefaultType();
 		if (defaultType) {
 			text += " = ";
-			text += highlightJancySource(defaultType->getTypeString(), theme);
+			text += JancyHighlighter::highlightString(defaultType->getTypeString(), theme);
 		}
 
 		if (i == argumentIdx)

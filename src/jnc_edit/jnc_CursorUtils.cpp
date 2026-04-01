@@ -135,21 +135,6 @@ hasCursorHighlightColor(const QTextCursor& cursor) {
 	return false;
 }
 
-void
-moveCursorWithLimit(
-	QTextCursor* cursor,
-	const QTextCursor& limitCursor,
-	QTextCursor::MoveOperation op,
-	QTextCursor::MoveMode mode,
-	int n
-) {
-	int pos = cursor->position();
-	cursor->movePosition(op, mode, n);
-
-	if (cursor->position() == pos) // didn't change, use limit
-		*cursor = limitCursor;
-}
-
 //..............................................................................
 
 } // namespace jnc

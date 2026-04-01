@@ -36,6 +36,10 @@ protected:
 	const jnc::EditTheme* m_theme;
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+QString JNC_EDIT_EXPORT createHtmlFromHighlightedTextDocument(const QTextDocument* document);
+
 //..............................................................................
 
 } // namespace jnc

@@ -41,15 +41,6 @@ protected:
 		Limit_MaxSynopsisWidth    = 512,
 	};
 
-	enum CodeAssistDelay {
-		CodeAssistDelay_None               = 0,
-		CodeAssistDelay_AutoComplete       = 100,
-		CodeAssistDelay_ArgumentTipInitial = 100,
-		CodeAssistDelay_ArgumentTipComma   = 250,
-		CodeAssistDelay_ArgumentTipPos     = 250,
-		CodeAssistDelay_QuickInfoTip       = 250,
-	};
-
 protected:
 	EditBase* q_ptr;
 	EditTheme m_theme;
@@ -65,11 +56,11 @@ protected:
 	QStringList m_importDirList;
 	QStringList m_importList;
 	QString m_extraSource;
-	CodeAssistThreadBase* m_thread;
-	CodeAssistKind m_activeCodeAssistKind;
-	int m_activeCodeAssistPosition;
+	CodeAssistThreadBase* m_codeAssistThread;
 	CodeAssistKind m_pendingCodeAssistKind;
 	int m_pendingCodeAssistPosition;
+	CodeAssistKind m_activeCodeAssistKind;
+	int m_activeCodeAssistPosition;
 	CodeTipBase* m_codeTip;
 	QCompleter* m_completer;
 	QRect m_completerRect;

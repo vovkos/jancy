@@ -18,9 +18,11 @@ namespace jnc {
 //..............................................................................
 
 lex::LineCol
+JNC_EDIT_EXPORT
 getCursorLineCol(const QTextCursor& cursor0);
 
 bool
+JNC_EDIT_EXPORT
 isCursorMultiLineSelection(const QTextCursor& cursor0);
 
 inline
@@ -102,17 +104,22 @@ getCursorPrevWord(const QTextCursor& cursor0) {
 }
 
 QChar
+JNC_EDIT_EXPORT
 getCursorPrevChar(const QTextCursor& cursor0);
 
 QChar
+JNC_EDIT_EXPORT
 getCursorNextChar(const QTextCursor& cursor0);
 
 bool
+JNC_EDIT_EXPORT
 isCursorOnIndent(const QTextCursor& cursor0);
 
 bool
+JNC_EDIT_EXPORT
 hasCursorHighlightColor(const QTextCursor& cursor);
 
+inline
 void
 moveCursorWithLimit(
 	QTextCursor* cursor,
@@ -120,7 +127,13 @@ moveCursorWithLimit(
 	QTextCursor::MoveOperation op,
 	QTextCursor::MoveMode mode = QTextCursor::MoveAnchor,
 	int n = 1
-);
+) {
+	int pos = cursor->position();
+	cursor->movePosition(op, mode, n);
+
+	if (cursor->position() == pos) // didn't change, use limit
+		*cursor = limitCursor;
+}
 
 //..............................................................................
 

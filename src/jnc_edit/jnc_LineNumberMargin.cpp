@@ -74,6 +74,32 @@ LineNumberMargin::paintEvent(QPaintEvent* e) {
 	}
 }
 
+void
+LineNumberMargin::enterEvent(QEvent* e) {
+	EditBase* edit = (EditBase*)parentWidget();
+	ASSERT(qobject_cast<EditBase*>(edit));
+	edit->cancelQuickInfoTip();
+}
+
+void
+LineNumberMargin::forwardMouseEvent(QMouseEvent* e) {
+	EditBase* edit = (EditBase*)parentWidget();
+	ASSERT(qobject_cast<EditBase*>(edit));
+
+	QWidget* target = edit->viewport();
+
+    QMouseEvent mappedEvent(
+		e->type(),
+        target->mapFromGlobal(e->globalPos()),
+        e->globalPos(),
+        e->button(),
+		e->buttons(),
+		e->modifiers()
+	);
+
+	QApplication::sendEvent(target, &mappedEvent);
+}
+
 //..............................................................................
 
 } // namespace jnc

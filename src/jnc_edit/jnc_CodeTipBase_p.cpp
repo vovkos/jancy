@@ -181,7 +181,8 @@ CodeTipBase::placeTip(const QPoint& pos) {
 void
 CodeTipBase::onLeave() {
 	QWidget* widget = qApp->widgetAt(QCursor::pos());
-	QWidget* edit = parentWidget();
+	EditBase* edit = qobject_cast<EditBase*>(parentWidget());
+	ASSERT(edit);
 
 	while (widget) {
 		if (widget == edit)

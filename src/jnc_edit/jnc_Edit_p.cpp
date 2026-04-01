@@ -202,8 +202,8 @@ Edit::keyPressPrintChar(QKeyEvent* e) {
 	case '<':
 		EditBase::keyPressPrintChar(e);
 
-		if (d->m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis)
-			d->requestCodeAssist(EditPrivate::CodeAssistDelay_ArgumentTipInitial, CodeAssistKind_ArgumentTip);
+		if (d->m_codeAssistTriggers & ArgumentTipOnTypeLeftParenthesis)
+			d->requestCodeAssist(ArgumentTipInitialDelay, CodeAssistKind_ArgumentTip);
 
 		break;
 
@@ -218,28 +218,28 @@ Edit::keyPressPrintChar(QKeyEvent* e) {
 	case '.':
 		EditBase::keyPressPrintChar(e);
 
-		if ((d->m_codeAssistTriggers & Edit::AutoCompleteOnTypeDot) && !hasCursorHighlightColor(cursor))
-			d->requestCodeAssist(EditPrivate::CodeAssistDelay_AutoComplete, CodeAssistKind_AutoComplete);
+		if ((d->m_codeAssistTriggers & AutoCompleteOnTypeDot) && !hasCursorHighlightColor(cursor))
+			d->requestCodeAssist(AutoCompleteDelay, CodeAssistKind_AutoComplete);
 
 		break;
 
 	case ',':
 		EditBase::keyPressPrintChar(e);
 
-		if ((d->m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma) && !hasCursorHighlightColor(cursor))
-			d->requestCodeAssist(EditPrivate::CodeAssistDelay_ArgumentTipComma, CodeAssistKind_ArgumentTip);
+		if ((d->m_codeAssistTriggers & ArgumentTipOnTypeComma) && !hasCursorHighlightColor(cursor))
+			d->requestCodeAssist(ArgumentTipCommaDelay, CodeAssistKind_ArgumentTip);
 
 		break;
 
 	case '"':
 		isImportAutoComplete =
-			((d->m_codeAssistTriggers & Edit::ImportAutoCompleteOnTypeQuotationMark) &&
+			((d->m_codeAssistTriggers & ImportAutoCompleteOnTypeQuotationMark) &&
 			getCursorLinePrefix(cursor).trimmed() == "import");
 
 		EditBase::keyPressPrintChar(e);
 
 		if (isImportAutoComplete)
-			d->requestCodeAssist(EditPrivate::CodeAssistDelay_AutoComplete, CodeAssistKind_ImportAutoComplete);
+			d->requestCodeAssist(AutoCompleteDelay, CodeAssistKind_ImportAutoComplete);
 
 		break;
 

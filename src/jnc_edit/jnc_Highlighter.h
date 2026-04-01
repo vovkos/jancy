@@ -29,7 +29,7 @@ protected:
 	};
 
 public:
-	const jnc::EditTheme* m_theme; // freely adjustible
+	const EditTheme* m_theme; // freely adjustible
 
 public:
 	JancyHighlighter(
@@ -39,6 +39,13 @@ public:
 		BaseClass(document) {
 		m_theme = theme;
 	}
+
+	static
+	QString
+	highlightString(
+		const QString& source,
+		const EditTheme* theme
+	);
 
 protected:
 	void
@@ -56,11 +63,17 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+inline
 QString
-highlightJancySource(
+JancyHighlighter::highlightString(
 	const QString& source,
-	const EditTheme* theme
-);
+	const jnc::EditTheme* theme
+) {
+	QTextDocument document(source);
+	JancyHighlighter highlighter(&document, theme);
+	highlighter.rehighlight();
+	return createHtmlFromHighlightedTextDocument(&document);
+}
 
 //..............................................................................
 

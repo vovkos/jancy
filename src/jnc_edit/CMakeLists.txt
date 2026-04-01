@@ -44,6 +44,7 @@ set(
 	jnc_EditTheme.cpp
 	jnc_EditBase_p.cpp
 	jnc_Edit_p.cpp
+	jnc_HighlighterBase.cpp
 	jnc_Highlighter.cpp
 	jnc_CodeAssistThreadBase.cpp
 	jnc_CodeAssistThread.cpp

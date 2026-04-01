@@ -32,9 +32,22 @@ public:
 	updateFontMetrics();
 
 protected:
-	virtual
-	void
-	paintEvent(QPaintEvent* e);
+	virtual void paintEvent(QPaintEvent* e);
+	virtual void enterEvent(QEvent* e);
+
+	virtual void mousePressEvent(QMouseEvent* e) {
+		forwardMouseEvent(e);
+	}
+
+	virtual void mouseReleaseEvent(QMouseEvent* e) {
+		forwardMouseEvent(e);
+	}
+
+	virtual void mouseMoveEvent(QMouseEvent* e) {
+		forwardMouseEvent(e);
+	}
+
+	void forwardMouseEvent(QMouseEvent* e);
 };
 
 //..............................................................................
