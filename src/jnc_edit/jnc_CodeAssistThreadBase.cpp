@@ -12,3 +12,20 @@
 #include "pch.h"
 #include "jnc_CodeAssistThreadBase.h"
 #include "moc_jnc_CodeAssistThreadBase.cpp"
+
+namespace jnc {
+//..............................................................................
+
+CodeAssistThreadBase::CodeAssistThreadBase(QObject* parent):
+    QThread(parent) {
+    m_codeAssistKind = CodeAssistKind_None;
+    m_position = 0;
+}
+
+CodeAssistThreadBase::~CodeAssistThreadBase() {
+    wait();
+}
+
+//..............................................................................
+
+} // namespace jnc

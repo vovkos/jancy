@@ -33,10 +33,7 @@ public:
 
 public:
 	CodeAssistThreadBase(QObject* parent = NULL);
-
-	~CodeAssistThreadBase() {
-		wait();
-	}
+	~CodeAssistThreadBase();
 
 	CodeAssistKind codeAssistKind() {
 		return m_codeAssistKind;
@@ -64,13 +61,6 @@ signals:
 };
 
 //..............................................................................
-
-inline
-CodeAssistThreadBase::CodeAssistThreadBase(QObject* parent):
-	QThread(parent) {
-	m_codeAssistKind = CodeAssistKind_None;
-	m_position = 0;
-}
 
 inline
 void CodeAssistThreadBase::request(

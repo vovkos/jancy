@@ -1,7 +1,13 @@
 {
 	global:
-		_ZN3jnc8EditBase*;
-		_ZN3jnc4Edit*;
-		_ZN3jnc9EditTheme*;
+		_ZN*3jnc9EditTheme*;
+		_ZN*3jnc8EditBase*;
+		_ZN*3jnc4Edit*;
+		_ZN*3jnc20CodeAssistThreadBase*;
+		_ZN*3jnc11CodeTipBase*;
+		_ZN3jnc37createHtmlFromHighlightedTextDocument*;
+		_ZN3jnc23hasCursorHighlightColor*;
+
 	local: *;
 };
+

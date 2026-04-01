@@ -37,6 +37,7 @@ CodeTipBase::CodeTipBase(EditBase* parent):
 CodeTipBase::~CodeTipBase() {
 }
 
+JNC_EDIT_EXPORT
 const EditTheme*
 CodeTipBase::theme() const {
 	Q_D(const CodeTipBase);
