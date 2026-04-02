@@ -168,6 +168,8 @@ Socket::accept(
 ) {
 	SocketAddress* address = ((SocketAddress*)addressPtr.m_p);
 	Socket* connectionSocket = createClass<Socket>(m_runtime);
+	connectionSocket->m_tcpKeepAliveIdleTimeout = m_tcpKeepAliveIdleTimeout;
+	connectionSocket->m_tcpKeepAliveRetryInterval = m_tcpKeepAliveRetryInterval;
 
 	m_lock.lock();
 	if (m_pendingIncomingConnectionList.isEmpty()) {
