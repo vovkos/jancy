@@ -229,6 +229,8 @@ WebSocket::accept(
 	IncomingConnection* incomingConnection = m_pendingIncomingConnectionList.removeHead();
 	sl::takeOver(&connectionSocket->m_socket.m_socket, &incomingConnection->m_socket.m_socket);
 	connectionSocket->setOptions(m_options);
+	connectionSocket->setTcpKeepAliveIdleTimeout(getTcpKeepAliveIdleTimeout());
+	connectionSocket->setTcpKeepAliveRetryInterval(getTcpKeepAliveRetryInterval());
 	connectionSocket->AsyncIoDevice::open();
 	connectionSocket->m_ioThreadFlags = IoThreadFlag_IncomingConnection;
 
