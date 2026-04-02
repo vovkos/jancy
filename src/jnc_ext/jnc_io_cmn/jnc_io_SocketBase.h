@@ -49,6 +49,13 @@ protected:
 		axl::io::SockAddr m_sockAddr;
 	};
 
+#if (_AXL_OS_WIN)
+	enum Def {
+		Def_TcpKeepAliveIdleTimeout   = 7200000,
+		Def_TcpKeepAliveRetryInterval = 1000,
+	};
+#endif
+
 protected:
 	axl::io::Socket m_socket;
 	uint16_t m_family;
