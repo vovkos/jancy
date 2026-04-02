@@ -5,9 +5,9 @@
 #include "jnc_EditBase.h"
 #include "jnc_Highlighter.h"
 
-namespace jnc {
-
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
+
+namespace jnc {
 
 //..............................................................................
 
