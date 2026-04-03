@@ -1632,18 +1632,6 @@ protected:
 	);
 
 	bool
-	prepareOperandType_bool(
-		Value* value,
-		uint_t opFlags
-	);
-
-	bool
-	prepareOperand_bool(
-		Value* value,
-		uint_t opFlags
-	);
-
-	bool
 	prepareOperand_enum(
 		Value* value,
 		uint_t opFlags

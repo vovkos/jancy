@@ -128,7 +128,8 @@ OperatorMgr::OperatorMgr() {
 	for (size_t i = 0; i < TypeKind__Count; i++)
 		m_castOperatorTable[i] = &m_cast_Default;
 
-	m_castOperatorTable[TypeKind_Bool] = &m_cast_Bool;
+	m_castOperatorTable[TypeKind_Bool1] = &m_cast_Bool;
+	m_castOperatorTable[TypeKind_Bool8] = &m_cast_Bool;
 
 	for (size_t i = TypeKind_Int8; i <= TypeKind_Int64_u; i++)
 		m_castOperatorTable[i] = &m_cast_Int;
@@ -349,8 +350,8 @@ OperatorMgr::getConditionalOperatorResultType(
 	if (trueType->isEqual(falseType))
 		resultType = trueType;
 	else {
-		uint_t trueFlags = OpFlag_KeepBool | OpFlag_KeepEnum;
-		uint_t falseFlags = OpFlag_KeepBool | OpFlag_KeepEnum;
+		uint_t trueFlags = OpFlag_KeepEnum;
+		uint_t falseFlags = OpFlag_KeepEnum;
 
 		if (isArrayRefType(trueType))
 			trueFlags |= OpFlag_ArrayRefToPtr;
@@ -994,7 +995,7 @@ OperatorMgr::typeofOperator(
 	Value typeValue;
 
 	bool result =
-		prepareOperandType(opValue, &typeValue, OpFlag_KeepBool | OpFlag_KeepEnum | OpFlag_LoadArrayRef) &&
+		prepareOperandType(opValue, &typeValue, OpFlag_KeepEnum | OpFlag_LoadArrayRef) &&
 		m_module->ensureIntrospectionLibRequired();
 
 	if (!result)
@@ -1460,31 +1461,6 @@ OperatorMgr::prepareOperand_propertyRef(
 }
 
 bool
-OperatorMgr::prepareOperandType_bool(
-	Value* value,
-	uint_t opFlags
-) {
-	if (!(opFlags & OpFlag_KeepBool))
-		*value = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8);
-
-	return true;
-}
-
-bool
-OperatorMgr::prepareOperand_bool(
-	Value* value,
-	uint_t opFlags
-) {
-	return (!(opFlags & OpFlag_KeepBool)) ?
-		m_castIntFromBool.cast(
-			*value,
-			m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8),
-			value
-		) :
-		true;
-}
-
-bool
 OperatorMgr::prepareOperand_enum(
 	Value* value,
 	uint_t opFlags
@@ -1499,7 +1475,8 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Void
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Variant
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_String
-	&OperatorMgr::prepareOperandType_bool,        // TypeKind_Bool
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Bool1
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Bool8
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int8
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int8_u
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int16
@@ -1540,7 +1517,8 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Void
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Variant
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_String
-	&OperatorMgr::prepareOperand_bool,        // TypeKind_Bool
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Bool1
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Bool8
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int8
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int8_u
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int16
@@ -1581,7 +1559,8 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Void
 	&OperatorMgr::prepareOperandType_dataRef_variant,   // TypeKind_Variant
 	&OperatorMgr::prepareOperandType_dataRef_string,    // TypeKind_String
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Bool
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Bool1
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Bool8
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int8
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int8_u
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int16
@@ -1622,7 +1601,8 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Void
 	&OperatorMgr::prepareOperand_dataRef_variant,   // TypeKind_Variant
 	&OperatorMgr::prepareOperand_dataRef_string,    // TypeKind_String
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Bool
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Bool1
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Bool8
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int8
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int8_u
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int16

@@ -736,7 +736,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpEQ(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -749,7 +749,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOEQ(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -762,7 +762,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpNE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -775,7 +775,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpONE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -788,7 +788,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLT(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -801,7 +801,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULT(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -814,7 +814,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLT(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -827,7 +827,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -840,7 +840,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -853,7 +853,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -866,7 +866,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGT(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -879,7 +879,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGT(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -892,7 +892,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGT(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -905,7 +905,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -918,7 +918,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 
@@ -931,7 +931,7 @@ public:
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGE(opValue1.getLlvmValue(), opValue2.getLlvmValue());
-		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
+		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool1, m_module));
 		return inst;
 	}
 

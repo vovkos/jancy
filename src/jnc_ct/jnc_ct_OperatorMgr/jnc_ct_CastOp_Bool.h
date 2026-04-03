@@ -88,6 +88,40 @@ public:
 
 //..............................................................................
 
+// bool1 <-> bool8
+
+class Cast_BoolFromBool: public CastOperator {
+public:
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	) {
+		return CastKind_Implicit;
+	}
+
+	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+	) {
+		*(char*)dst = *(char*)opValue.getConstData();
+		return true;
+	}
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+};
+//..............................................................................
+
 // comparison to zero -> bool (common for both integer & fp)
 
 class Cast_BoolFromZeroCmp: public CastOperator {
@@ -135,7 +169,7 @@ public:
 
 //..............................................................................
 
-// bool <-> int
+// bool -> int
 
 class Cast_IntFromBool: public CastOperator {
 public:
@@ -171,16 +205,13 @@ public:
 
 class Cast_Bool: public Cast_Master {
 protected:
+	Cast_BoolFromBool m_fromBool;
 	Cast_BoolFromZeroCmp m_fromZeroCmp;
 	Cast_BoolFromString m_fromString;
 	Cast_BoolFromPtr m_fromPtr;
 	Cast_BoolTrue m_true;
 
 public:
-	Cast_Bool() {
-		m_opFlags = OpFlag_KeepBool;
-	}
-
 	virtual
 	CastOperator*
 	getCastOperator(

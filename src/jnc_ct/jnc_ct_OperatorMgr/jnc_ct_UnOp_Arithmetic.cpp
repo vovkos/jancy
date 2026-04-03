@@ -18,29 +18,29 @@ namespace ct {
 
 //..............................................................................
 
-static TypeKind g_arithmeticOperatorResultTypeTable[TypeKind_Double - TypeKind_Int8 + 1] = {
-	TypeKind_Int32,   // TypeKind_Int8
-	TypeKind_Int32,   // TypeKind_Int8_u
-	TypeKind_Int32,   // TypeKind_Int16
-	TypeKind_Int32,   // TypeKind_Int16_u
-	TypeKind_Int32,   // TypeKind_Int32
-	TypeKind_Int32_u, // TypeKind_Int32_u
-	TypeKind_Int64,   // TypeKind_Int64
-	TypeKind_Int64_u, // TypeKind_Int64_u
-	TypeKind_Float,   // TypeKind_Float
-	TypeKind_Double,  // TypeKind_Double
-};
-
 Type*
 getArithmeticOperatorResultType(Type* opType) {
+	static TypeKind typeTable[TypeKind_Double - TypeKind_Bool1 + 1] = {
+		TypeKind_Int32,   // TypeKind_Bool1
+		TypeKind_Int32,   // TypeKind_Bool8
+		TypeKind_Int32,   // TypeKind_Int8
+		TypeKind_Int32,   // TypeKind_Int8_u
+		TypeKind_Int32,   // TypeKind_Int16
+		TypeKind_Int32,   // TypeKind_Int16_u
+		TypeKind_Int32,   // TypeKind_Int32
+		TypeKind_Int32_u, // TypeKind_Int32_u
+		TypeKind_Int64,   // TypeKind_Int64
+		TypeKind_Int64_u, // TypeKind_Int64_u
+		TypeKind_Float,   // TypeKind_Float
+		TypeKind_Double,  // TypeKind_Double
+	};
+
 	TypeKind typeKind = opType->getTypeKind();
 	if (typeKind == TypeKind_Enum)
 		return getArithmeticOperatorResultType(((EnumType*)opType)->getBaseType());
 
-	size_t i = typeKind - TypeKind_Int8;
-	return i < countof(g_arithmeticOperatorResultTypeTable) ?
-		opType->getModule()->m_typeMgr.getPrimitiveType(g_arithmeticOperatorResultTypeTable[i]) :
-		NULL;
+	size_t i = typeKind - TypeKind_Bool1;
+	return i < countof(typeTable) ? opType->getModule()->m_typeMgr.getPrimitiveType(typeTable[i]) : NULL;
 }
 
 //..............................................................................

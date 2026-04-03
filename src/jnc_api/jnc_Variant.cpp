@@ -314,7 +314,7 @@ jnc_Variant_relationalOperator(
 		opValue2,
 		&resultValue
 	) &&
-		module->m_operatorMgr.castOperator(&resultValue, TypeKind_Bool);
+		module->m_operatorMgr.castOperator(&resultValue, TypeKind_Bool1);
 
 	if (result) {
 		*resultBool = *(bool*)resultValue.getConstData();
@@ -736,7 +736,8 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_default,                     // TypeKind_Void
 	format_default,                     // TypeKind_Variant
 	format_string,                      // TypeKind_String
-	format_type<bool,     FmtType_d>,   // TypeKind_Bool
+	format_type<bool,     FmtType_d>,   // TypeKind_Bool1
+	format_type<bool,     FmtType_d>,   // TypeKind_Bool8
 	format_type<int8_t,   FmtType_d>,   // TypeKind_Int8
 	format_type<uint8_t,  FmtType_u>,   // TypeKind_Int8_u
 	format_type<int16_t,  FmtType_d>,   // TypeKind_Int16

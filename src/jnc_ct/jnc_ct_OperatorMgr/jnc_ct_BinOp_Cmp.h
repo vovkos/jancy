@@ -78,7 +78,7 @@ public:
 			return false;
 
 		if (!hasCodeGen(m_module)) {
-			resultValue->setType(getPrimitiveType(m_module, TypeKind_Bool));
+			resultValue->setType(getPrimitiveType(m_module, TypeKind_Bool1));
 			return true;
 		}
 
@@ -86,7 +86,7 @@ public:
 			TypeKind typeKind = type->getTypeKind();
 			switch (typeKind) {
 			case TypeKind_String:
-				resultValue->setConstBool(
+				resultValue->setConstBool1(
 					T::constOpString(
 						(jnc::String*)opValue1.getConstData(),
 						(jnc::String*)opValue2.getConstData()
@@ -97,7 +97,7 @@ public:
 
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
-				resultValue->setConstBool(
+				resultValue->setConstBool1(
 					T::constOpInt32(
 						opValue1.getInt32(),
 						opValue2.getInt32(),
@@ -109,7 +109,7 @@ public:
 
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				resultValue->setConstBool(
+				resultValue->setConstBool1(
 					T::constOpInt32(
 						opValue1.getInt32(),
 						opValue2.getInt32(),
@@ -120,11 +120,11 @@ public:
 				break;
 
 			case TypeKind_Float:
-				resultValue->setConstBool(T::constOpFp32(opValue1.getFloat(), opValue2.getFloat()), m_module);
+				resultValue->setConstBool1(T::constOpFp32(opValue1.getFloat(), opValue2.getFloat()), m_module);
 				break;
 
 			case TypeKind_Double:
-				resultValue->setConstBool(T::constOpFp64(opValue1.getDouble(), opValue2.getDouble()), m_module);
+				resultValue->setConstBool1(T::constOpFp64(opValue1.getDouble(), opValue2.getDouble()), m_module);
 				break;
 
 			default:

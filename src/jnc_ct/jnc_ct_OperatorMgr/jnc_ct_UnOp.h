@@ -27,12 +27,11 @@ enum OpFlag {
 	OpFlag_KeepDerivableRef      = 0x0010,
 	OpFlag_KeepVariantRef        = 0x0020,
 	OpFlag_KeepStringRef         = 0x0040,
-	OpFlag_KeepBool              = 0x0080,
-	OpFlag_KeepEnum              = 0x0100,
-	OpFlag_KeepAutoConst         = 0x0200,
-	OpFlag_ArrayRefToPtr         = 0x0400,
-	OpFlag_LoadArrayRef          = 0x0800,
-	OpFlag_EnsurePtrTargetLayout = 0x1000,
+	OpFlag_KeepEnum              = 0x0080,
+	OpFlag_KeepAutoConst         = 0x0100,
+	OpFlag_ArrayRefToPtr         = 0x0200,
+	OpFlag_LoadArrayRef          = 0x0400,
+	OpFlag_EnsurePtrTargetLayout = 0x0800,
 
 	OpFlag_KeepRef =
 		OpFlag_KeepDataRef |

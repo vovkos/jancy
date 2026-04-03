@@ -831,7 +831,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		break;
 
 	case StdFunc_TryCheckDataPtrRangeIndirect:
-		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		argTypeArray[2] = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
@@ -855,10 +855,10 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 #if (LLVM_VERSION_MAJOR < 7)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
-		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 		argCount = 5;
 #else
-		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 		argCount = 4;
 #endif
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, argCount);
@@ -881,10 +881,10 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 #if (LLVM_VERSION_MAJOR < 7)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
-		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 		argCount = 5;
 #else
-		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 		argCount = 4;
 #endif
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, argCount);
@@ -907,10 +907,10 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 #if (LLVM_VERSION_MAJOR < 7)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
-		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 		argCount = 5;
 #else
-		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 		argCount = 4;
 #endif
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, argCount);
@@ -987,7 +987,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		break;
 
 	case StdFunc_VariantRelationalOperator:
-		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8);
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
@@ -1101,7 +1101,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		break;
 
 	case StdFunc_StringEq:
-		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8);
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);

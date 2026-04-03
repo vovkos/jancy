@@ -283,6 +283,7 @@ Type::createItemString(size_t index) {
 		"void",
 		"variant_t",
 		"string_t",
+		"bool1",
 		"bool",
 		"char",
 		"unsigned char",
@@ -318,7 +319,7 @@ getLlvmType_string(Module* module) {
 }
 
 llvm::Type*
-getLlvmType_bool(Module* module) {
+getLlvmType_int1(Module* module) {
 	return llvm::Type::getInt1Ty(*module->getLlvmContext());
 }
 
@@ -364,7 +365,8 @@ Type::prepareLlvmType() {
 		getLlvmType_void,    // TypeKind_Void
 		getLlvmType_variant, // TypeKind_Variant
 		getLlvmType_string,  // TypeKind_String
-		getLlvmType_bool,    // TypeKind_Bool
+		getLlvmType_int1,    // TypeKind_Bool1
+		getLlvmType_int8,    // TypeKind_Bool8
 		getLlvmType_int8,    // TypeKind_Int8
 		getLlvmType_int8,    // TypeKind_Int8_u
 		getLlvmType_int16,   // TypeKind_Int16
@@ -398,7 +400,12 @@ Type::prepareLlvmDiType() {
 		},
 		{ 0 },                        // TypeKind_Variant
 		{ 0 },                        // TypeKind_String
-		{                             // TypeKind_Bool
+		{                             // TypeKind_Bool1
+			"bool",
+			llvm::dwarf::DW_ATE_boolean,
+			1,
+		},
+		{                             // TypeKind_Bool8
 			"bool",
 			llvm::dwarf::DW_ATE_boolean,
 			1,
@@ -613,7 +620,8 @@ Type::getValueString(
 		getValueString_void,       // TypeKind_Void
 		getValueString_variant,    // TypeKind_Variant
 		getValueString_string,     // TypeKind_String
-		getValueString_bool,       // TypeKind_Bool
+		getValueString_bool,       // TypeKind_Bool1
+		getValueString_bool,       // TypeKind_Bool8
 		getValueString_int8,       // TypeKind_Int8
 		getValueString_int8_u,     // TypeKind_Int8_u
 		getValueString_int16,      // TypeKind_Int16

@@ -52,7 +52,8 @@ enum jnc_TypeKind {
 	jnc_TypeKind_Void,                // v
 	jnc_TypeKind_Variant,             // z
 	jnc_TypeKind_String,              // s
-	jnc_TypeKind_Bool,                // b
+	jnc_TypeKind_Bool1,               // j
+	jnc_TypeKind_Bool8,               // b
 
 	// little-endian integers
 
@@ -152,12 +153,13 @@ typedef enum jnc_TypeKind jnc_TypeKind;
 // useful for simple checks
 
 enum jnc_TypeKindFlag {
-	jnc_TypeKindFlag_Integer     = 0x00000001,
-	jnc_TypeKindFlag_Signed      = 0x00000002,
-	jnc_TypeKindFlag_Unsigned    = 0x00000004,
-	jnc_TypeKindFlag_Fp          = 0x00000008,
-	jnc_TypeKindFlag_Numeric     = 0x00000010,
-	jnc_TypeKindFlag_Aggregate   = 0x00000020,
+	jnc_TypeKindFlag_Bool        = 0x00000001,
+	jnc_TypeKindFlag_Integer     = 0x00000002,
+	jnc_TypeKindFlag_Signed      = 0x00000004,
+	jnc_TypeKindFlag_Unsigned    = 0x00000008,
+	jnc_TypeKindFlag_Fp          = 0x00000010,
+	jnc_TypeKindFlag_Numeric     = 0x00000020,
+	jnc_TypeKindFlag_Aggregate   = 0x00000040,
 	jnc_TypeKindFlag_Named       = 0x00000100,
 	jnc_TypeKindFlag_Derivable   = 0x00000200,
 	jnc_TypeKindFlag_DataPtr     = 0x00000400,
@@ -687,7 +689,8 @@ const TypeKind
 	TypeKind_Void                = jnc_TypeKind_Void,
 	TypeKind_Variant             = jnc_TypeKind_Variant,
 	TypeKind_String              = jnc_TypeKind_String,
-	TypeKind_Bool                = jnc_TypeKind_Bool,
+	TypeKind_Bool1               = jnc_TypeKind_Bool1,
+	TypeKind_Bool8               = jnc_TypeKind_Bool8,
 	TypeKind_Int8                = jnc_TypeKind_Int8,
 	TypeKind_Int8_u              = jnc_TypeKind_Int8_u,
 	TypeKind_Int16               = jnc_TypeKind_Int16,
@@ -745,6 +748,7 @@ const TypeKind
 typedef jnc_TypeKindFlag TypeKindFlag;
 
 const TypeKindFlag
+	TypeKindFlag_Bool        = jnc_TypeKindFlag_Bool,
 	TypeKindFlag_Integer     = jnc_TypeKindFlag_Integer,
 	TypeKindFlag_Signed      = jnc_TypeKindFlag_Signed,
 	TypeKindFlag_Unsigned    = jnc_TypeKindFlag_Unsigned,

@@ -316,7 +316,7 @@ ControlFlowMgr::conditionalJump(
 	BasicBlock* followBlock
 ) {
 	Value boolValue;
-	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Bool, &boolValue);
+	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Bool1, &boolValue);
 	if (!result)
 		return false;
 

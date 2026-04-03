@@ -274,7 +274,8 @@ Cast_Fp::getCastOperator(
 	case TypeKind_Int64:
 		return &m_fromInt;
 
-	case TypeKind_Bool:
+	case TypeKind_Bool1:
+	case TypeKind_Bool8:
 	case TypeKind_Int8_u:
 	case TypeKind_Int16_u:
 	case TypeKind_Int32_u:

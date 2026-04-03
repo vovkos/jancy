@@ -176,7 +176,7 @@ type_specifier
 			}
 	|	TokenKind_Bool
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8);
 			}
 	|	TokenKind_Int
 			{

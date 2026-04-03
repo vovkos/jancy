@@ -49,7 +49,7 @@ OperatorMgr::logicalOrOperator(
 	BasicBlock* falseBlock2 = m_module->m_controlFlowMgr.createBlock("op2_false");
 
 	Value opValue1;
-	result = m_module->m_operatorMgr.castOperator(rawOpValue1, TypeKind_Bool, &opValue1);
+	result = m_module->m_operatorMgr.castOperator(rawOpValue1, TypeKind_Bool1, &opValue1);
 	if (!result)
 		return false;
 
@@ -58,7 +58,7 @@ OperatorMgr::logicalOrOperator(
 	ASSERT(result);
 
 	Value opValue2;
-	result = m_module->m_operatorMgr.castOperator(rawOpValue2, TypeKind_Bool, &opValue2);
+	result = m_module->m_operatorMgr.castOperator(rawOpValue2, TypeKind_Bool1, &opValue2);
 	if (!result)
 		return false;
 
@@ -66,7 +66,7 @@ OperatorMgr::logicalOrOperator(
 	result = m_module->m_controlFlowMgr.conditionalJump(opValue2, phiBlock, falseBlock2, falseBlock2);
 	ASSERT(result);
 
-	Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+	Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 	Value trueValue(true, type);
 	Value falseValue((int64_t)false, type);
 
@@ -124,7 +124,7 @@ OperatorMgr::logicalAndOperator(
 	BasicBlock* trueBlock2 = m_module->m_controlFlowMgr.createBlock("op2_true");
 
 	Value opValue1;
-	result = m_module->m_operatorMgr.castOperator(rawOpValue1, TypeKind_Bool, &opValue1);
+	result = m_module->m_operatorMgr.castOperator(rawOpValue1, TypeKind_Bool1, &opValue1);
 	if (!result)
 		return false;
 
@@ -133,7 +133,7 @@ OperatorMgr::logicalAndOperator(
 	ASSERT(result);
 
 	Value opValue2;
-	result = m_module->m_operatorMgr.castOperator(rawOpValue2, TypeKind_Bool, &opValue2);
+	result = m_module->m_operatorMgr.castOperator(rawOpValue2, TypeKind_Bool1, &opValue2);
 	if (!result)
 		return false;
 
@@ -141,7 +141,7 @@ OperatorMgr::logicalAndOperator(
 	result = m_module->m_controlFlowMgr.conditionalJump(opValue2, trueBlock2, phiBlock);
 	ASSERT(result);
 
-	Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+	Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1);
 	Value trueValue(true, type);
 	Value falseValue((int64_t)false, type);
 

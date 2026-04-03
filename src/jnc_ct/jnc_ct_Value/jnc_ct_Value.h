@@ -529,11 +529,19 @@ public:
 	);
 
 	void
-	setConstBool(
+	setConstBool1(
 		bool value,
 		Module* module
 	) {
-		createConst(&value, getSimpleType(TypeKind_Bool, module));
+		createConst(&value, getSimpleType(TypeKind_Bool1, module));
+	}
+
+	void
+	setConstBool8(
+		bool value,
+		Module* module
+	) {
+		createConst(&value, getSimpleType(TypeKind_Bool8, module));
 	}
 
 	void
@@ -689,7 +697,8 @@ Value
 Type::getErrorCodeValue() {
 	ASSERT(isErrorCodeType(this));
 
-	if (m_typeKind == TypeKind_Bool || !(getTypeKindFlags()& TypeKindFlag_Integer))
+	uint_t typeKindFlags = getTypeKindFlags();
+	if ((typeKindFlags & (TypeKindFlag_Bool | TypeKindFlag_Integer)) != TypeKindFlag_Integer)
 		return getZeroValue();
 
 	Value errorCodeValue;

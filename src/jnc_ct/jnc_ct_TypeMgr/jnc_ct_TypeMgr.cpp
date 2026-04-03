@@ -1722,7 +1722,8 @@ TypeMgr::setupAllPrimitiveTypes() {
 	};
 
 	setupPrimitiveType(TypeKind_Void,    "v", 0, 0, PodFlags);
-	setupPrimitiveType(TypeKind_Bool,    "b", 1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Bool1,   "j", 1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Bool8,   "b", 1, 1, PodFlags);
 	setupPrimitiveType(TypeKind_Int8,    "c", 1, 1, PodFlags);
 	setupPrimitiveType(TypeKind_Int8_u,  "y", 1, 1, PodFlags);
 	setupPrimitiveType(TypeKind_Int16,   "h", 2, 2, PodFlags);

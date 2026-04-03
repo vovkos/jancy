@@ -121,7 +121,7 @@ OperatorMgr::memSet(
 #if (LLVM_VERSION_MAJOR < 7)
 		Value(1, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
 #endif
-		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool)),
+		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1)),
 	};
 
 	Function* llvmMemset = m_module->m_functionMgr.getStdFunction(StdFunc_LlvmMemset);
@@ -165,7 +165,7 @@ OperatorMgr::memCpy(
 #if (LLVM_VERSION_MAJOR < 7)
 		Value(1, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
 #endif
-		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool)),
+		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1)),
 	};
 
 	Function* llvmMemcpy = m_module->m_functionMgr.getStdFunction(stdFunc);

@@ -101,7 +101,7 @@ ControlFlowMgr::ifStmt_Condition(
 	m_regexCondStmt = NULL;
 
 	Value boolValue;
-	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Bool, &boolValue);
+	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Bool1, &boolValue);
 	if (!result)
 		return false;
 
@@ -716,7 +716,7 @@ ControlFlowMgr::onceStmt_PreBody(
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Eq, value, Value((int64_t) 0, type), &value) &&
 			conditionalJump(value, bodyBlock, loopBlock);
 #else
-		m_module->m_llvmIrBuilder.createExtractValue(value, 1, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool), &value);
+		m_module->m_llvmIrBuilder.createExtractValue(value, 1, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1), &value);
 		result = conditionalJump(value, bodyBlock, loopBlock);
 #endif
 

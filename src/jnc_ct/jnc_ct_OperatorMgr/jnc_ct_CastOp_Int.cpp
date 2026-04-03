@@ -351,9 +351,10 @@ Cast_Int::getCastOperator(
 	ASSERT(dstTypeKind >= TypeKind_Int8 && dstTypeKind <= TypeKind_Int64_u);
 
 	switch (srcTypeKind) {
-	case TypeKind_Bool:
+	case TypeKind_Bool1:
 		return &m_ext_u; // 1 bit -- could only be extended
 
+	case TypeKind_Bool8:
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:
 	case TypeKind_Int16:

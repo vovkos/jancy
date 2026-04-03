@@ -632,7 +632,7 @@ bool
 isErrorCodeType(Type* type) {
 	return
 		(type->getTypeKindFlags() & TypeKindFlag_ErrorCode) ||
-		isImplicitCast(type, TypeKind_Bool);
+		isImplicitCast(type, TypeKind_Bool8);
 }
 
 bool

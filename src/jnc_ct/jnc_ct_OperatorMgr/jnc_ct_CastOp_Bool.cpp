@@ -19,21 +19,52 @@ namespace ct {
 //..............................................................................
 
 bool
+Cast_BoolFromBool::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Bool);
+
+	if (type->getTypeKind() == TypeKind_Bool8) {
+		ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool1);
+		m_module->m_llvmIrBuilder.createExt_u(opValue, type, resultValue);
+	} else {
+		ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool8);
+		m_module->m_llvmIrBuilder.createTrunc_i(opValue, type, resultValue);
+	}
+
+	return true;
+}
+
+//..............................................................................
+
+bool
 Cast_BoolFromZeroCmp::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
 ) {
+	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Bool);
+
 	const char* p = (const char*)opValue.getConstData();
-	const char* end = p + opValue.getType()->getSize();
+	size_t size = opValue.getType()->getSize();
+	bool result;
+	switch (size) {
+	case 8:
+		result = *(uint64_t*)p != 0;
+		break;
 
-	bool result = false;
+	case 4:
+		result = *(uint32_t*)p != 0;
+		break;
 
-	for (; p < end; p++) {
-		if (*p) {
-			result = true;
-			break;
-		}
+	case 2:
+		result = *(uint16_t*)p != 0;
+		break;
+
+	default:
+		result = *(uint8_t*)p != 0;
 	}
 
 	*(bool*)dst = result;
@@ -46,8 +77,18 @@ Cast_BoolFromZeroCmp::llvmCast(
 	Type* type,
 	Value* resultValue
 ) {
+	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Bool);
+
 	Value zeroValue = opValue.getType()->getZeroValue();
-	return m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, opValue, zeroValue, resultValue);
+	bool result = m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, opValue, zeroValue, resultValue);
+	if (!result)
+		return false;
+
+	ASSERT(resultValue->getType()->getTypeKind() == TypeKind_Bool1);
+	if (type->getTypeKind() == TypeKind_Bool8)
+		m_module->m_llvmIrBuilder.createExt_u(*resultValue, type, resultValue);
+
+	return true;
 }
 
 //..............................................................................
@@ -58,6 +99,8 @@ Cast_BoolFromString::llvmCast(
 	Type* type,
 	Value* resultValue
 ) {
+	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Bool);
+
 	StructType* stringType = (StructType*)m_module->m_typeMgr.getStdType(StdType_StringStruct);
 	Field* lengthField = stringType->getFieldArray()[2];
 	Value lengthValue;
@@ -92,13 +135,9 @@ Cast_IntFromBool::constCast(
 	Type* type,
 	void* dst
 ) {
-	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool);
-
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_Bool);
 	memset(dst, 0, type->getSize());
-
-	if (*(bool*)opValue.getConstData())
-		*(char*)dst = 1;
-
+	*(char*)dst = *(char*)opValue.getConstData();
 	return true;
 }
 
@@ -108,7 +147,7 @@ Cast_IntFromBool::llvmCast(
 	Type* type,
 	Value* resultValue
 ) {
-	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool);
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_Bool);
 	m_module->m_llvmIrBuilder.createExt_u(opValue, type, resultValue);
 	return true;
 }
@@ -125,7 +164,10 @@ Cast_Bool::getCastOperator(
 	case TypeKind_String:
 		return &m_fromString;
 
-	case TypeKind_Bool:
+	case TypeKind_Bool1:
+	case TypeKind_Bool8:
+		return &m_fromBool;
+
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:
 	case TypeKind_Int16:

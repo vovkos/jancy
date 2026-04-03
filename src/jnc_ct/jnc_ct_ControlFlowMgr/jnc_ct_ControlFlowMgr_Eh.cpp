@@ -211,8 +211,8 @@ ControlFlowMgr::endTryOperator(
 	Value errorValue;
 	Type* type = value->getType();
 	if (type->getTypeKind() == TypeKind_Void) {
-		value->setConstBool(true, m_module);
-		errorValue.setConstBool(false, m_module);
+		value->setConstBool1(true, m_module);
+		errorValue.setConstBool1(false, m_module);
 	} else if (isErrorCodeType(type)) {
 		errorValue = type->getErrorCodeValue();
 	} else {
@@ -255,10 +255,11 @@ ControlFlowMgr::checkErrorCode(
 
 	ASSERT(isErrorCodeType(returnType));
 
+	uint_t typeKindFlags = returnType->getTypeKindFlags();
 	Value indicatorValue;
-	if (returnType->getTypeKind() == TypeKind_Bool || !(returnType->getTypeKindFlags() & TypeKindFlag_Integer)) {
+	if ((typeKindFlags & (TypeKindFlag_Bool | TypeKindFlag_Integer)) != TypeKindFlag_Integer) // bool or not integer
 		indicatorValue = returnValue;
-	} else {
+	else {
 		uint64_t minusOne = -1;
 		Value minusOneValue;
 		minusOneValue.createConst(&minusOne, returnType);

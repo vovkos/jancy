@@ -35,7 +35,14 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Nullable |     // jnc_TypeKind_String
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Bool
+		jnc_TypeKindFlag_Bool |         // jnc_TypeKind_Bool1
+		jnc_TypeKindFlag_Integer |
+		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
+		jnc_TypeKindFlag_ErrorCode,
+
+		jnc_TypeKindFlag_Bool |         // jnc_TypeKind_Bool8
+		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,

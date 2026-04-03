@@ -25,7 +25,8 @@ UnOp_LogNot::op(
 ) {
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
 	switch (srcTypeKind) {
-	case TypeKind_Bool:
+	case TypeKind_Bool1:
+	case TypeKind_Bool8:
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:
 	case TypeKind_Int16:
@@ -68,7 +69,7 @@ UnOp_LogNot::ptrOperator(
 		return zeroCmpOperator(opValue, resultValue);
 
 	if (!m_module->hasCodeGen()) {
-		resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
+		resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool1));
 		return true;
 	}
 
@@ -85,7 +86,7 @@ UnOp_LogNot::defaultOperator(
 	Value boolValue;
 
 	return
-		m_module->m_operatorMgr.castOperator(opValue, TypeKind_Bool, &boolValue) &&
+		m_module->m_operatorMgr.castOperator(opValue, TypeKind_Bool1, &boolValue) &&
 		zeroCmpOperator(boolValue, resultValue);
 }
 

@@ -1839,7 +1839,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 		uint_t typeFlags;
 
 		if (m_lastPropertyTypeModifiers & TypeModifier_ErrorCode) {
-			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8);
 			typeFlags = FunctionTypeFlag_ErrorCode;
 		} else {
 			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
@@ -2149,7 +2149,7 @@ Parser::declareData(
 				Value declValue((int64_t)(ModuleItemDecl*)field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 				Value typeValue((int64_t)elementType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 				Value ptrTypeFlagsValue(ptrTypeFlags, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int_u));
-				Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
+				Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8));
 				Value offsetValue;
 
 				m_module->disableAccessChecks();
@@ -2205,7 +2205,7 @@ Parser::declareData(
 			Value declValue((int64_t)(ModuleItemDecl*)field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 			Value typeValue((int64_t)type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 			Value ptrTypeFlagsValue(ptrTypeFlags, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int_u));
-			Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
+			Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8));
 			Value offsetValue;
 			Value bitOffsetValue;
 
@@ -2279,7 +2279,7 @@ Parser::declareData(
 
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-			Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
+			Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool8));
 			Value offsetValue;
 
 			m_module->disableAccessChecks();

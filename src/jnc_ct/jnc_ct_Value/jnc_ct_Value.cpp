@@ -183,14 +183,13 @@ getLlvmConstantFunc_string(
 }
 
 llvm::Constant*
-getLlvmConstantFunc_bool(
+getLlvmConstantFunc_bool1(
 	Type* type,
 	const void* p
 ) {
-	uint64_t value = *(bool*)p != 0;
 	return llvm::ConstantInt::get(
 		type->getLlvmType(),
-		llvm::APInt(1, value, false)
+		llvm::APInt(1, *(bool*)p != 0, false)
 	);
 }
 
@@ -203,10 +202,9 @@ getLlvmConstantFunc_int(
 	Type* type,
 	const void* p
 ) {
-	uint64_t value = *(const T*)p;
 	return llvm::ConstantInt::get(
 		type->getLlvmType(),
-		llvm::APInt(sizeof(T) * 8, value, isSigned)
+		llvm::APInt(sizeof(T) * 8, *(const T*)p, isSigned)
 	);
 }
 
@@ -318,7 +316,8 @@ Value::getLlvmConst(
 		NULL,                                      // TypeKind_Void (should never happen)
 		getLlvmConstantFunc_variant,               // TypeKind_Variant
 		getLlvmConstantFunc_string,                // TypeKind_String
-		getLlvmConstantFunc_bool,                  // TypeKind_Bool
+		getLlvmConstantFunc_bool1,                 // TypeKind_Bool1
+		getLlvmConstantFunc_int<uint8_t, false>,   // TypeKind_Bool8
 		getLlvmConstantFunc_int<int8_t, true>,     // TypeKind_Int8
 		getLlvmConstantFunc_int<uint8_t, false>,   // TypeKind_Int8_u
 		getLlvmConstantFunc_int<int16_t, true>,    // TypeKind_Int16

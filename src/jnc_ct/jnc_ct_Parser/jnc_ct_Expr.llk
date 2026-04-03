@@ -861,11 +861,11 @@ primary_expr<Value* $value>
 			}
 	|	TokenKind_True
 			{
-				$value->setConstBool(true, m_module);
+				$value->setConstBool8(true, m_module);
 			}
 	|	TokenKind_False
 			{
-				$value->setConstBool(false, m_module);
+				$value->setConstBool8(false, m_module);
 			}
 	|	TokenKind_Null
 			{
