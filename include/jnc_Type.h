@@ -123,6 +123,8 @@ enum jnc_TypeKind {
 
 	// aliases
 
+	jnc_TypeKind_Bool     = jnc_TypeKind_Bool8,
+
 #if (JNC_PTR_BITS == 64)
 	jnc_TypeKind_IntPtr   = jnc_TypeKind_Int64,
 	jnc_TypeKind_IntPtr_u = jnc_TypeKind_Int64_u,
@@ -727,6 +729,7 @@ const TypeKind
 	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
+	TypeKind_Bool                = jnc_TypeKind_Bool,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,
 	TypeKind_IntPtr_u            = jnc_TypeKind_IntPtr_u,
 	TypeKind_SizeT               = jnc_TypeKind_SizeT,
