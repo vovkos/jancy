@@ -189,7 +189,11 @@ getLlvmConstantFunc_bool1(
 ) {
 	return llvm::ConstantInt::get(
 		type->getLlvmType(),
-		llvm::APInt(1, *(bool*)p != 0, false)
+		llvm::APInt(
+			1,
+			(uint64_t)*(bool*)p != 0,
+			false
+		)
 	);
 }
 
@@ -204,7 +208,11 @@ getLlvmConstantFunc_int(
 ) {
 	return llvm::ConstantInt::get(
 		type->getLlvmType(),
-		llvm::APInt(sizeof(T) * 8, *(const T*)p, isSigned)
+		llvm::APInt(
+			sizeof(T) * 8,
+			(uint64_t)*(const T*)p,
+			isSigned
+		)
 	);
 }
 
