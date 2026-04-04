@@ -22,7 +22,8 @@ enum TypeKind {
 	Void,
 	Variant,
 	String,
-	Bool,
+	Bool1,
+	Bool8,
 
 	// little-endian integers
 
@@ -87,6 +88,7 @@ enum TypeKind {
 
 	// aliases
 
+	Bool    = Bool8,
 	Int     = Int32,
 	Int_u   = Int32_u,
 	Char    = Int8,
