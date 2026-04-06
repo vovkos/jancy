@@ -772,6 +772,8 @@ EditBasePrivate::EditBasePrivate() {
 		11, // ConstIcon
 		10, // TypeIcon
 		9,  // TypedefIcon
+		22, // KeywordIcon
+		25, // StatementIcon
 	};
 
 	QPixmap imageList(":/Images/ObjectIcons");

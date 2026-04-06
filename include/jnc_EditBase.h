@@ -90,6 +90,8 @@ public:
 		ConstIcon,
 		TypeIcon,
 		TypedefIcon,
+		KeywordIcon,
+		StatementIcon,
 		CompleterIconCount,
 	};
 
