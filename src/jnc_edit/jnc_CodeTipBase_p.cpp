@@ -5,14 +5,12 @@
 #include "jnc_EditBase.h"
 #include "jnc_Highlighter.h"
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
-
 namespace jnc {
 
 //..............................................................................
 
 CodeTipBase::CodeTipBase(EditBase* parent):
-	QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget),
+	QLabel(parent, Qt::WindowFlags(Qt::ToolTip | Qt::BypassGraphicsProxyWidget)),
 	d_ptr(new CodeTipBasePrivate) {
 
 	Q_D(CodeTipBase);
