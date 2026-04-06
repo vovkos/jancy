@@ -209,7 +209,6 @@ protected:
 	virtual void resizeEvent(QResizeEvent* e);
 	virtual void mousePressEvent(QMouseEvent* e);
 	virtual void mouseMoveEvent(QMouseEvent* e);
-	virtual void enterEvent(QEvent* e);
 	virtual void leaveEvent(QEvent* e);
 	virtual void keyPressEvent(QKeyEvent* e);
 	virtual void keyPressPrintChar(QKeyEvent* e);

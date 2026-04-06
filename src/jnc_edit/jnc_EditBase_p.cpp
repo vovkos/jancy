@@ -705,20 +705,6 @@ EditBase::mouseMoveEvent(QMouseEvent* e) {
 }
 
 void
-EditBase::enterEvent(QEvent* e) {
-	Q_D(EditBase);
-
-	QPlainTextEdit::enterEvent(e);
-
-	if (!d->isCompleterVisible() &&
-		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)
-	) {
-		QPoint pos = mapFromGlobal(QCursor::pos());
-		d->requestQuickInfoTip(QuickInfoTipDelay, pos);
-	}
-}
-
-void
 EditBase::leaveEvent(QEvent* e) {
 	Q_D(EditBase);
 
