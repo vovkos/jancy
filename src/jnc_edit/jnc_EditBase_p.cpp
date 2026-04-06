@@ -698,8 +698,11 @@ EditBase::mouseMoveEvent(QMouseEvent* e) {
 
 	QPlainTextEdit::mouseMoveEvent(e);
 
-	if (!d->isCompleterVisible() &&
-		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)
+	// quick info shouldn't override other code assist
+
+	if ((d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier) &&
+		(!d->m_activeCodeAssistKind || d->m_activeCodeAssistKind == CodeAssistKind_QuickInfoTip) &&
+		(!d->m_pendingCodeAssistKind || d->m_pendingCodeAssistKind == CodeAssistKind_QuickInfoTip)
 	)
 		d->requestQuickInfoTip(QuickInfoTipDelay, e->pos());
 }
@@ -1270,6 +1273,8 @@ EditBasePrivate::timerEvent(QTimerEvent* e) {
 
 	if (m_pendingCodeAssistKind)
 		startCodeAssistThread(m_pendingCodeAssistKind, m_pendingCodeAssistPosition);
+	else
+		hideCodeAssist();
 }
 
 void
@@ -1391,13 +1396,21 @@ EditBasePrivate::requestQuickInfoTip(
 ) {
 	Q_Q(EditBase);
 
-	int position = q->cursorForPosition(pos).position();
+	QTextCursor cursor = q->cursorForPosition(pos);
+	int position = cursor.position();
 	if (m_activeCodeAssistKind == CodeAssistKind_QuickInfoTip &&
 		m_activeCodeAssistPosition == position
 	)
 		return;
 
-	requestCodeAssist(delay, CodeAssistKind_QuickInfoTip, position);
+	// if beyond eol, don't trigger quick info, instead, hide existing code assist if beyond eol
+
+	cursor.movePosition(QTextCursor::EndOfLine);
+	CodeAssistKind codeAssistKind = pos.x() < q->cursorRect(cursor).right() ?
+		CodeAssistKind_QuickInfoTip :
+		CodeAssistKind_None;
+
+	requestCodeAssist(delay, codeAssistKind, position);
 }
 
 void
