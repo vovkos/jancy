@@ -217,7 +217,10 @@ Type::tryGetStringableValueString(
 	)
 		return false;
 
-	*string = jnc::callFunctionImpl_u<String>(p, valuePtr);
+	*string = (function->getThisArgTypeFlags() & PtrTypeFlag_ThinThis) ?
+		jnc::callFunctionImpl_u<String>(p, valuePtr.m_p) :
+		jnc::callFunctionImpl_u<String>(p, valuePtr);
+
 	return true;
 }
 
