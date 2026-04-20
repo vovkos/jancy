@@ -721,6 +721,21 @@ FunctionMgr::jitFunctions() {
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler(llvmFatalErrorHandler);
 
+#if (_JNC_OS_WIN && _JNC_CPU_ARM64)
+	sl::Iterator<Function> it = m_functionList.getHead();
+	for (; it; it++) {
+		Function* function = *it;
+		if (!function->isEmpty() || !function->hasLlvmFunction())
+			continue;
+
+		llvm::Function* llvmFunction = function->getLlvmFunction();
+		if (llvmFunction->use_empty() || llvmFunction->isIntrinsic())
+			continue;
+
+		llvmFunction->setDLLStorageClass(llvm::GlobalValue::DLLImportStorageClass);
+	}
+#endif
+
 	try {
 		sl::Iterator<Function> it = m_functionList.getHead();
 		for (; it; it++)
