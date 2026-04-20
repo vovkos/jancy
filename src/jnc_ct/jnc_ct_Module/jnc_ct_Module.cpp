@@ -216,6 +216,19 @@ Module::initialize(
 		m_llvmContext->setOpaquePointers(false); // disable opaque pointer mode
 #endif
 		m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
+
+#if (_JNC_OS_WIN && _JNC_CPU_ARM64)
+		// COFF on win-arm64 is super-shaky and immature -- even in llvm-22 (!)
+		// use ELF instead -- mature and battle-tested
+
+		llvm::Triple triple;
+		triple.setArch(llvm::Triple::aarch64);
+		triple.setVendor(llvm::Triple::PC);
+		triple.setOS(llvm::Triple::Win32);
+		triple.setObjectFormat(llvm::Triple::ELF);
+		m_llvmModule->setTargetTriple(triple);
+#endif
+
 		m_llvmIrBuilder.create();
 
 		if (m_compileFlags & ModuleCompileFlag_DebugInfo)
