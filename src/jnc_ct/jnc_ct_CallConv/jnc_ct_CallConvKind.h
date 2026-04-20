@@ -40,7 +40,10 @@ enum CallConvKind {
 	CallConvKind__Count,
 
 #if (_JNC_CPP_MSC)
-#	if (_JNC_CPU_AMD64)
+#	if (_JNC_CPU_ARM64)
+	CallConvKind_Jnccall  = CallConvKind_Jnccall_arm64,
+	CallConvKind_Cdecl    = CallConvKind_Cdecl_arm64,
+#	elif (_JNC_CPU_AMD64)
 	CallConvKind_Jnccall  = CallConvKind_Jnccall_msc64,
 	CallConvKind_Cdecl    = CallConvKind_Cdecl_msc64,
 #	elif (_JNC_CPU_X86)
