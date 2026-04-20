@@ -24,6 +24,7 @@
 
 #if (_AXL_DEBUG)
 #	define _JNC_TEST_NO_CODE_GEN 1
+//#	define _JNC_LLVM_DEBUG_TYPE  "dyld"
 #endif
 
 namespace jnc {
@@ -182,6 +183,11 @@ Module::initialize(
 	const ModuleConfig* config
 ) {
 	clear();
+
+#if (_JNC_DEBUG && _JNC_LLVM_DEBUG_TYPE)
+	llvm::DebugFlag = true;
+	llvm::setCurrentDebugType(_JNC_LLVM_DEBUG_TYPE);
+#endif
 
 	m_name = name;
 	m_config = config ? *config : g_defaultModuleConfig;

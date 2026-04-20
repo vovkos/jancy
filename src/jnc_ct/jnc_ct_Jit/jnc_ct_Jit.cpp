@@ -55,13 +55,18 @@ extern "C" void _chkstk();
 void
 disableLlvmGlobalMerge() {
 #if (LLVM_VERSION < 0x030700)
-	llvm::StringMap<llvm::cl::Option*> options;
+	typedef llvm::StringMap<llvm::cl::Option*> LlvmOptions;
+	LlvmOptions options;
 	llvm::cl::getRegisteredOptions(options);
+#elif (LLVM_VERSION_MAJOR < 22) 
+	typedef llvm::StringMap<llvm::cl::Option*> LlvmOptions;
+	LlvmOptions& options = llvm::cl::getRegisteredOptions();
 #else
-	llvm::StringMap<llvm::cl::Option*>& options = llvm::cl::getRegisteredOptions();
+	typedef llvm::DenseMap<llvm::StringRef, llvm::cl::Option*> LlvmOptions;
+	LlvmOptions& options = llvm::cl::getRegisteredOptions();
 #endif
 
-	llvm::StringMap<llvm::cl::Option*>::iterator globalMergeIt = options.find("global-merge");
+	LlvmOptions::iterator globalMergeIt = options.find("global-merge");
 	if (globalMergeIt != options.end()) {
 		llvm::cl::opt<bool>* globalMerge = (llvm::cl::opt<bool>*)globalMergeIt->second;
 		ASSERT(llvm::isa<llvm::cl::opt<bool> >(globalMerge));
