@@ -184,7 +184,7 @@ Module::initialize(
 ) {
 	clear();
 
-#if (_JNC_DEBUG && _JNC_LLVM_DEBUG_TYPE)
+#if (_JNC_DEBUG && defined _JNC_LLVM_DEBUG_TYPE)
 	llvm::DebugFlag = true;
 	llvm::setCurrentDebugType(_JNC_LLVM_DEBUG_TYPE);
 #endif

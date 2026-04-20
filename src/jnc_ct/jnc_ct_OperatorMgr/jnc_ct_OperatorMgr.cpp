@@ -910,7 +910,7 @@ OperatorMgr::swapByteOrder(
 		sl::swapByteOrder(&buffer, opValue.getConstData(), type->getSize());
 		resultValue->createConst(&buffer, type);
 	} else {
-		llvm::Function* llvmSwapFunc = llvm::Intrinsic::getDeclaration(
+		llvm::Function* llvmSwapFunc = getLlvmIntrinsicDeclaration(
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::bswap,
 			llvm::ArrayRef<llvm::Type*>(type->getLlvmType())

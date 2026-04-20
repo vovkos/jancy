@@ -114,12 +114,14 @@
 #		include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>
 #		if 	(LLVM_VERSION_MAJOR >= 20)
 #			include <llvm/ExecutionEngine/Orc/AbsoluteSymbols.h>
+#			if (LLVM_VERSION_MAJOR >= 21)
+#				include <llvm/ExecutionEngine/Orc/SelfExecutorProcessControl.h>
+#			endif
 #		endif
 #	endif
 #	include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>
 #	include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
 #	include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
-#	include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #endif
 
 #pragma warning(default: 4141)
@@ -238,6 +240,20 @@ typedef Instruction* DbgInstPtr;
 #endif
 
 } // namespace llvm
+
+inline
+llvm::Function*
+getLlvmIntrinsicDeclaration(
+	llvm::Module* module,
+	llvm::Intrinsic::ID id,
+	llvm::ArrayRef<llvm::Type*> types
+) {
+#if (LLVM_VERSION_MAJOR < 20)
+	return llvm::Intrinsic::getDeclaration(module, id, types);
+#else
+	return llvm::Intrinsic::getOrInsertDeclaration(module, id, types);
+#endif
+}
 
 //..............................................................................
 
