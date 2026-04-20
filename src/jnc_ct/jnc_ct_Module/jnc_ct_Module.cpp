@@ -219,14 +219,18 @@ Module::initialize(
 
 #if (_JNC_OS_WIN && _JNC_CPU_ARM64)
 		// COFF on win-arm64 is super-shaky and immature -- even in llvm-22 (!)
-		// use ELF instead -- mature and battle-tested
+		// use ELF instead -- it's mature and battle-tested
 
 		llvm::Triple triple;
 		triple.setArch(llvm::Triple::aarch64);
 		triple.setVendor(llvm::Triple::PC);
 		triple.setOS(llvm::Triple::Win32);
 		triple.setObjectFormat(llvm::Triple::ELF);
+#	if (LLVM_VERSION_MAJOR < 21)
+		m_llvmModule->setTargetTriple(triple.str());
+#	else
 		m_llvmModule->setTargetTriple(triple);
+#	endif
 #endif
 
 		m_llvmIrBuilder.create();
