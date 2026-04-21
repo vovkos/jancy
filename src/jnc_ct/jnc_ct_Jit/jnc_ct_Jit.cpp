@@ -43,7 +43,7 @@ extern "C" int64_t _aullrem(int64_t, int64_t);
 #endif
 
 #if (_JNC_OS_WIN)
-#	if (_JNC_CPU_AMD64)
+#	if (_JNC_CPU_AMD64 || _JNC_CPU_ARM64)
 extern "C" void __chkstk();
 #	elif (_JNC_CPU_X86)
 extern "C" void _chkstk();
@@ -101,7 +101,7 @@ Jit::addStdSymbols() {
 	m_symbolMap["memmove"] = (void*)memmove;
 
 #if (_JNC_OS_WIN)
-#	if (_JNC_CPU_AMD64)
+#	if (_JNC_CPU_AMD64 || _JNC_CPU_ARM64)
 	m_symbolMap["__chkstk"] = (void*)__chkstk;
 #	elif (_JNC_CPU_X86)
 	m_symbolMap["_chkstk"] = (void*)_chkstk;
