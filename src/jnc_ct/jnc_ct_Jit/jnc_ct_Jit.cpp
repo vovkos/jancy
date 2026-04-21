@@ -171,5 +171,18 @@ Jit::createLlvmGlobalVariableMapping(Variable* variable) {
 
 //..............................................................................
 
+bool
+ExecutionEngineJit::finalizeObject() {
+	ASSERT(m_llvmExecutionEngine);
+	m_llvmExecutionEngine->finalizeObject();
+	if (!m_llvmExecutionEngine->hasError())
+		return true;
+
+	const std::string& msg = m_llvmExecutionEngine->getErrorMessage();
+	return err::fail(sl::StringRef(msg.data(), msg.length()));
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

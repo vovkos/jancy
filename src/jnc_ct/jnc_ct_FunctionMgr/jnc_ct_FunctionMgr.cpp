@@ -732,7 +732,9 @@ FunctionMgr::jitFunctions() {
 				it->m_machineCode = p;
 			}
 
-		m_module->m_jit->finalizeObject();
+		bool result = m_module->m_jit->finalizeObject();
+		if (!result)
+			return false;
 	} catch (err::Error error) {
 		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription().sz());
 		return false;

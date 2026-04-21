@@ -72,8 +72,9 @@ public:
 	getStaticData(Variable* variable) = 0;
 
 	virtual
-	void
+	bool
 	finalizeObject() {
+		return true;
 	}
 
 protected:
@@ -140,11 +141,8 @@ public:
 	}
 
 	virtual
-	void
-	finalizeObject() {
-		ASSERT(m_llvmExecutionEngine);
-		m_llvmExecutionEngine->finalizeObject();
-	}
+	bool
+	finalizeObject();
 };
 
 //..............................................................................
