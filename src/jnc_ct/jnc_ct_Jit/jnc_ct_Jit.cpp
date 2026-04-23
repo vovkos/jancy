@@ -58,7 +58,7 @@ disableLlvmGlobalMerge() {
 	typedef llvm::StringMap<llvm::cl::Option*> LlvmOptions;
 	LlvmOptions options;
 	llvm::cl::getRegisteredOptions(options);
-#elif (LLVM_VERSION_MAJOR < 22) 
+#elif (LLVM_VERSION_MAJOR < 22)
 	typedef llvm::StringMap<llvm::cl::Option*> LlvmOptions;
 	LlvmOptions& options = llvm::cl::getRegisteredOptions();
 #else
@@ -175,11 +175,16 @@ bool
 ExecutionEngineJit::finalizeObject() {
 	ASSERT(m_llvmExecutionEngine);
 	m_llvmExecutionEngine->finalizeObject();
+
+#if (LLVM_VERSION_MAJOR < 11)
+	return true;
+#else
 	if (!m_llvmExecutionEngine->hasError())
 		return true;
 
 	const std::string& msg = m_llvmExecutionEngine->getErrorMessage();
 	return err::fail(sl::StringRef(msg.data(), msg.length()));
+#endif
 }
 
 //..............................................................................
