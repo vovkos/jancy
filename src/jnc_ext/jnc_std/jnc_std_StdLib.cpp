@@ -553,7 +553,7 @@ striChr(
 	size_t length = strLen(ptr);
 
 	utf32_t c = c0;
-	sl::BoyerMooreTextFind_latin1 find;
+	sl::BoyerMooreCaseFoldedTextFind_latin1 find;
 	find.setPattern(sl::StringRef_utf32(&c, 1));
 	sl::BoyerMooreTextFindResult result = find.find(ptr.m_p, length);
 	if (!result.isValid())
