@@ -555,12 +555,12 @@ striChr(
 	utf32_t c = c0;
 	sl::BoyerMooreCaseFoldedTextFind_latin1 find;
 	find.setPattern(sl::StringRef_utf32(&c, 1));
-	sl::BoyerMooreTextFindResult result = find.find(ptr.m_p, length);
+	sl::BoyerMooreTextFindResult result = find.find((char*)ptr.m_p, length);
 	if (!result.isValid())
 		return g_nullDataPtr;
 
 	DataPtr resultPtr;
-	resultPtr.m_p = (char*)ptr.m_p + result.m_binOffset;
+	resultPtr.m_p = (char*)ptr.m_p + result.m_cuOffset;
 	resultPtr.m_validator = ptr.m_validator;
 	return resultPtr;
 }
@@ -620,12 +620,12 @@ striStr(
 
 	sl::BoyerMooreCaseFoldedTextFind_latin1 find;
 	find.setPattern(sl::StringRef((char*)ptr2.m_p, length2));
-	sl::BoyerMooreTextFindResult result = find.find(ptr1.m_p, length1);
+	sl::BoyerMooreTextFindResult result = find.find((char*)ptr1.m_p, length1);
 	if (!result.isValid())
 		return g_nullDataPtr;
 
 	DataPtr resultPtr;
-	resultPtr.m_p = (char*)ptr1.m_p + result.m_binOffset;
+	resultPtr.m_p = (char*)ptr1.m_p + result.m_cuOffset;
 	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
 }
