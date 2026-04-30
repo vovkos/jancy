@@ -1122,10 +1122,7 @@ WebSocket::tcpSendRecvLoop() {
 					return;
 				}
 			} else if (actualSize == 0) {
-				setEvents_l(m_socket.getError() ?
-					SocketEvent_TcpDisconnected | SocketEvent_TcpReset :
-					SocketEvent_TcpDisconnected
-				);
+				setEvents_l(SocketEvent_TcpDisconnected);
 				return;
 			} else {
 				result = processIncomingData(p, actualSize);
