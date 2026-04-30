@@ -351,7 +351,7 @@ SocketBase::close() {
 
 void
 SocketBase::processFdError(int error) {
-	else if (error == WSAECONNRESET)
+	if (error == WSAECONNRESET)
 		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
 	else if (error == WSAETIMEDOUT)
 		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);

@@ -130,7 +130,7 @@ protected:
 
 #if (_JNC_OS_WIN)
 	void
-	processFdError(error);
+	processFdError(int error);
 
 	void
 	processFdClose(int error);

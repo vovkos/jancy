@@ -802,7 +802,7 @@ WebSocket::tcpSendRecvLoop() {
 			dword_t actualSize;
 			result = m_socket.m_socket.wsaGetOverlappedResult(&recv->m_overlapped, &actualSize);
 			if (!result) {
-				processSendRecvError();
+				processTcpSendRecvError();
 				return;
 			}
 
@@ -824,7 +824,7 @@ WebSocket::tcpSendRecvLoop() {
 			dword_t actualSize;
 			result = m_socket.m_socket.wsaGetOverlappedResult(&m_overlappedIo->m_sendOverlapped, &actualSize);
 			if (!result) {
-				processSendRecvError();
+				processTcpSendRecvError();
 				break;
 			}
 
@@ -875,7 +875,7 @@ WebSocket::tcpSendRecvLoop() {
 			);
 
 			if (!result) {
-				processSendRecvError();
+				processTcpSendRecvError();
 				break;
 			}
 
@@ -902,7 +902,7 @@ WebSocket::tcpSendRecvLoop() {
 
 				if (!result) {
 					m_overlappedIo->m_overlappedRecvPool.put(recv);
-					processSendRecvError();
+					processTcpSendRecvError();
 					return;
 				}
 
