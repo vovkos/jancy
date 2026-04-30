@@ -32,10 +32,10 @@ enum WebSocketOption {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum WebSocketEvent {
-	WebSocketEvent_WebSocketHandshakeRequested = 0x0200,
-	WebSocketEvent_WebSocketHandshakeCompleted = 0x0400,
-	WebSocketEvent_WebSocketCloseRequested     = 0x0800,
-	WebSocketEvent_WebSocketCloseCompleted     = 0x1000,
+	WebSocketEvent_WebSocketHandshakeRequested = 0x0400,
+	WebSocketEvent_WebSocketHandshakeCompleted = 0x0800,
+	WebSocketEvent_WebSocketCloseRequested     = 0x1000,
+	WebSocketEvent_WebSocketCloseCompleted     = 0x2000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

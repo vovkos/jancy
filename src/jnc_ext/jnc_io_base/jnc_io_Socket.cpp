@@ -298,7 +298,7 @@ Socket::processSendRecvError(bool isDatagram) {
 	if (isDatagram)
 		setIoErrorEvent();
 	else
-		SocketBase::processSendRecvError();
+		SocketBase::processTcpSendRecvError();
 }
 
 void
@@ -593,9 +593,9 @@ Socket::sendRecvLoop(
 				);
 
 				if (actualSize == -1) {
-					if (errno == EAGAIN) {
+					if (errno == EAGAIN)
 						canReadSocket = false;
-					} else {
+					else {
 						setIoErrorEvent_l(err::Errno(errno));
 						return;
 					}
@@ -625,10 +625,10 @@ Socket::sendRecvLoop(
 				);
 
 				if (actualSize == -1) {
-					if (errno == EAGAIN) {
+					if (errno == EAGAIN)
 						canWriteSocket = false;
-					} else if (actualSize < 0) {
-						setIoErrorEvent_l(err::Errno((int)actualSize));
+					else {
+						setIoErrorEvent_l(err::Errno(errno));
 						return;
 					}
 				} else {
@@ -642,7 +642,7 @@ Socket::sendRecvLoop(
 					if (errno == EAGAIN) {
 						canReadSocket = false;
 					} else {
-						setIoErrorEvent_l(err::Errno(errno));
+						processTcpSendRecvErrno_l();
 						return;
 					}
 				} else if (actualSize == 0) {
@@ -664,10 +664,10 @@ Socket::sendRecvLoop(
 				size_t blockSize = writeBlock.getCount();
 				ssize_t actualSize = ::send(m_socket.m_socket, writeBlock, blockSize, 0);
 				if (actualSize == -1) {
-					if (errno == EAGAIN) {
+					if (errno == EAGAIN)
 						canWriteSocket = false;
-					} else {
-						setIoErrorEvent_l(err::Errno(errno));
+					else {
+						processTcpSendRecvErrno_l();
 						return;
 					}
 				} else if ((size_t)actualSize < blockSize) {

@@ -21,7 +21,7 @@ struct SslStateBase;
 //..............................................................................
 
 enum SslSocketEvent {
-	SslSocketEvent_SslHandshakeCompleted = 0x0100,
+	SslSocketEvent_SslHandshakeCompleted = 0x0200,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

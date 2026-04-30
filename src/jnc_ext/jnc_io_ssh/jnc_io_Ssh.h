@@ -22,12 +22,12 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(SshChannel)
 //..............................................................................
 
 enum SshEvent {
-	SshEvent_SshHandshakeCompleted    = 0x0100,
-	SshEvent_SshAuthenticateError     = 0x0200,
-	SshEvent_SshAuthenticateCompleted = 0x0400,
-	SshEvent_SshChannelOpened         = 0x0800,
-	SshEvent_SshPtyRequestCompleted   = 0x1000,
-	SshEvent_SshConnectCompleted      = 0x2000,
+	SshEvent_SshHandshakeCompleted    = 0x0200,
+	SshEvent_SshAuthenticateError     = 0x0400,
+	SshEvent_SshAuthenticateCompleted = 0x0800,
+	SshEvent_SshChannelOpened         = 0x1000,
+	SshEvent_SshPtyRequestCompleted   = 0x2000,
+	SshEvent_SshConnectCompleted      = 0x4000,
 
 	SshEvent_FullyConnected =
 		SocketEvent_TcpConnected |

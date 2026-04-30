@@ -293,7 +293,7 @@ SslSocket::sslReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_READ) {
 				int error = networkEvents.iErrorCode[FD_READ_BIT];
 				if (error) {
-					setIoErrorEvent(error);
+					processFdError(error);
 					return;
 				}
 
@@ -303,7 +303,7 @@ SslSocket::sslReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_WRITE) {
 				int error = networkEvents.iErrorCode[FD_WRITE_BIT];
 				if (error) {
-					setIoErrorEvent(error);
+					processFdError(error);
 					return;
 				}
 
@@ -475,7 +475,7 @@ SslSocket::sslReadWriteLoop() {
 					break;
 
 				default:
-					setIoErrorEvent();
+					processTcpSendRecvError();
 					return;
 				}
 
@@ -510,7 +510,7 @@ SslSocket::sslReadWriteLoop() {
 					break;
 
 				default:
-					setIoErrorEvent();
+					processTcpSendRecvError();
 					return;
 				}
 			} else if ((size_t)actualSize < blockSize) {

@@ -62,6 +62,15 @@ bitflag enum SocketEvents: StreamEvents {
 	*/
 
 	TcpReset,
+
+	/**
+		TCP connection has timed out due to the remote node being unresponsive.
+        The local node attempted to retransmit data or keepalive probes multiple
+        times without receiving any acknowledgment. Whenever this event is set,
+        `io.SocketEvents.TcpDisconnected` is also set.
+	*/
+
+	TcpTimedOut,
 }
 
 //..............................................................................

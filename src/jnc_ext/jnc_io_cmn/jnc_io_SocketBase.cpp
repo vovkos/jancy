@@ -350,22 +350,32 @@ SocketBase::close() {
 #if (_JNC_OS_WIN)
 
 void
-SocketBase::processFdClose(int error) {
-	if (!error)
-		setEvents(SocketEvent_TcpDisconnected);
+SocketBase::processFdError(int error) {
 	else if (error == WSAECONNRESET)
 		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
+	else if (error == WSAETIMEDOUT)
+		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
 	else
 		setIoErrorEvent(error);
 }
 
 void
-SocketBase::processSendRecvError() {
+SocketBase::processFdClose(int error) {
+	if (!error)
+		setEvents(SocketEvent_TcpDisconnected);
+	else
+		processFdError(error);
+}
+
+void
+SocketBase::processTcpSendRecvError() {
 	err::Error error = err::getLastError();
 	ASSERT(error->m_guid == err::g_systemErrorGuid);
 
 	if (error->m_code == WSAECONNRESET)
 		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
+	else if (error->m_code == WSAETIMEDOUT)
+		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
 	else
 		setIoErrorEvent(error);
 }
@@ -491,6 +501,29 @@ SocketBase::acceptLoop(uint_t incomingConnectionEvent) {
 }
 
 #elif (_JNC_OS_POSIX)
+
+void
+SocketBase::processTcpSendRecvErrno_l() {
+	if (errno == ECONNRESET)
+		setEvents_l(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
+	else if (errno == ETIMEDOUT)
+		setEvents_l(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
+	else
+		setIoErrorEvent_l(err::Errno(errno));
+}
+
+void
+SocketBase::processTcpSendRecvError() {
+	err::Error error = err::getLastError();
+	ASSERT(error->m_guid == err::g_errnoGuid);
+
+	if (error->m_code == ECONNRESET)
+		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
+	else if (error->m_code == ETIMEDOUT)
+		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
+	else
+		setIoErrorEvent(error);
+}
 
 bool
 SocketBase::connectLoop(uint_t connectCompletedEvent) {

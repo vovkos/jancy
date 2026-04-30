@@ -653,7 +653,7 @@ WebSocket::sslReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_READ) {
 				int error = networkEvents.iErrorCode[FD_READ_BIT];
 				if (error) {
-					setIoErrorEvent(error);
+					processFdError(error);
 					return;
 				}
 
@@ -663,7 +663,7 @@ WebSocket::sslReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_WRITE) {
 				int error = networkEvents.iErrorCode[FD_WRITE_BIT];
 				if (error) {
-					setIoErrorEvent(error);
+					processFdError(error);
 					return;
 				}
 
@@ -995,7 +995,7 @@ WebSocket::sslReadWriteLoop() {
 					break;
 
 				default:
-					setIoErrorEvent();
+					processTcpSendRecvError();
 					return;
 				}
 			} else if (actualSize == 0) { // disconnect by remote node
@@ -1032,7 +1032,7 @@ WebSocket::sslReadWriteLoop() {
 					break;
 
 				default:
-					setIoErrorEvent();
+					processTcpSendRecvError();
 					return;
 				}
 			} else if ((size_t)actualSize < blockSize) {
@@ -1115,10 +1115,10 @@ WebSocket::tcpSendRecvLoop() {
 		while (canReadSocket && !m_readBuffer.isFull()) {
 			ssize_t actualSize = ::recv(m_socket.m_socket, p, readBlock.getCount(), 0);
 			if (actualSize == -1) {
-				if (errno == EAGAIN) {
+				if (errno == EAGAIN)
 					canReadSocket = false;
-				} else {
-					setIoErrorEvent_l(err::Errno(errno));
+				else {
+					processTcpSendRecvErrno_l();
 					return;
 				}
 			} else if (actualSize == 0) {
@@ -1143,10 +1143,10 @@ WebSocket::tcpSendRecvLoop() {
 			updateCloseEvents(writeBlock, blockSize);
 			ssize_t actualSize = ::send(m_socket.m_socket, writeBlock, blockSize, 0);
 			if (actualSize == -1) {
-				if (errno == EAGAIN) {
+				if (errno == EAGAIN)
 					canWriteSocket = false;
-				} else {
-					setIoErrorEvent_l(err::Errno(errno));
+				else {
+					processTcpSendRecvErrno_l();
 					return;
 				}
 			} else if ((size_t)actualSize < blockSize) {

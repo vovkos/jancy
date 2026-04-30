@@ -38,6 +38,7 @@ enum SocketEvent {
 	SocketEvent_TcpConnected       = 0x0020,
 	SocketEvent_TcpDisconnected    = 0x0040,
 	SocketEvent_TcpReset           = 0x0080,
+	SocketEvent_TcpTimedOut        = 0x0100,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -129,10 +130,19 @@ protected:
 
 #if (_JNC_OS_WIN)
 	void
+	processFdError(error);
+
+	void
 	processFdClose(int error);
 
 	void
-	processSendRecvError();
+	processTcpSendRecvError();
+#elif (_JNC_OS_POSIX)
+	void
+	processTcpSendRecvErrno_l();
+
+	void
+	processTcpSendRecvError();
 #endif
 };
 
