@@ -102,12 +102,7 @@ inline
 Tls*
 getCurrentThreadTls() {
 	CallSite* callSite = sys::getTlsPtrSlotValue<CallSite>();
-	if (!callSite) {
-		err::setError("not a valid Jancy callsite");
-		return NULL;
-	}
-
-	return callSite->m_tls;
+	return callSite ? callSite->m_tls : NULL;
 }
 
 inline

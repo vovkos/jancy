@@ -61,6 +61,8 @@ PromiseImpl::PromiseImpl() {
 	// claim scheduler (if any)
 
 	Tls* tls = getCurrentThreadTls();
+	ASSERT(tls);
+
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
 	m_scheduler = tlsVariableTable->m_asyncScheduler;
 	tlsVariableTable->m_asyncScheduler = NULL;
