@@ -647,7 +647,7 @@ SshChannel::sshReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_READ) {
 				int error = networkEvents.iErrorCode[FD_READ_BIT];
 				if (error) {
-					setIoErrorEvent(error);
+					processTcpSendRecvError(error);
 					return;
 				}
 
@@ -657,7 +657,7 @@ SshChannel::sshReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_WRITE) {
 				int error = networkEvents.iErrorCode[FD_WRITE_BIT];
 				if (error) {
-					setIoErrorEvent(error);
+					processTcpSendRecvError(error);
 					return;
 				}
 
@@ -665,14 +665,7 @@ SshChannel::sshReadWriteLoop() {
 			}
 
 			if (!canReadSocket && (networkEvents.lNetworkEvents & FD_CLOSE)) {
-				int error = networkEvents.iErrorCode[FD_CLOSE_BIT];
-				if (!error)
-					setEvents(SocketEvent_TcpDisconnected);
-				else if (error == WSAECONNRESET)
-					setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
-				else
-					setIoErrorEvent(error);
-
+				processFdClose(networkEvents.iErrorCode[FD_CLOSE_BIT]);
 				return;
 			}
 
