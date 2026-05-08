@@ -653,7 +653,7 @@ WebSocket::sslReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_READ) {
 				int error = networkEvents.iErrorCode[FD_READ_BIT];
 				if (error) {
-					processFdError(error);
+					processTcpSendRecvError(error);
 					return;
 				}
 
@@ -663,7 +663,7 @@ WebSocket::sslReadWriteLoop() {
 			if (networkEvents.lNetworkEvents & FD_WRITE) {
 				int error = networkEvents.iErrorCode[FD_WRITE_BIT];
 				if (error) {
-					processFdError(error);
+					processTcpSendRecvError(error);
 					return;
 				}
 

@@ -26,6 +26,35 @@ namespace io {
 
 //..............................................................................
 
+enum SocketError {
+#if (_AXL_OS_WIN)
+	SocketError_ECONNRESET   = WSAECONNRESET,
+	SocketError_ECONNABORTED = WSAECONNABORTED,
+	SocketError_ETIMEDOUT    = WSAETIMEDOUT,
+#else
+	SocketError_ECONNRESET   = ECONNRESET,
+	SocketError_ECONNABORTED = ECONNABORTED,
+	SocketError_ETIMEDOUT    = ETIMEDOUT,
+#endif
+};
+
+uint_t
+getSocketEventsFromTcpSendRecvError(dword_t error) {
+	switch (error) {
+	case SocketError_ECONNRESET:
+		return SocketEvent_TcpDisconnected | SocketEvent_TcpReset;
+
+	case SocketError_ECONNABORTED:
+	case SocketError_ETIMEDOUT:
+		return SocketEvent_TcpDisconnected | SocketEvent_TcpAborted;
+
+	default:
+		return AsyncIoBaseEvent_IoError;
+	}
+}
+
+//..............................................................................
+
 SocketAddress
 SocketBase::getAddress() {
 	axl::io::SockAddr sockAddr;
@@ -350,34 +379,31 @@ SocketBase::close() {
 #if (_JNC_OS_WIN)
 
 void
-SocketBase::processFdError(int error) {
-	if (error == WSAECONNRESET)
-		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
-	else if (error == WSAETIMEDOUT)
-		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
-	else
-		setIoErrorEvent(error);
-}
-
-void
 SocketBase::processFdClose(int error) {
 	if (!error)
 		setEvents(SocketEvent_TcpDisconnected);
 	else
-		processFdError(error);
+		processTcpSendRecvError(error);
+}
+
+void
+SocketBase::processTcpSendRecvError(dword_t error) {
+	uint_t events = getSocketEventsFromTcpSendRecvError(error);
+	if (events & AsyncIoBaseEvent_IoError)
+		setIoErrorEvent(error);
+	else
+		setEvents(events);
 }
 
 void
 SocketBase::processTcpSendRecvError() {
 	err::Error error = err::getLastError();
 	ASSERT(error->m_guid == err::g_systemErrorGuid);
-
-	if (error->m_code == WSAECONNRESET)
-		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
-	else if (error->m_code == WSAETIMEDOUT)
-		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
-	else
+	uint_t events = getSocketEventsFromTcpSendRecvError(error->m_code);
+	if (events & AsyncIoBaseEvent_IoError)
 		setIoErrorEvent(error);
+	else
+		setEvents(events);
 }
 
 bool
@@ -504,25 +530,22 @@ SocketBase::acceptLoop(uint_t incomingConnectionEvent) {
 
 void
 SocketBase::processTcpSendRecvErrno_l() {
-	if (errno == ECONNRESET)
-		setEvents_l(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
-	else if (errno == ETIMEDOUT)
-		setEvents_l(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
-	else
+	uint_t events = getSocketEventsFromTcpSendRecvError(errno);
+	if (events & AsyncIoBaseEvent_IoError)
 		setIoErrorEvent_l(err::Errno(errno));
+	else
+		setEvents_l(events);
 }
 
 void
 SocketBase::processTcpSendRecvError() {
 	err::Error error = err::getLastError();
 	ASSERT(error->m_guid == err::g_errnoGuid);
-
-	if (error->m_code == ECONNRESET)
-		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
-	else if (error->m_code == ETIMEDOUT)
-		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpTimedOut);
-	else
+	uint_t events = getSocketEventsFromTcpSendRecvError(error->m_code);
+	if (events & AsyncIoBaseEvent_IoError)
 		setIoErrorEvent(error);
+	else
+		setEvents(events);
 }
 
 bool
