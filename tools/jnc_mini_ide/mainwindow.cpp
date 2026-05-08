@@ -446,7 +446,7 @@ void MainWindow::writeSettings() {
 }
 
 jnc::Function* MainWindow::findGlobalFunction(const QString& name) {
-	QByteArray nameBytes = name.toLocal8Bit();
+	QByteArray nameBytes = name.toLatin1();
 	jnc::FindModuleItemResult findResult = m_module->getGlobalNamespace()->getNamespace()->findItem(nameBytes.data());
 	return findResult.m_item && findResult.m_item->getItemKind() == jnc::ModuleItemKind_Function ?
 		(jnc::Function*)findResult.m_item :

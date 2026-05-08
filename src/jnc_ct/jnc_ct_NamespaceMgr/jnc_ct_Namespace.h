@@ -12,8 +12,7 @@
 #pragma once
 
 #include "jnc_Namespace.h"
-#include "jnc_ct_ModuleItem.h"
-#include "jnc_ct_QualifiedName.h"
+#include "jnc_ct_Alias.h"
 #include "jnc_ct_UsingSet.h"
 #include "jnc_ct_Orphan.h"
 
@@ -24,7 +23,6 @@ class DerivableType;
 class EnumType;
 class Const;
 class Value;
-class MemberCoord;
 class MemberBlock;
 
 struct DualPtrTypeTuple;
@@ -99,6 +97,9 @@ public:
 
 	FindModuleItemResult
 	findDirectChildItem(const sl::StringRef& name);
+
+	FindModuleItemResult
+	findDirectChildItemResolveAlias(const sl::StringRef& name);
 
 	FindModuleItemResult
 	findDirectChildItem(const QualifiedNameAtom& atom) {
@@ -253,6 +254,19 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+inline
+FindModuleItemResult
+Namespace::findDirectChildItemResolveAlias(const sl::StringRef& name) {
+	FindModuleItemResult findResult = findDirectChildItem(name);
+	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Alias)
+		return findResult;
+
+	Alias* alias = (Alias*)findResult.m_item;
+	return alias->ensureResolved() ?
+		FindModuleItemResult(alias->getTargetItem()) :
+		g_errorFindModuleItemResult;
+}
+
 template <typename CanParse>
 FindModuleItemResult
 Namespace::findItemImpl(const sl::StringRef& name) {
@@ -268,9 +282,9 @@ Namespace::findItemImpl(const sl::StringRef& name) {
 		size_t length = end - p;
 		const char* dot = (const char*)memchr(p, '.', length);
 		if (!dot)
-			return nspace->findDirectChildItem(sl::StringRef(p, length));
+			return nspace->findDirectChildItemResolveAlias(sl::StringRef(p, length));
 
-		findResult = nspace->findDirectChildItem(sl::StringRef(p, dot - p));
+		findResult = nspace->findDirectChildItemResolveAlias(sl::StringRef(p, dot - p));
 		if (!findResult.m_item)
 			return findResult;
 
