@@ -1,0 +1,21 @@
+.. index:: pair: enum; jnc_OptLevel
+.. _doxid-group__module_1gae5a7ca0e63f0a2e50200cabf15550855:
+
+enum jnc_OptLevel
+=================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Module.h>
+
+	enum jnc_OptLevel {
+	    :target:`jnc_OptLevel_None<doxid-group__module_1ggae5a7ca0e63f0a2e50200cabf15550855acf6dfa7d96c2abb6be8d483c514b79d8>`       = 0,
+	    :target:`jnc_OptLevel_Basic<doxid-group__module_1ggae5a7ca0e63f0a2e50200cabf15550855acf2e9bdb65c649de342776bd9c4586dc>`      = 1,
+	    :target:`jnc_OptLevel_Standard<doxid-group__module_1ggae5a7ca0e63f0a2e50200cabf15550855ad0c3d5eba4562cb38d0c32d86d0b762f>`   = 2,
+	    :target:`jnc_OptLevel_Aggressive<doxid-group__module_1ggae5a7ca0e63f0a2e50200cabf15550855abe84a93b19dd45c873c4c34572ecef0e>` = 3,
+	    :target:`jnc_OptLevel_Default<doxid-group__module_1ggae5a7ca0e63f0a2e50200cabf15550855ab5eea7fe0f0c94789c6a526576d1790f>`    = jnc_OptLevel_Standard,
+	};
+

@@ -1,0 +1,36 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidRdCollection
+.. _doxid-typeio_hidrdcollection:
+
+class io.HidRdCollection
+========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidRdCollection {
+		// fields
+	
+		:ref:`io.HidRdCollectionKind<doxid-typeio_hidrdcollectionkind>` const :target:`m_collectionKind<doxid-fieldio_hidrdcollection_m_collectionkind>`;
+		:ref:`io.HidUsagePage<doxid-typeio_hidusagepage>` const* const :target:`m_usagePage<doxid-fieldio_hidrdcollection_m_usagepage>`;
+		typedef unsigned int uint_t const :target:`m_usage<doxid-fieldio_hidrdcollection_m_usage>`;
+		typedef unsigned long size_t const :target:`m_collectionCount<doxid-fieldio_hidrdcollection_m_collectioncount>`;
+		typedef unsigned long size_t const :target:`m_fieldCount<doxid-fieldio_hidrdcollection_m_fieldcount>`;
+
+		// properties
+	
+		io.HidRdCollection const* const indexed property :target:`m_collectionArray<doxid-propertyio_hidrdcollection_m_collectionarray>`(:ref:`size_t<doxid-typedefsize_t>` i);
+		:ref:`io.HidReportField<doxid-typeio_hidreportfield>` const* const indexed property :target:`m_fieldArray<doxid-propertyio_hidrdcollection_m_fieldarray>`(:ref:`size_t<doxid-typedefsize_t>` i);
+
+		// construction
+	
+		:target:`construct<doxid-functionio_hidrdcollection_construct>`();
+		:target:`destruct<doxid-functionio_hidrdcollection_destruct>`();
+	};

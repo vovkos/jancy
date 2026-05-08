@@ -1,0 +1,34 @@
+.. include:: def.rst
+.. index:: pair: group; Dynamic Layouts
+.. _doxid-group_rtl_dylayout:
+
+Dynamic Layouts
+===============
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_DynamicLayoutMode.rst
+	enum_jnc_DynamicSectionKind.rst
+	class_jnc_DynamicLayout.rst
+	class_jnc_DynamicSection.rst
+	class_jnc_DynamicSectionGroup.rst
+
+This section describes dynamic layout types and facilities.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// enums
+
+	bitflag enum :ref:`jnc.DynamicLayoutMode<doxid-typejnc_dynamiclayoutmode>`;
+	enum :ref:`jnc.DynamicSectionKind<doxid-typejnc_dynamicsectionkind>`;
+
+	// classes
+
+	class :ref:`jnc.DynamicLayout<doxid-typejnc_dynamiclayout>`;
+	class :ref:`jnc.DynamicSection<doxid-typejnc_dynamicsection>`;
+	class :ref:`jnc.DynamicSectionGroup<doxid-typejnc_dynamicsectiongroup>`;
+

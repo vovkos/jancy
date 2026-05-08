@@ -1,0 +1,24 @@
+.. index:: pair: enum; jnc_ConstKind
+.. _doxid-group__type_1ga0094271fd94e2ff0be1381f994fff9d5:
+
+enum jnc_ConstKind
+==================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Type.h>
+
+	enum jnc_ConstKind {
+	    :target:`jnc_ConstKind_None<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5aa653e2d552c6fb79eb0266ab94486d46>`       = 0x000000,
+	    :target:`jnc_ConstKind_Const<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5ad1aa606766f329da2c26039d69b297bf>`      = 0x010000,
+	    :target:`jnc_ConstKind_MaybeConst<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5acbc7206b56645bfbf7cc0d3d82a61252>` = 0x020000,
+	    :target:`jnc_ConstKind_AutoConstX<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5ad27b040967c6eddea156fc6820a65551>` = 0x030000,
+	    :target:`jnc_ConstKind_ReadOnlyX<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5a368056d53a073c68ea6bcefb3a6a22c4>`  = 0x040000,
+	    :target:`jnc_ConstKind_AutoConst<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5a5c242132f26a07db883d9d66c73b2385>`  = 0x050000,
+	    :target:`jnc_ConstKind_ReadOnly<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5a07118724be383afcaeb4119f21a8e392>`   = 0x060000,
+	    :target:`jnc_ConstKind__Count<doxid-group__type_1gga0094271fd94e2ff0be1381f994fff9d5abe0502cda74667ba941a29cf20effe2c>`     = 7,
+	};
+

@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; OsFlags
+.. _doxid-typesys_osflags:
+
+bitflag enum sys.OsFlags
+========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum OsFlags {
+	    :target:`Posix<doxid-enum_membersys_osflags_posix>`,
+	    :target:`Bsd<doxid-enum_membersys_osflags_bsd>`,
+	    :target:`Darwin<doxid-enum_membersys_osflags_darwin>`,
+	};
+

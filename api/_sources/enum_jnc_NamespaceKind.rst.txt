@@ -1,0 +1,27 @@
+.. index:: pair: enum; jnc_NamespaceKind
+.. _doxid-group__namespace_1gad3849431056c1230a30dacf35ce24d3f:
+
+enum jnc_NamespaceKind
+======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Namespace.h>
+
+	enum jnc_NamespaceKind {
+	    :target:`jnc_NamespaceKind_Undefined<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fa75cad0acdc687374d7b2cfe8735fedc8>`,
+	    :target:`jnc_NamespaceKind_Global<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fa50e48ed824ea93e21b7f692e44e3c2d1>`,
+	    :target:`jnc_NamespaceKind_Scope<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fadd1970a083595588cb22aeb2e4ecbc9d>`,
+	    :target:`jnc_NamespaceKind_Type<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fabdbb7121924e89d8f8cf06c0418dc9a7>`,
+	    :target:`jnc_NamespaceKind_Extension<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fa9a0e84e486670a4e93c9cf21f1ea01df>`,
+	    :target:`jnc_NamespaceKind_Property<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fae534fdf548d68dee706d9f7cc007d795>`,
+	    :target:`jnc_NamespaceKind_PropertyTemplate<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fa2d872630f281ade848b927a03d62965a>`,
+	    :target:`jnc_NamespaceKind_DynamicLib<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fac4cb7d44718d73df3fbcb4ee841f4859>`,
+	    :target:`jnc_NamespaceKind_TemplateDeclaration<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fa795a92bbdab478d23839122d4e3800fc>`,
+	    :target:`jnc_NamespaceKind_TemplateInstantiation<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fa940b2e5e34102fe9aab6ea53b4d08056>`,
+	    :target:`jnc_NamespaceKind__Count<doxid-group__namespace_1ggad3849431056c1230a30dacf35ce24d3fadd7fdcee8419e2eee6b6abe7bcc48aee>`,
+	};
+

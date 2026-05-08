@@ -1,0 +1,128 @@
+.. include:: def.rst
+.. index:: pair: union; io.Address_ip4
+.. _doxid-typeio_address_ip4:
+
+union io.Address_ip4
+====================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This union holds information about ``IP4`` address :ref:`More...<details-typeio_address_ip4>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_SocketAddress.jnc"
+	
+	union Address_ip4 {
+		// fields
+	
+		typedef unsigned int uint32_t bigendian :ref:`m_i32<doxid-fieldio_address_ip4_m_i32>`;
+		:ref:`uint8_t<doxid-typedefuint8_t>` :ref:`m_i8<doxid-fieldio_address_ip4_m_i8>`[];
+
+		// methods
+	
+		bool errorcode :ref:`parse<doxid-functionio_address_ip4_parse>`(:ref:`string_t<doxid-typedefstring_t>` string);
+		:ref:`string_t<doxid-typedefstring_t>` :ref:`getString<doxid-functionio_address_ip4_getstring>`() const;
+
+		// aliases
+	
+		alias :ref:`toString<doxid-aliasio_address_ip4_tostring>` = getString;
+		alias :target:`fromString<doxid-aliasio_address_ip4_fromstring>` = parse;
+	};
+.. _details-typeio_address_ip4:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This union holds information about ``IP4`` address
+
+On the binary level this union directly maps to ``in_addr``.
+
+
+
+.. rubric:: See also:
+
+`io.SocketAddress_ip4`
+
+Fields
+------
+
+.. index:: pair: variable; m_i32
+.. _doxid-fieldio_address_ip4_m_i32:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned int uint32_t bigendian m_i32
+
+Holds 32-bit representation of ``IP4`` address. There is no need to
+change the byte order of the address before assignment -- this field is
+already declared as ``bigendian`` so all the necessary conversions will
+happen automatically.
+
+.. index:: pair: variable; m_i8
+.. _doxid-fieldio_address_ip4_m_i8:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint8_t<doxid-typedefuint8_t>` m_i8[]
+
+Holds four 8-bit bytes of ``IP4`` address.
+
+Methods
+-------
+
+.. index:: pair: function; parse
+.. _doxid-functionio_address_ip4_parse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode parse(:ref:`string_t<doxid-typedefstring_t>` string)
+
+Constructs the address from a string representation in ``string``
+argument.
+
+Returns ``true`` if address string was parsed successfully. Otherwise,
+sets the description of parsing error and returns ``false`` [#f1]_.
+
+.. index:: pair: function; getString
+.. _doxid-functionio_address_ip4_getstring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedefstring_t>` getString() const
+
+Creates and returns a string representation of the address.
+
+Aliases
+-------
+
+.. index:: pair: alias; toString
+.. _doxid-aliasio_address_ip4_tostring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias toString = getString
+
+Effectively makes ``io.Address_ip4`` a *stringable* class.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+

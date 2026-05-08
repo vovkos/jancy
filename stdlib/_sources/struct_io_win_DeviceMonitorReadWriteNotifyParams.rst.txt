@@ -1,0 +1,24 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorReadWriteNotifyParams
+.. _doxid-typeio_win_devicemonitorreadwritenotifyparams:
+
+struct io.win.DeviceMonitorReadWriteNotifyParams
+================================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorReadWriteNotifyParams {
+		// fields
+	
+		typedef unsigned long uint64_t :target:`m_offset<doxid-fieldio_win_devicemonitorreadwritenotifyparams_m_offset>`;
+		typedef unsigned int uint32_t :target:`m_bufferSize<doxid-fieldio_win_devicemonitorreadwritenotifyparams_m_buffersize>`;
+		typedef unsigned int uint32_t :target:`m_dataSize<doxid-fieldio_win_devicemonitorreadwritenotifyparams_m_datasize>`;
+	};

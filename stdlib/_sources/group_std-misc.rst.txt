@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: group; Miscellaneous Facilities
+.. _doxid-group_std_misc:
+
+Miscellaneous Facilities
+========================
+
+.. toctree::
+	:hidden:
+
+	enum_std_GuidStringFlags.rst
+	struct_std_Guid.rst
+
+This section describes miscellaneous types and facilities of
+``namespace	std``.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// enums
+
+	bitflag enum :ref:`std.GuidStringFlags<doxid-typestd_guidstringflags>`;
+
+	// structs
+
+	struct :ref:`std.Guid<doxid-typestd_guid>`;
+

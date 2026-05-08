@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_McSnapshotFieldKind
+.. _doxid-group__class-type_1ga0f3d5b3a46d8826e56d63fc72f644d69:
+
+enum jnc_McSnapshotFieldKind
+============================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_McSnapshotFieldKind {
+	    :target:`jnc_McSnapshotFieldKind_PtrArray<doxid-group__class-type_1gga0f3d5b3a46d8826e56d63fc72f644d69a5688298774220be17dbc7a919697a5bb>`,
+	    :target:`jnc_McSnapshotFieldKind_Count<doxid-group__class-type_1gga0f3d5b3a46d8826e56d63fc72f644d69a7c9e9eaa5097d206ba30608c20bb7330>`,
+	    :target:`jnc_McSnapshotFieldKind__Count<doxid-group__class-type_1gga0f3d5b3a46d8826e56d63fc72f644d69a6192d7521ccfc37b9b40b9307f9d9a9d>`,
+	};
+

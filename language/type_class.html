@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classes &mdash; Jancy Language Manual</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pointer Types" href="type_ptr.html" />
+    <link rel="prev" title="Structs/Unions" href="type_struct.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Language Manual
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="language.html">Jancy Language</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_primitive.html">Primitive Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_simple.html">Simple Declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_advanced.html">Advanced Declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_curly.html">Curly Initializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_storage.html">Storage Specifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="literals.html">Literals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aliases.html">Aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="function_redirection.html">Function Redirection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cflow.html">Control Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prop.html">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nspace.html">Namespaces</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="type_named.html">Named Types</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="type_enum.html">Enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="type_struct.html">Structs/Unions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#member-access-control">Member Access Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#method-body-placement">Method Body Placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#construction-destruction">Construction/Destruction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#operator-overloading">Operator Overloading</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multiple-inheritance">Multiple Inheritance</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="type_ptr.html">Pointer Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multicasts.html">Multicasts and Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactive.html">Reactive Programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_switches.html">Regex Switches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schedulers.html">Schedulers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_structs.html">Dynamic Structs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dual_modifiers.html">Dual Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Exception Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disposable.html">Deterministic Resource Release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c_compatibility.html">Compatibility with C</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Language Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="language.html">Jancy Language</a></li>
+          <li class="breadcrumb-item"><a href="type_named.html">Named Types</a></li>
+      <li class="breadcrumb-item active">Classes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="classes">
+<span id="id1"></span><h1>Classes</h1>
+<p>Classes in Jancy are special types of data with ancillary header holding the type information, virtual table pointer, etc. Jancy Classes are what would have been called <em>reference-types</em> in C# or Java – they can <em>only</em> be accessed by reference.You <strong>cannot assign</strong> varibles or fields of class types. If you need to clone or copy an instance of a class – this class should provide a corresponding <code class="docutils literal notranslate"><span class="pre">clone</span></code> or <code class="docutils literal notranslate"><span class="pre">copy</span></code> method.</p>
+<section id="member-access-control">
+<h2>Member Access Control</h2>
+<p>There are only 2 access specifiers in Jancy: <code class="docutils literal notranslate"><span class="pre">public</span></code> and <code class="docutils literal notranslate"><span class="pre">protected</span></code> (read more about Jancy <a class="reference internal" href="dual_modifiers.html#dual-modifiers"><span class="std std-ref">dual modifiers</span></a>).</p>
+<p>Both Java and C++ styles of declaring member access are supported. Contrary to most modern languages, the default access mode is public.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">int</span> <span class="n">m_x</span><span class="p">;</span> <span class="c1">// public by default</span>
+
+<span class="k">protected</span><span class="o">:</span> <span class="c1">// C++-style of access specification</span>
+    <span class="k">int</span> <span class="n">m_y</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">int</span> <span class="n">m_z</span><span class="p">;</span> <span class="c1">// Java-style of access specification</span>
+
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="method-body-placement">
+<h2>Method Body Placement</h2>
+<p>Jancy supports both Java and C++ styles of placing method bodies: it is up to developer to choose whether this will be <strong>in-class</strong> or <strong>out-of-class</strong> (i.e. in a different compilation unit).</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">void</span> <span class="n">foo</span><span class="p">();</span> <span class="c1">// C++-style</span>
+
+    <span class="k">void</span> <span class="n">bar</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// Java-style</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// out-of-class method definition</span>
+
+<span class="k">void</span> <span class="n">C1</span><span class="p">.</span><span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="construction-destruction">
+<h2>Construction/Destruction</h2>
+<p>Jancy supports in-place field initializers, constructors, destructors, and static constructors. Constructors can be overloaded, the rest of construction methods must have no arguments.</p>
+<p>Constructor and destructor syntax is a bit different from most languages, as Jancy uses explicit keywords.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">int</span> <span class="n">m_x</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span> <span class="c1">// in-place initializer</span>
+
+    <span class="k">static</span> <span class="k">construct</span><span class="p">();</span>
+
+    <span class="k">construct</span><span class="p">();</span>
+    <span class="k">construct</span><span class="p">(</span><span class="k">int</span> <span class="n">x</span><span class="p">);</span>
+    <span class="k">construct</span><span class="p">(</span><span class="k">double</span> <span class="n">x</span><span class="p">);</span>
+
+    <span class="k">destruct</span><span class="p">();</span>
+
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="c1">// out-of-class method definitions</span>
+
+<span class="n">C1</span><span class="p">.</span><span class="k">static</span> <span class="k">construct</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="c1">// ...</span>
+</pre></div>
+</div>
+<p>Jancy has pointers and, contrary to most managed languages, has no distinction between value-types and reference-types.</p>
+<p>What is a pointer, must look like a pointer.</p>
+<p>A type of a class variable or a field does not get implicitly converted to a class pointer type. Like in C++, the declaration of a class variable or field is an instruction to allocate a new object.</p>
+<p>Member class fields get allocated on a parent memory block, global class variables get station allocation, local class variables are allocated on heap (unless explicitly specified otherwise).</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="n">C2</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+
+    <span class="n">C1</span> <span class="n">m_classField</span><span class="p">;</span> <span class="c1">// allocated as part of C2 layout</span>
+<span class="p">}</span>
+
+<span class="n">C2</span> <span class="n">g_classVariable</span><span class="p">;</span> <span class="c1">// allocated statically</span>
+
+<span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">C1</span> <span class="n">a</span><span class="p">;</span>        <span class="c1">// allocated on heap (same as: C1* a = heap new C1;)</span>
+    <span class="n">stack</span> <span class="n">C1</span> <span class="n">b</span><span class="p">;</span>  <span class="c1">// allocated on stack (same as: C1* b = stack new C1;)</span>
+    <span class="k">static</span> <span class="n">C2</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// allocated statically (same as: C1* c = static new C1;)</span>
+    <span class="n">thread</span> <span class="n">C2</span> <span class="n">d</span><span class="p">;</span> <span class="c1">// error: thread-local variable cannot be of class type</span>
+    <span class="n">thread</span> <span class="n">C2</span><span class="o">*</span> <span class="n">e</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C2</span><span class="p">;</span> <span class="c1">// OK</span>
+
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="c1">// ...</span>
+</pre></div>
+</div>
+<p>Jancy has a small syntactic difference with regard to calling a constructor of a class variable or field. This is to address an inherent ambiguity of the C/C++ constructor invocation syntax:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="n">C1</span> <span class="n">a</span><span class="p">();</span> <span class="c1">// is it a function &#39;a&#39; which returns C1?</span>
+<span class="c1">// ...or a construction of variable &#39;a&#39; of type C1?</span>
+</pre></div>
+</div>
+<p>This ambiguity is even trickier to handle in Jancy given the fact that Jancy does not enforce the <strong>declaration-before-usage</strong> paradigm. To counter the ambiguity, Jancy introduces a slight syntax modification which fully resolves the issue:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">construct</span><span class="p">();</span>
+    <span class="k">construct</span><span class="p">(</span><span class="k">int</span> <span class="n">x</span><span class="p">);</span>
+
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="n">C1</span> <span class="n">g_a</span> <span class="k">construct</span><span class="p">();</span>
+<span class="n">C1</span> <span class="n">g_b</span> <span class="k">construct</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="c1">// with operator new there is no ambiguity, so both versions of syntax are OK</span>
+
+<span class="n">C1</span><span class="o">*</span> <span class="n">g_c</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C1</span> <span class="k">construct</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
+<span class="n">C1</span><span class="o">*</span> <span class="n">g_d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C1</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="operator-overloading">
+<h2>Operator Overloading</h2>
+<p>Jancy supports operator overloading. Like in C++, any unary, binary, cast or call operators can be overloaded.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">operator</span> <span class="k">void</span> <span class="o">+=</span> <span class="p">(</span><span class="k">int</span> <span class="n">d</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// overloaded &#39;+=&#39; operator</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">C1</span> <span class="n">c</span><span class="p">;</span>
+    <span class="n">c</span> <span class="o">+=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="multiple-inheritance">
+<h2>Multiple Inheritance</h2>
+<p>Jancy uses a simple multiple inheritance model (multiple instances of shared bases – if any). The infamous virtual multiple inheritance model of C++ is not and will not be supported.</p>
+<p>Multiple inheritance is an extremely useful and unfairly abandoned tool, which allows the most natural sharing of interface implementation.</p>
+<p>Virtual methods are declared using keywords <code class="docutils literal notranslate"><span class="pre">virtual</span></code>, <code class="docutils literal notranslate"><span class="pre">abstract</span></code>, and <code class="docutils literal notranslate"><span class="pre">override</span></code>.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">I1</span> <span class="p">{</span>
+    <span class="k">abstract</span> <span class="k">void</span> <span class="n">foo</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="n">C1</span><span class="o">:</span> <span class="n">I1</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="n">I2</span> <span class="p">{</span>
+    <span class="k">abstract</span> <span class="k">void</span> <span class="n">bar</span><span class="p">();</span>
+
+    <span class="k">abstract</span> <span class="k">void</span> <span class="n">baz</span><span class="p">(</span>
+        <span class="k">int</span> <span class="n">x</span><span class="p">,</span>
+        <span class="k">int</span> <span class="n">y</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="n">C2</span><span class="o">:</span> <span class="n">I2</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">void</span> <span class="n">baz</span><span class="p">(</span>
+        <span class="k">int</span> <span class="n">x</span><span class="p">,</span>
+        <span class="k">int</span> <span class="n">y</span>
+    <span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">Point</span> <span class="p">{</span>
+    <span class="k">int</span> <span class="n">m_x</span><span class="p">;</span>
+    <span class="k">int</span> <span class="n">m_y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="n">C3</span><span class="o">:</span>
+    <span class="n">C1</span><span class="p">,</span>
+    <span class="n">C2</span><span class="p">,</span>
+    <span class="n">Point</span> <span class="p">{</span> <span class="c1">// it&#39;s ok to inherit from structs and even unions</span>
+
+    <span class="k">override</span> <span class="k">void</span> <span class="n">baz</span><span class="p">(</span>
+        <span class="k">int</span> <span class="n">x</span><span class="p">,</span>
+        <span class="k">int</span> <span class="n">y</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Jancy provides keywords <code class="docutils literal notranslate"><span class="pre">basetype</span></code> and <code class="docutils literal notranslate"><span class="pre">basetype1</span></code> .. <code class="docutils literal notranslate"><span class="pre">basetype9</span></code> to conveniently reference base types for construction or namespace resolution.</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">Base1</span> <span class="p">{</span>
+    <span class="k">construct</span><span class="p">(</span>
+        <span class="k">int</span> <span class="n">x</span><span class="p">,</span>
+        <span class="k">int</span> <span class="n">y</span>
+    <span class="p">);</span>
+
+    <span class="n">foo</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="n">Base2</span> <span class="p">{</span>
+    <span class="k">construct</span><span class="p">(</span><span class="k">int</span> <span class="n">x</span><span class="p">);</span>
+
+    <span class="k">void</span> <span class="n">foo</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="n">Derived</span><span class="o">:</span>
+    <span class="n">Base1</span><span class="p">,</span>
+    <span class="n">Base2</span> <span class="p">{</span>
+    <span class="k">construct</span><span class="p">(</span>
+        <span class="k">int</span> <span class="n">x</span><span class="p">,</span>
+        <span class="k">int</span> <span class="n">y</span><span class="p">,</span>
+        <span class="k">int</span> <span class="n">z</span>
+    <span class="p">)</span> <span class="p">{</span>
+        <span class="k">basetype1</span><span class="p">.</span><span class="k">construct</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+        <span class="k">basetype2</span><span class="p">.</span><span class="k">construct</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+
+    <span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">basetype1</span><span class="p">.</span><span class="n">foo</span><span class="p">();</span>
+
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="type_struct.html" class="btn btn-neutral float-left" title="Structs/Unions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="type_ptr.html" class="btn btn-neutral float-right" title="Pointer Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

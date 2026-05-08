@@ -1,0 +1,12 @@
+.. include:: def.rst
+.. index:: pair: struct; Variant
+.. _doxid-typevariant:
+
+struct Variant
+==============
+
+.. toctree::
+	:hidden:
+
+The internal implementation of the built-in variant type.
+

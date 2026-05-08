@@ -1,0 +1,103 @@
+.. include:: def.rst
+.. index:: pair: class; std.StringBuilder
+.. _doxid-typestd_stringbuilder:
+
+class std.StringBuilder
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_String.jnc"
+	
+	class StringBuilder {
+		// fields
+	
+		char readonly* readonly :target:`m_p<doxid-fieldstd_stringbuilder_m_p>`;
+		typedef unsigned long size_t readonly :target:`m_length<doxid-fieldstd_stringbuilder_m_length>`;
+		typedef unsigned long size_t readonly :target:`m_bufferSize<doxid-fieldstd_stringbuilder_m_buffersize>`;
+
+		// properties
+	
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_string<doxid-propertystd_stringbuilder_m_string>`;
+		char const* const property :target:`m_sz<doxid-propertystd_stringbuilder_m_sz>`;
+
+		// methods
+	
+		void :target:`clear<doxid-functionstd_stringbuilder_clear>`();
+		bool errorcode :target:`reserve<doxid-functionstd_stringbuilder_reserve>`(:ref:`size_t<doxid-typedefsize_t>` length);
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_stringbuilder_copy>`(:ref:`string_t<doxid-typedefstring_t>` string);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_stringbuilder_copy_2>`(
+			:ref:`utf16_t<doxid-typedefutf16_t>` const* p,
+			:ref:`size_t<doxid-typedefsize_t>` length = -1
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_stringbuilder_copy_3>`(
+			:ref:`utf32_t<doxid-typedefutf32_t>` c,
+			:ref:`size_t<doxid-typedefsize_t>` count = 1
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_stringbuilder_copy_4>`(
+			char const* p,
+			:ref:`size_t<doxid-typedefsize_t>` length
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_stringbuilder_append>`(:ref:`string_t<doxid-typedefstring_t>` string);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_stringbuilder_append_2>`(
+			:ref:`utf16_t<doxid-typedefutf16_t>` const* p,
+			:ref:`size_t<doxid-typedefsize_t>` length = -1
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_stringbuilder_append_3>`(
+			:ref:`utf32_t<doxid-typedefutf32_t>` c,
+			:ref:`size_t<doxid-typedefsize_t>` count = 1
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_stringbuilder_append_4>`(
+			char const* p,
+			:ref:`size_t<doxid-typedefsize_t>` length
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_stringbuilder_insert>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			:ref:`string_t<doxid-typedefstring_t>` string
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_stringbuilder_insert_2>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			:ref:`utf16_t<doxid-typedefutf16_t>` const* p,
+			:ref:`size_t<doxid-typedefsize_t>` length
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_stringbuilder_insert_3>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			:ref:`utf32_t<doxid-typedefutf32_t>` c,
+			:ref:`size_t<doxid-typedefsize_t>` count = 1
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_stringbuilder_insert_4>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			char const* p,
+			:ref:`size_t<doxid-typedefsize_t>` length
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` :target:`remove<doxid-functionstd_stringbuilder_remove>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			:ref:`size_t<doxid-typedefsize_t>` length = 1
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` :target:`chop<doxid-functionstd_stringbuilder_chop>`(:ref:`size_t<doxid-typedefsize_t>` length = 1);
+		:ref:`size_t<doxid-typedefsize_t>` :target:`trimLeft<doxid-functionstd_stringbuilder_trimleft>`();
+		:ref:`size_t<doxid-typedefsize_t>` :target:`trimRight<doxid-functionstd_stringbuilder_trimright>`();
+		:ref:`size_t<doxid-typedefsize_t>` :target:`trim<doxid-functionstd_stringbuilder_trim>`();
+		:ref:`string_t<doxid-typedefstring_t>` :target:`detachString<doxid-functionstd_stringbuilder_detachstring>`();
+		:ref:`string_t<doxid-typedefstring_t>` errorcode :target:`cloneString<doxid-functionstd_stringbuilder_clonestring>`();
+	};

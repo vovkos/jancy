@@ -1,0 +1,52 @@
+.. include:: def.rst
+.. index:: pair: enum; NamedPipeEvents
+.. _doxid-typeio_namedpipeevents:
+
+bitflag enum io.NamedPipeEvents
+===============================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.NamedPipe` object. The set of *active* events is accessible
+via `io.NamedPipe.m_activeEvents`. :ref:`More...<details-typeio_namedpipeevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum NamedPipeEvents {
+	    :ref:`IoError<doxid-enum_memberio_namedpipeevents_ioerror>`,
+	    :target:`IncomingConnection<doxid-enum_memberio_namedpipeevents_incomingconnection>`,
+	};
+
+.. _details-typeio_namedpipeevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.NamedPipe` object. The set of *active* events is accessible
+via `io.NamedPipe.m_activeEvents`.
+
+
+
+.. rubric:: See also:
+
+`io.NamedPipe`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; IoError
+.. _doxid-enum_memberio_namedpipeevents_ioerror:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	IoError
+
+An IO error occured on the named pipe server; detailed information about
+the error is available at `io.NamedPipe.m_ioError`.
+

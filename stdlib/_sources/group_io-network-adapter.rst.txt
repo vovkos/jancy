@@ -1,0 +1,82 @@
+.. include:: def.rst
+.. index:: pair: group; Network Adapter Management
+.. _doxid-group_io_network_adapter:
+
+Network Adapter Management
+==========================
+
+.. toctree::
+	:hidden:
+
+	enum_io_NetworkAdapterFlags.rst
+	enum_io_NetworkAdapterType.rst
+	struct_io_NetworkAdapterAddress.rst
+	struct_io_NetworkAdapterDesc.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities for enumerating and getting information about installed network adapters. :ref:`More...<details-group_io_network_adapter>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_NetworkAdapter.jnc"
+	
+	// enums
+
+	bitflag enum :ref:`io.NetworkAdapterFlags<doxid-typeio_networkadapterflags>`;
+	enum :ref:`io.NetworkAdapterType<doxid-typeio_networkadaptertype>`;
+
+	// structs
+
+	struct :ref:`io.NetworkAdapterAddress<doxid-typeio_networkadapteraddress>`;
+	struct :ref:`io.NetworkAdapterDesc<doxid-typeio_networkadapterdesc>`;
+
+	// global functions
+
+	:ref:`io.NetworkAdapterDesc<doxid-typeio_networkadapterdesc>` const* :ref:`io.enumerateNetworkAdapters<doxid-functionio_enumeratenetworkadapters>`(
+		:ref:`size_t<doxid-typedefsize_t>`* adapterCount = null,
+		:ref:`size_t<doxid-typedefsize_t>`* addressCount = null
+	);
+
+.. _details-group_io_network_adapter:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities for enumerating and getting information about installed network adapters.
+
+Global Functions
+----------------
+
+.. index:: pair: function; enumerateNetworkAdapters
+.. _doxid-functionio_enumeratenetworkadapters:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.NetworkAdapterDesc<doxid-typeio_networkadapterdesc>` const* io.enumerateNetworkAdapters(
+		:ref:`size_t<doxid-typedefsize_t>`* adapterCount = null,
+		:ref:`size_t<doxid-typedefsize_t>`* addressCount = null
+	)
+
+Enumerates all available network adapters on the system.
+
+``count`` argument can be used to obtain the total number of devices in the
+resulting list.
+
+Returns a pointer to the very first `io.NetworkAdapterDesc` in the resulting
+list. You can walk through the list by inspecting
+`io.NetworkAdapterDesc.m_next` field:
+
+.. ref-code-block::
+
+	`io.NetworkAdapterDesc` const* adapterDesc =
+		io.enumerateNetworkAdapters();
+	for (; adapterDesc; adapterDesc = adapterDesc.m_next) {
+		// add adapter to the combo box...
+	}
+

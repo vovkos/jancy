@@ -1,0 +1,151 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samples &mdash; Jancy Build Guide</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/axl-pygments.css?v=e88e5af2" />
+      <link rel="stylesheet" type="text/css" href="_static/axl-sphinx_rtd_theme.css?v=2cffecd5" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Building Documentation" href="build-doc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Build Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Building</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Samples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Build Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Samples</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="samples">
+<h1>Samples</h1>
+<p>After Jancy is successfully built and tested, you should probably check out the <code class="docutils literal notranslate"><span class="pre">./samples</span></code> folder.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">jnc</span></code></p>
+<blockquote>
+<div><p>This sub-folder contains multiple Jancy source files demonstrating most prominent <strong>language features</strong>.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jnc_sample_01_embed_c</span></code></p>
+<blockquote>
+<div><p>This sample demonstrates how to embed Jancy as a <strong>scripting engine</strong> into a pure C program. The sample also shows how to implement <strong>Jancy classes in C</strong> and how to export them into the namespace of the script, thus providing two-way interaction between the script and the host application.</p>
+<p>Run it as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>jnc_sample_01_embed_c &lt;path-to-script&gt;
+</pre></div>
+</div>
+<p>Sample script could be found at: <code class="docutils literal notranslate"><span class="pre">./samples/jnc_sample_01_embed_c/script.jnc</span></code></p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jnc_sample_02_embed_cpp</span></code></p>
+<blockquote>
+<div><p>This sample is a C++ counterpart of the previous sample. It demonstrates how to embed Jancy as a <strong>scripting engine</strong> into C++ program and how to implement <strong>Jancy classes in C++</strong>.</p>
+<p>Run it as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>jnc_sample_02_embed_cpp &lt;path-to-script&gt;
+</pre></div>
+</div>
+<p>Sample script could be found at: <code class="docutils literal notranslate"><span class="pre">./samples/jnc_sample_02_embed_cpp/script.jnc</span></code></p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jnc_sample_03_dialog</span></code></p>
+<blockquote>
+<div><p>This sample demonstrates how to create a Jancy <strong>binding to QT</strong> widget classes and how to apply Jancy <strong>reactive programming</strong> concepts to UI programming.</p>
+<p>Obviously, this sample requires QT to be built and run.</p>
+<p>Run it as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>jnc_sample_03_dialog &lt;path-to-script&gt;
+</pre></div>
+</div>
+<p>Sample script could be found at: <code class="docutils literal notranslate"><span class="pre">./samples/jnc_sample_03_dialog/script.jnc</span></code></p>
+</div></blockquote>
+</li>
+</ul>
+<p>You can also check out <code class="docutils literal notranslate"><span class="pre">./test/test_qt</span></code> – a Jancy editor capable of compiling and running user code.</p>
+<p>This QT application is constantly used by us for troubleshooting and bug-fixing of Jancy compiler, Jancy runtime, and Jancy standard library. What makes this application really convenient for the said purpose is the blend of <em>editor</em>, <em>compiler</em> and <em>runtime</em> – all in confines of the single process, which makes everything as <em>debugger-friendly</em> as possible.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="build-doc.html" class="btn btn-neutral float-left" title="Building Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

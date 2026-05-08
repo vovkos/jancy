@@ -1,0 +1,46 @@
+.. index:: pair: class; jnc::CodeTipBase
+.. _doxid-classjnc_1_1_code_tip_base:
+
+class jnc::CodeTipBase
+======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	class CodeTipBase: public QLabel {
+	public:
+		// construction
+	
+		:target:`CodeTipBase<doxid-classjnc_1_1_code_tip_base_1a7d902a60e29db1ab5f4b927a85960977>`(:ref:`EditBase<doxid-classjnc_1_1_edit_base>`* parent);
+		:target:`~CodeTipBase<doxid-classjnc_1_1_code_tip_base_1aeaefcd43f252d5d8eb238db6ec884dd1>`();
+
+		// methods
+	
+		const :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`*
+		:target:`theme<doxid-classjnc_1_1_code_tip_base_1a3becb6c2574c022c7d91491a03a6e8de>`() const;
+	
+		bool
+		:target:`isMultiTip<doxid-classjnc_1_1_code_tip_base_1ac1f05e20a7d8c70237fa302b0fecc9d3>`() const;
+	
+		size_t
+		:target:`tipCount<doxid-classjnc_1_1_code_tip_base_1a010058bda7c3fe9faf640aac7ba404de>`() const;
+	
+		size_t
+		:target:`tipIndex<doxid-classjnc_1_1_code_tip_base_1ad81c1be7e2661f2eb15cebfb8479f237>`() const;
+	
+		size_t
+		:target:`argumentIndex<doxid-classjnc_1_1_code_tip_base_1a77c0007f6b57b2dad28bbf8f943e9d5d>`() const;
+	
+		bool
+		:target:`nextTip<doxid-classjnc_1_1_code_tip_base_1aacbfad6ac13a229e64d3e9f0ed2e97d6>`();
+	
+		bool
+		:target:`prevTip<doxid-classjnc_1_1_code_tip_base_1a9876bda9ecae9a00e918edd62ab9e3c6>`();
+	};

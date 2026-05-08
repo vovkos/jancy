@@ -1,0 +1,17 @@
+.. index:: pair: enum; jnc_FieldFlag
+.. _doxid-group__derivable-type_1ga950b07628a14a791df4e69d313bb0958:
+
+enum jnc_FieldFlag
+==================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_DerivableType.h>
+
+	enum jnc_FieldFlag {
+	    :target:`jnc_FieldFlag_LayoutReady<doxid-group__derivable-type_1gga950b07628a14a791df4e69d313bb0958a300ef79a3b54237d00222812222caa2b>` = jnc_TypeFlag_LayoutReady,
+	};
+

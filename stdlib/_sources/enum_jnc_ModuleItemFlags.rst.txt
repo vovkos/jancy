@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: enum; ModuleItemFlags
+.. _doxid-typejnc_moduleitemflags:
+
+bitflag enum jnc.ModuleItemFlags
+================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum ModuleItemFlags {
+	    :target:`User<doxid-enum_memberjnc_moduleitemflags_user>`         = 0x01,
+	    :target:`NeedLayout<doxid-enum_memberjnc_moduleitemflags_needlayout>`   = 0x02,
+	    :target:`NeedCompile<doxid-enum_memberjnc_moduleitemflags_needcompile>`  = 0x04,
+	    :target:`InCalcLayout<doxid-enum_memberjnc_moduleitemflags_incalclayout>` = 0x10,
+	    :target:`LayoutReady<doxid-enum_memberjnc_moduleitemflags_layoutready>`  = 0x20,
+	    :target:`Constructed<doxid-enum_memberjnc_moduleitemflags_constructed>`  = 0x40,
+	    :target:`Sealed<doxid-enum_memberjnc_moduleitemflags_sealed>`       = 0x80,
+	};
+

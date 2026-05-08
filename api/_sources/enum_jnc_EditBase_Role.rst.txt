@@ -1,0 +1,17 @@
+.. index:: pair: enum; Role
+.. _doxid-classjnc_1_1_edit_base_1aa8df601cd14abb9d279e202b795ebcd0:
+
+enum jnc::EditBase::Role
+========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EditBase.h>
+
+	enum Role {
+	    :target:`CaseInsensitiveSortRole<doxid-classjnc_1_1_edit_base_1aa8df601cd14abb9d279e202b795ebcd0a993277ab15411f6fc15575356c79d112>` = Qt::UserRole + 1,
+	};
+

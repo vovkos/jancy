@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bitflag enum io.HidDeviceOptions &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enum io.HidRdCollectionKind" href="enum_io_HidRdCollectionKind.html" />
+    <link rel="prev" title="enum io.HidBusType" href="enum_io_HidBusType.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_io-file.html">Generic File IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-socket.html">Socket Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-serial.html">Serial Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-network-adapter.html">Network Adapter Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssl.html">SSL Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssh.html">SSH Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-websock.html">WebSockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-pcap.html">Pcap (Packet Capturing Library)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usb.html">USB Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usbmon.html">USB Monitoring</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_io-hid.html">HID Communications</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="namespace_io_HidUsagePageEnumStrings.html">namespace io.HidUsagePageEnumStrings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidBusType.html">enum io.HidBusType</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bitflag enum io.HidDeviceOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdCollectionKind.html">enum io.HidRdCollectionKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdFlags.html">bitflag enum io.HidRdFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdItemId.html">enum io.HidRdItemId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdItemMask.html">bitflag enum io.HidRdItemMask</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdUnit.html">enum io.HidRdUnit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdUnitNibbleRole.html">enum io.HidRdUnitNibbleRole</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdUnitSystem.html">enum io.HidRdUnitSystem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidRdValueFlags.html">bitflag enum io.HidRdValueFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HidReportType.html">enum io.HidReportType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_HidDeviceDesc.html">struct io.HidDeviceDesc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_HidMonDeviceDesc.html">struct io.HidMonDeviceDesc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidDb.html">class io.HidDb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidDevice.html">class io.HidDevice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidRd.html">class io.HidRd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidRdCollection.html">class io.HidRdCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidReport.html">class io.HidReport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidReportField.html">class io.HidReportField</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidStandaloneReport.html">class io.HidStandaloneReport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HidUsagePage.html">class io.HidUsagePage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-devmon.html">Device Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_io.html">IO (Input/Output) Library</a></li>
+          <li class="breadcrumb-item"><a href="group_io-hid.html">HID Communications</a></li>
+      <li class="breadcrumb-item active">bitflag enum io.HidDeviceOptions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bitflag-enum-io-hiddeviceoptions">
+<span id="doxid-typeio-hiddeviceoptions"></span><span id="index-0"></span><h1>bitflag enum io.HidDeviceOptions</h1>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">bitflag</span> <span class="k">enum</span> <span class="n">HidDeviceOptions</span><span class="o">:</span> <a class="reference internal" href="enum_io_StreamOptions.html#doxid-typeio-streamoptions"><span class="std std-ref">io.StreamOptions</span></a><span></span> <span class="p">{</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-hiddeviceoptions-nonblocking"><span></span><span class="n">NonBlocking</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberio-hiddeviceoptions-noreadthread"><span></span><span class="n">NoReadThread</span></span><span></span><span class="p">,</span>
+<span class="p">};</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enum_io_HidBusType.html" class="btn btn-neutral float-left" title="enum io.HidBusType" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enum_io_HidRdCollectionKind.html" class="btn btn-neutral float-right" title="enum io.HidRdCollectionKind" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

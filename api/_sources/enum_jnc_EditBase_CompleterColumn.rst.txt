@@ -1,0 +1,18 @@
+.. index:: pair: enum; CompleterColumn
+.. _doxid-classjnc_1_1_edit_base_1a889096a16ac82787eb3cc7a56653e985:
+
+enum jnc::EditBase::CompleterColumn
+===================================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EditBase.h>
+
+	enum CompleterColumn {
+	    :target:`NameColumn<doxid-classjnc_1_1_edit_base_1a889096a16ac82787eb3cc7a56653e985a938df9ff76095918745482f3bb1ecf15>`   = 0,
+	    :target:`DetailColumn<doxid-classjnc_1_1_edit_base_1a889096a16ac82787eb3cc7a56653e985a7031f15b769ef90f3e1b413720a3cc7e>` = 1,
+	};
+

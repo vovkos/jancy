@@ -1,0 +1,49 @@
+.. index:: pair: class; jnc::CodeAssistThreadBase
+.. _doxid-classjnc_1_1_code_assist_thread_base:
+
+class jnc::CodeAssistThreadBase
+===============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	class CodeAssistThreadBase: public QThread {
+	public:
+		// fields
+	
+		QStringList :target:`m_importDirList<doxid-classjnc_1_1_code_assist_thread_base_1a52b0668d466a16f5ac1062e90db865eb>`;
+		QStringList :target:`m_importList<doxid-classjnc_1_1_code_assist_thread_base_1aed1dcb673de0cd8fc04cb7666c8ed5ad>`;
+		QString :target:`m_extraSource<doxid-classjnc_1_1_code_assist_thread_base_1af5ff4039d8e7b3dc189c7ecefbe13254>`;
+
+		// construction
+	
+		:target:`CodeAssistThreadBase<doxid-classjnc_1_1_code_assist_thread_base_1a7a0188c0878994a0f58f8f419f875e71>`(QObject* parent = NULL);
+		:target:`~CodeAssistThreadBase<doxid-classjnc_1_1_code_assist_thread_base_1a87e00ceda5a0a2d218d7e041b05b6d54>`();
+
+		// methods
+	
+		CodeAssistKind
+		:target:`codeAssistKind<doxid-classjnc_1_1_code_assist_thread_base_1a03586e337cc7a8b641034bfb467a52c8>`();
+	
+		int
+		:target:`position<doxid-classjnc_1_1_code_assist_thread_base_1ac5967dad98d1be9aff5cb8c89965685d>`();
+	
+		void
+		:target:`request<doxid-classjnc_1_1_code_assist_thread_base_1a873fff543d65a45558f3da6f4c2e5e52>`(
+			const QString& fileName,
+			CodeAssistKind kind,
+			int position,
+			const QString& source
+		);
+	
+		virtual
+		void
+		:target:`cancel<doxid-classjnc_1_1_code_assist_thread_base_1a5517eef45bf7e7fb678235535398998b>`();
+	};

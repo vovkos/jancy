@@ -1,0 +1,48 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbMonDeviceDesc
+.. _doxid-typeio_usbmondevicedesc:
+
+struct io.UsbMonDeviceDesc
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbMonDeviceDesc: :ref:`io.UsbMonDeviceDescBase<doxid-typeio_usbmondevicedescbase>` {
+		// fields
+	
+		io.UsbMonDeviceDesc const* :target:`m_next<doxid-fieldio_usbmondevicedesc_m_next>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef String string_t :ref:`m_description<doxid-fieldio_usbdevicestrings_m_description>`;
+		typedef String string_t :ref:`m_manufacturer<doxid-fieldio_usbdevicestrings_m_manufacturer>`;
+		typedef String string_t :ref:`m_driver<doxid-fieldio_usbdevicestrings_m_driver>`;
+		typedef String string_t :ref:`m_manufacturerDescriptor<doxid-fieldio_usbdevicestrings_m_manufacturerdescriptor>`;
+		typedef String string_t :ref:`m_productDescriptor<doxid-fieldio_usbdevicestrings_m_productdescriptor>`;
+		typedef String string_t :ref:`m_serialNumberDescriptor<doxid-fieldio_usbdevicestrings_m_serialnumberdescriptor>`;
+		typedef String string_t :ref:`m_captureDeviceName<doxid-fieldio_usbmondevicedescbase_m_capturedevicename>`;
+		typedef unsigned int uint_t :ref:`m_captureDeviceId<doxid-fieldio_usbmondevicedescbase_m_capturedeviceid>`;
+		typedef unsigned short uint16_t :ref:`m_vendorId<doxid-fieldio_usbmondevicedescbase_m_vendorid>`;
+		typedef unsigned short uint16_t :ref:`m_productId<doxid-fieldio_usbmondevicedescbase_m_productid>`;
+		typedef unsigned char uint8_t :ref:`m_address<doxid-fieldio_usbmondevicedescbase_m_address>`;
+		typedef unsigned char uint8_t :ref:`m_port<doxid-fieldio_usbmondevicedescbase_m_port>`;
+		typedef unsigned char uint8_t :ref:`m_class<doxid-fieldio_usbmondevicedescbase_m_class>`;
+		typedef unsigned char uint8_t :ref:`m_subClass<doxid-fieldio_usbmondevicedescbase_m_subclass>`;
+		:ref:`io.UsbSpeed<doxid-typeio_usbspeed>` :ref:`m_speed<doxid-fieldio_usbmondevicedescbase_m_speed>`;
+

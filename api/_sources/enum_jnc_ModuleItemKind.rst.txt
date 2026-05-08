@@ -1,0 +1,40 @@
+.. index:: pair: enum; jnc_ModuleItemKind
+.. _doxid-group__module-item_1ga2e8240593c7faef6f863202967d80ae0:
+
+enum jnc_ModuleItemKind
+=======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ModuleItem.h>
+
+	enum jnc_ModuleItemKind {
+	    :target:`jnc_ModuleItemKind_Undefined<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a73b858d5ebcc09bc3a04c33963720dfd>`         = 0,
+	    :target:`jnc_ModuleItemKind_Namespace<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a79384b1ddb76aa86e52d1d3c5a911d07>`,
+	    :target:`jnc_ModuleItemKind_Scope<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a45257fefd1d4a6fe6540390430e41189>`,
+	    :target:`jnc_ModuleItemKind_Attribute<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a5738f87d1a572ab378b7865c70354244>`,
+	    :target:`jnc_ModuleItemKind_AttributeBlock<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a3112c08dd066ebe1610107d068bf488c>`,
+	    :target:`jnc_ModuleItemKind_Type<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0aa5056e92f8d2d34247dd9864f43c7be2>`,
+	    :target:`jnc_ModuleItemKind_Typedef<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a907bc3808ebd9bb344ca252bdd949198>`,
+	    :target:`jnc_ModuleItemKind_Alias<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0af679daf09323117e8d778c89a0e3cf2f>`,
+	    :target:`jnc_ModuleItemKind_Const<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a19a21a39360033b4b733c150a14698f6>`,
+	    :target:`jnc_ModuleItemKind_Variable<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0ae64d66290cf5708d03075495cdc2a14b>`,
+	    :target:`jnc_ModuleItemKind_Function<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a2807d36f0cba0c29302c2792372f6df8>`,
+	    :target:`jnc_ModuleItemKind_FunctionArg<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a3c85fd524c251b503bfc752e540fd85e>`,
+	    :target:`jnc_ModuleItemKind_FunctionOverload<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a60873d052483508ed454930b3d7115f7>`,
+	    :target:`jnc_ModuleItemKind_Property<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0ae8218e7a8315516ccbf176ca00b73988>`,
+	    :target:`jnc_ModuleItemKind_PropertyTemplate<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a2e10fde65a1a352860edbb7331fe178a>`,
+	    :target:`jnc_ModuleItemKind_EnumConst<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a199ffb97cd32541171a5a21ab23addf8>`,
+	    :target:`jnc_ModuleItemKind_Field<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a4e94421e0295c9455f4f0570a41612fd>`,
+	    :target:`jnc_ModuleItemKind_BaseTypeSlot<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a52261eef6dae7cd12330c1fe66caa745>`,
+	    :target:`jnc_ModuleItemKind_Orphan<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a715a258b70b5442750b7a809d409043b>`,
+	    :target:`jnc_ModuleItemKind_LazyImport<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a0142d9c22e1e1edcc1e0d1162a3f2fba>`,
+	    :target:`jnc_ModuleItemKind_DynamicSection<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0af864f69a9c88d9e3e5fe8ee460705e98>`,
+	    :target:`jnc_ModuleItemKind_Template<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a6d4cb977ced853b7efc244ecbbe4eb5a>`,
+	    :target:`jnc_ModuleItemKind_TemplateNamespace<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a459052fc68380982611247c56597399a>`,
+	    :target:`jnc_ModuleItemKind__Count<doxid-group__module-item_1gga2e8240593c7faef6f863202967d80ae0a87bae1e34ce1f9aac5485523a869c174>`,
+	};
+

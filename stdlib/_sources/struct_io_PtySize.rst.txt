@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: struct; io.PtySize
+.. _doxid-typeio_ptysize:
+
+struct io.PtySize
+=================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct PtySize {
+		// fields
+	
+		typedef unsigned int uint_t :target:`m_rowCount<doxid-fieldio_ptysize_m_rowcount>`;
+		typedef unsigned int uint_t :target:`m_colCount<doxid-fieldio_ptysize_m_colcount>`;
+	};

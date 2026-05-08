@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_EnumTypeFlag
+.. _doxid-group__enum-type_1gaf8769e3605db62644e86830f352f44b0:
+
+enum jnc_EnumTypeFlag
+=====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EnumType.h>
+
+	enum jnc_EnumTypeFlag {
+	    :target:`jnc_EnumTypeFlag_Exposed<doxid-group__enum-type_1ggaf8769e3605db62644e86830f352f44b0a5cd52584212ea9d047fc9fa7027fbd16>` = 0x010000,
+	    :target:`jnc_EnumTypeFlag_BitFlag<doxid-group__enum-type_1ggaf8769e3605db62644e86830f352f44b0a2fc342264cedd2123a51b2df49073208>` = 0x020000,
+	    :target:`jnc_EnumTypeFlag_All<doxid-group__enum-type_1ggaf8769e3605db62644e86830f352f44b0a7856f425e5d1028c7cb17cfa1fb367e3>`     = 0x030000,
+	};
+

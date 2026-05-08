@@ -1,0 +1,22 @@
+.. index:: pair: enum; jnc_MulticastFieldKind
+.. _doxid-group__class-type_1ga7410b29a98a1eb6465b35a5163e59f68:
+
+enum jnc_MulticastFieldKind
+===========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_MulticastFieldKind {
+	    :target:`jnc_MulticastFieldKind_Lock<doxid-group__class-type_1gga7410b29a98a1eb6465b35a5163e59f68a919718637eec4f51080bdaf7076f0a75>`,
+	    :target:`jnc_MulticastFieldKind_PtrArray<doxid-group__class-type_1gga7410b29a98a1eb6465b35a5163e59f68abd99c825f0b432334b206d3ced05ddb5>`,
+	    :target:`jnc_MulticastFieldKind_Count<doxid-group__class-type_1gga7410b29a98a1eb6465b35a5163e59f68a789596d898e8d58f20febd30d24061f5>`,
+	    :target:`jnc_MulticastFieldKind_MaxCount<doxid-group__class-type_1gga7410b29a98a1eb6465b35a5163e59f68a5ebb2518f9ed4ee02b7cb8bc32bfdfe0>`,
+	    :target:`jnc_MulticastFieldKind_HandleTable<doxid-group__class-type_1gga7410b29a98a1eb6465b35a5163e59f68acb11ab12cb4437de0702f2cd189ac339>`,
+	    :target:`jnc_MulticastFieldKind__Count<doxid-group__class-type_1gga7410b29a98a1eb6465b35a5163e59f68ab2f960c7073bf61f5fb4dabd64a014b0>`,
+	};
+
