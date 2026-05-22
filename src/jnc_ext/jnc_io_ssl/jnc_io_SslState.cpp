@@ -74,15 +74,17 @@ SslState::openSsl(
 	ASSERT(m_selfIdx != -1 && m_runtimeIdx != -1);
 	ASSERT(socket->isOpen());
 
+	axl::cry::Bio sslBio;
+
 	bool result =
 		m_sslCtx.create() &&
-		m_sslBio.createSocket(socket->m_socket) &&
+		sslBio.createSocket(socket->m_socket) &&
 		m_ssl.create(m_sslCtx);
 
 	if (!result)
 		return false;
 
-	m_ssl.setBio(m_sslBio.detach());
+	m_ssl.setBio(sslBio.detach());
 	m_ssl.setExtraData(m_selfIdx, this);
 	m_ssl.setExtraData(m_runtimeIdx, runtime);
 	m_ssl.setInfoCallback(sslInfoCallback);

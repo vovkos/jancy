@@ -22,11 +22,13 @@ struct SslStateBase: public IfaceHdr {
 	ClassBox<Multicast> m_onStateChanged;
 
 	axl::io::SslCtx m_sslCtx;
-	axl::cry::Bio m_sslBio;
 	axl::io::Ssl m_ssl;
 
 	void
-	closeSsl();
+	closeSsl() {
+		m_ssl.close();
+		m_sslCtx.close();
+	}
 
 	static
 	SslStateBase*

@@ -18,13 +18,6 @@ namespace io {
 
 //..............................................................................
 
-void
-SslStateBase::closeSsl() {
-	m_ssl.close();
-	m_sslBio.close();
-	m_sslCtx.close();
-}
-
 SslStateBase*
 SslStateBase::createExternal(
 	Runtime* runtime,
