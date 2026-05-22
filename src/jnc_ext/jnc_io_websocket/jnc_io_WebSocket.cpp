@@ -707,6 +707,11 @@ WebSocket::sslReadWriteLoop() {
 					canWriteSocket = false;
 					break;
 
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
+					processTcpSendRecvError();
+					return;
+
 				default:
 					setIoErrorEvent();
 					return;
@@ -743,6 +748,11 @@ WebSocket::sslReadWriteLoop() {
 				case SSL_ERROR_WANT_WRITE:
 					canWriteSocket = false;
 					break;
+
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
+					processTcpSendRecvError();
+					return;
 
 				default:
 					setIoErrorEvent();
@@ -994,8 +1004,13 @@ WebSocket::sslReadWriteLoop() {
 					canWriteSocket = false;
 					break;
 
-				default:
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
 					processTcpSendRecvError();
+					return;
+
+				default:
+					setIoErrorEvent();
 					return;
 				}
 			} else if (actualSize == 0) { // disconnect by remote node
@@ -1031,8 +1046,13 @@ WebSocket::sslReadWriteLoop() {
 					canWriteSocket = false;
 					break;
 
-				default:
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
 					processTcpSendRecvError();
+					return;
+
+				default:
+					setIoErrorEvent();
 					return;
 				}
 			} else if ((size_t)actualSize < blockSize) {

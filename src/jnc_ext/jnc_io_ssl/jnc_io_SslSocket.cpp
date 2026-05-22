@@ -345,6 +345,11 @@ SslSocket::sslReadWriteLoop() {
 					canWriteSocket = false;
 					break;
 
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
+					processTcpSendRecvError();
+					return;
+
 				default:
 					setIoErrorEvent();
 					return;
@@ -379,6 +384,11 @@ SslSocket::sslReadWriteLoop() {
 				case SSL_ERROR_WANT_WRITE:
 					canWriteSocket = false;
 					break;
+
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
+					processTcpSendRecvError();
+					return;
 
 				default:
 					setIoErrorEvent();
@@ -474,8 +484,13 @@ SslSocket::sslReadWriteLoop() {
 					canWriteSocket = false;
 					break;
 
-				default:
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
 					processTcpSendRecvError();
+					return;
+
+				default:
+					setIoErrorEvent();
 					return;
 				}
 
@@ -509,8 +524,13 @@ SslSocket::sslReadWriteLoop() {
 					canWriteSocket = false;
 					break;
 
-				default:
+				case SSL_ERROR_SYSCALL:
+					err::setLastSystemError();
 					processTcpSendRecvError();
+					return;
+
+				default:
+					setIoErrorEvent();
 					return;
 				}
 			} else if ((size_t)actualSize < blockSize) {

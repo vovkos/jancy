@@ -52,6 +52,10 @@ SslSocketBase::sslHandshakeLoop(
 			socketEventMask |= FD_WRITE;
 			break;
 
+		case SSL_ERROR_SYSCALL:
+			err::setLastSystemError();
+			// and fall through
+
 		default:
 			setIoErrorEvent();
 			return false;
@@ -127,6 +131,10 @@ SslSocketBase::sslHandshakeLoop(
 		case SSL_ERROR_WANT_WRITE:
 			FD_SET(m_socket.m_socket, &writeSet);
 			break;
+
+		case SSL_ERROR_SYSCALL:
+			err::setLastSystemError();
+			// and fall through
 
 		default:
 			setIoErrorEvent();
