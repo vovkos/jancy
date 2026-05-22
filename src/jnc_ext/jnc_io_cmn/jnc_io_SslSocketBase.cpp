@@ -79,7 +79,7 @@ SslSocketBase::sslHandshakeLoop(
 		}
 
 		if ((networkEvents.lNetworkEvents & FD_CLOSE) && !(networkEvents.lNetworkEvents & FD_READ)) {
-			processFdClose(networkEvents.iErrorCode[FD_CLOSE_BIT]);
+			setIoErrorEvent("disconnect midst SSL handshake");
 			return false;
 		}
 
