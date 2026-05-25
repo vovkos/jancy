@@ -71,7 +71,7 @@ set(
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-qt5_wrap_cpp(
+qt_wrap_cpp_alt(
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
 )
@@ -156,7 +156,7 @@ add_executable(
 	${GEN_JNC_CPP_LIST}
 )
 
-qt5_use_modules_alt(jnc_sample_03_dialog Widgets)
+qt_use_modules_alt(jnc_sample_03_dialog Widgets)
 
 target_precompile_headers(
 	jnc_sample_03_dialog
@@ -220,8 +220,8 @@ if(WIN32 AND QT_DLL_DIR)
 		${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
 	)
 
-	qt5_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
-	qt5_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release)
+	qt_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
+	qt_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release)
 endif()
 
 # only add this test on Windows and Linux native build --

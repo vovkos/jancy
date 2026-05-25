@@ -44,8 +44,8 @@ printToOutput(
 
 MainWindow* g_mainWindow = NULL;
 
-MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
-	: QMainWindow(parent, flags) {
+MainWindow::MainWindow(QWidget* parent):
+	QMainWindow(parent) {
 	ASSERT(!g_mainWindow);
 	g_mainWindow = this;
 
@@ -368,9 +368,7 @@ size_t MainWindow::writeOutputDirect(const QString& string) {
 }
 
 size_t MainWindow::writeOutput_va(const char* format, va_list va) {
-	QString text;
-	text.vsprintf(format, va);
-	return writeOutputDirect(text);
+	return writeOutputDirect(qtFormatString_va(format, va));
 }
 
 size_t MainWindow::writeOutput(const char* format, ...) {

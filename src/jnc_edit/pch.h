@@ -39,7 +39,11 @@
 #include <QScrollBar>
 #include <QLabel>
 #include <QStylePainter>
-#include <QDesktopWidget>
+#if (QT_VERSION_MAJOR >= 6)
+#	include <QScreen>
+#else
+#	include <QDesktopWidget>
+#endif
 #include <QStyledItemDelegate>
 #include <QTextDocumentFragment>
 

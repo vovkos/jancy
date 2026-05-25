@@ -32,11 +32,8 @@ size_t printToMainWindow(const void* p, size_t size) {
 
 //..............................................................................
 
-MainWindow::MainWindow(
-	QWidget *parent,
-	Qt::WindowFlags flags
-):
-	QMainWindow(parent, flags) {
+MainWindow::MainWindow(QWidget *parent):
+	QMainWindow(parent) {
 	Q_ASSERT(!g_mainWindow);
 	g_mainWindow = this;
 	m_layout = NULL;
@@ -68,8 +65,12 @@ int MainWindow::outputDirect(const QString& string) {
 }
 
 int MainWindow::output_va(const char* format, va_list va) {
+#if (QT_VERSION_MAJOR >= 6)
+	QString string = QString::vasprintf(format, va);
+#else
 	QString string;
 	string.vsprintf(format, va);
+#endif
 	return outputDirect(string);
 }
 

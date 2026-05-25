@@ -256,7 +256,11 @@ EditBase::setTabWidth(int width) {
 	Q_D(EditBase);
 
 	d->m_tabWidth = width;
+#if (QT_VERSION_MAJOR >= 6)
+	setTabStopDistance(fontMetrics().horizontalAdvance(' ') * width);
+#else
 	setTabStopWidth(fontMetrics().width(' ') * width);
+#endif
 }
 
 const EditTheme*
@@ -552,7 +556,7 @@ EditBase::keyPressEvent(QKeyEvent* e) {
 
 	int key = e->key();
 	QString text = e->text();
-	QChar ch = text.isEmpty() ? QChar() : text.at(0);
+	QChar c = text.isEmpty() ? QChar() : text.at(0);
 
 	if (!d->isCompleterVisible())
 		switch (key) {
@@ -602,7 +606,7 @@ EditBase::keyPressEvent(QKeyEvent* e) {
 			// fall through
 
 		default:
-			if (ch.isPrint())
+			if (c.isPrint())
 				keyPressPrintChar(e);
 			else
 				QPlainTextEdit::keyPressEvent(e);
@@ -628,7 +632,7 @@ EditBase::keyPressEvent(QKeyEvent* e) {
 			// fall through
 
 		default:
-			if (!ch.isPrint() || ch.isLetterOrNumber() || ch == '_') {
+			if (!c.isPrint() || c.isLetterOrNumber() || c == '_') {
 				QPlainTextEdit::keyPressEvent(e);
 				break;
 			}
@@ -643,12 +647,10 @@ EditBase::keyPressPrintChar(QKeyEvent* e) {
 	Q_D(EditBase);
 
 	QString text = e->text();
-	QChar ch = text.isEmpty() ? QChar() : text.at(0);
-	int c = ch.toLatin1();
-
+	QChar c = text.isEmpty() ? QChar() : text.at(0);
 	QTextCursor cursor = textCursor();
 
-	switch (c) {
+	switch (c.unicode()) {
 	case ')':
 	case ']':
 	case '}':
@@ -805,7 +807,11 @@ EditBasePrivate::init() {
 	font.setKerning(false);
 	font.setStyleHint(
 		QFont::Monospace,
+#if (QT_VERSION_MAJOR >= 6)
+		QFont::NoFontMerging
+#else
 		(QFont::StyleStrategy)(QFont::NoFontMerging | QFont::ForceIntegerMetrics)
+#endif
 	);
 
 	q->setFont(font);
@@ -955,7 +961,11 @@ void
 EditBasePrivate::updateFont() {
 	Q_Q(EditBase);
 
+#if (QT_VERSION_MAJOR >= 6)
+	q->setTabStopDistance(q->fontMetrics().horizontalAdvance(' ') * m_tabWidth);
+#else
 	q->setTabStopWidth(q->fontMetrics().width(' ') * m_tabWidth);
+#endif
 
 	if (m_lineNumberMargin) {
 		m_lineNumberMargin->updateFontMetrics();

@@ -113,12 +113,12 @@ set(
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-qt5_wrap_cpp_alt(
+qt_wrap_cpp_alt(
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
 )
 
-qt5_add_resources(
+qt_add_resources(
 	GEN_QRC_CPP_LIST
 	${RES_QRC_LIST}
 )
@@ -208,7 +208,7 @@ add_library(
 	jnc_edit.version
 )
 
-qt5_use_modules_alt(jnc_edit Widgets)
+qt_use_modules_alt(jnc_edit Widgets)
 
 target_precompile_headers(
 	jnc_edit

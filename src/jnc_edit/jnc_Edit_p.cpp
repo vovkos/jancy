@@ -125,8 +125,15 @@ Edit::autoIndent(
 		cursor->insertText(QChar('\n'));
 		cursor->insertText(baseIndent);
 
-		static const QRegExp indentKeywordRegExp("^(if|else|while|do|for)$");
-		if (indentKeywordRegExp.exactMatch(keyword))
+		static const QSet<QString> indentKeywords({
+			"if",
+			"else",
+			"while",
+			"do",
+			"for"
+		});
+
+		if (indentKeywords.contains(keyword))
 			cursor->insertText(QChar('\t'));
 	}
 }

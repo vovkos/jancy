@@ -26,7 +26,7 @@ protected:
 	MyLayout* m_layout;
 
 public:
-	MainWindow(QWidget* parent = NULL, Qt::WindowFlags flags = 0);
+	MainWindow(QWidget* parent = NULL);
 
 	QSize sizeHint() const {
 		return QSize(800, 600);

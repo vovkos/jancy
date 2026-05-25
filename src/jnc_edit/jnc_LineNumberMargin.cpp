@@ -25,7 +25,11 @@ LineNumberMargin::LineNumberMargin(EditBase* edit):
 
 void
 LineNumberMargin::updateFontMetrics() {
+#if (QT_VERSION_MAJOR >= 6)
+	int digitWidth = parentWidget()->fontMetrics().horizontalAdvance('0');
+#else
 	int digitWidth = parentWidget()->fontMetrics().width('0');
+#endif
 	m_anchorPos = digitWidth * 4;
 	setFixedWidth(digitWidth * 5);
 }

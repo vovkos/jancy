@@ -75,3 +75,18 @@ using namespace axl;
 #include "jnc_EnumType.h"
 #include "jnc_Alias.h"
 #include "jnc_Template.h"
+
+inline QString qtFormatString_va(const char* format, axl_va_list va) {
+#if (QT_VERSION_MAJOR >= 6)
+	return QString::vasprintf(format, va);
+#else
+	QString string;
+	string.vsprintf(format, va);
+	return string;
+#endif
+}
+
+inline QString qtFormatString(const char* format, ...) {
+	AXL_VA_DECL(va, format);
+	return qtFormatString_va(format, va);
+}

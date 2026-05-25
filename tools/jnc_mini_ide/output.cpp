@@ -54,14 +54,15 @@ bool Output::parseLine(
 ) {
 	QString text = cursor.block().text();
 
-	QRegExp regexp("\\(([0-9]+),([0-9]+)\\):");
-	int pos = regexp.indexIn(text);
-	if(pos == -1)
+	QRegularExpression regexp("\\(([0-9]+),([0-9]+)\\):");
+	QRegularExpressionMatch match = regexp.match(text);
+	if (!match.hasMatch())
 		return false;
 
+	int pos = match.capturedStart();
 	*filePath = text.left(pos);
-	QString lineString = regexp.capturedTexts().at(1);
-	QString colString = regexp.capturedTexts().at(2);
+	QString lineString = match.captured(1);
+	QString colString = match.captured(2);
 
 	*line = lineString.toInt() - 1;
 	*col = colString.toInt() - 1;

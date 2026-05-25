@@ -150,31 +150,37 @@ CodeTipBase::setTipText(const QString& text) {
 
 void
 CodeTipBase::placeTip(const QPoint& pos) {
+#if (QT_VERSION_MAJOR >= 6)
+	QScreen* screen = QGuiApplication::screenAt(pos);
+	if (!screen)
+		screen = parentWidget()->screen();
+	QRect screenRect = screen->geometry();
+#else
 	int screenNumber = QApplication::desktop()->isVirtualDesktop() ?
 		QApplication::desktop()->screenNumber(pos) :
 		QApplication::desktop()->screenNumber(parentWidget());
-
-	QRect screen = QApplication::desktop()->screenGeometry(screenNumber);
+	QRect screenRect = QApplication::desktop()->screenGeometry(screenNumber);
+#endif
 
 	QPoint p = pos;
 
-	if (p.x() + width() > screen.x() + screen.width())
+	if (p.x() + width() > screenRect.x() + screenRect.width())
 		p.rx() -= 4 + width();
 
-	if (p.y() + height() > screen.y() + screen.height())
+	if (p.y() + height() > screenRect.y() + screenRect.height())
 		p.ry() -= 24 + height();
 
-	if (p.y() < screen.y())
-		p.setY(screen.y());
+	if (p.y() < screenRect.y())
+		p.setY(screenRect.y());
 
-	if (p.x() + width() > screen.x() + screen.width())
-		p.setX(screen.x() + screen.width() - width());
+	if (p.x() + width() > screenRect.x() + screenRect.width())
+		p.setX(screenRect.x() + screenRect.width() - width());
 
-	if (p.x() < screen.x())
-		p.setX(screen.x());
+	if (p.x() < screenRect.x())
+		p.setX(screenRect.x());
 
-	if (p.y() + height() > screen.y() + screen.height())
-		p.setY(screen.y() + screen.height() - height());
+	if (p.y() + height() > screenRect.y() + screenRect.height())
+		p.setY(screenRect.y() + screenRect.height() - height());
 
 	move(p);
 }
@@ -243,7 +249,7 @@ CodeTipBase::leaveEvent(QEvent* e) {
 void
 CodeTipBase::paintEvent(QPaintEvent* e) {
 	QStyleOptionFrame option;
-	option.init(this);
+	option.initFrom(this);
 
 	QStylePainter p(this);
 	p.drawPrimitive(QStyle::PE_PanelTipLabel, option);
@@ -255,7 +261,7 @@ CodeTipBase::paintEvent(QPaintEvent* e) {
 void
 CodeTipBase::resizeEvent(QResizeEvent* e) {
 	QStyleOption option;
-	option.init(this);
+	option.initFrom(this);
 
 	QStyleHintReturnMask frameMask;
 	if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))

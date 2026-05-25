@@ -24,11 +24,19 @@ MonospacePlainTextEdit::MonospacePlainTextEdit(QWidget* parent):
 	font.setKerning(false);
 	font.setStyleHint(
 		QFont::Monospace,
+#if (QT_VERSION_MAJOR >= 6)
+		QFont::NoFontMerging
+#else
 		(QFont::StyleStrategy)(QFont::NoFontMerging | QFont::ForceIntegerMetrics)
+#endif
 	);
 
 	setFont(font);
+#if (QT_VERSION_MAJOR >= 6)
+	setTabStopDistance(fontMetrics().horizontalAdvance(' ') * 4);
+#else
 	setTabStopWidth(fontMetrics().width(' ') * 4);
+#endif
 	setReadOnly(false);
 }
 

@@ -97,12 +97,12 @@ set(
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-qt5_wrap_cpp(
+qt_wrap_cpp_alt(
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
 )
 
-qt5_add_resources(
+qt_add_resources(
 	GEN_QRC_CPP_LIST
 	${RES_QRC_LIST}
 )
@@ -201,7 +201,7 @@ add_executable(
 	${GEN_RL_CPP_LIST}
 )
 
-qt5_use_modules_alt(jnc_mini_ide Widgets)
+qt_use_modules_alt(jnc_mini_ide Widgets)
 
 target_precompile_headers(
 	jnc_mini_ide
@@ -295,8 +295,8 @@ if(WIN32 AND QT_DLL_DIR)
 		${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
 	)
 
-	qt5_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
-	qt5_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release)
+	qt_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
+	qt_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release)
 endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
