@@ -97,6 +97,15 @@ Edit::createCodeTip() {
 }
 
 void
+initIndentKeywords(QSet<QString>* set) {
+	set->insert("if");
+	set->insert("else");
+	set->insert("while");
+	set->insert("do");
+	set->insert("for");
+}
+
+void
 Edit::autoIndent(
 	QTextCursor* cursor,
 	const QString& baseIndent,
@@ -125,14 +134,8 @@ Edit::autoIndent(
 		cursor->insertText(QChar('\n'));
 		cursor->insertText(baseIndent);
 
-		static const QSet<QString> indentKeywords({
-			"if",
-			"else",
-			"while",
-			"do",
-			"for"
-		});
-
+		static QSet<QString> indentKeywords;
+		sl::callOnce(initIndentKeywords, &indentKeywords);
 		if (indentKeywords.contains(keyword))
 			cursor->insertText(QChar('\t'));
 	}
