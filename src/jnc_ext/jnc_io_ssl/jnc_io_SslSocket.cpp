@@ -443,8 +443,10 @@ SslSocket::sslReadWriteLoop() {
 			FD_SET(m_socket.m_socket, &writeSet);
 
 		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
-		if (result == -1)
-			break;
+		if (result == -1) {
+			setIoErrorEvent(err::Error(errno));
+			return;
+		}
 
 		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet)) {
 			char buffer[256];

@@ -441,8 +441,10 @@ UsbMonitor::ioThreadFunc() {
 			FD_SET(m_monitor, &readSet);
 
 		int result = ::select(selectFd, &readSet, NULL, NULL, NULL);
-		if (result == -1)
-			break;
+		if (result == -1) {
+			setIoErrorEvent(err::Error(errno));
+			return;
+		}
 
 		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet)) {
 			char buffer[256];

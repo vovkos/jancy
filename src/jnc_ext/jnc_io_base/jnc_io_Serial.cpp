@@ -880,8 +880,10 @@ Serial::ioThreadFunc() {
 		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
 #	endif
 
-		if (result == -1)
-			break;
+		if (result == -1) {
+			setIoErrorEvent(err::Error(errno));
+			return;
+		}
 
 		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet)) {
 			char buffer[256];
