@@ -507,10 +507,10 @@ FileStream::ioThreadFunc() {
 			size_t blockSize = writeBlock.getCount();
 			ssize_t actualSize = ::write(m_writeFile->m_file, writeBlock, blockSize);
 			if (actualSize == -1) {
-				if (errno == EAGAIN) {
+				if (errno == EAGAIN)
 					canWriteFile = false;
-				} else if (actualSize < 0) {
-					setIoErrorEvent_l(err::Errno((int)actualSize));
+				else {
+					setIoErrorEvent_l(err::Errno(errno));
 					return;
 				}
 			} else if ((size_t)actualSize < blockSize) {
