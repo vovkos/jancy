@@ -148,7 +148,7 @@ Edit::activateCompleter(const QModelIndex& index) {
 	QTextCursor cursor = textCursor();
 
 	Function* function = d->getPrototypeFunction(index);
-	if (function && getCursorLineSuffix(cursor).trimmed().isEmpty()) {
+	if (function && isStringEmptyOrSpace(getCursorLineSuffix(cursor))) {
 		bool isNextLineEmpty = isCursorNextLineEmpty(cursor);
 		QString completion = getPrototypeDeclString(function, isNextLineEmpty);
 		cursor.select(QTextCursor::LineUnderCursor);

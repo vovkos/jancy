@@ -17,6 +17,17 @@ namespace jnc {
 
 //..............................................................................
 
+static bool
+isStringEmptyOrSpace(const QString& text) {
+	const QChar* p = text.data();
+	const QChar* end = p + text.length();
+	for (; p < end; p++)
+		if (!p->isSpace())
+			return false;
+
+	return true;
+}
+
 lex::LineCol
 JNC_EDIT_EXPORT
 getCursorLineCol(const QTextCursor& cursor0);
@@ -40,7 +51,7 @@ isCursorAtEndOfLineIgnoreSpace(const QTextCursor& cursor0) {
 	QTextCursor cursor = cursor0;
 	cursor.setPosition(cursor.position());
 	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-	return cursor.selectedText().trimmed().isEmpty();
+	return isStringEmptyOrSpace(cursor.selectedText());
 }
 
 inline
@@ -84,7 +95,7 @@ bool
 isCursorLineEmpty(const QTextCursor& cursor0) {
 	QTextCursor cursor = cursor0;
 	cursor.select(QTextCursor::LineUnderCursor);
-	return cursor.selectedText().trimmed().isEmpty();
+	return isStringEmptyOrSpace(cursor.selectedText());
 }
 
 inline
