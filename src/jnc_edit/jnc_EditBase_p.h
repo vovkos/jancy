@@ -218,6 +218,7 @@ protected:
 
 private slots:
 	void updateLineNumberMargin(const QRect&, int);
+	void onContentsChange(int from, int charsRemoved, int charsAdded);
 	void onCursorPositionChanged();
 	void onCompleterActivated(const QModelIndex& index);
 	void onCodeAssistThreadReady();

@@ -18,6 +18,10 @@
 #include "jnc_CursorUtils.h"
 #include "jnc_CodeAssistThreadBase.h"
 
+#if (_AXL_DEBUG)
+#	define _JNC_EDIT_SHOW_REDRAWN_LINES 1
+#endif
+
 namespace jnc {
 
 //..............................................................................
@@ -851,6 +855,11 @@ EditBasePrivate::init() {
 		this, SLOT(onCursorPositionChanged())
 	);
 
+	QObject::connect(
+		q->document(), SIGNAL(contentsChange(int, int, int)),
+		this, SLOT(onContentsChange(int, int, int))
+	);
+
 	applyTheme();
 }
 
@@ -1032,6 +1041,20 @@ EditBasePrivate::drawIndentGuide(const QRect& paintRect) {
 			painter.fillRect(x, top, 1, bottom - top, m_indentGuideBrush);
 		}
 	}
+
+#if (_JNC_EDIT_SHOW_REDRAWN_LINES)	// debug: show repainted region as a colored rect on the right edge
+	uint8_t r = 0x80 + rand() % 0x80;
+	uint8_t g = 0x80 + rand() % 0x80;
+	uint8_t b = 0x80 + rand() % 0x80;
+
+	painter.fillRect(
+		q->viewport()->width() - 4,
+		paintRect.top(),
+		4,
+		paintRect.height(),
+		QColor(r, g, b)
+	);
+#endif
 }
 
 void
@@ -1730,6 +1753,41 @@ EditBasePrivate::hideCodeAssist() {
 	m_activeCodeAssistKind = CodeAssistKind_None;
 	m_activeCodeAssistPosition = -1;
 	q->releaseCodeAssist();
+}
+
+void
+EditBasePrivate::onContentsChange(int from, int charsRemoved, int charsAdded) {
+	Q_Q(EditBase);
+
+	if (!m_isIndentGuideEnabled)
+		return;
+
+	QTextBlock block = q->document()->findBlock(from);
+	if (!block.isValid())
+		return;
+
+	// find the trivial run immediately above this block and repaint it
+
+	QTextBlock first;
+	QTextBlock prev = block.previous();
+	while (prev.isValid() && isStringEmptyOrSpace(prev.text())) {
+		first = prev;
+		prev = prev.previous();
+	}
+
+	if (!first.isValid())
+		return;
+
+	QPointF contentOffset = q->contentOffset();
+	QRectF topRect = q->blockBoundingGeometry(first).translated(contentOffset);
+	QRectF bottomRect = q->blockBoundingGeometry(block).translated(contentOffset);
+
+	q->viewport()->update(
+		0,
+		(int)topRect.top(),
+		q->viewport()->width(),
+		(int)bottomRect.bottom() - (int)topRect.top()
+	);
 }
 
 void
