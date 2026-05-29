@@ -234,6 +234,19 @@ EditBase::enableSyntaxHighlighting(bool isEnabled) {
 }
 
 bool
+EditBase::isIndentGuideEnabled() {
+	Q_D(EditBase);
+	return d->m_isIndentGuideEnabled;
+}
+
+void
+EditBase::enableIndentGuide(bool isEnabled) {
+	Q_D(EditBase);
+	d->m_isIndentGuideEnabled = isEnabled;
+	viewport()->update();
+}
+
+bool
 EditBase::isTabsToSpacesEnabled() {
 	Q_D(EditBase);
 	return d->m_isTabsToSpacesEnabled;
@@ -551,6 +564,16 @@ EditBase::resizeEvent(QResizeEvent *e) {
 }
 
 void
+EditBase::paintEvent(QPaintEvent* e) {
+	Q_D(EditBase);
+
+	QPlainTextEdit::paintEvent(e);
+
+	if (d->m_isIndentGuideEnabled)
+		d->drawIndentGuide(e->rect());
+}
+
+void
 EditBase::keyPressEvent(QKeyEvent* e) {
 	Q_D(EditBase);
 
@@ -744,6 +767,7 @@ EditBasePrivate::EditBasePrivate() {
 	m_tabWidth = 4;
 	m_isCurrentLineHighlightingEnabled = false;
 	m_isExtraSelectionUpdateRequired = false;
+	m_isIndentGuideEnabled = true;
 	m_isTabsToSpacesEnabled = false;
 	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
 	m_codeAssistThread = NULL;
@@ -866,6 +890,18 @@ EditBasePrivate::applyTheme() {
 	if (m_lineNumberMargin)
 		m_lineNumberMargin->update();
 
+	QRgb c = m_theme.color(EditTheme::IndentGuide).rgba();
+	QRgb pixels[8] = { c, 0, c, 0, c, 0, c, 0 };
+
+	m_indentGuideBrush = QBrush(QPixmap::fromImage(
+		QImage(
+			reinterpret_cast<const uchar*>(pixels),
+			1,
+			8,
+			QImage::Format_ARGB32
+		)
+	));
+
 	updateExtraSelections();
 }
 
@@ -923,6 +959,78 @@ EditBasePrivate::enableLineNumberMargin(bool isEnabled) {
 		q->setViewportMargins(0, 0, 0, 0);
 		delete m_lineNumberMargin;
 		m_lineNumberMargin = NULL;
+	}
+}
+
+static int
+getIndentLevel(const QString& text, int tabWidth) {
+	int col = 0;
+	for (const QChar& c : text) {
+		if (c == '\t')
+			col += tabWidth - (col % tabWidth);
+		else if (c == ' ')
+			col++;
+		else
+			return col / tabWidth;
+	}
+
+	return -1;
+}
+
+void
+EditBasePrivate::drawIndentGuide(const QRect& paintRect) {
+	Q_Q(EditBase);
+
+#if (QT_VERSION_MAJOR >= 6)
+	int indentWidth = q->fontMetrics().horizontalAdvance(' ') * m_tabWidth;
+#else
+	int indentWidth = q->fontMetrics().width(' ') * m_tabWidth;
+#endif
+	int x0 = (int)q->document()->documentMargin() - q->horizontalScrollBar()->value();
+
+	QPainter painter(q->viewport());
+	painter.setBrushOrigin(0, 0);
+
+	QTextBlock block = q->firstVisibleBlock();
+	while (block.isValid()) {
+		QRectF rect = q->blockBoundingGeometry(block).translated(q->contentOffset());
+		if (rect.top() > paintRect.bottom())
+			break;
+
+		QString text = block.text();
+		int indent = getIndentLevel(text, m_tabWidth);
+		int top = (int)rect.top();
+		int bottom;
+
+		if (indent != -1) {
+			bottom = (int)rect.bottom();
+			block = block.next();
+		} else {
+			indent = 0;
+			QTextBlock prev = block;
+			block = block.next();
+			for (;;) {
+				if (!block.isValid()) {
+					bottom = paintRect.bottom() + 1;
+					break;
+				}
+
+				QString text = block.text();
+				if (!isStringEmptyOrSpace(text)) {
+					indent = getIndentLevel(text, m_tabWidth);
+					bottom = (int)q->blockBoundingGeometry(prev).translated(q->contentOffset()).bottom();
+					break;
+				}
+
+				prev = block;
+				block = block.next();
+			}
+		}
+
+		for (int i = 1; i <= indent; i++) {
+			int x = x0 + (i - 1) * indentWidth + 1;
+			painter.fillRect(x, top, 1, bottom - top, m_indentGuideBrush);
+		}
 	}
 }
 
@@ -1683,8 +1791,6 @@ EditBasePrivate::onCodeAssistThreadFinished() {
 
 	thread->deleteLater();
 }
-
-//..............................................................................
 
 void
 CompleterItemDelegate::paint(

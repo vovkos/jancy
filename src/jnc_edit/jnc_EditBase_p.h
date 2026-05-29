@@ -51,7 +51,9 @@ protected:
 	int m_tabWidth;
 	bool m_isExtraSelectionUpdateRequired;
 	bool m_isCurrentLineHighlightingEnabled;
+	bool m_isIndentGuideEnabled;
 	bool m_isTabsToSpacesEnabled;
+	QBrush m_indentGuideBrush;
 	EditBase::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
 	QStringList m_importList;
@@ -99,6 +101,9 @@ protected:
 
 	void
 	updateExtraSelections();
+
+	void
+	drawIndentGuide(const QRect& paintRect);
 
 	QTextCursor
 	cursorFromLineCol(

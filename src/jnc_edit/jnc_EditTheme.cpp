@@ -31,6 +31,7 @@ void EditTheme::setDefaultLightTheme() {
 	m_colorTable[BraceMatchBack]          = 0xfff080;
 	m_colorTable[BraceMatchText]          = QColor::Invalid;
 	m_colorTable[CurrentLineBack]         = 0xe8eff8;
+	m_colorTable[IndentGuide]             = 0xb8b8b8;
 	m_colorTable[CompleterSynopsisColumn] = 0x808080;
 
 	m_colorTable[Keyword]  = 0x0000ff;
@@ -57,6 +58,7 @@ void EditTheme::setDefaultDarkTheme() {
 	m_colorTable[BraceMatchBack]          = 0x835c42;
 	m_colorTable[BraceMatchText]          = QColor::Invalid;
 	m_colorTable[CurrentLineBack]         = 0x3e4851;
+	m_colorTable[IndentGuide]             = 0x506070;
 	m_colorTable[CompleterSynopsisColumn] = 0x7d7d7d;
 
 	m_colorTable[Keyword]  = 0xca95c5;

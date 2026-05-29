@@ -36,6 +36,7 @@ class JNC_EDIT_EXPORT EditBase: public QPlainTextEdit {
 	Q_PROPERTY(int lineNumberMarginWidth READ lineNumberMarginWidth)
 	Q_PROPERTY(bool isCurrentLineHighlightingEnabled READ isCurrentLineHighlightingEnabled WRITE enableCurrentLineHighlighting)
 	Q_PROPERTY(bool isSyntaxHighlightingEnabled READ isSyntaxHighlightingEnabled WRITE enableSyntaxHighlighting)
+	Q_PROPERTY(bool isIndentGuideEnabled READ isIndentGuideEnabled WRITE enableIndentGuide)
 	Q_PROPERTY(bool isTabsToSpacesEnabled READ isTabsToSpacesEnabled WRITE enableTabsToSpaces)
 	Q_PROPERTY(int tabWidth READ tabWidth WRITE setTabWidth)
 	Q_PROPERTY(CodeAssistTriggers codeAssistTriggers READ codeAssistTriggers WRITE setCodeAssistTriggers)
@@ -121,6 +122,8 @@ public:
 	void enableCurrentLineHighlighting(bool isEnabled);
 	bool isSyntaxHighlightingEnabled();
 	void enableSyntaxHighlighting(bool isEnabled);
+	bool isIndentGuideEnabled();
+	void enableIndentGuide(bool isEnabled);
 	bool isTabsToSpacesEnabled();
 	void enableTabsToSpaces(bool isEnabled);
 	int tabWidth();
@@ -208,6 +211,7 @@ protected:
 	);
 
 	virtual void changeEvent(QEvent* e);
+	virtual void paintEvent(QPaintEvent* e);
 	virtual void resizeEvent(QResizeEvent* e);
 	virtual void mousePressEvent(QMouseEvent* e);
 	virtual void mouseMoveEvent(QMouseEvent* e);

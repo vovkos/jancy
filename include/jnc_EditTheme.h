@@ -42,6 +42,7 @@ public:
 		BraceMatchBack,
 		BraceMatchText,
 		CurrentLineBack,
+		IndentGuide,
 		CompleterSynopsisColumn,
 
 		// syntax highlighting
