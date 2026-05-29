@@ -242,7 +242,7 @@ EditBase::isTabsToSpacesEnabled() {
 void
 EditBase::enableTabsToSpaces(bool isEnabled) {
 	Q_D(EditBase);
-	d->m_isTabsToSpacesEnabled = true;
+	d->m_isTabsToSpacesEnabled = isEnabled;
 }
 
 int
