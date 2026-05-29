@@ -92,7 +92,7 @@ CodeTipBase::prevTip() {
 
 	QString text = createMultiTipText(--d->m_tipIdx);
 	setTipText(text);
-	return false;
+	return true;
 }
 
 void
