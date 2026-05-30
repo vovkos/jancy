@@ -996,13 +996,14 @@ EditBasePrivate::drawIndentGuide(const QRect& paintRect) {
 	int indentWidth = q->fontMetrics().width(' ') * m_tabWidth;
 #endif
 	int x0 = (int)q->document()->documentMargin() - q->horizontalScrollBar()->value();
+	QPointF contentOffset = q->contentOffset();
 
 	QPainter painter(q->viewport());
-	painter.setBrushOrigin(0, 0);
+	painter.setBrushOrigin(0, (int)contentOffset.y());
 
 	QTextBlock block = q->firstVisibleBlock();
 	while (block.isValid()) {
-		QRectF rect = q->blockBoundingGeometry(block).translated(q->contentOffset());
+		QRectF rect = q->blockBoundingGeometry(block).translated(contentOffset);
 		if (rect.top() > paintRect.bottom())
 			break;
 
@@ -1027,7 +1028,7 @@ EditBasePrivate::drawIndentGuide(const QRect& paintRect) {
 				QString text = block.text();
 				if (!isStringEmptyOrSpace(text)) {
 					indent = getIndentLevel(text, m_tabWidth);
-					bottom = (int)q->blockBoundingGeometry(prev).translated(q->contentOffset()).bottom();
+					bottom = (int)q->blockBoundingGeometry(prev).translated(contentOffset).bottom();
 					break;
 				}
 
