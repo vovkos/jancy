@@ -990,30 +990,37 @@ void
 EditBasePrivate::drawIndentGuide(const QRect& paintRect) {
 	Q_Q(EditBase);
 
-#if (QT_VERSION_MAJOR >= 6)
-	int indentWidth = q->fontMetrics().horizontalAdvance(' ') * m_tabWidth;
-#else
-	int indentWidth = q->fontMetrics().width(' ') * m_tabWidth;
-#endif
-	int x0 = (int)q->document()->documentMargin() - q->horizontalScrollBar()->value();
+	QPainter painter(q->viewport());
+	QTextBlock block = q->firstVisibleBlock();
+	if (!block.isValid())
+		return;
+
+	QFontMetrics fontMetrics = q->fontMetrics();
 	QPointF contentOffset = q->contentOffset();
 
-	QPainter painter(q->viewport());
-	painter.setBrushOrigin(0, (int)contentOffset.y());
+#if (QT_VERSION_MAJOR >= 6)
+	int indentWidth = fontMetrics.horizontalAdvance(' ') * m_tabWidth;
+#else
+	int indentWidth = fontMetrics.width(' ') * m_tabWidth;
+#endif
+	int x0 = (int)q->document()->documentMargin() - q->horizontalScrollBar()->value();
+	int y0 = (int)contentOffset.y() - block.blockNumber() * fontMetrics.lineSpacing();
+	painter.setBrushOrigin(0, y0);
 
-	QTextBlock block = q->firstVisibleBlock();
+	QTextCursor cursor = q->cursorForPosition(paintRect.topLeft());
+	block = cursor.block();
 	while (block.isValid()) {
-		QRectF rect = q->blockBoundingGeometry(block).translated(contentOffset);
-		if (rect.top() > paintRect.bottom())
+		QRect blockRect = q->blockBoundingGeometry(block).translated(contentOffset).toRect();
+		if (blockRect.top() > paintRect.bottom())
 			break;
 
 		QString text = block.text();
 		int indent = getIndentLevel(text, m_tabWidth);
-		int top = (int)rect.top();
+		int top = blockRect.top();
 		int bottom;
 
 		if (indent != -1) {
-			bottom = (int)rect.bottom();
+			bottom = blockRect.bottom();
 			block = block.next();
 		} else {
 			indent = 0;
@@ -1021,7 +1028,7 @@ EditBasePrivate::drawIndentGuide(const QRect& paintRect) {
 			block = block.next();
 			for (;;) {
 				if (!block.isValid()) {
-					bottom = paintRect.bottom() + 1;
+					bottom = paintRect.bottom();
 					break;
 				}
 
@@ -1039,7 +1046,7 @@ EditBasePrivate::drawIndentGuide(const QRect& paintRect) {
 
 		for (int i = 1; i <= indent; i++) {
 			int x = x0 + (i - 1) * indentWidth + 1;
-			painter.fillRect(x, top, 1, bottom - top, m_indentGuideBrush);
+			painter.fillRect(x, top, 1, bottom - top + 1, m_indentGuideBrush);
 		}
 	}
 
