@@ -39,7 +39,7 @@ struct PragmaConfig {
 
 	bool
 	isEqual(const PragmaConfig& src) const {
-		return sl::CmpBin<PragmaConfig>()(this, &src) == 0;
+		return memcmp(this, &src, sizeof(PragmaConfig)) == 0;
 	}
 
 	bool
