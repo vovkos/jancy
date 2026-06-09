@@ -770,14 +770,12 @@ struct DualString {
 		m_string_axl(string_axl),
 		m_string_jnc(string_jnc) {}
 
-#if (_AXL_CPP_HAS_RVALUE_REF)
 	DualString(
 		axl::sl::StringRef&& string_axl,
 		String string_jnc = g_nullString
 	):
 		m_string_axl(::std::move(string_axl)),
 		m_string_jnc(string_jnc) {}
-#endif
 
 	operator const axl::sl::StringRef& () const {
 		return m_string_axl;
@@ -794,14 +792,12 @@ struct DualString {
 		return *this;
 	}
 
-#if (_AXL_CPP_HAS_RVALUE_REF)
 	DualString&
 	operator = (axl::sl::StringRef&& string) {
 		m_string_axl = ::std::move(string);
 		m_string_jnc = g_nullString;
 		return *this;
 	}
-#endif
 
 	bool
 	isEmpty() const {
@@ -835,7 +831,6 @@ struct DualString {
 		m_string_jnc = string_jnc;
 	}
 
-#if (_AXL_CPP_HAS_RVALUE_REF)
 	void
 	setup(
 		axl::sl::StringRef&& string_axl,
@@ -844,7 +839,6 @@ struct DualString {
 		m_string_axl = ::std::move(string_axl);
 		m_string_jnc = string_jnc;
 	}
-#endif
 
 	void
 	markGcRoots(jnc::GcHeap* gcHeap) {
