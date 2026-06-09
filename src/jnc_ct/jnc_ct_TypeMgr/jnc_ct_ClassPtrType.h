@@ -154,6 +154,9 @@ ClassPtrType::ClassPtrType() {
 
 struct ClassPtrTypeTuple: sl::ListLink {
 	ClassPtrType* m_ptrTypeArray[2][ClassPtrKind__Count][ConstKind__Count][2][2]; // ref x ptrkind x constkind/event x volatile x safe
+
+	ClassPtrTypeTuple():
+		m_ptrTypeArray() {}
 };
 
 //..............................................................................

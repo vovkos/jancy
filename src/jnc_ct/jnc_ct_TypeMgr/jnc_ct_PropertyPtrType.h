@@ -160,6 +160,9 @@ PropertyPtrType::PropertyPtrType() {
 
 struct PropertyPtrTypeTuple: sl::ListLink {
 	PropertyPtrType* m_ptrTypeArray[2][PropertyPtrKind__Count][2]; // ref x ptrkind x safe
+
+	PropertyPtrTypeTuple():
+		m_ptrTypeArray() {}
 };
 
 //..............................................................................

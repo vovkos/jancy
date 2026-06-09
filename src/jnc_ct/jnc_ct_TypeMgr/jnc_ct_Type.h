@@ -121,6 +121,9 @@ getLlvmTypeString(llvm::Type* llvmType);
 
 struct DualTypeTuple: sl::ListLink {
 	Type* m_typeArray[2][ConstKind__Count]; // alien-friend x container-const/const?/autoconst
+
+	DualTypeTuple():
+		m_typeArray() {}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

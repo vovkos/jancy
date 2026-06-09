@@ -49,7 +49,7 @@ public:
 		if (m_p)
 			return m_p;
 
-		T* p = new (mem::ZeroInit) T;
+		T* p = new T;
 		if (sys::atomicCmpXchg((volatile size_t*)&m_p, 0, (size_t)p) == 0)
 			return p;
 
@@ -68,6 +68,12 @@ protected:
 		AttributeBlock* m_attributeBlock;
 		Namespace* m_parentNamespace;
 		Unit* m_parentUnit;
+
+		Cache() {
+			m_attributeBlock = NULL;
+			m_parentNamespace = NULL;
+			m_parentUnit = NULL;
+		}
 	};
 
 protected:

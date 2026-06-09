@@ -172,6 +172,11 @@ DataPtrType::DataPtrType() {
 struct DataPtrTypeTuple: sl::ListLink {
 	DataPtrType* m_ptrTypeArray[2][DataPtrKind__Count][ConstKind__Count][2][2]; // ref x ptrkind x constkind x volatile x safe
 	DataPtrTypeTuple* m_bigEndianTuple; // same for PtrTypeFlag_BigEndian
+
+	DataPtrTypeTuple() :
+		m_ptrTypeArray() {
+		m_bigEndianTuple = NULL;
+	}
 };
 
 //..............................................................................

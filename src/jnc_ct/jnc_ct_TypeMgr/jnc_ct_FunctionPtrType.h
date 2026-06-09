@@ -168,6 +168,9 @@ FunctionPtrType::FunctionPtrType() {
 
 struct FunctionPtrTypeTuple: sl::ListLink {
 	FunctionPtrType* m_ptrTypeArray[2][FunctionPtrKind__Count][2]; // ref x ptrkind x safe
+
+	FunctionPtrTypeTuple():
+		m_ptrTypeArray() {}
 };
 
 //..............................................................................

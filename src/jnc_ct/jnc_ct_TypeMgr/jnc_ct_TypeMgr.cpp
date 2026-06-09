@@ -1603,7 +1603,7 @@ TypeMgr::getDualTypeTuple(Type* type) {
 	if (type->m_dualTypeTuple)
 		return type->m_dualTypeTuple;
 
-	DualTypeTuple* tuple = new (mem::ZeroInit) DualTypeTuple;
+	DualTypeTuple* tuple = new DualTypeTuple;
 	type->m_dualTypeTuple = tuple;
 	m_dualTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1614,7 +1614,7 @@ TypeMgr::getSimplePropertyTypeTuple(Type* type) {
 	if (type->m_simplePropertyTypeTuple)
 		return type->m_simplePropertyTypeTuple;
 
-	SimplePropertyTypeTuple* tuple = new (mem::ZeroInit) SimplePropertyTypeTuple;
+	SimplePropertyTypeTuple* tuple = new SimplePropertyTypeTuple;
 	type->m_simplePropertyTypeTuple = tuple;
 	m_simplePropertyTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1625,7 +1625,7 @@ TypeMgr::getFunctionArgTuple(Type* type) {
 	if (type->m_functionArgTuple)
 		return type->m_functionArgTuple;
 
-	FunctionArgTuple* tuple = new (mem::ZeroInit) FunctionArgTuple;
+	FunctionArgTuple* tuple = new FunctionArgTuple;
 	type->m_functionArgTuple = tuple;
 	m_functionArgTupleList.insertTail(tuple);
 	return tuple;
@@ -1641,7 +1641,7 @@ TypeMgr::getDataPtrTypeTuple(
 	if (type->m_dataPtrTypeTuple)
 		tuple = type->m_dataPtrTypeTuple;
 	else {
-		tuple = new(mem::ZeroInit) DataPtrTypeTuple;
+		tuple = new DataPtrTypeTuple;
 		type->m_dataPtrTypeTuple = tuple;
 		m_dataPtrTypeTupleList.insertTail(tuple);
 	}
@@ -1652,7 +1652,7 @@ TypeMgr::getDataPtrTypeTuple(
 	if (tuple->m_bigEndianTuple)
 		return tuple->m_bigEndianTuple;
 
-	DataPtrTypeTuple* tuple2 = new(mem::ZeroInit) DataPtrTypeTuple;
+	DataPtrTypeTuple* tuple2 = new DataPtrTypeTuple;
 	tuple->m_bigEndianTuple = tuple2;
 	m_dataPtrTypeTupleList.insertTail(tuple2);
 	return tuple2;
@@ -1663,7 +1663,7 @@ TypeMgr::getClassPtrTypeTuple(ClassType* classType) {
 	if (classType->m_classPtrTypeTuple)
 		return classType->m_classPtrTypeTuple;
 
-	ClassPtrTypeTuple* tuple = new (mem::ZeroInit) ClassPtrTypeTuple;
+	ClassPtrTypeTuple* tuple = new ClassPtrTypeTuple;
 	classType->m_classPtrTypeTuple = tuple;
 	m_classPtrTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1674,7 +1674,7 @@ TypeMgr::getEventClassPtrTypeTuple(MulticastClassType* classType) {
 	if (classType->m_eventClassPtrTypeTuple)
 		return classType->m_eventClassPtrTypeTuple;
 
-	ClassPtrTypeTuple* tuple = new (mem::ZeroInit) ClassPtrTypeTuple;
+	ClassPtrTypeTuple* tuple = new ClassPtrTypeTuple;
 	classType->m_eventClassPtrTypeTuple = tuple;
 	m_classPtrTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1685,7 +1685,7 @@ TypeMgr::getFunctionPtrTypeTuple(FunctionType* functionType) {
 	if (functionType->m_functionPtrTypeTuple)
 		return functionType->m_functionPtrTypeTuple;
 
-	FunctionPtrTypeTuple* tuple = new (mem::ZeroInit) FunctionPtrTypeTuple;
+	FunctionPtrTypeTuple* tuple = new FunctionPtrTypeTuple;
 	functionType->m_functionPtrTypeTuple = tuple;
 	m_functionPtrTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1696,7 +1696,7 @@ TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType) {
 	if (propertyType->m_propertyPtrTypeTuple)
 		return propertyType->m_propertyPtrTypeTuple;
 
-	PropertyPtrTypeTuple* tuple = new (mem::ZeroInit) PropertyPtrTypeTuple;
+	PropertyPtrTypeTuple* tuple = new PropertyPtrTypeTuple;
 	propertyType->m_propertyPtrTypeTuple = tuple;
 	m_propertyPtrTypeTupleList.insertTail(tuple);
 	return tuple;

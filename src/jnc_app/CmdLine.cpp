@@ -217,7 +217,7 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_DisableDoxyComment:
-		DoxyCommentMap::Iterator it = DoxyCommentMap::find(value);
+		DoxyCommentMap::ConstIterator it = DoxyCommentMap::find(value);
 		if (it)
 			m_cmdLine->m_moduleConfig.m_compileFlags |= it->m_value;
 		break;

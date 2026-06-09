@@ -183,7 +183,9 @@ ModuleItem::prepareItemString(size_t index) {
 
 	size_t count = sl::align<4>(index + 1);
 	size_t extra = count * sizeof(sl::StringRef);
-	ModuleItemStringCache* cache = new (mem::ExtraSize(extra), mem::ZeroInit) ModuleItemStringCache(count);
+	ModuleItemStringCache* cache = new (mem::ExtraSize(extra)) ModuleItemStringCache(count);
+	memset(cache + 1, 0, extra);
+
 	if (m_stringCache)
 		cache->copy(m_stringCache);
 

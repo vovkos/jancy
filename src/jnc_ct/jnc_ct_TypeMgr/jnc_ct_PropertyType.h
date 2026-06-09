@@ -195,6 +195,9 @@ PropertyType::PropertyType() {
 
 struct SimplePropertyTypeTuple: sl::ListLink {
 	PropertyType* m_propertyTypeArray[3][2][2]; // call-conv-family x const x bindable
+
+	SimplePropertyTypeTuple():
+		m_propertyTypeArray() {}
 };
 
 //..............................................................................
