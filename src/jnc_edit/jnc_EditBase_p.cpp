@@ -42,7 +42,7 @@ struct PairBrace {
 		m_isBackwardSearch = isBackwardSearch;
 	}
 
-	operator bool () const {
+	explicit operator bool () const {
 		return !m_c.isNull();
 	}
 };

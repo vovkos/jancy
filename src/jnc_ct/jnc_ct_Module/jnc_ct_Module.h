@@ -164,7 +164,7 @@ public:
 
 	bool
 	hasCodeGen() {
-		return m_llvmIrBuilder;
+		return (bool)m_llvmIrBuilder;
 	}
 
 	bool

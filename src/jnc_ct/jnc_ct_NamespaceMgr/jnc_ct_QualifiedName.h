@@ -89,7 +89,7 @@ public:
 		m_atom = atom;
 	}
 
-	operator bool () const {
+	explicit operator bool () const {
 		return !m_atom->isEmpty();
 	}
 

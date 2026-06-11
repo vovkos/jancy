@@ -33,7 +33,7 @@ struct LlvmIrInsertPoint {
 		setup(llvmBlock, llvmInstruction);
 	}
 
-	operator bool() const {
+	explicit operator bool() const {
 		return !isEmpty();
 	}
 

@@ -51,7 +51,7 @@ public:
 		clear();
 	}
 
-	operator bool () {
+	explicit operator bool () {
 		return m_llvmIrBuilder != NULL;
 	}
 

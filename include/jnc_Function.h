@@ -310,7 +310,7 @@ public:
 		m_item = src.m_item;
 	}
 
-	operator bool() {
+	explicit operator bool() {
 		return m_item != NULL;
 	}
 

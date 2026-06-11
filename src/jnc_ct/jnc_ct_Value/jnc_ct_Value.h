@@ -166,7 +166,7 @@ public:
 		setLlvmValue(llvmValue, type, valueKind);
 	}
 
-	operator bool() const {
+	explicit operator bool() const {
 		return !isEmpty();
 	}
 

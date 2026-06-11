@@ -152,7 +152,7 @@ public:
 		m_p = p;
 	}
 
-	operator bool() const {
+	explicit operator bool() const {
 		return m_p != NULL;
 	}
 

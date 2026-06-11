@@ -46,7 +46,7 @@ public:
 
 	bool
 	hasValidatorValue() {
-		return m_validatorValue;
+		return (bool)m_validatorValue;
 	}
 
 	Value
