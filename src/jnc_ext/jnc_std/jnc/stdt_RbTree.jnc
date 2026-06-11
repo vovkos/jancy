@@ -45,7 +45,7 @@ typedef MapReadOnlyIterator<RbTreeEntry<K, V> >  RbTreeReadOnlyIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class RbTree<K, V, C = stdt.Cmp<K> >: MapImpl<BinTreeVisitRemoveImpl<RbTreeBase<RbTreeNode<K, V>, C> > > {
+class RbTree<K, V, C = stdt.Lt<K> >: MapImpl<BinTreeVisitRemoveImpl<RbTreeBase<RbTreeNode<K, V>, C> > > {
 	construct(C cmp = C()) {
 		m_cmp = cmp;
 	}

@@ -200,6 +200,38 @@ void test_takeover() {
 		assert(dst[i] == i * 10);
 }
 
+void test_custom_comparator() {
+	// pass Gt as the less-than predicate => keys ordered descending
+
+	RbTree<int, int, Gt<int> > t;
+
+	for (int i = 0; i < 10; i++)
+		t[i] = i * 10;
+
+	assert(t.m_count == 10);
+
+	for (int i = 0; i < 10; i++)
+		assert(t[i] == i * 10);
+
+	// iteration (m_head -> m_tail) must follow the comparator: descending keys
+
+	int expected = 9;
+	for (
+		Iterator<RbTreeNode<int, int> > it = t.m_head;
+		it;
+		it++
+	) {
+		assert(it->m_key == expected);
+		expected--;
+	}
+
+	assert(expected == -1);
+
+	assert(t.removeKey(5));
+	assert(t.m_count == 9);
+	assert(!t.find(5));
+}
+
 //..............................................................................
 
 int main() {
@@ -216,6 +248,7 @@ int main() {
 	test_iteration_order();
 	test_stress_insert_remove();
 	test_takeover();
+	test_custom_comparator();
 	return 0;
 }
 

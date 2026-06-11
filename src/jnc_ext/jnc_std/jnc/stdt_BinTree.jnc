@@ -62,7 +62,7 @@ protected:
 	T* insert(
 		Key key,
 		T* parent,
-		int cmp
+		bool isLeft
 	);
 
 	void exchange(
@@ -89,11 +89,12 @@ void BinTreeBase<T, C>.takeOver(BinTreeBase* src) {
 AutoConstIterator BinTreeBase<T, C>.find(Key key) const? {
 	T autoconst* p = m_root;
 	while (p) {
-		int cmp = m_cmp(key, p.m_key);
-		if (cmp == 0)
+		if (m_cmp(key, p.m_key))
+			p = p.m_left;
+		else if (m_cmp(p.m_key, key))
+			p = p.m_right;
+		else
 			return p;
-
-		p = cmp < 0 ? p.m_left : p.m_right;
 	}
 
 	return null;
@@ -191,7 +192,7 @@ T* BinTreeBase<T, C>.replaceWithChild(T* p) {
 T* BinTreeBase<T, C>.insert(
 	Key key,
 	T* parent,
-	int cmp
+	bool isLeft
 ) {
 	T* p = new T(key);
 	p.m_parent = parent;
@@ -199,7 +200,7 @@ T* BinTreeBase<T, C>.insert(
 	if (!parent) {
 		m_root = p;
 		m_list.insertTail(p);
-	} else if (cmp < 0) {
+	} else if (isLeft) {
 		parent.m_left = p;
 		m_list.insertBefore(p, parent);
 	} else {
@@ -309,18 +310,21 @@ public:
 Iterator BinTreeVisitRemoveImpl<T>.visit(Key key) {
 	Entry* parent = null;
 	Entry* p = m_root;
-	int cmp;
+	bool isLeft = false;
 
 	while (p) {
-		cmp = m_cmp(key, p.m_key);
-		if (cmp == 0)
+		if (m_cmp(key, p.m_key))
+			isLeft = true;
+		else if (m_cmp(p.m_key, key))
+			isLeft = false;
+		else
 			return p;
 
 		parent = p;
-		p = cmp < 0 ? p.m_left : p.m_right;
+		p = isLeft ? p.m_left : p.m_right;
 	}
 
-	p = insert(key, parent, cmp);
+	p = insert(key, parent, isLeft);
 	rebalanceOnInsert(p);
 	return p;
 }
