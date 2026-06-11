@@ -40,13 +40,13 @@ public:
 		m_func = func ? func : cmpVariant;
 	}
 
-	int
+	bool
 	operator () (
 		const Variant& key1,
 		const Variant& key2
 	) const {
 		ASSERT(m_func);
-		return m_func(key1, key2);
+		return m_func(key1, key2) < 0; // axl::sl::RbTree takes Lt-like comparator
 	}
 };
 
