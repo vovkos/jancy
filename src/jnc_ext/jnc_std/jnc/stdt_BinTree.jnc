@@ -29,8 +29,15 @@ struct BinTreeNodeBase<T, K, V, P>: MapEntryBase<T, K, V> {
 	T autoconst* readonly m_right;
 	P readonly m_param;
 
-	construct(K key) thin { // no default by intention (must derive from Base)
+	// m_param must be suitable for root
+	// rebalanceOnInsert is only called for non-root nodes
+
+	construct(
+		K key,
+		T* parent
+	) thin { // no default by intention (must derive from Base)
 		basetype.construct(key);
+		m_parent = parent;
 	}
 }
 
@@ -58,12 +65,6 @@ protected:
 	void rotateLeft(T* p);
 	void rotateRight(T* p);
 	T* replaceWithChild(T* p);
-
-	T* insert(
-		Key key,
-		T* parent,
-		bool isLeft
-	);
 
 	void exchange(
 		T* prev,
@@ -189,28 +190,6 @@ T* BinTreeBase<T, C>.replaceWithChild(T* p) {
 	return child;
 }
 
-T* BinTreeBase<T, C>.insert(
-	Key key,
-	T* parent,
-	bool isLeft
-) {
-	T* p = new T(key);
-	p.m_parent = parent;
-
-	if (!parent) {
-		m_root = p;
-		m_list.insertTail(p);
-	} else if (isLeft) {
-		parent.m_left = p;
-		m_list.insertBefore(p, parent);
-	} else {
-		parent.m_right = p;
-		m_list.insertAfter(p, parent);
-	}
-
-	return p;
-}
-
 void BinTreeBase<T, C>.exchange(
 	T* prev,
 	T* next
@@ -308,25 +287,38 @@ public:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Iterator BinTreeVisitRemoveImpl<T>.visit(Key key) {
-	Entry* parent = null;
 	Entry* p = m_root;
-	bool isLeft = false;
-
-	while (p) {
-		if (m_cmp(key, p.m_key))
-			isLeft = true;
-		else if (m_cmp(p.m_key, key))
-			isLeft = false;
-		else
-			return p;
-
-		parent = p;
-		p = isLeft ? p.m_left : p.m_right;
+	if (!p) {
+		p = new Entry(key, null);
+		m_root = p;
+		return m_list.insertTail(p);
 	}
 
-	p = insert(key, parent, isLeft);
-	rebalanceOnInsert(p);
-	return p;
+	Entry* child;
+	for (;;)
+		if (m_cmp(key, p.m_key)) {
+			if (p.m_left)
+				p = p.m_left;
+			else {
+				child = new Entry(key, p);
+				p.m_left = child;
+				m_list.insertBefore(child, p);
+				break;
+			}
+		} else if (m_cmp(p.m_key, key)) {
+			if (p.m_right)
+				p = p.m_right;
+			else {
+				child = new Entry(key, p);
+				p.m_right = child;
+				m_list.insertAfter(child, p);
+				break;
+			}
+		} else
+			return p;
+
+	rebalanceOnInsert(child);
+	return child;
 }
 
 //..............................................................................

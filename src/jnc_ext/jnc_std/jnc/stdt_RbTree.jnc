@@ -30,9 +30,12 @@ struct RbTreeNode<K, V>: BinTreeNodeBase<RbTreeNode, K, V, RbTreeColor> {
 
 	alias m_color = m_param;
 
-	construct(K key = null) thin {
-		basetype.construct(key);
-		m_param = RbTreeColor.Red; // new nodes are red
+	construct(
+		K key,
+		RbTreeNode* parent
+	) thin {
+		basetype.construct(key, parent);
+		m_param = RbTreeColor.Black; // root is black; rebalanceOnInsert will color others red
 	}
 }
 
@@ -91,7 +94,7 @@ size_t RbTreeBase<T, C>.assertValid(T const* p) {
 }
 
 void RbTreeBase<T, C>.rebalanceOnInsert(T* x) {
-	// x.m_color = RbTreeColor.Red; // make new node red
+	x.m_color = RbTreeColor.Red; // make new node red
 
 	// check Red-Black properties
 	while (x != m_root && x.m_parent.m_color == RbTreeColor.Red) {
