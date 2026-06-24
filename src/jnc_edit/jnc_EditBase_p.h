@@ -35,10 +35,26 @@ protected:
 		HighlightKind__Count,
 	};
 
+	enum HighlightFlag {
+		HighlightFlag_FocusOnly = 0x01,
+	};
+
 	enum Limit {
 		Limit_MaxVisibleItemCount = 16,
 		Limit_MaxNameWidth        = 256,
 		Limit_MaxSynopsisWidth    = 512,
+	};
+
+	struct Highlight: QTextEdit::ExtraSelection {
+		uint_t m_flags;
+
+		Highlight() {
+			m_flags = 0;
+		}
+
+		void operator = (const ExtraSelection& selection) {
+			ExtraSelection::operator = (selection);
+		}
 	};
 
 protected:
@@ -47,7 +63,7 @@ protected:
 	HighlighterBase* m_syntaxHighlighter;
 	LineNumberMargin* m_lineNumberMargin;
 	QString m_fileName;
-	QTextEdit::ExtraSelection m_highlighTable[HighlightKind__Count];
+	Highlight m_highlighTable[HighlightKind__Count];
 	int m_tabWidth;
 	bool m_isExtraSelectionUpdateRequired;
 	bool m_isCurrentLineHighlightingEnabled;

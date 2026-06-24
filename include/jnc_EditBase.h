@@ -211,6 +211,8 @@ protected:
 	);
 
 	virtual void changeEvent(QEvent* e);
+	virtual void focusInEvent(QFocusEvent* e);
+	virtual void focusOutEvent(QFocusEvent* e);
 	virtual void paintEvent(QPaintEvent* e);
 	virtual void resizeEvent(QResizeEvent* e);
 	virtual void mousePressEvent(QMouseEvent* e);

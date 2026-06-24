@@ -558,6 +558,22 @@ EditBase::changeEvent(QEvent* e) {
 }
 
 void
+EditBase::focusInEvent(QFocusEvent* e) {
+	Q_D(EditBase);
+
+	QPlainTextEdit::focusInEvent(e);
+	d->updateExtraSelections();
+}
+
+void
+EditBase::focusOutEvent(QFocusEvent* e) {
+	Q_D(EditBase);
+
+	QPlainTextEdit::focusOutEvent(e);
+	d->updateExtraSelections();
+}
+
+void
 EditBase::resizeEvent(QResizeEvent *e) {
 	Q_D(EditBase);
 
@@ -773,6 +789,9 @@ EditBasePrivate::EditBasePrivate() {
 	m_isExtraSelectionUpdateRequired = false;
 	m_isIndentGuideEnabled = true;
 	m_isTabsToSpacesEnabled = false;
+	m_highlighTable[HighlightKind_AnchorBrace].m_flags |= HighlightFlag_FocusOnly;
+	m_highlighTable[HighlightKind_PairBrace].m_flags |= HighlightFlag_FocusOnly;
+	m_highlighTable[HighlightKind_CurrentLine].m_flags |= HighlightFlag_FocusOnly;
 	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
 	m_codeAssistThread = NULL;
 	m_codeTip = NULL;
@@ -1085,11 +1104,14 @@ void
 EditBasePrivate::updateExtraSelections() {
 	Q_Q(EditBase);
 
+	bool hasFocus = q->hasFocus();
 	QList<QTextEdit::ExtraSelection> list;
 
 	if (q->isEnabled() && !q->isReadOnly())
 		for (size_t i = 0; i < countof(m_highlighTable); i++)
-			if (!m_highlighTable[i].cursor.isNull())
+			if (!m_highlighTable[i].cursor.isNull() &&
+				(hasFocus || !(m_highlighTable[i].m_flags & HighlightFlag_FocusOnly))
+			)
 				list.append(m_highlighTable[i]);
 
 	q->setExtraSelections(list);
@@ -1151,9 +1173,7 @@ EditBasePrivate::highlightCurrentLine() {
 	Q_Q(EditBase);
 
 	QTextCursor cursor = q->textCursor();
-	cursor.clearSelection();
-	m_highlighTable[HighlightKind_CurrentLine].cursor = cursor;
-
+	m_highlighTable[HighlightKind_CurrentLine].cursor = !cursor.hasSelection() ? cursor : QTextCursor();
 	m_isExtraSelectionUpdateRequired = true;
 }
 
