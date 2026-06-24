@@ -85,6 +85,7 @@ SslState::openSsl(
 		return false;
 
 	m_ssl.setBio(sslBio.detach());
+	m_ssl.setMode(SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 	m_ssl.setExtraData(m_selfIdx, this);
 	m_ssl.setExtraData(m_runtimeIdx, runtime);
 	m_ssl.setInfoCallback(sslInfoCallback);

@@ -474,7 +474,7 @@ SslSocket::sslReadWriteLoop() {
 		while (canReadSocket && !m_readBuffer.isFull()) {
 			m_lock.unlock();
 
-			ssize_t actualSize = m_ssl.read(p, readBlock.getCount());
+			size_t actualSize = m_ssl.read(p, readBlock.getCount());
 			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
 				switch (error) {
@@ -514,7 +514,7 @@ SslSocket::sslReadWriteLoop() {
 			m_lock.unlock();
 
 			size_t blockSize = writeBlock.getCount();
-			ssize_t actualSize = m_ssl.write(writeBlock, blockSize);
+			size_t actualSize = m_ssl.write(writeBlock, blockSize);
 			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
 				switch (error) {
