@@ -274,7 +274,7 @@ getLlvmIntrinsicDeclaration(
 #include "axl_enc_HexEncoding.h"
 #include "axl_enc_EscapeEncoding.h"
 #include "axl_io_FilePathUtils.h"
-#include "axl_io_MappedFile.h"
+#include "axl_io_SimpleMappedFile.h"
 #include "axl_io_FilePathUtils.h"
 #include "axl_lex_RagelLexer.h"
 #include "axl_dox_Module.h"

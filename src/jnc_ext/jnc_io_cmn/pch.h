@@ -30,7 +30,6 @@
 #	include "axl_cry_Dh.h"
 #	include "axl_cry_EcKey.h"
 #	include "axl_io_Ssl.h"
-#	include "axl_io_MappedFile.h"
 #endif
 
 #if (_JNC_IO_USB)

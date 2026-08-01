@@ -43,7 +43,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 MappedFile::MappedFile() {
 	m_runtime = getCurrentThreadRuntime();
-	m_dynamicViewLimit = axl::io::MappedFile::DefaultsKind_MaxDynamicViewCount;
+	m_dynamicViewLimit = axl::io::MappedFile::Def_MaxDynamicViewCount;
 	m_isOpen = false;
 }
 
@@ -84,9 +84,10 @@ MappedFile::view(
 void
 JNC_CDECL
 MappedFile::setDynamicViewLimit(size_t limit) {
-	bool result = m_file.setup(limit, axl::io::MappedFile::DefaultsKind_ReadAheadSize);
-	if (result)
-		m_dynamicViewLimit = limit;
+	if (!limit)
+		limit = 1;
+
+	m_file.setup(limit, axl::io::MappedFile::Def_ReadAheadSize);
 }
 
 //..............................................................................

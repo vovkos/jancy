@@ -9,7 +9,6 @@
 #include "axl_sl_HandleTable.h"
 #include "axl_sl_StringHashTable.h"
 #include "axl_io_File.h"
-#include "axl_io_MappedFile.h"
 #include "axl_io_Serial.h"
 #include "axl_sys_Thread.h"
 #include "axl_sys_Time.h"
