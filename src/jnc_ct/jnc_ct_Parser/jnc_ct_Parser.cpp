@@ -591,32 +591,48 @@ Parser::postDeclaration() {
 }
 
 size_t
-Parser::prepareDynamicAttributeArgs(
-	sl::BoxList<Value>* argList,
+Parser::packDynamicAttributes(
+	Variable** resultVar,
 	AttributeBlock* attributeBlock
 ) {
-	const sl::Array<Attribute*>& attributeArray = attributeBlock->getAttributeArray();
-	size_t count = attributeArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Attribute* attribute = attributeArray[i];
-		if (!(attribute->getFlags() & AttributeFlag_DynamicValue))
-			continue;
+	char buffer[256];
+	sl::Array<Attribute*> dynamicAttrArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
+	const sl::Array<Attribute*>& attributeArray = attributeBlock->getAttributeArray();
+	size_t totalCount = attributeArray.getCount();
+	for (size_t i = 0; i < totalCount; i++) {
+		Attribute* attribute = attributeArray[i];
+		if (attribute->getFlags() & AttributeFlag_DynamicValue)
+			dynamicAttrArray.append(attribute);
+	}
+
+	size_t dynamicCount = dynamicAttrArray.getCount();
+	Type* variantType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
+	ArrayType* arrayType = variantType->getArrayType(dynamicCount);
+	Variable* arrayVar = m_module->m_variableMgr.createVariable(StorageKind_Stack, "dynamicAttrArray", arrayType);
+	bool result = m_module->m_variableMgr.allocateVariable(arrayVar);
+	if (!result)
+		return -1;
+
+	*resultVar = arrayVar;
+	if (!m_module->hasCodeGen())
+		return dynamicCount;
+
+	m_module->m_variableMgr.preInitializeStackVariable(arrayVar);
+
+	Value arrayValue(arrayVar);
+	for (size_t i = 0; i < dynamicCount; i++) {
 		Value attrValue;
-		bool result = m_module->m_operatorMgr.castOperator(attribute->getValue(), TypeKind_Variant, &attrValue);
+		bool result = m_module->m_operatorMgr.castOperator(dynamicAttrArray[i]->getValue(), variantType, &attrValue);
 		if (!result)
 			return -1;
 
-		argList->insertTail(attrValue);
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createGep2(arrayValue, arrayType, i, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createStore(attrValue, ptrValue);
 	}
 
-	count = argList->getCount();
-	if (!count)
-		return 0;
-
-	Value countValue(count, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
-	argList->insertHead(countValue);
-	return count;
+	return dynamicCount;
 }
 
 void
@@ -2086,16 +2102,16 @@ Parser::declareData(
 			return false;
 		}
 
-		sl::BoxList<Value> dynamicAttributeArgList;
-
+		Variable* dynamicAttrArrayVar = NULL;
+		size_t dynamicAttrCount = 0;
 		if (declarator->m_attributeBlock || (declarator->m_attributeBlock = popAttributeBlock())) {
 			result = declarator->m_attributeBlock->prepareAttributeValues(true);
 			if (!result)
 				return false;
 
 			if (declarator->m_attributeBlock->m_flags & AttributeBlockFlag_DynamicValues) {
-				result = prepareDynamicAttributeArgs(&dynamicAttributeArgList, declarator->m_attributeBlock) != -1;
-				if (!result)
+				dynamicAttrCount = packDynamicAttributes(&dynamicAttrArrayVar, declarator->m_attributeBlock);
+				if (dynamicAttrCount == -1)
 					return false;
 			}
 		}
@@ -2165,9 +2181,13 @@ Parser::declareData(
 					nspace->addItem(field) &&
 					m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addArray", &funcValue) &&
 					m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) &&	(
-						dynamicAttributeArgList.isEmpty() ||
+						dynamicAttrCount == 0 ||
 						m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
-						m_module->m_operatorMgr.callOperator(funcValue, &dynamicAttributeArgList)
+						m_module->m_operatorMgr.callOperator(
+							funcValue,
+							dynamicAttrArrayVar,
+							Value(dynamicAttrCount, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT))
+						)
 					) && (
 						!isAsync ||
 						m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue)
@@ -2187,7 +2207,7 @@ Parser::declareData(
 			return false;
 		}
 
-		if (bitCount || !dynamicAttributeArgList.isEmpty()) {
+		if (bitCount || dynamicAttrCount) {
 			result = finalizeDynamicStructSection(stmt);
 			if (!result)
 				return false;
@@ -2232,9 +2252,13 @@ Parser::declareData(
 				nspace->addItem(field) &&
 				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, addMethodName, &funcValue) &&
 				m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) && (
-					dynamicAttributeArgList.isEmpty() ||
+					dynamicAttrCount == 0 ||
 					m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
-					m_module->m_operatorMgr.callOperator(funcValue, &dynamicAttributeArgList)
+					m_module->m_operatorMgr.callOperator(
+						funcValue,
+						dynamicAttrArrayVar,
+						Value(dynamicAttrCount, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT))
+					)
 				) && (
 					!isAsync ||
 					m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue)
@@ -3907,7 +3931,8 @@ Parser::openDynamicGroup(
 	if (!result)
 		return false;
 
-	sl::BoxList<Value> dynamicAttributeArgList;
+	Variable* dynamicAttrArrayVar = NULL;
+	size_t dynamicAttrCount = 0;
 	AttributeBlock* attributeBlock = popAttributeBlock();
 	if (attributeBlock) {
 		result = attributeBlock->prepareAttributeValues(true);
@@ -3915,8 +3940,8 @@ Parser::openDynamicGroup(
 			return false;
 
 		if (attributeBlock->m_flags & AttributeBlockFlag_DynamicValues) {
-			result = prepareDynamicAttributeArgs(&dynamicAttributeArgList, attributeBlock) != -1;
-			if (!result)
+			dynamicAttrCount = packDynamicAttributes(&dynamicAttrArrayVar, attributeBlock);
+			if (dynamicAttrCount == -1)
 				return false;
 		}
 	}
@@ -3936,9 +3961,13 @@ Parser::openDynamicGroup(
 		group->ensureAttributeValuesReady() &&
 		m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "openGroup", &funcValue) &&
 		m_module->m_operatorMgr.callOperator(funcValue, declValue) && (
-			dynamicAttributeArgList.isEmpty() ||
+			dynamicAttrCount == 0 ||
 			m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
-			m_module->m_operatorMgr.callOperator(funcValue, &dynamicAttributeArgList)
+			m_module->m_operatorMgr.callOperator(
+				funcValue,
+				dynamicAttrArrayVar,
+				Value(dynamicAttrCount, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT))
+			)
 		);
 
 	m_module->enableAccessChecks();

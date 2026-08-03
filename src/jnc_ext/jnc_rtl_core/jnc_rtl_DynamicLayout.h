@@ -241,8 +241,8 @@ public:
 	void
 	JNC_CDECL
 	setDynamicAttributes(
-		size_t count,
-		...
+		const Variant* p,
+		size_t count
 	);
 
 protected:

@@ -512,8 +512,8 @@ DynamicLayout::closeGroups(size_t count) {
 void
 JNC_CDECL
 DynamicLayout::setDynamicAttributes(
-	size_t dynamicCount,
-	...
+	const Variant* p,
+	size_t dynamicCount
 ) {
 	if (m_sectionArray.isEmpty()) {
 		ASSERT(!(m_mode & DynamicLayoutMode_Save));
@@ -535,15 +535,11 @@ DynamicLayout::setDynamicAttributes(
 	const sl::Array<ct::Attribute*>& attributeArray = section->m_dynamicAttributeBlock->getAttributeArray();
 	size_t totalCount = attributeArray.getCount();
 
-	AXL_VA_DECL(va, dynamicCount);
-	for (size_t i = 0, j = 0; i < dynamicCount; i++) {
-		Variant value = axl_va_arg(va, Variant);
-		for (; j < totalCount; j++)
-			if (attributeArray[j]->getFlags() & ct::AttributeFlag_DynamicValue) {
-				section->m_dynamicAttributeBlock->setDynamicAttributeValue(j++, value);
-				break;
-			}
-	}
+	for (size_t i = 0, j = 0; i < totalCount; i++)
+		if (attributeArray[i]->getFlags() & ct::AttributeFlag_DynamicValue) {
+			ASSERT(j < dynamicCount);
+			section->m_dynamicAttributeBlock->setDynamicAttributeValue(i, p[j++]);
+		}
 }
 
 void

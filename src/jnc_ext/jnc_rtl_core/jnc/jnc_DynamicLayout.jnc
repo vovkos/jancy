@@ -192,8 +192,8 @@ protected:
 	void closeGroups(size_t count);
 
 	void cdecl setDynamicAttributes( // applies to the last decl
-		size_t count,
-		... // variant_t attr0, attr1, ...
+		variant_t const thin* p,
+		size_t count
 	);
 }
 

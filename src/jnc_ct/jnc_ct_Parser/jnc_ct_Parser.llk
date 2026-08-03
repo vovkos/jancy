@@ -374,8 +374,8 @@ protected:
 	processUnusedAttributes();
 
 	size_t
-	prepareDynamicAttributeArgs(
-		sl::BoxList<Value>* argValueList,
+	packDynamicAttributes(
+		Variable** arrayVar,
 		AttributeBlock* attributeBlock
 	);
 
