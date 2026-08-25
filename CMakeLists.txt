@@ -26,9 +26,7 @@ endif()
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 if(NOT "${GCC_FLAG_CPP_STANDARD}" MATCHES "-std=")
-	if(${LLVM_VERSION_MAJOR} LESS 10)
-		set(CMAKE_CXX_STANDARD 11)
-	elseif(${LLVM_VERSION_MAJOR} LESS 16)
+	if(${LLVM_VERSION_MAJOR} LESS 16)
 		set(CMAKE_CXX_STANDARD 14)
 	else()
 		set(CMAKE_CXX_STANDARD 17)
