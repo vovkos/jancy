@@ -43,15 +43,11 @@ JNC_CDECL
 Thread::start(FunctionPtr ptr) {
 	bool result;
 
-	if (m_thread.isOpen()) {
-		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return false;
-	}
+	if (m_thread.isOpen())
+		return err::fail(err::SystemErrorCode_InvalidDeviceState);
 
-	if (!ptr.m_p) {
-		err::setError(err::SystemErrorCode_InvalidParameter);
-		return false;
-	}
+	if (!ptr.m_p)
+		return err::fail(err::SystemErrorCode_InvalidParameter);
 
 	m_threadFuncPtr = ptr;
 	result = m_thread.start();

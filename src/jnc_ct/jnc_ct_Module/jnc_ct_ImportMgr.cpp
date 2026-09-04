@@ -118,10 +118,8 @@ ImportMgr::findImportFile(
 			io::findFilePath(fileName, &m_importDirList, false);
 	}
 
-	if (filePath.isEmpty()) {
-		err::setFormatStringError("import '%s' not found", fileName.sz());
-		return FindResult_NotFound;
-	}
+	if (filePath.isEmpty())
+		return err::fail(FindResult_NotFound, "import '%s' not found", fileName.sz());
 
 	sl::StringHashTableIterator<bool> it = m_importFilePathMap.visit(filePath);
 	if (it->m_value) // already

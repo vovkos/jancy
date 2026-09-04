@@ -65,7 +65,7 @@ TypeName::lookupTypeImpl(
 	}
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("unresolved type '%s'", createQualifiedName(m_name.getFullName()).sz());
+		err::setError("unresolved type '%s'", createQualifiedName(m_name.getFullName()).sz());
 		pushSrcPosError();
 		return NULL;
 	}
@@ -99,7 +99,7 @@ TypeName::lookupTypeImpl(
 		// else fall through
 
 	default:
-		err::setFormatStringError("'%s' is not a type", m_name.getFullName().sz());
+		err::setError("'%s' is not a type", m_name.getFullName().sz());
 		pushSrcPosError();
 		return NULL;
 	}

@@ -174,10 +174,8 @@ UsbDevice::getStringDescriptor(
 	uint_t stringId,
 	uint_t langId
 ) {
-	if (!self->m_isOpen) {
-		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return g_nullString;
-	}
+	if (!self->m_isOpen)
+		return err::fail(g_nullString, err::SystemErrorCode_InvalidDeviceState);
 
 	char buffer[256];
 

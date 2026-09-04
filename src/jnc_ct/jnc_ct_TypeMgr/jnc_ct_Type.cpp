@@ -221,10 +221,8 @@ bool
 Type::prepareLayout() {
 	ASSERT(!(m_flags & TypeFlag_LayoutReady));
 
-	if (m_flags & TypeFlag_InCalcLayout) {
-		err::setFormatStringError("can't calculate layout of '%s' due to recursion", getItemName().sz());
-		return false;
-	}
+	if (m_flags & TypeFlag_InCalcLayout)
+		return err::fail("can't calculate layout of '%s' due to recursion", getItemName().sz());
 
 	m_flags |= TypeFlag_InCalcLayout;
 	bool result = calcLayout();

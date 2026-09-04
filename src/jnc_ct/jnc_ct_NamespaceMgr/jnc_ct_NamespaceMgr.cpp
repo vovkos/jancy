@@ -462,10 +462,8 @@ NamespaceMgr::openScope(
 	}
 
 	if (flags & ScopeFlag_Nested) {
-		if (parentScope->m_flags & (ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested)) {
-			err::setError("'nestedscope' can only be used before other scope labels");
-			return NULL;
-		}
+		if (parentScope->m_flags & (ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested))
+			return err::fail<Scope*>(NULL, "'nestedscope' can only be used before other scope labels");
 
 		scope->m_flags |= parentScope->m_flags & ScopeFlag_Function; // propagate function flag
 	}

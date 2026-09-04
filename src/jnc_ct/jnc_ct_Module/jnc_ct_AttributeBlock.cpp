@@ -57,25 +57,20 @@ Attribute::prepareValue(bool isDynamic) {
 			if (isDynamic)
 				m_flags |= AttributeFlag_DynamicValue | AttributeFlag_VariantReady; // this attribute will be shadowed by a dynamic one
 			else {
-				err::setFormatStringError(
+				return err::fail(
 					"non-type variable '%s' used as an attribute value",
 					m_value.getVariable()->getItemName().sz()
 				);
-
-				return false;
 			}
 
 		break;
 
 	case ValueKind_Function:
-		if (m_value.getFunction()->getStorageKind() != StorageKind_Static) {
-			err::setFormatStringError(
+		if (m_value.getFunction()->getStorageKind() != StorageKind_Static)
+			return err::fail(
 				"non-static function '%s' used as an attribute value",
 				m_value.getFunction()->getItemName().sz()
 			);
-
-			return false;
-		}
 
 		result = m_value.getFunction()->getType()->getFunctionPtrType(FunctionPtrKind_Thin)->ensureLayout();
 		if (!result)
@@ -94,8 +89,7 @@ Attribute::prepareValue(bool isDynamic) {
 		if (isDynamic)
 			m_flags |= AttributeFlag_DynamicValue | AttributeFlag_VariantReady; // this attribute will be shadowed by a dynamic one
 		else {
-			err::setFormatStringError("'%s' used as an attribute value", getValueKindString(m_value.getValueKind()));
-			return false;
+			return err::fail("'%s' used as an attribute value", getValueKindString(m_value.getValueKind()));
 		}
 	}
 
@@ -160,8 +154,7 @@ AttributeBlock::addAttribute(Attribute* attribute) {
 		if (attribute->getFlags() & AttributeFlag_Shared) // shared attribute; ignore
 			return true;
 
-		err::setFormatStringError("redefinition of attribute '%s'", attribute->getName().sz());
-		return false;
+		return err::fail("redefinition of attribute '%s'", attribute->getName().sz());
 	}
 
 	m_attributeArray.append(attribute);

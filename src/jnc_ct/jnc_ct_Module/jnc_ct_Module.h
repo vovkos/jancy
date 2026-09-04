@@ -876,8 +876,7 @@ OperatorMgr::checkAccess(
 	)
 		return true;
 
-	err::setFormatStringError("'%s' is protected", decl->getDeclItem()->getItemName().sz());
-	return false;
+	return err::fail("'%s' is protected", decl->getDeclItem()->getItemName().sz());
 }
 
 //..............................................................................

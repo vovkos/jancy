@@ -63,7 +63,7 @@ public:
 		Type* opType1,
 		Type* opType2
 	) {
-		err::setFormatStringError(
+		err::setError(
 			"binary '%s' cannot be applied to '%s' and '%s'",
 			getBinOpKindString(m_opKind),
 			opType1->getTypeString().sz(),

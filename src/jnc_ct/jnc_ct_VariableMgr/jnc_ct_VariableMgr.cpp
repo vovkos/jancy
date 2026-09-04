@@ -733,10 +733,8 @@ VariableMgr::createTlsStructType() {
 		if (!result)
 			return false;
 
-		if (variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) {
-			err::setFormatStringError("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString().sz());
-			return false;
-		}
+		if (variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate)
+			return err::fail("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString().sz());
 
 		variable->m_field = type->createField(variable->m_type);
 	}

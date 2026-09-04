@@ -407,15 +407,11 @@ Cast_PropertyPtr_Thin2Thin::llvmCast(
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyPtr);
 	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
-	if (opValue.getClosure()) {
-		err::setError("cannot create thin property pointer to a closure");
-		return false;
-	}
+	if (opValue.getClosure())
+		return err::fail("cannot create thin property pointer to a closure");
 
-	if (opValue.getValueKind() != ValueKind_Property) {
-		err::setError("can only create thin pointer thunk to a property, not a property pointer");
-		return false;
-	}
+	if (opValue.getValueKind() != ValueKind_Property)
+		return err::fail("can only create thin pointer thunk to a property, not a property pointer");
 
 	PropertyPtrType* ptrType = (PropertyPtrType*)type;
 	PropertyType* targetType = ptrType->getTargetType();
@@ -424,10 +420,8 @@ Cast_PropertyPtr_Thin2Thin::llvmCast(
 	if (prop->getType()->isEqual(targetType))
 		return m_module->m_operatorMgr.getPropertyThinPtr(prop, NULL, ptrType, resultValue);
 
-	if (prop->getFlags() & PropertyTypeFlag_Bindable) {
-		err::setError("bindable properties are not supported yet");
-		return false;
-	}
+	if (prop->getFlags() & PropertyTypeFlag_Bindable)
+		return err::fail("bindable properties are not supported yet");
 
 	Property* thunkProperty = m_module->m_functionMgr.getDirectThunkProperty(prop, targetType);
 	return m_module->m_operatorMgr.getPropertyThinPtr(thunkProperty, NULL, ptrType, resultValue);
@@ -446,10 +440,8 @@ Cast_PropertyPtr_Thin2Weak::llvmCast(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
-	if (opValue.getClosure() && !opValue.getClosure()->isSimpleClosure()) {
-		err::setError("full weak closures are not implemented yet");
-		return false;
-	}
+	if (opValue.getClosure() && !opValue.getClosure()->isSimpleClosure())
+		return err::fail("full weak closures are not implemented yet");
 
 	PropertyPtrType* intermediateType = ((PropertyPtrType*)type)->getTargetType()->getPropertyPtrType(PropertyPtrKind_Normal);
 	bool result = m_module->m_operatorMgr.castOperator(opValue, intermediateType, resultValue);

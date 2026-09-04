@@ -299,10 +299,8 @@ getArraySize(
 	ct::Type* type,
 	size_t elementCount
 ) {
-	if (elementCount && type->getSize() > (size_t)-1 / elementCount) {
-		err::setError("dynamic array size overflow");
-		return -1;
-	}
+	if (elementCount && type->getSize() > (size_t)-1 / elementCount)
+		return err::fail<size_t>(-1, "dynamic array size overflow");
 
 	return type->getSize() * elementCount;
 }
@@ -310,10 +308,8 @@ getArraySize(
 inline
 bool
 DynamicLayout::addSize(size_t size) {
-	if (size > m_sizeLimit || m_size > m_sizeLimit - size) {
-		err::setError("dynamic layout size overflow");
-		return false;
-	}
+	if (size > m_sizeLimit || m_size > m_sizeLimit - size)
+		return err::fail("dynamic layout size overflow");
 
 	m_size += size;
 	return true;
@@ -409,10 +405,8 @@ DynamicLayout::addBitField(
 ) {
 	size_t size = type->getSize();
 	size_t baseBitCount = size * 8;
-	if (bitCount > baseBitCount) {
-		err::setError("type of bit field too small for number of bits");
-		return -1;
-	}
+	if (bitCount > baseBitCount)
+		return err::fail<uint64_t>(-1, "type of bit field too small for number of bits");
 
 	bool isMerged = m_lastBitFieldType && m_lastBitFieldType->isEqual(type);
 

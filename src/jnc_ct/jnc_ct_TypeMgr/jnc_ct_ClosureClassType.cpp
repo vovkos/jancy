@@ -181,8 +181,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor) {
 		break;
 
 	default:
-		err::setFormatStringError("invalid property accessor '%s' in property closure", getFunctionKindString(accessorKind));
-		return false;
+		return err::fail("invalid property accessor '%s' in property closure", getFunctionKindString(accessorKind));
 	}
 
 	if (!result)

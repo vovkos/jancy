@@ -245,10 +245,8 @@ IfaceHdr*
 GcHeap::tryAllocateClass(ct::ClassType* type) {
 	size_t size = type->getSize();
 	Box* box = (Box*)mem::allocate(size);
-	if (!box) {
-		err::setFormatStringError("not enough memory for '%s'", type->getTypeString().sz());
-		return NULL;
-	}
+	if (!box)
+		return err::fail<IfaceHdr*>(NULL, "not enough memory for '%s'", type->getTypeString().sz());
 
 	primeClass(box, type);
 	addBoxIfDynamicFrame(box);
@@ -404,10 +402,8 @@ GcHeap::tryAllocateData(
 	size_t size = type->getSize();
 
 	DataBox* box = (DataBox*)mem::allocate(sizeof(DataBox) + size);
-	if (!box) {
-		err::setFormatStringError("not enough memory for '%s'", type->getTypeString().sz());
-		return g_nullDataPtr;
-	}
+	if (!box)
+		return err::fail(g_nullDataPtr, "not enough memory for '%s'", type->getTypeString().sz());
 
 	if (initializer)
 		memcpy(box + 1, initializer, size);
@@ -457,10 +453,8 @@ GcHeap::tryAllocateArray(
 	size_t size = type->getSize() * count;
 
 	DataBox* box = (DataBox*)mem::allocate(sizeof(DataBox) + size);
-	if (!box) {
-		err::setFormatStringError("not enough memory for '%s [%d]'", type->getTypeString().sz(), count);
-		return g_nullDataPtr;
-	}
+	if (!box)
+		return err::fail(g_nullDataPtr, "not enough memory for '%s [%d]'", type->getTypeString().sz(), count);
 
 	if (initializer)
 		memcpy(box + 1, initializer, size);

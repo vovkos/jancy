@@ -182,10 +182,8 @@ StructType::calcLayoutTo(Field* targetField) {
 		scanStaticVariables();
 		scanPropertyCtorDtors();
 
-		if (!m_propertyDestructArray.isEmpty()) {
-			err::setError("invalid property destructor in 'struct'");
-			return false;
-		}
+		if (!m_propertyDestructArray.isEmpty())
+			return err::fail("invalid property destructor in 'struct'");
 
 		result = createDefaultMethods();
 		if (!result)
@@ -198,21 +196,16 @@ StructType::calcLayoutTo(Field* targetField) {
 		ClassType* classType = static_cast<ClassType*>(m_parentNamespace);
 
 		const OpaqueClassTypeInfo* typeInfo = m_module->m_extensionLibMgr.findOpaqueClassTypeInfo(classType->getItemName());
-		if (!typeInfo) {
-			err::setFormatStringError("opaque class type info is missing for '%s'", classType->getTypeString().sz());
-			return false;
-		}
+		if (!typeInfo)
+			return err::fail("opaque class type info is missing for '%s'", classType->getTypeString().sz());
 
-		if (typeInfo->m_size < m_size) {
-			err::setFormatStringError(
+		if (typeInfo->m_size < m_size)
+			return err::fail(
 				"invalid opaque class type size for '%s' (specified %d bytes; must be at least %d bytes)",
 				getTypeString().sz(),
 				typeInfo->m_size,
 				m_size
 			);
-
-			return false;
-		}
 
 		m_size = typeInfo->m_size;
 
@@ -248,19 +241,15 @@ StructType::layoutBaseType(BaseTypeSlot* slot) {
 	if (!result)
 		return false;
 
-	if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) || slot->m_type->getTypeKind() == TypeKind_Class) {
-		err::setFormatStringError("'%s' cannot be a base type of a struct", slot->m_type->getTypeString().sz());
-		return false;
-	}
+	if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) || slot->m_type->getTypeKind() == TypeKind_Class)
+		return err::fail("'%s' cannot be a base type of a struct", slot->m_type->getTypeString().sz());
 
 	sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.visit(slot->m_type->getSignature());
-	if (it->m_value) {
-		err::setFormatStringError(
+	if (it->m_value)
+		return err::fail(
 			"'%s' is already a base type",
 			slot->m_type->getTypeString().sz()
 		);
-		return false;
-	}
 
 	it->m_value = slot;
 
@@ -301,7 +290,7 @@ StructType::layoutField(Field* field) {
 		return false;
 
 	if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind() == TypeKind_Class) {
-		err::setFormatStringError("class '%s' cannot be a struct member", field->m_type->getTypeString().sz());
+		err::setError("class '%s' cannot be a struct member", field->m_type->getTypeString().sz());
 		field->pushSrcPosError();
 		return false;
 	}
@@ -346,10 +335,8 @@ StructType::layoutFieldImpl(
 bool
 StructType::layoutBitField(Field* field) {
 	size_t baseBitCount = field->m_type->getSize() * 8;
-	if (field->m_bitCount > baseBitCount) {
-		err::setError("type of bit field too small for number of bits");
-		return false;
-	}
+	if (field->m_bitCount > baseBitCount)
+		return err::fail("type of bit field too small for number of bits");
 
 	bool isMerged = m_lastBitField && m_lastBitField->getType()->isEqual(field->m_type);
 

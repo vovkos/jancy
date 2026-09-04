@@ -276,8 +276,7 @@ WebSocket::serverHandshake(
 	m_lock.lock();
 	if (!(m_activeEvents & WebSocketEvent_WebSocketHandshakeRequested)) {
 		m_lock.unlock();
-		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return false;
+		return err::fail(err::SystemErrorCode_InvalidDeviceState);
 	}
 
 	m_handshakeResponse->buildResponse(
@@ -293,8 +292,7 @@ WebSocket::serverHandshake(
 	size_t result = addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
 	if (!result) {
 		m_lock.unlock();
-		err::setError(err::SystemErrorCode_BufferOverflow);
-		return false;
+		return err::fail(err::SystemErrorCode_BufferOverflow);
 	}
 
 	wakeIoThread();

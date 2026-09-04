@@ -355,10 +355,8 @@ jnc_Variant_getMember(
 ) {
 	using namespace jnc;
 
-	if (!variant->m_type) {
-		err::setError("cannot apply member operator to 'null'");
-		return false;
-	}
+	if (!variant->m_type)
+		return err::fail("cannot apply member operator to 'null'");
 
 	ct::Module* module = variant->m_type->getModule();
 	ct::Value opValue(variant, variant->m_type);
@@ -385,10 +383,8 @@ jnc_Variant_setMember(
 ) {
 	using namespace jnc;
 
-	if (!variant->m_type) {
-		err::setError("cannot apply member operator to 'null'");
-		return true;
-	}
+	if (!variant->m_type)
+		return err::fail("cannot apply member operator to 'null'");
 
 	ct::Value opValue;
 	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {
@@ -417,10 +413,8 @@ jnc_Variant_getElement(
 ) {
 	using namespace jnc;
 
-	if (!variant->m_type) {
-		err::setError("cannot apply index operator to 'null'");
-		return true;
-	}
+	if (!variant->m_type)
+		return err::fail("cannot apply index operator to 'null'");
 
 	// turning it into ref is only necessary because of current implementation of OperatorMgr::memberOperator (size_t)
 
@@ -456,10 +450,8 @@ jnc_Variant_setElement(
 ) {
 	using namespace jnc;
 
-	if (!variant->m_type) {
-		err::setError("cannot apply index operator to 'null'");
-		return true;
-	}
+	if (!variant->m_type)
+		return err::fail("cannot apply index operator to 'null'");
 
 	ct::Value opValue;
 	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {

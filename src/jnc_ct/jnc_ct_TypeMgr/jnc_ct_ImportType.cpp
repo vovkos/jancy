@@ -35,7 +35,7 @@ ImportType::resolve() {
 	bool result;
 
 	if (m_flags & ImportTypeFlag_InResolve) {
-		err::setFormatStringError("can't resolve '%s' due to recursion", getTypeString().sz());
+		err::setError("can't resolve '%s' due to recursion", getTypeString().sz());
 		result = false;
 	} else {
 		m_flags |= ImportTypeFlag_InResolve;

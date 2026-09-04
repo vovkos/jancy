@@ -55,10 +55,8 @@ dataPtrIncrementOperator(
 	DataPtrType* opType = (DataPtrType*)opValue1.getType();
 	DataPtrType* resultType = opType->getUnsafePtrType();
 	Type* targetType = opType->getTargetType();
-	if (targetType->getStdType() == StdType_AbstractData) {
-		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");
-		return false;
-	}
+	if (targetType->getStdType() == StdType_AbstractData)
+		return err::fail("pointer arithmetic is not applicable to 'anydata' pointers");
 
 	if (!module->hasCodeGen()) {
 		resultValue->setType(resultType);
@@ -123,11 +121,9 @@ dataPtrDifferenceOperator(
 	Type* targetType2 = ((DataPtrType*)rawOpValue2.getType())->getTargetType();
 
 	if (!targetType1->isEqual(targetType2)) {
-		err::setError("pointer difference target types mismatch");
-		return false;
+		return err::fail("pointer difference target types mismatch");
 	} else if (targetType1->getStdType() == StdType_AbstractData) {
-		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");
-		return false;
+		return err::fail("pointer arithmetic is not applicable to 'anydata' pointers");
 	}
 
 	Type* bytePtrType = module->m_typeMgr.getStdType(StdType_CharConstThinPtr);

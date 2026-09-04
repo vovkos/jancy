@@ -163,10 +163,8 @@ JncApp::runFunction(int* returnValue) {
 	jnc::FunctionType* functionType = function->getType();
 	jnc::TypeKind returnTypeKind = functionType->getReturnType()->getTypeKind();
 	size_t argCount = functionType->getArgCount();
-	if (returnTypeKind != jnc::TypeKind_Void && returnTypeKind != jnc::TypeKind_Int || argCount) {
-		err::setFormatStringError("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.sz(), functionType->getTypeString());
-		return false;
-	}
+	if (returnTypeKind != jnc::TypeKind_Void && returnTypeKind != jnc::TypeKind_Int || argCount)
+		return err::fail("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.sz(), functionType->getTypeString());
 
 	m_runtime->getGcHeap()->setSizeTriggers(&m_cmdLine->m_gcSizeTriggers);
 

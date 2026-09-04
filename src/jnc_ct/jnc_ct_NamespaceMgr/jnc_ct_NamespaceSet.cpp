@@ -44,10 +44,8 @@ NamespaceSet::addNamespace(
 		if (!findResult.m_result)
 			return false;
 
-		if (!findResult.m_item) {
-			err::setFormatStringError("'%s' not found", name->getFullName().sz());
-			return false;
-		}
+		if (!findResult.m_item)
+			return err::fail("'%s' not found", name->getFullName().sz());
 
 		item = findResult.m_item;
 	} else {
@@ -113,15 +111,12 @@ FriendSet::addNamespaceImpl(
 		if (nspace)
 			p = &m_namespaceSet.visit(nspace)->m_value;
 		else {
-			err::setFormatStringError("'%s' can't be a friend", item->getItemName().sz());
-			return false;
+			return err::fail("'%s' can't be a friend", item->getItemName().sz());
 		}
 	}
 
-	if (*p) {
-		err::setFormatStringError("'%s' is already a friend", item->getItemName().sz());
-		return false;
-	}
+	if (*p)
+		return err::fail("'%s' is already a friend", item->getItemName().sz());
 
 	*p = true;
 	return true;

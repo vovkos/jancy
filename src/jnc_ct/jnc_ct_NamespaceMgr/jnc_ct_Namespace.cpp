@@ -42,7 +42,7 @@ addOrphanFail(
 	ModuleItem* item,
 	Orphan* orphan
 ) {
-	err::setFormatStringError(
+	err::setError(
 		"'%s' is a %s, not a namespace",
 		item->getItemName().sz(),
 		getModuleItemKindString(item->getItemKind())
@@ -174,7 +174,7 @@ Namespace::resolveOrphans() {
 		}
 
 		if (!findResult.m_item) {
-			err::setFormatStringError("'%s' not part of '%s'", atom.getString().sz(), getDeclItem()->getItemName().sz());
+			err::setError("'%s' not part of '%s'", atom.getString().sz(), getDeclItem()->getItemName().sz());
 			orphan->pushSrcPosError();
 			return false;
 		}
@@ -232,8 +232,7 @@ Namespace::ensureNamespaceReady() {
 		break;
 
 	case NamespaceStatus_ParseError:
-		err::setError(m_parseError);
-		return false;
+		return err::fail(m_parseError);
 
 	default:
 		// it's OK if we are still parsing ourselves
@@ -339,8 +338,7 @@ Namespace::findDirectChildItem(
 	Template* templ;
 	switch (atom.m_atomKind) {
 	case QualifiedNameAtomKind_BaseType:
-		err::setError("finding basetypes is not implemented yet");
-		return g_errorFindModuleItemResult;
+		return err::fail(g_errorFindModuleItemResult, "finding basetypes is not implemented yet");
 
 	case QualifiedNameAtomKind_Name:
 		return findDirectChildItem(atom.m_name);
@@ -452,18 +450,15 @@ Namespace::findDirectChildItemTraverse(
 	Template* templ;
 	switch (atom.m_atomKind) {
 	case QualifiedNameAtomKind_BaseType:
-		err::setError("finding basetypes is not implemented yet");
-		return g_errorFindModuleItemResult;
+		return err::fail(g_errorFindModuleItemResult, "finding basetypes is not implemented yet");
 
 	case QualifiedNameAtomKind_Name:
 		return findDirectChildItemTraverse(atom.m_name, coord, flags);
 
 	case QualifiedNameAtomKind_TemplateDeclSuffix:
 	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
-		if (context.isNullContext()) {
-			err::setError("templates are not allowed here");
-			return g_errorFindModuleItemResult;
-		}
+		if (context.isNullContext())
+			return err::fail(g_errorFindModuleItemResult, "templates are not allowed here");
 
 		FindModuleItemResult findResult = findDirectChildItemTraverse(atom.m_name, coord, flags);
 		return findResult.m_item ? finalizeFindTemplate(context, atom, findResult.m_item) : findResult;
@@ -514,24 +509,19 @@ Namespace::finalizeFindTemplate(
 		// else fall through
 
 	default:
-		err::setFormatStringError("'%s' is not a template", item->getItemName().sz());
-		return g_errorFindModuleItemResult;
+		return err::fail(g_errorFindModuleItemResult, "'%s' is not a template", item->getItemName().sz());
 	}
 
 	switch (atom.m_atomKind) {
 	case QualifiedNameAtomKind_TemplateDeclSuffix: {
 		const sl::Array<TemplateArgType*> argArray = templ->getArgArray();
 		size_t count = argArray.getCount();
-		if (atom.m_templateDeclArgArray.getCount() != count) {
-			err::setFormatStringError("template signature mismatch for '%s'", item->getItemName().sz());
-			return g_errorFindModuleItemResult;
-		}
+		if (atom.m_templateDeclArgArray.getCount() != count)
+			return err::fail(g_errorFindModuleItemResult, "template signature mismatch for '%s'", item->getItemName().sz());
 
 		for (size_t i = 0; i < count; i++)
-			if (atom.m_templateDeclArgArray[i]->getName() != argArray[i]->getName()) {
-				err::setFormatStringError("template signature mismatch for '%s'", item->getItemName().sz());
-				return g_errorFindModuleItemResult;
-			}
+			if (atom.m_templateDeclArgArray[i]->getName() != argArray[i]->getName())
+				return err::fail(g_errorFindModuleItemResult, "template signature mismatch for '%s'", item->getItemName().sz());
 
 		break;
 		}
@@ -616,10 +606,8 @@ Namespace::addFunction(Function* function) {
 				it->m_value = function;
 				break;
 			} else if (function->isPrototype()) {
-				if (!prevFunction->getType()->isEqual(function->getType())) {
-					err::setFormatStringError("function prototype mismatch: '%s'", function->getType()->getTypeString().sz());
-					return -1;
-				}
+				if (!prevFunction->getType()->isEqual(function->getType()))
+					return err::fail<size_t>(-1, "function prototype mismatch: '%s'", function->getType()->getTypeString().sz());
 
 				return 0;
 			}
@@ -631,10 +619,8 @@ Namespace::addFunction(Function* function) {
 		case ModuleItemKind_FunctionOverload: {
 			FunctionOverload* overload = (FunctionOverload*)it->m_value;
 			if (function->isPrototype()) {
-				if (overload->getTypeOverload().findOverload(function->getType()) == -1) {
-					err::setFormatStringError("function prototype mismatch: '%s'", function->getType()->getTypeString().sz());
-					return -1;
-				}
+				if (overload->getTypeOverload().findOverload(function->getType()) == -1)
+					return err::fail<size_t>(-1, "function prototype mismatch: '%s'", function->getType()->getTypeString().sz());
 
 				return 0;
 			}

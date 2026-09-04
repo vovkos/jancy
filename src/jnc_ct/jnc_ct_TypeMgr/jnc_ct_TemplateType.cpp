@@ -76,7 +76,7 @@ TemplateArgType::selectTemplateArg(
 	if (type)
 		return type;
 
-	err::setFormatStringError(
+	err::setError(
 		"conflict deducing argument '%s': '%s' vs '%s'",
 		m_name.sz(),
 		type1->getTypeString().sz(),
@@ -223,8 +223,7 @@ TemplateDeclType::instantiate(
 	case TypeKind_TemplateArg:
 		baseType = argArray[((TemplateArgType*)baseType)->getIndex()];
 		if (!baseType) { // instantiating default type
-			err::setFormatStringError("invalid reference to '%s'", ((TemplateArgType*)baseType)->getName().sz());
-			return NULL;
+			return err::fail<Type*>(NULL, "invalid reference to '%s'", ((TemplateArgType*)baseType)->getName().sz());
 		}
 
 		break;
@@ -269,10 +268,8 @@ TemplateDeclType::instantiate(
 
 	if (thisArgFlags)
 		*thisArgFlags = declFlags;
-	else if (declFlags) {
-		err::setFormatStringError("unused modifier(s) '%s'", getPtrTypeFlagString(declFlags).sz());
-		return NULL;
-	}
+	else if (declFlags)
+		return err::fail<Type*>(NULL, "unused modifier(s) '%s'", getPtrTypeFlagString(declFlags).sz());
 
 	return type;
 }

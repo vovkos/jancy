@@ -75,15 +75,11 @@ FunctionTypeOverload::chooseOverload(
 		}
 	}
 
-	if (bestOverload == -1) {
-		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
-		return -1;
-	}
+	if (bestOverload == -1)
+		return err::fail<size_t>(-1, "none of the %d overloads accept the specified argument list", count + 1);
 
-	if (isAmbiguous) {
-		err::setError("ambiguous call to overloaded function");
-		return -1;
-	}
+	if (isAmbiguous)
+		return err::fail<size_t>(-1, "ambiguous call to overloaded function");
 
 	if (castKind)
 		*castKind = bestCastKind;
@@ -125,15 +121,11 @@ FunctionTypeOverload::chooseOverload(
 		}
 	}
 
-	if (bestOverload == -1) {
-		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
-		return -1;
-	}
+	if (bestOverload == -1)
+		return err::fail<size_t>(-1, "none of the %d overloads accept the specified argument list", count + 1);
 
-	if (isAmbiguous) {
-		err::setError("ambiguous call to overloaded function");
-		return -1;
-	}
+	if (isAmbiguous)
+		return err::fail<size_t>(-1, "ambiguous call to overloaded function");
 
 	if (castKind)
 		*castKind = bestCastKind;
@@ -174,15 +166,11 @@ FunctionTypeOverload::chooseOverload(
 		}
 	}
 
-	if (bestOverload == -1) {
-		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
-		return -1;
-	}
+	if (bestOverload == -1)
+		return err::fail<size_t>(-1, "none of the %d overloads accept the specified argument list", count + 1);
 
-	if (isAmbiguous) {
-		err::setError("ambiguous call to overloaded function");
-		return -1;
-	}
+	if (isAmbiguous)
+		return err::fail<size_t>(-1, "ambiguous call to overloaded function");
 
 	if (castKind)
 		*castKind = bestCastKind;
@@ -228,15 +216,11 @@ FunctionTypeOverload::chooseSetterOverload(
 		}
 	}
 
-	if (bestOverload == -1) {
-		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
-		return -1;
-	}
+	if (bestOverload == -1)
+		return err::fail<size_t>(-1, "none of the %d overloads accept the specified argument list", count + 1);
 
-	if (isAmbiguous) {
-		err::setError("ambiguous call to overloaded function");
-		return -1;
-	}
+	if (isAmbiguous)
+		return err::fail<size_t>(-1, "ambiguous call to overloaded function");
 
 	if (castKind)
 		*castKind = bestCastKind;
@@ -250,18 +234,15 @@ FunctionTypeOverload::addOverload(FunctionType* type) {
 		m_type = type;
 		return 0;
 	} else if (type->getArgSignature().isEqual(m_type->getArgSignature())) {
-		err::setError("illegal function overload: duplicate argument signature");
-		return -1;
+		return err::fail<size_t>(-1, "illegal function overload: duplicate argument signature");
 	}
 
 	size_t count = m_overloadArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 
-		if (type->getArgSignature().isEqual(overloadType->getArgSignature())) {
-			err::setError("illegal function overload: duplicate argument signature");
-			return -1;
-		}
+		if (type->getArgSignature().isEqual(overloadType->getArgSignature()))
+			return err::fail<size_t>(-1, "illegal function overload: duplicate argument signature");
 	}
 
 	m_overloadArray.append(type);

@@ -391,7 +391,7 @@ ModuleItemContext::getGrandParentNamespace() const {
 inline
 void
 setRedefinitionError(const sl::StringRef& name) {
-	err::setFormatStringError("redefinition of '%s'", name.sz());
+	err::setError("redefinition of '%s'", name.sz());
 }
 
 //..............................................................................

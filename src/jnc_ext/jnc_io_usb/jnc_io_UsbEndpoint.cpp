@@ -109,10 +109,8 @@ UsbEndpoint::read(
 	DataPtr ptr,
 	size_t size
 ) {
-	if (isOutEndpoint()) {
-		err::setError("Cannot read from a USB OUT-endpoint");
-		return -1;
-	}
+	if (isOutEndpoint())
+		return err::fail<size_t>(-1, "Cannot read from a USB OUT-endpoint");
 
 	return bufferedRead(ptr, size);
 }
@@ -123,10 +121,8 @@ UsbEndpoint::write(
 	DataPtr ptr,
 	size_t size
 ) {
-	if (isInEndpoint()) {
-		err::setError("Cannot write to a USB IN-endpoint");
-		return -1;
-	}
+	if (isInEndpoint())
+		return err::fail<size_t>(-1, "Cannot write to a USB IN-endpoint");
 
 	size_t result = bufferedWrite(ptr, size);
 
@@ -399,8 +395,7 @@ UsbEndpoint::submitTransfer(
 		// not yet, fall through...
 
 	default:
-		err::setError(err::SystemErrorCode_NotImplemented);
-		return false;
+		return err::fail(err::SystemErrorCode_NotImplemented);
 	}
 
 	transfer->m_self = this;

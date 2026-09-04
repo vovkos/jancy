@@ -91,15 +91,12 @@ Property::setOnChanged(
 	ModuleItem* item,
 	bool isForced
 ) {
-	if (m_onChanged && !isForced) {
-		err::setFormatStringError(
+	if (m_onChanged && !isForced)
+		return err::fail(
 			"'%s' already has bindable event '%s'",
 			getItemName().sz(),
 			m_onChanged->getItemName().sz()
 		);
-
-		return false;
-	}
 
 	m_onChanged = item;
 	m_flags |= PropertyFlag_Bindable;
@@ -108,10 +105,8 @@ Property::setOnChanged(
 		return true; // will be fixed up later
 
 	Type* type = item->getItemType();
-	if (!type) {
-		err::setError("invalid bindable item");
-		return false;
-	}
+	if (!type)
+		return err::fail("invalid bindable item");
 
 	FunctionType* binderType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_Binder);
 	Function* binder = createAccessor(FunctionKind_Binder, binderType);
@@ -151,15 +146,12 @@ Property::setAutoGetValue(
 	ModuleItem* item,
 	bool isForced
 ) {
-	if (m_autoGetValue && !isForced) {
-		err::setFormatStringError(
+	if (m_autoGetValue && !isForced)
+		return err::fail(
 			"'%s' already has autoget '%s'",
 			getItemName().sz(),
 			m_autoGetValue->getItemName().sz()
 		);
-
-		return false;
-	}
 
 	m_autoGetValue = item;
 	m_flags |= PropertyFlag_AutoGet;
@@ -168,18 +160,14 @@ Property::setAutoGetValue(
 		return true; // will be fixed up later
 
 	Type* type = item->getItemType();
-	if (!type) {
-		err::setError("invalid autoget item");
-		return false;
-	}
+	if (!type)
+		return err::fail("invalid autoget item");
 
 	FunctionType* getterType = m_module->m_typeMgr.getFunctionType(type, NULL, 0);
 
 	if (m_getter) {
-		if (!m_getter->getType()->getReturnType()->isEqual(type)) {
-			err::setFormatStringError("'autoget %s' does not match property declaration", type->getTypeString().sz());
-			return false;
-		}
+		if (!m_getter->getType()->getReturnType()->isEqual(type))
+			return err::fail("'autoget %s' does not match property declaration", type->getTypeString().sz());
 
 		return true;
 	}
@@ -235,10 +223,8 @@ Property::createFieldImpl(
 ) {
 	ASSERT(m_parentType);
 
-	if (!(m_parentType->getTypeKindFlags() & TypeKindFlag_Derivable)) {
-		err::setFormatStringError("'%s' cannot have field members", m_parentType->getTypeString().sz());
-		return NULL;
-	}
+	if (!(m_parentType->getTypeKindFlags() & TypeKindFlag_Derivable))
+		return err::fail<Field*>(NULL, "'%s' cannot have field members", m_parentType->getTypeString().sz());
 
 	DerivableType* parentType = (DerivableType*)m_parentType;
 
@@ -291,10 +277,8 @@ Property::addMethod(Function* function) {
 	if (m_parentType) {
 		switch (storageKind) {
 		case StorageKind_Static:
-			if (thisArgTypeFlags) {
-				err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
-				return false;
-			}
+			if (thisArgTypeFlags)
+				return err::fail("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 
 			break;
 
@@ -309,10 +293,8 @@ Property::addMethod(Function* function) {
 		case StorageKind_Abstract:
 		case StorageKind_Virtual:
 		case StorageKind_Override:
-			if (m_parentType->getTypeKind() != TypeKind_Class) {
-				err::setFormatStringError("virtual method cannot be added to '%s'", m_parentType->getTypeString().sz());
-				return false;
-			}
+			if (m_parentType->getTypeKind() != TypeKind_Class)
+				return err::fail("virtual method cannot be added to '%s'", m_parentType->getTypeString().sz());
 
 			if (!function->isAccessor())
 				((ClassType*)m_parentType)->m_virtualMethodArray.append(function); // otherwise we are already on VirtualPropertyArray
@@ -321,8 +303,7 @@ Property::addMethod(Function* function) {
 			break;
 
 		default:
-			err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
-			return false;
+			return err::fail("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 		}
 	} else {
 		switch (storageKind) {
@@ -334,18 +315,14 @@ Property::addMethod(Function* function) {
 			break;
 
 		case StorageKind_Reactor:
-			err::setError("in-reactor properties not implemented yet");
-			return false;
+			return err::fail("in-reactor properties not implemented yet");
 
 		default:
-			err::setFormatStringError("invalid storage specifier '%s' for static property member", getStorageKindString(storageKind));
-			return false;
+			return err::fail("invalid storage specifier '%s' for static property member", getStorageKindString(storageKind));
 		}
 
-		if (thisArgTypeFlags) {
-			err::setFormatStringError("global property methods cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
-			return false;
-		}
+		if (thisArgTypeFlags)
+			return err::fail("global property methods cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 
 	}
 
@@ -358,10 +335,8 @@ Property::addMethod(Function* function) {
 
 	switch (functionKind) {
 	case FunctionKind_Constructor:
-		if (hasArgs) {
-			err::setError("property constructor cannot have arguments");
-			return false;
-		}
+		if (hasArgs)
+			return err::fail("property constructor cannot have arguments");
 
 		if (storageKind != StorageKind_Static) {
 			targetOverloadableFunction = &m_constructor;
@@ -390,10 +365,8 @@ Property::addMethod(Function* function) {
 		break;
 
 	case FunctionKind_Setter:
-		if (m_flags & PropertyFlag_Const) {
-			err::setFormatStringError("const property '%s' cannot have setters", getItemName().sz());
-			return false;
-		}
+		if (m_flags & PropertyFlag_Const)
+			return err::fail("const property '%s' cannot have setters", getItemName().sz());
 
 		result = m_verifier.checkSetter(function->getType());
 		if (!result)
@@ -410,12 +383,11 @@ Property::addMethod(Function* function) {
 		return addFunction(function) != -1;
 
 	default:
-		err::setFormatStringError(
+		return err::fail(
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
 			getItemName().sz()
 		);
-		return false;
 	}
 
 	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
@@ -449,22 +421,19 @@ Property::addProperty(Property* prop) {
 	case StorageKind_Abstract:
 	case StorageKind_Virtual:
 	case StorageKind_Override:
-		if (m_parentType->getTypeKind() != TypeKind_Class) {
-			err::setFormatStringError(
+		if (m_parentType->getTypeKind() != TypeKind_Class)
+			return err::fail(
 				"'%s' property cannot be part of '%s'",
 				getStorageKindString(storageKind),
 				m_parentType->getTypeString().sz()
 			);
-			return false;
-		}
 
 		((ClassType*)m_parentType)->m_virtualPropertyArray.append(prop);
 		prop->m_parentType = m_parentType;
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for property member", getStorageKindString(storageKind));
-		return false;
+		return err::fail("invalid storage specifier '%s' for property member", getStorageKindString(storageKind));
 	}
 
 	return true;
@@ -499,10 +468,8 @@ Property::finalize() {
 		ASSERT(m_onChanged->getItemKind() != ModuleItemKind_Alias);
 	}
 
-	if (!m_getter) {
-		err::setError("incomplete property: no 'get' method or 'autoget' field");
-		return false;
-	}
+	if (!m_getter)
+		return err::fail("incomplete property: no 'get' method or 'autoget' field");
 
 	if (!m_type)
 		createType();

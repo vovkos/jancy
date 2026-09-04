@@ -158,8 +158,7 @@ Closure::apply(sl::BoxList<Value>* argValueList) {
 		} else if (targetArg) {
 			targetArg++;
 		} else {
-			err::setFormatStringError("closure call misses argument #%d", i + 1);
-			return false;
+			return err::fail("closure call misses argument #%d", i + 1);
 		}
 	}
 
@@ -197,10 +196,8 @@ Closure::getArgTypeArray(
 	size_t closureArgCount = m_argValueList.getCount();
 	size_t argCount = argArray->getCount();
 
-	if (closureArgCount > argCount) {
-		err::setFormatStringError("closure with %d arguments for function with %d arguments", closureArgCount, argCount);
-		return false;
-	}
+	if (closureArgCount > argCount)
+		return err::fail("closure with %d arguments for function with %d arguments", closureArgCount, argCount);
 
 	sl::BoxIterator<Value> closureArg = m_argValueList.getHead();
 	for (size_t i = 0; closureArg; closureArg++) {
@@ -229,10 +226,8 @@ Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
 	Module* module = ptrType->getModule();
 	FunctionType* type = ptrType->getTargetType();
 
-	if (type->getFlags() & FunctionTypeFlag_VarArg) {
-		err::setError("function closures cannot be applied to vararg functions");
-		return NULL;
-	}
+	if (type->getFlags() & FunctionTypeFlag_VarArg)
+		return err::fail<FunctionPtrType*>(NULL, "function closures cannot be applied to vararg functions");
 
 	sl::Array<FunctionArg*> argArray = type->getArgArray();
 	result = getArgTypeArray(module, &argArray);

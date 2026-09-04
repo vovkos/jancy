@@ -521,10 +521,8 @@ Declarator::Declarator() {
 inline
 bool
 Declarator::preQualify() {
-	if (m_functionKind && m_functionKind != FunctionKind_Normal) {
-		err::setFormatStringError("cannot further qualify '%s'", getFunctionKindString(m_functionKind));
-		return false;
-	}
+	if (m_functionKind && m_functionKind != FunctionKind_Normal)
+		return err::fail("cannot further qualify '%s'", getFunctionKindString(m_functionKind));
 
 	return true;
 }

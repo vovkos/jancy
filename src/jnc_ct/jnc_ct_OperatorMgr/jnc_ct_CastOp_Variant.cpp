@@ -124,10 +124,8 @@ Cast_FromVariant::constCast(
 		return true;
 	}
 
-	if (variant->m_type->getSize() > Variant::DataSize) {
-		err::setFormatStringError("invalid variant type '%s'", variant->m_type->getTypeString().sz());
-		return false;
-	}
+	if (variant->m_type->getSize() > Variant::DataSize)
+		return err::fail("invalid variant type '%s'", variant->m_type->getTypeString().sz());
 
 	// special case: jnc.Function -> FunctionPtrType (thin)
 

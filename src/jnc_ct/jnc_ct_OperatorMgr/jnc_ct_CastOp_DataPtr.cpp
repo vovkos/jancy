@@ -181,8 +181,7 @@ Cast_DataPtr_FromString::constCast(
 
 	if (opValue.getType()->getTypeKind() == TypeKind_DataRef) {
 		ASSERT(((DataPtrType*)opValue.getType())->getTargetType()->getTypeKind() == TypeKind_String);
-		err::setError("casting from string_t reference constants not supported");
-		return false;
+		return err::fail("casting from string_t reference constants not supported");
 	}
 
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_String);
@@ -315,10 +314,8 @@ Cast_DataPtr_FromClassPtr::llvmCast(
 		return false;
 	}
 
-	if (dstType->getPtrKind() != DataPtrKind_Thin) {
-		err::setError("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
-		return false;
-	}
+	if (dstType->getPtrKind() != DataPtrKind_Thin)
+		return err::fail("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
 
 	if (!m_module->m_operatorMgr.isUnsafeRgn()) {
 		setUnsafeCastError(srcType, dstType);
@@ -772,10 +769,8 @@ Cast_DataPtr_Thin2Thin::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
 	if (type->getFlags() & PtrTypeFlag_Safe)
-		if (!(opValue.getType()->getFlags() & PtrTypeFlag_Safe)) {
-			err::setFormatStringError("cannot validate '%s'", opValue.getType()->getTypeString().sz());
-			return false;
-		}
+		if (!(opValue.getType()->getFlags() & PtrTypeFlag_Safe))
+			return err::fail("cannot validate '%s'", opValue.getType()->getTypeString().sz());
 
 	return getOffsetUnsafePtrValue(opValue, (DataPtrType*)opValue.getType(), (DataPtrType*)type, false, resultValue);
 }

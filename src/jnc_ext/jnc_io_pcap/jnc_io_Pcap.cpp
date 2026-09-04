@@ -433,10 +433,8 @@ createPcapDeviceDescList(DataPtr countPtr) {
 	pcap_if* ifaceList = NULL;
 	char errorBuffer[PCAP_ERRBUF_SIZE] = { 0 };
 	int result = pcap_findalldevs(&ifaceList, errorBuffer);
-	if (result == -1) {
-		err::setError(errorBuffer);
-		return g_nullDataPtr;
-	}
+	if (result == -1)
+		return err::fail(g_nullDataPtr, errorBuffer);
 
 	if (!ifaceList)
 		return g_nullDataPtr;

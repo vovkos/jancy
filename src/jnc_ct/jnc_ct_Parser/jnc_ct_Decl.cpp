@@ -120,10 +120,8 @@ TypeModifiers::addTypeModifier(TypeModifier modifier) {
 
 	// check duplicates
 
-	if (m_typeModifiers & modifier) {
-		err::setFormatStringError("type modifier '%s' used more than once", getTypeModifierString(modifier));
-		return false;
-	}
+	if (m_typeModifiers & modifier)
+		return err::fail("type modifier '%s' used more than once", getTypeModifierString(modifier));
 
 	size_t i = sl::getLoBitIdx32(modifier);
 	if (i >= countof(antiModifierTable)) {
@@ -136,13 +134,11 @@ TypeModifiers::addTypeModifier(TypeModifier modifier) {
 	uint_t antiModifiers = m_typeModifiers & antiModifierTable[i];
 	if (antiModifiers) {
 		TypeModifier antiModifier = getFirstFlag<TypeModifier>(antiModifiers);
-		err::setFormatStringError(
+		return err::fail(
 			"type modifiers '%s' and '%s' cannot be used together",
 			getTypeModifierString(antiModifier),
 			getTypeModifierString(modifier)
 		);
-
-		return false;
 	}
 
 	m_typeModifiers |= modifier;
@@ -172,28 +168,23 @@ TypeModifiers::checkAntiTypeModifiers(int modifierMask) {
 	// more than one
 
 	TypeModifier secondModifier = getFirstFlag<TypeModifier>(modifiers);
-	err::setFormatStringError(
+	return err::fail(
 		"type modifiers '%s' and '%s' cannot be used together",
 		getTypeModifierString(firstModifier),
 		getTypeModifierString(secondModifier)
 	);
-
-	return false;
 }
 
 //..............................................................................
 
 bool
 TypeSpecifier::setType(Type* type) {
-	if (m_type) {
-		err::setFormatStringError(
+	if (m_type)
+		return err::fail(
 			"more than one type specifiers ('%s' and '%s')",
 			m_type->getTypeString().sz(),
 			type->getTypeString().sz()
 		);
-
-		return false;
-	}
 
 	m_type = type;
 	return true;
@@ -203,10 +194,8 @@ TypeSpecifier::setType(Type* type) {
 
 bool
 DeclFunctionSuffix::addFunctionTypeFlag(FunctionTypeFlag flag) {
-	if (m_functionTypeFlags & flag) {
-		err::setFormatStringError("function modifier '%s' used more than once", getFunctionTypeFlagString(flag));
-		return false;
-	}
+	if (m_functionTypeFlags & flag)
+		return err::fail("function modifier '%s' used more than once", getFunctionTypeFlagString(flag));
 
 	m_functionTypeFlags |= flag;
 	return true;
@@ -276,10 +265,8 @@ Declarator::addUnaryBinaryOperator(
 	if (!preQualify())
 		return false;
 
-	if (binOpKind == BinOpKind_Assign) {
-		err::setError("assignment operator could not be overloaded");
-		return false;
-	}
+	if (binOpKind == BinOpKind_Assign)
+		return err::fail("assignment operator could not be overloaded");
 
 	m_declaratorKind = DeclaratorKind_UnaryBinaryOperator;
 	m_functionKind = FunctionKind_UnaryOperator; // temp; will be adjusted later in Parser::declareFunction
@@ -333,10 +320,8 @@ Declarator::addGetterSuffix() {
 
 bool
 Declarator::addBitFieldSuffix(size_t bitCount) {
-	if (m_bitCount || !m_suffixList.isEmpty() || !m_pointerPrefixList.isEmpty()) {
-		err::setError("bit field can only be applied to integer type");
-		return false;
-	}
+	if (m_bitCount || !m_suffixList.isEmpty() || !m_pointerPrefixList.isEmpty())
+		return err::fail("bit field can only be applied to integer type");
 
 	m_bitCount = bitCount;
 	return true;

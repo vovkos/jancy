@@ -547,16 +547,12 @@ tryCheckDataPtrRangeDirect(
 	const void* rangeBegin,
 	size_t rangeLength
 ) {
-	if (!p) {
-		err::setError("null data pointer access");
-		return false;
-	}
+	if (!p)
+		return err::fail("null data pointer access");
 
 	void* rangeEnd = (char*)rangeBegin + rangeLength;
-	if (p < rangeBegin ||  p > rangeEnd) {
-		err::setFormatStringError("data pointer %p out of range [%p:%p]", p, rangeBegin, rangeEnd);
-		return false;
-	}
+	if (p < rangeBegin ||  p > rangeEnd)
+		return err::fail("data pointer %p out of range [%p:%p]", p, rangeBegin, rangeEnd);
 
 	return true;
 }
@@ -578,21 +574,15 @@ tryCheckDataPtrRangeIndirect(
 	size_t size,
 	DataPtrValidator* validator
 ) {
-	if (!p || !validator) {
-		err::setError("null data pointer access");
-		return false;
-	}
+	if (!p || !validator)
+		return err::fail("null data pointer access");
 
-	if (validator->m_targetBox->m_flags & BoxFlag_Invalid) {
-		err::setError("invalidated pointer access");
-		return false;
-	}
+	if (validator->m_targetBox->m_flags & BoxFlag_Invalid)
+		return err::fail("invalidated pointer access");
 
 	void* end = (char*)p + size;
-	if (p < validator->m_rangeBegin || end > validator->m_rangeEnd) {
-		err::setFormatStringError("data pointer %p out of range [%p:%p]", p, validator->m_rangeBegin, validator->m_rangeEnd);
-		return false;
-	}
+	if (p < validator->m_rangeBegin || end > validator->m_rangeEnd)
+		return err::fail("data pointer %p out of range [%p:%p]", p, validator->m_rangeBegin, validator->m_rangeEnd);
 
 	return true;
 }
@@ -619,18 +609,14 @@ tryLazyGetDynamicLibFunction(
 	ASSERT(lib->m_box->m_type->getTypeKind() == TypeKind_Class);
 	ClassType* type = (ClassType*)lib->m_box->m_type;
 
-	if (!lib->m_handle) {
-		err::setFormatStringError("dylib '%s' is not loaded yet", type->getItemName().sz());
-		return NULL;
-	}
+	if (!lib->m_handle)
+		return err::fail<void*>(NULL, "dylib '%s' is not loaded yet", type->getItemName().sz());
 
 	size_t librarySize = type->getIfaceStructType()->getSize();
 	size_t functionCount = (librarySize - sizeof(DynamicLib)) / sizeof(void*);
 
-	if (index >= functionCount) {
-		err::setFormatStringError("index #%d out of range for dylib '%s'", index, type->getItemName().sz());
-		return NULL;
-	}
+	if (index >= functionCount)
+		return err::fail<void*>(NULL, "index #%d out of range for dylib '%s'", index, type->getItemName().sz());
 
 	void** functionTable = (void**)(lib + 1);
 	if (functionTable[index])

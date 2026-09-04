@@ -177,10 +177,8 @@ FunctionType::calcLayout() {
 			return false;
 	}
 
-	if ((m_flags & FunctionTypeFlag_ErrorCode) && !isErrorCodeType(m_returnType)) {
-		err::setFormatStringError("'%s' cannot be used as error code", m_returnType->getTypeString().sz());
-		return false;
-	}
+	if ((m_flags & FunctionTypeFlag_ErrorCode) && !isErrorCodeType(m_returnType))
+		return err::fail("'%s' cannot be used as error code", m_returnType->getTypeString().sz());
 
 	size_t count = m_argArray.getCount();
 	for (size_t i = 0; i < count; i++) {

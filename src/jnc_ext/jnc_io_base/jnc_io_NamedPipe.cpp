@@ -159,8 +159,7 @@ NamedPipe::setOptions(uint_t options) {
 	if ((options & FileStreamOption_MessageNamedPipe) !=
 		(m_options & FileStreamOption_MessageNamedPipe)
 	) {
-		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return false;
+		return err::fail(err::SystemErrorCode_InvalidDeviceState);
 	}
 
 	m_lock.lock();
@@ -174,10 +173,8 @@ FileStream*
 JNC_CDECL
 NamedPipe::accept(bool isSuspended) {
 	m_lock.lock();
-	if (m_pendingIncomingConnectionList.isEmpty()) {
-		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return NULL;
-	}
+	if (m_pendingIncomingConnectionList.isEmpty())
+		return err::fail<FileStream*>(NULL, err::SystemErrorCode_InvalidDeviceState);
 
 	IncomingConnection* connection = m_pendingIncomingConnectionList.removeHead();
 	HANDLE h = connection->m_pipe.detach();

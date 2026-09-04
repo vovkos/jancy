@@ -181,10 +181,8 @@ ControlFlowMgr::switchStmt_Case(
 	uint_t scopeFlags
 ) {
 	sl::HashTableIterator<int64_t, BasicBlock*> it = stmt->m_caseMap.visit(value);
-	if (it->m_value) {
-		err::setFormatStringError("redefinition of label (%lld) of 'switch' statement", value);
-		return false;
-	}
+	if (it->m_value)
+		return err::fail("redefinition of label (%lld) of 'switch' statement", value);
 
 	m_module->m_namespaceMgr.closeScope();
 
@@ -203,10 +201,8 @@ ControlFlowMgr::switchStmt_Default(
 	const lex::LineCol& pos,
 	uint_t scopeFlags
 ) {
-	if (stmt->m_defaultBlock) {
-		err::setError("redefinition of 'default' label of 'switch' statement");
-		return false;
-	}
+	if (stmt->m_defaultBlock)
+		return err::fail("redefinition of 'default' label of 'switch' statement");
 
 	m_module->m_namespaceMgr.closeScope();
 
@@ -353,10 +349,8 @@ ControlFlowMgr::regexSwitchStmt_Default(
 	const lex::LineCol& pos,
 	uint_t scopeFlags
 ) {
-	if (stmt->m_defaultBlock) {
-		err::setError("redefinition of 'default' label of 'regex switch' statement");
-		return false;
-	}
+	if (stmt->m_defaultBlock)
+		return err::fail("redefinition of 'default' label of 'regex switch' statement");
 
 	m_module->m_namespaceMgr.closeScope();
 
@@ -380,10 +374,8 @@ ControlFlowMgr::regexSwitchStmt_Finalize(
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
 
-	if (!stmt->m_regex.getSwitchCaseCount()) {
-		err::setError("empty regex switch");
-		return false;
-	}
+	if (!stmt->m_regex.getSwitchCaseCount())
+		return err::fail("empty regex switch");
 
 	setCurrentBlock(stmt->m_switchBlock);
 
@@ -616,10 +608,8 @@ ControlFlowMgr::onceStmt_Create(
 ) {
 	Variable* flagVariable;
 
-	if (storageKind != StorageKind_Static && storageKind != StorageKind_Tls) {
-		err::setFormatStringError("'%s once' is illegal (only 'static' or 'threadlocal' is allowed)", getStorageKindString(storageKind));
-		return false;
-	}
+	if (storageKind != StorageKind_Static && storageKind != StorageKind_Tls)
+		return err::fail("'%s once' is illegal (only 'static' or 'threadlocal' is allowed)", getStorageKindString(storageKind));
 
 	flagVariable = m_module->m_variableMgr.createOnceFlagVariable(storageKind);
 	flagVariable->m_pos = pos;

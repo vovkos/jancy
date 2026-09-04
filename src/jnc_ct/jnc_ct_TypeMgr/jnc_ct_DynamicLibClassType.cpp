@@ -40,10 +40,8 @@ DynamicLibClassType::ensureFunctionTable() {
 		return false;
 
 	size_t functionCount = m_libNamespace->getFunctionCount();
-	if (!functionCount) {
-		err::setFormatStringError("dynamiclib '%s' has no functions", getItemName().sz());
-		return false;
-	}
+	if (!functionCount)
+		return err::fail("dynamiclib '%s' has no functions", getItemName().sz());
 
 	ArrayType* functionTableType = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)->getArrayType(functionCount);
 	createField(functionTableType);

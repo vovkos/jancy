@@ -111,16 +111,12 @@ DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name) {
 
 Field*
 DerivableType::getFieldByIndex(size_t index) {
-	if (!m_baseTypeList.isEmpty()) {
-		err::setFormatStringError("'%s' has base types, cannot use indexed member operator", getTypeString().sz());
-		return NULL;
-	}
+	if (!m_baseTypeList.isEmpty())
+		return err::fail<Field*>(NULL, "'%s' has base types, cannot use indexed member operator", getTypeString().sz());
 
 	size_t count = m_fieldArray.getCount();
-	if (index >= count) {
-		err::setFormatStringError("index '%d' is out of bounds", index);
-		return NULL;
-	}
+	if (index >= count)
+		return err::fail<Field*>(NULL, "index '%d' is out of bounds", index);
 
 	return m_fieldArray[index];
 }
@@ -140,10 +136,8 @@ DerivableType::createIndexerProperty() {
 BaseTypeSlot*
 DerivableType::getBaseTypeByIndex(size_t index) {
 	size_t count = m_baseTypeArray.getCount();
-	if (index >= count) {
-		err::setFormatStringError("index '%d' is out of bounds", index);
-		return NULL;
-	}
+	if (index >= count)
+		return err::fail<BaseTypeSlot*>(NULL, "index '%d' is out of bounds", index);
 
 	return m_baseTypeArray[index];
 }
@@ -180,8 +174,7 @@ DerivableType::addMethod(Function* function) {
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
-		return false;
+		return err::fail("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 	}
 
 	sl::Array<FunctionArg*> argArray;
@@ -247,31 +240,26 @@ DerivableType::addMethod(Function* function) {
 
 	case FunctionKind_Getter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 2) {
-			err::setError("indexer property getter should take at least one index argument");
-			return false;
-		}
+		if (argArray.getCount() < 2)
+			return err::fail("indexer property getter should take at least one index argument");
 
 		targetFunction = &ensureIndexerProperty()->m_getter;
 		break;
 
 	case FunctionKind_Setter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 3) {
-			err::setError("indexer property setter should take at least one index argument");
-			return false;
-		}
+		if (argArray.getCount() < 3)
+			return err::fail("indexer property setter should take at least one index argument");
 
 		targetOverloadableFunction = &ensureIndexerProperty()->m_setter;
 		break;
 
 	default:
-		err::setFormatStringError(
+		return err::fail(
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
 			getTypeString().sz()
 		);
-		return false;
 	}
 
 	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
@@ -301,8 +289,7 @@ DerivableType::addProperty(Property* prop) {
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
-		return false;
+		return err::fail("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 	}
 
 	m_propertyArray.append(prop);

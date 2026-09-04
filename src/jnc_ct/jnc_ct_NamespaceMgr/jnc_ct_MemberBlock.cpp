@@ -259,10 +259,8 @@ MemberBlock::addUnnamedMethod(
 	if (targetFunction) {
 		ASSERT(!targetOverloadableFunction);
 
-		if (*targetFunction) {
-			err::setFormatStringError("'%s' already exists", (*targetFunction)->getItemName().sz());
-			return false;
-		}
+		if (*targetFunction)
+			return err::fail("'%s' already exists", (*targetFunction)->getItemName().sz());
 
 		*targetFunction = function;
 	} else {

@@ -24,8 +24,7 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
 jnc_failWithCapabilityError(const char* capability) {
-	err::setFormatStringError("capability '%s' is required but not enabled", capability);
-	return false;
+	return err::fail("capability '%s' is required but not enabled", capability);
 }
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB

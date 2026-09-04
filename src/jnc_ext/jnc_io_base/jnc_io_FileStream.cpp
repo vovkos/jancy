@@ -216,10 +216,8 @@ FileStream::read(
 	DataPtr ptr,
 	size_t size
 ) {
-	if (m_openFlags & axl::io::FileFlag_WriteOnly) {
-		err::setError(err::SystemErrorCode_AccessDenied);
-		return -1;
-	}
+	if (m_openFlags & axl::io::FileFlag_WriteOnly)
+		return err::fail<size_t>(-1, err::SystemErrorCode_AccessDenied);
 
 	return bufferedRead(ptr, size);
 }
@@ -230,10 +228,8 @@ FileStream::write(
 	DataPtr ptr,
 	size_t size
 ) {
-	if (m_openFlags & axl::io::FileFlag_ReadOnly) {
-		err::setError(err::SystemErrorCode_AccessDenied);
-		return -1;
-	}
+	if (m_openFlags & axl::io::FileFlag_ReadOnly)
+		return err::fail<size_t>(-1, err::SystemErrorCode_AccessDenied);
 
 	return bufferedWrite(ptr, size);
 }

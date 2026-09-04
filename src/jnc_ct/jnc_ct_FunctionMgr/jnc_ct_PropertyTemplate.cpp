@@ -25,20 +25,16 @@ PropertyTemplate::addMethod(
 ) {
 	bool result;
 
-	if (functionKind != FunctionKind_Getter && functionKind != FunctionKind_Setter) {
-		err::setError("property templates can only have accessors");
-		return false;
-	}
+	if (functionKind != FunctionKind_Getter && functionKind != FunctionKind_Setter)
+		return err::fail("property templates can only have accessors");
 
 	if (functionKind == FunctionKind_Getter) {
 		result = m_verifier.checkGetter(functionType);
 		if (!result)
 			return false;
 
-		if (m_getterType) {
-			err::setError("property template already has a getter");
-			return false;
-		}
+		if (m_getterType)
+			return err::fail("property template already has a getter");
 
 		m_getterType = functionType;
 	} else {
@@ -55,10 +51,8 @@ PropertyTemplate::addMethod(
 
 PropertyType*
 PropertyTemplate::calcType() {
-	if (!m_getterType) {
-		err::setError("incomplete property: no 'get' method or 'autoget' field");
-		return NULL;
-	}
+	if (!m_getterType)
+		return err::fail<PropertyType*>(NULL, "incomplete property: no 'get' method or 'autoget' field");
 
 	return m_module->m_typeMgr.getPropertyType(m_getterType, m_setterType, m_typeFlags);
 }

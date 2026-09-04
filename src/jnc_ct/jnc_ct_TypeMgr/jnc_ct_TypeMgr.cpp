@@ -905,10 +905,8 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 		return functionPtrType->m_multicastType;
 
 	Type* returnType = functionPtrType->getTargetType()->getReturnType();
-	if (returnType->getTypeKind() != TypeKind_Void) {
-		err::setFormatStringError("multicast can only return 'void', not '%s'", returnType->getTypeString().sz());
-		return NULL;
-	}
+	if (returnType->getTypeKind() != TypeKind_Void)
+		return err::fail<ClassType*>(NULL, "multicast can only return 'void', not '%s'", returnType->getTypeString().sz());
 
 	sl::String typeName = m_module->createUniqueName("Multicast");
 	MulticastClassType* type = createInternalClassType<MulticastClassType>(typeName);

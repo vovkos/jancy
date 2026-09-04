@@ -92,10 +92,8 @@ Module::processCompileError(ModuleCompileErrorKind errorKind) {
 	if (err::getLastError()->isNoError()) // the error is already processed
 		return true;
 
-	if (++m_compileErrorCount > m_compileErrorCountLimit) {
-		err::setFormatStringError("%d errors; error limit reached", m_compileErrorCount);
-		return false;
-	}
+	if (++m_compileErrorCount > m_compileErrorCountLimit)
+		return err::fail("%d errors; error limit reached", m_compileErrorCount);
 
 	if (m_compileErrorCount == 1) // stop code generation after the very first error
 		clearLlvm();
@@ -298,8 +296,7 @@ Module::parseImpl(
 
 		case TokenKind_Eof:
 			printf("EOF\n");
-			err::setError("lexer-test-exit");
-			return false;
+			return err::fail("lexer-test-exit");
 		}
 
 		printf(
@@ -312,8 +309,7 @@ Module::parseImpl(
 		lexer.nextToken();
 	}
 
-	err::setError("lexer-test-exit");
-	return false;
+	return err::fail("lexer-test-exit");
 #endif
 
 	result = true;
@@ -469,10 +465,8 @@ Module::compileImpl() {
 			return false;
 	} while (!m_requireSet.isEmpty());
 
-	if (m_compileErrorCount) {
-		err::setFormatStringError("%d error(s); compilation failed", m_compileErrorCount);
-		return false;
-	}
+	if (m_compileErrorCount)
+		return err::fail("%d error(s); compilation failed", m_compileErrorCount);
 
 	if (hasCodeGen()) {
 		createConstructor();
@@ -611,8 +605,7 @@ Module::createJit() {
 #endif
 
 	default:
-		err::setFormatStringError("Invalid JIT engine kind: %d", m_config.m_jitKind);
-		return false;
+		return err::fail("Invalid JIT engine kind: %d", m_config.m_jitKind);
 	}
 
 	ASSERT(m_jit);
@@ -764,30 +757,26 @@ Module::processRequireSet() {
 			if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Essential)) // not essential
 				continue;
 
-			err::setFormatStringError("required module item '%s' not found", requireIt->getKey().sz());
-			return false;
+			return err::fail("required module item '%s' not found", requireIt->getKey().sz());
 		}
 
 		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined) {
-			if (findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind) {
-				err::setFormatStringError(
+			if (findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind)
+				return err::fail(
 					"required module item '%s' item kind mismatch: %s vs %s",
 					requireIt->getKey().sz(),
 					getModuleItemKindString(requireIt->m_value.m_itemKind),
 					getModuleItemKindString(findResult.m_item->getItemKind())
 				);
-				return false;
-			}
 
 			if (requireIt->m_value.m_itemKind == ModuleItemKind_Type &&
 				requireIt->m_value.m_typeKind != TypeKind_Void &&
 				requireIt->m_value.m_typeKind != ((Type*)findResult.m_item)->getTypeKind()) {
-				err::setFormatStringError(
+				return err::fail(
 					"required type '%s' type mismatch: '%s'",
 					requireIt->getKey().sz(),
 					((Type*)findResult.m_item)->getTypeString().sz()
 				);
-				return false;
 			}
 		}
 

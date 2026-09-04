@@ -43,10 +43,8 @@ OperatorMgr::getVirtualMethod(
 ) {
 	ASSERT(function->isVirtual());
 
-	if (!closure || !closure->isMemberClosure()) {
-		err::setError("virtual function requires an object pointer");
-		return false;
-	}
+	if (!closure || !closure->isMemberClosure())
+		return err::fail("virtual function requires an object pointer");
 
 	Value value = *closure->getArgValueList()->getHead();
 	ClassType* classType = ((ClassPtrType*)value.getType())->getTargetType();
@@ -96,10 +94,8 @@ OperatorMgr::getVirtualProperty(
 ) {
 	ASSERT(prop->isVirtual());
 
-	if (!closure || !closure->isMemberClosure()) {
-		err::setError("virtual property requires an object pointer");
-		return false;
-	}
+	if (!closure || !closure->isMemberClosure())
+		return err::fail("virtual property requires an object pointer");
 
 	Value value = *closure->getArgValueList()->getHead();
 	ClassType* classType = ((ClassPtrType*)value.getType())->getTargetType();

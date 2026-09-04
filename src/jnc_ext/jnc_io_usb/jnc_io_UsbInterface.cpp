@@ -94,10 +94,8 @@ UsbInterface::openEndpoint(
 ) {
 	UsbInterfaceDescriptor* interfaceDescriptor = (UsbInterfaceDescriptor*)m_interfaceDescriptorPtr.m_p;
 	UsbEndpointDescriptor* endpointDescriptor = interfaceDescriptor->findEndpointDescriptor(endpointId);
-	if (!endpointDescriptor) {
-		err::setError(err::SystemErrorCode_ObjectNameNotFound);
-		return NULL;
-	}
+	if (!endpointDescriptor)
+		return err::fail<UsbEndpoint*>(NULL, err::SystemErrorCode_ObjectNameNotFound);
 
 	Runtime* runtime = getCurrentThreadRuntime();
 	GcHeap* gcHeap = runtime->getGcHeap();

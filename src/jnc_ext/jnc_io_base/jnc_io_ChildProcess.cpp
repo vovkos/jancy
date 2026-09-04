@@ -203,10 +203,8 @@ buildArgvArray(
 		string->setSubString(pos + 1);
 	}
 
-	if (argv->isEmpty()) {
-		err::setError("empty command line");
-		return -1;
-	}
+	if (argv->isEmpty())
+		return err::fail<size_t>(-1, "empty command line");
 
 	argv->append(NULL);
 	return argv->getCount();

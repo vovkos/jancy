@@ -228,10 +228,8 @@ RegKey::readImpl(
 		&size
 	);
 
-	if (result != ERROR_SUCCESS) {
-		err::setError(result);
-		return -1;
-	}
+	if (result != ERROR_SUCCESS)
+		return err::fail<size_t>(-1, result);
 
 	result = buffer->setCount(size);
 	if (!result)
@@ -246,10 +244,8 @@ RegKey::readImpl(
 		&size
 	);
 
-	if (result != ERROR_SUCCESS) {
-		err::setError(result);
-		return -1;
-	}
+	if (result != ERROR_SUCCESS)
+		return err::fail<size_t>(-1, result);
 
 	return buffer->getCount();
 }

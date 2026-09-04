@@ -20,15 +20,11 @@ namespace ct {
 
 bool
 ExtensionNamespace::addMethod(Function* function) {
-	if (function->isVirtual()) {
-		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString(function->getStorageKind ()));
-		return false;
-	}
+	if (function->isVirtual())
+		return err::fail("invalid storage '%s' in type extension", getStorageKindString(function->getStorageKind ()));
 
-	if (function->getFunctionKind() != FunctionKind_Normal) {
-		err::setFormatStringError("'%s' cannot be a part of type extension", getFunctionKindString(function->getFunctionKind ()));
-		return false;
-	}
+	if (function->getFunctionKind() != FunctionKind_Normal)
+		return err::fail("'%s' cannot be a part of type extension", getFunctionKindString(function->getFunctionKind ()));
 
 	bool result = addItem(function);
 	if (!result)
@@ -44,10 +40,8 @@ ExtensionNamespace::addMethod(Function* function) {
 
 bool
 ExtensionNamespace::addProperty(Property* prop) {
-	if (prop->isVirtual()) {
-		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString(prop->m_storageKind));
-		return false;
-	}
+	if (prop->isVirtual())
+		return err::fail("invalid storage '%s' in type extension", getStorageKindString(prop->m_storageKind));
 
 	bool result = addItem(prop);
 	if (!result)
@@ -74,10 +68,8 @@ ExtensionNamespace::parseBody() {
 	if (!result)
 		return false;
 
-	if (!(m_type->getTypeKindFlags() & TypeKindFlag_Derivable)) {
-		err::setFormatStringError("'%s' cannot have a type extension", m_type->getTypeString().sz());
-		return false;
-	}
+	if (!(m_type->getTypeKindFlags() & TypeKindFlag_Derivable))
+		return err::fail("'%s' cannot have a type extension", m_type->getTypeString().sz());
 
 	size_t count = m_fixupMethodArray.getCount();
 	for (size_t i = 0; i < count; i++)

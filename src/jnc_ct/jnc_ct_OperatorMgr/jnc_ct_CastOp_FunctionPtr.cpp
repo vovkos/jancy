@@ -436,10 +436,8 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
-	if (opValue.getClosure()) {
-		err::setError("cannot create thin function pointer to a closure");
-		return false;
-	}
+	if (opValue.getClosure())
+		return err::fail("cannot create thin function pointer to a closure");
 
 	FunctionType* srcType = ((FunctionPtrType*)opValue.getType())->getTargetType();
 	FunctionType* dstType = ((FunctionPtrType*)type)->getTargetType();
@@ -448,10 +446,8 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 		return true;
 	}
 
-	if (opValue.getValueKind() != ValueKind_Function) {
-		err::setError("can only create thin pointer thunk to a function, not a function pointer");
-		return false;
-	}
+	if (opValue.getValueKind() != ValueKind_Function)
+		return err::fail("can only create thin pointer thunk to a function, not a function pointer");
 
 	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction(opValue.getFunction(), dstType);
 

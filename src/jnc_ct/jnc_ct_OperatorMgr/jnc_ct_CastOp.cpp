@@ -125,7 +125,7 @@ setCastError(
 			opValue.getClosureAwareType()->getTypeString();
 	}
 
-	err::setFormatStringError(format, opValueString.sz(), dstType->getTypeString().sz());
+	err::setError(format, opValueString.sz(), dstType->getTypeString().sz());
 }
 
 void
@@ -133,7 +133,7 @@ setUnsafeCastError(
 	Type* srcType,
 	Type* dstType
 ) {
-	err::setFormatStringError(
+	err::setError(
 		"'%s' to '%s' cast is only permitted in unsafe regions",
 		srcType->getTypeString().sz(),
 		dstType->getTypeString().sz()

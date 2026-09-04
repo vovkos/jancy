@@ -39,8 +39,7 @@ BinOp_Assign::op(
 		return m_module->m_operatorMgr.setProperty(opValue1, opValue2);
 
 	default:
-		err::setError("left operand must be l-value");
-		return false;
+		return err::fail("left operand must be l-value");
 	}
 }
 

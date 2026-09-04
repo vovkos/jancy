@@ -181,10 +181,8 @@ Function::compile() {
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item) {
-		err::setFormatStringError("'%s' not found", parser.getLastQualifiedName().getFullName().sz());
-		return false;
-	}
+	if (!findResult.m_item)
+		return err::fail("'%s' not found", parser.getLastQualifiedName().getFullName().sz());
 
 	// ctors/dtors require special prologues/epiloges
 
@@ -214,8 +212,7 @@ Function::compile() {
 		break;
 
 	default:
-		err::setFormatStringError("'%s' is not function", parser.getLastQualifiedName().getFullName().sz());
-		return false;
+		return err::fail("'%s' is not function", parser.getLastQualifiedName().getFullName().sz());
 	}
 
 	if (targetFunction) { // can re-use target function directly

@@ -109,10 +109,8 @@ McJit::create(uint_t optLevel) {
 #endif
 
 	m_llvmExecutionEngine = engineBuilder.create();
-	if (!m_llvmExecutionEngine) {
-		err::setFormatStringError("cannot create execution engine: %s", errorString.c_str());
-		return false;
-	}
+	if (!m_llvmExecutionEngine)
+		return err::fail("cannot create execution engine: %s", errorString.c_str());
 
 	return true;
 }
@@ -122,10 +120,8 @@ McJit::mapVariable(
 	Variable* variable,
 	void* p
 ) {
-	if (variable->getStorageKind() != StorageKind_Static) {
-		err::setFormatStringError("attempt to map non-global variable: %s", variable->getItemName().sz());
-		return false;
-	}
+	if (variable->getStorageKind() != StorageKind_Static)
+		return err::fail("attempt to map non-global variable: %s", variable->getItemName().sz());
 
 	setVariableStaticData(variable, p);
 	llvm::GlobalVariable* llvmMapping = createLlvmGlobalVariableMapping(variable);
@@ -133,10 +129,8 @@ McJit::mapVariable(
 		return true; // optimized out
 
 	sl::StringHashTableIterator<void*> it = m_symbolMap.visit(llvmMapping->getName().data());
-	if (it->m_value) {
-		err::setFormatStringError("attempt to re-map variable: %s", variable->getItemName().sz());
-		return false;
-	}
+	if (it->m_value)
+		return err::fail("attempt to re-map variable: %s", variable->getItemName().sz());
 
 	it->m_value = p;
 
@@ -159,10 +153,8 @@ McJit::mapFunction(
 		return true;
 
 	sl::StringHashTableIterator<void*> it = m_symbolMap.visit(llvmFunction->getName().data());
-	if (it->m_value) {
-		err::setFormatStringError("attempt to re-map function: %s/%s", function->getItemName().sz(), llvmFunction->getName().data());
-		return false;
-	}
+	if (it->m_value)
+		return err::fail("attempt to re-map function: %s/%s", function->getItemName().sz(), llvmFunction->getName().data());
 
 	it->m_value = p;
 	return true;

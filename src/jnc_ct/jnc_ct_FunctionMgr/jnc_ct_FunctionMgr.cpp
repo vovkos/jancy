@@ -78,10 +78,8 @@ FunctionMgr::addGlobalCtorDtor(
 ) {
 	ASSERT((size_t)kind < countof(m_globalCtorDtorArrayTable));
 
-	if (!function->getType()->getArgArray().isEmpty()) {
-		err::setError("global constructor cannot have arguments");
-		return false;
-	}
+	if (!function->getType()->getArgArray().isEmpty())
+		return err::fail("global constructor cannot have arguments");
 
 	m_globalCtorDtorArrayTable[kind].append(function);
 
@@ -269,10 +267,8 @@ FunctionMgr::epilogue() {
 	bool result;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	if (!scope || !(scope->m_flags & ScopeFlag_Function)) {
-		err::setError("invalid scope structure due to previous errors");
-		return false;
-	}
+	if (!scope || !(scope->m_flags & ScopeFlag_Function))
+		return err::fail("invalid scope structure due to previous errors");
 
 	Function* function = m_currentFunction;
 	if (function->m_functionKind == FunctionKind_Destructor &&
@@ -312,14 +308,11 @@ FunctionMgr::epilogue() {
 	bool isBroken = llvm::verifyFunction(*function->getLlvmFunction());
 #	endif
 
-	if (isBroken) {
-		err::setFormatStringError(
+	if (isBroken)
+		return err::fail(
 			"LLVM verification fail for '%s'",
 			function->getItemName().sz()
 		);
-
-		return false;
-	}
 #endif
 
 	return true;
@@ -715,8 +708,7 @@ llvmFatalErrorHandler(
 bool
 FunctionMgr::jitFunctions() {
 #if (_JNC_LLVM_NO_JIT)
-	err::setError("LLVM jitting is disabled");
-	return false;
+	return err::fail("LLVM jitting is disabled");
 #endif
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler(llvmFatalErrorHandler);
@@ -736,17 +728,14 @@ FunctionMgr::jitFunctions() {
 		if (!result)
 			return false;
 	} catch (err::Error error) {
-		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription().sz());
-		return false;
+		return err::fail("LLVM jitting failed: %s", error->getDescription().sz());
 	}
 
 	size_t count = m_requiredExternalFunctionArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Function* function = m_requiredExternalFunctionArray[i];
-		if (!function->getMachineCode()) {
-			err::setFormatStringError("unresolved required external function '%s'", function->getItemName().sz());
-			return false;
-		}
+		if (!function->getMachineCode())
+			return err::fail("unresolved required external function '%s'", function->getItemName().sz());
 	}
 
 	return true;

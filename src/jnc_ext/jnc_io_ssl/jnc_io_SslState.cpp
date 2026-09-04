@@ -191,8 +191,7 @@ SslState::setEphemeralDhStdParams(uint_t stdDh) {
 		break;
 
 	default:
-		err::setError(err::SystemErrorCode_InvalidParameter);
-		return false;
+		return err::fail(err::SystemErrorCode_InvalidParameter);
 	}
 
 	return
@@ -205,10 +204,8 @@ JNC_CDECL
 SslState::setEphemeralEcdhCurve(String curveName0) {
 	sl::StringRef curveName = curveName0 >> toAxl;
 	int curveId = OBJ_sn2nid(curveName.sz());
-	if (curveId == NID_undef) {
-		err::setFormatStringError("invalid curve '%s'", curveName.sz());
-		return false;
-	}
+	if (curveId == NID_undef)
+		return err::fail("invalid curve '%s'", curveName.sz());
 
 	cry::EcKey ec;
 

@@ -68,8 +68,7 @@ BinOp_Idx::op(
 			arrayIndexOperator(opValue1, (ArrayType*)opType1, opValue2, resultValue);
 
 	case TypeKind_Variant:
-		err::setError("r-value variant index is not implemented yet");
-		return false;
+		return err::fail("r-value variant index is not implemented yet");
 
 	case TypeKind_String:
 		return stringIndexOperator(opValue1, opValue2, resultValue);
@@ -85,8 +84,7 @@ BinOp_Idx::op(
 		if (opType1->getTypeKindFlags() & TypeKindFlag_Derivable)
 			return derivableTypeIndexOperator((DerivableType*)opType1, opValue1, opValue2, resultValue);
 
-		err::setFormatStringError("cannot index '%s'", opType1->getTypeString().sz());
-		return false;
+		return err::fail("cannot index '%s'", opType1->getTypeString().sz());
 	}
 }
 
@@ -141,8 +139,7 @@ BinOp_Idx::arrayIndexOperator(
 
 	if (opTypeKind1 != TypeKind_DataRef) {
 		ASSERT(opTypeKind1 == TypeKind_Array);
-		err::setError("indexing register-based arrays is not supported yet");
-		return false;
+		return err::fail("indexing register-based arrays is not supported yet");
 	}
 
 	DataPtrType* opType1 = (DataPtrType*)opValue1.getType();
@@ -155,10 +152,8 @@ BinOp_Idx::arrayIndexOperator(
 				return false;
 
 			intptr_t i = idxValue.getSizeT();
-			if (i < 0 || i >= (intptr_t)arrayType->getElementCount()) {
-				err::setFormatStringError("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString().sz());
-				return false;
-			}
+			if (i < 0 || i >= (intptr_t)arrayType->getElementCount())
+				return err::fail("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString().sz());
 		} else
 			ptrTypeFlags &= ~PtrTypeFlag_Safe;
 	}
@@ -281,10 +276,8 @@ BinOp_Idx::derivableTypeIndexOperator(
 	Value* resultValue
 ) {
 	Property* prop = derivableType->getIndexerProperty();
-	if (!prop) {
-		err::setFormatStringError("'%s' has no indexer property", derivableType->getTypeString().sz());
-		return false;
-	}
+	if (!prop)
+		return err::fail("'%s' has no indexer property", derivableType->getTypeString().sz());
 
 	bool result = resultValue->trySetProperty(prop);
 	if (!result)

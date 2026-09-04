@@ -337,10 +337,8 @@ ControlFlowMgr::conditionalJump(
 bool
 ControlFlowMgr::breakJump(size_t level) {
 	Scope* targetScope = m_module->m_namespaceMgr.findBreakScope(level);
-	if (!targetScope) {
-		err::setError("illegal break");
-		return false;
-	}
+	if (!targetScope)
+		return err::fail("illegal break");
 
 	escapeScope(targetScope, targetScope->m_breakBlock);
 	return true;
@@ -349,10 +347,8 @@ ControlFlowMgr::breakJump(size_t level) {
 bool
 ControlFlowMgr::continueJump(size_t level) {
 	Scope* targetScope = m_module->m_namespaceMgr.findContinueScope(level);
-	if (!targetScope) {
-		err::setError("illegal continue");
-		return false;
-	}
+	if (!targetScope)
+		return err::fail("illegal continue");
 
 	escapeScope(targetScope, targetScope->m_continueBlock);
 	return true;
@@ -468,14 +464,12 @@ ControlFlowMgr::ret(const Value& value) {
 	ASSERT(scope);
 
 	if (!value) {
-		if (returnType->getTypeKind() != TypeKind_Void) {
-			err::setFormatStringError(
+		if (returnType->getTypeKind() != TypeKind_Void)
+			return err::fail(
 				"function '%s' must return '%s' value",
 				function->getItemName().sz(),
 				returnType->getTypeString().sz()
 			);
-			return false;
-		}
 
 		if ((scope->m_flags & ScopeFlag_Finalizable) || isAsync) {
 			escapeScope(function->getScope(), getReturnBlock());
@@ -487,14 +481,12 @@ ControlFlowMgr::ret(const Value& value) {
 		if (m_module->hasCodeGen())
 			m_module->m_llvmIrBuilder.createRet();
 	} else {
-		if (returnType->getTypeKind() == TypeKind_Void) {
-			err::setFormatStringError(
+		if (returnType->getTypeKind() == TypeKind_Void)
+			return err::fail(
 				"void function '%s' returning '%s' value",
 				function->getItemName().sz(),
 				value.getType()->getTypeString().sz()
 			);
-			return false;
-		}
 
 		Value returnValue;
 		bool result = m_module->m_operatorMgr.castOperator(value, returnType, &returnValue);
@@ -550,18 +542,16 @@ ControlFlowMgr::checkReturn() {
 	else if (returnType->getTypeKind() == TypeKind_Void)
 		ret();
 	else if (m_returnBlockArray.isEmpty()) {
-		err::setFormatStringError(
+		return err::fail(
 			"function '%s' must return '%s' value",
 			function->getItemName().sz(),
 			returnType->getTypeString().sz()
 		);
-		return false;
 	} else {
-		err::setFormatStringError(
+		return err::fail(
 			"not all control paths in function '%s' return a value",
 			function->getItemName().sz()
 		);
-		return false;
 	}
 
 	return true;

@@ -141,22 +141,17 @@ ControlFlowMgr::addOnEventBindings(
 	sl::BoxList<Value>::ConstIterator it = valueList.getHead();
 	for (; it; it++) {
 		Type* type = it->getType();
-		if (!isClassPtrType(type, ClassTypeKind_Multicast)) {
-			err::setFormatStringError("invalid onevent binding site: '%s'", type->getTypeString().sz());
-			return false;
-		}
+		if (!isClassPtrType(type, ClassTypeKind_Multicast))
+			return err::fail("invalid onevent binding site: '%s'", type->getTypeString().sz());
 
 		MulticastClassType* eventType = (MulticastClassType*)((ClassPtrType*)type)->getTargetType();
 		FunctionType* bindingSiteType = eventType->getTargetType()->getTargetType();
-		if (bindingSiteType->getArgSignature() != argSignature) {
-			err::setFormatStringError(
+		if (bindingSiteType->getArgSignature() != argSignature)
+			return err::fail(
 				"onevent argument signature mismatch: '%s' vs '%s'",
 				bindingSiteType->getTypeStringSuffix().sz(),
 				handlerType->getTypeStringSuffix().sz()
 			);
-
-			return false;
-		}
 
 		bool result = m_module->m_operatorMgr.callOperator(addBindingFunc, thisValue, onEventIdxValue, *it);
 		if (!result)

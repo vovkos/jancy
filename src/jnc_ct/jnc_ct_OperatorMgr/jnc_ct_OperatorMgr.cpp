@@ -240,8 +240,7 @@ OperatorMgr::binaryOperator(
 
 			if (opValue1.getType()->getTypeKind() == TypeKind_ClassPtr &&
 				(opValue1.getType()->getFlags() & PtrTypeFlag_Event)) {
-				err::setError("operator is inaccessible via 'event' pointer");
-				return false;
+				return err::fail("operator is inaccessible via 'event' pointer");
 			}
 		}
 
@@ -554,8 +553,7 @@ OperatorMgr::castOperator(
 		return dynamicCastClassPtr(opValue, (ClassPtrType*)type, resultValue);
 
 	default:
-		err::setFormatStringError("cannot dynamically cast to '%s'", type->getTypeString().sz());
-		return false;
+		return err::fail("cannot dynamically cast to '%s'", type->getTypeString().sz());
 	}
 }
 
@@ -601,14 +599,12 @@ OperatorMgr::dynamicCastDataPtr(
 	DataPtrType* type,
 	Value* resultValue
 ) {
-	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr)) {
-		err::setFormatStringError(
+	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr))
+		return err::fail(
 			"cannot dynamically cast '%s' to '%s'",
 			opValue.getType()->getTypeString().sz(),
 			type->getTypeString().sz()
 		);
-		return false;
-	}
 
 	if ((opValue.getType()->getFlags() & ConstKind_Const) &&
 		!(type->getFlags() & ConstKind_Const)
@@ -646,14 +642,12 @@ OperatorMgr::dynamicCastClassPtr(
 	ClassPtrType* type,
 	Value* resultValue
 ) {
-	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr)) {
-		err::setFormatStringError(
+	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr))
+		return err::fail(
 			"cannot dynamically cast '%s' to '%s'",
 			opValue.getType()->getTypeString().sz(),
 			type->getTypeString().sz()
 		);
-		return false;
-	}
 
 	if ((opValue.getType()->getFlags() & ConstKind_Const) &&
 		!(type->getFlags() & ConstKind_Const)
@@ -940,10 +934,8 @@ OperatorMgr::sizeofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		if (type->getTypeKind() != TypeKind_DataPtr) {
-			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
-			return false;
-		}
+		if (type->getTypeKind() != TypeKind_DataPtr)
+			return err::fail("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 
 		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicSizeOf);
 		return callOperator(function, opValue, resultValue);
@@ -966,10 +958,8 @@ OperatorMgr::countofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		if (type->getTypeKind() != TypeKind_DataPtr) {
-			err::setFormatStringError("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
-			return false;
-		}
+		if (type->getTypeKind() != TypeKind_DataPtr)
+			return err::fail("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 
 		type = ((DataPtrType*)type)->getTargetType();
 		typeValue.createConst(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
@@ -977,10 +967,8 @@ OperatorMgr::countofOperator(
 		return callOperator(function, opValue, typeValue, resultValue);
 	}
 
-	if (type->getTypeKind() != TypeKind_Array) {
-		err::setFormatStringError("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString().sz());
-		return false;
-	}
+	if (type->getTypeKind() != TypeKind_Array)
+		return err::fail("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString().sz());
 
 	resultValue->setConstSizeT(((ArrayType*)type)->getElementCount(), m_module);
 	return true;
@@ -1003,18 +991,15 @@ OperatorMgr::typeofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		if (!(type->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr))) {
-			err::setFormatStringError("'dynamic typeof' operator is only applicable to data and class pointers, not to '%s'", type->getTypeString().sz());
-			return false;
-		}
+		if (!(type->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr)))
+			return err::fail("'dynamic typeof' operator is only applicable to data and class pointers, not to '%s'", type->getTypeString().sz());
 
 /*		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicTypeOf);
 		bool result = callOperator(function, opValue, resultValue);
 		if (!result)
 			return false; */
 
-		err::setError("'dynamic typeof' operator is not yet implemented");
-		return false;
+		return err::fail("'dynamic typeof' operator is not yet implemented");
 	}
 
 	if (opValue.getValueKind() == ValueKind_Type && type->getTypeKind() == TypeKind_Class) {
@@ -1071,10 +1056,8 @@ OperatorMgr::declofOperator(
 		}
 	}
 
-	if (!variable) {
-		err::setError("'declof' is only applicable to user items");
-		return false;
-	}
+	if (!variable)
+		return err::fail("'declof' is only applicable to user items");
 
 	bool result = itemDecl->ensureAttributeValuesReady();
 	if (!result)
@@ -1097,19 +1080,15 @@ OperatorMgr::offsetofOperator(
 			return false;
 
 		Type* type = typeValue.getType();
-		if (type->getTypeKind() != TypeKind_DataPtr) {
-			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
-			return false;
-		}
+		if (type->getTypeKind() != TypeKind_DataPtr)
+			return err::fail("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 
 		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicOffsetOf);
 		return callOperator(function, value, resultValue);
 	}
 
-	if (value.getValueKind() != ValueKind_Field) {
-		err::setError("'offsetof' can only be applied to fields");
-		return false;
-	}
+	if (value.getValueKind() != ValueKind_Field)
+		return err::fail("'offsetof' can only be applied to fields");
 
 	resultValue->setConstSizeT(value.getFieldOffset(), m_module);
 	return true;
@@ -1121,15 +1100,11 @@ OperatorMgr::templateInstantiateOperator(
 	const sl::ArrayRef<Type*>& argArray,
 	Value* resultValue
 ) {
-	if (argArray.isEmpty()) {
-		err::setError("template instantiation operator without arguments has no effect");
-		return false;
-	}
+	if (argArray.isEmpty())
+		return err::fail("template instantiation operator without arguments has no effect");
 
-	if (opValue.getValueKind() != ValueKind_Template) {
-		err::setFormatStringError("'%s' is not a template", getValueKindString(opValue.getValueKind()));
-		return false;
-	}
+	if (opValue.getValueKind() != ValueKind_Template)
+		return err::fail("'%s' is not a template", getValueKindString(opValue.getValueKind()));
 
 	Template* templ = opValue.getTemplate();
 
@@ -1168,8 +1143,7 @@ OperatorMgr::templateInstantiateOperator(
 		// else fall through
 
 	default:
-		err::setFormatStringError("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
-		return false;
+		return err::fail("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
 	}
 
 	return true;
@@ -1831,10 +1805,8 @@ OperatorMgr::awaitOperator(
 	}
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	if (function->getFunctionKind() != FunctionKind_AsyncSequencer) {
-		err::setError("await can only be used in async functions");
-		return false;
-	}
+	if (function->getFunctionKind() != FunctionKind_AsyncSequencer)
+		return err::fail("await can only be used in async functions");
 
 	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue();
 	ASSERT(thisPromiseValue);
@@ -1883,10 +1855,8 @@ OperatorMgr::getRegexGroup(
 	Value* resultValue
 ) {
 	Scope* scope = m_module->m_namespaceMgr.findRegexScope();
-	if (!scope) {
-		err::setError("no regex groups are visible from here");
-		return false;
-	}
+	if (!scope)
+		return err::fail("no regex groups are visible from here");
 
 	if (!index) { // $0 is the match itself
 		*resultValue = scope->m_regexMatchVariable;

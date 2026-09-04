@@ -88,7 +88,7 @@ public:
 
 	err::Error
 	setOperatorError(Type* opType) {
-		return err::setFormatStringError(
+		return err::setError(
 			"unary '%s' cannot be applied to '%s'",
 			getUnOpKindString(m_opKind),
 			opType->getTypeString().sz()

@@ -37,7 +37,7 @@ DynamicLib::openImpl(const sl::StringRef& fileName) {
 	bool result = getDynamicLib()->open(fileName);
 	if (!result) {
 #if (_JNC_OS_WIN)
-		err::pushFormatStringError("cannot open dynamiclib '%s'", fileName.sz());
+		err::pushError("cannot open dynamiclib '%s'", fileName.sz());
 #endif
 		return false;
 	}
@@ -49,15 +49,13 @@ void*
 DynamicLib::getFunctionImpl(const sl::StringRef& name) {
 	ASSERT(sizeof(sys::DynamicLib) == sizeof(m_handle));
 
-	if (!m_handle) {
-		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return NULL;
-	}
+	if (!m_handle)
+		return err::fail<void*>(NULL, err::SystemErrorCode_InvalidDeviceState);
 
 	void* p = getDynamicLib()->getFunction(name);
 	if (!p) {
 #if (_JNC_OS_WIN)
-		err::pushFormatStringError("cannot get dynamiclib function '%s'", name.sz());
+		err::pushError("cannot get dynamiclib function '%s'", name.sz());
 #endif
 		return NULL;
 	}

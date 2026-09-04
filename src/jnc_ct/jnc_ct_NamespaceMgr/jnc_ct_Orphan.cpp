@@ -60,8 +60,7 @@ Orphan::resolve(ModuleItem* item) {
 		} else if (type->getStdType() == StdType_ReactorBase)
 			return resolveToReactor(item);
 		else {
-			err::setFormatStringError("invalid template orphan type '%s'", type->getTypeString().sz());
-			return NULL;
+			return err::fail<ModuleItem*>(NULL, "invalid template orphan type '%s'", type->getTypeString().sz());
 		}
 	}
 
@@ -155,13 +154,12 @@ Orphan::resolveToFunction(ModuleItem* item) {
 			break;
 
 		default:
-			err::setFormatStringError("'%s' is not a function", getItemName().sz());
-			return NULL;
+			return err::fail<Function*>(NULL, "'%s' is not a function", getItemName().sz());
 		}
 	} else {
 		origin = getItemUnnamedMethod(item);
 		if (!origin) {
-			err::setFormatStringError(
+			err::setError(
 				"'%s' has no '%s'",
 				item->getItemName().sz(),
 				getFunctionKindString(m_functionKind)
@@ -185,15 +183,11 @@ Orphan::resolveToFunction(ModuleItem* item) {
 			origin.getFunction() :
 			NULL;
 
-	if (!originFunction) {
-		err::setFormatStringError("'%s': overload not found", getItemName().sz());
-		return NULL;
-	}
+	if (!originFunction)
+		return err::fail<Function*>(NULL, "'%s': overload not found", getItemName().sz());
 
-	if (!(originFunction->m_flags & ModuleItemFlag_User)) {
-		err::setFormatStringError("'%s' is a compiler-generated function", getItemName().sz());
-		return NULL;
-	}
+	if (!(originFunction->m_flags & ModuleItemFlag_User))
+		return err::fail<Function*>(NULL, "'%s' is a compiler-generated function", getItemName().sz());
 
 	ASSERT(originFunction->m_functionKind == m_functionKind);
 
@@ -240,10 +234,8 @@ Orphan::resolveToReactor(ModuleItem* item) {
 		break;
 	}
 
-	if (!itemType || !isClassType(itemType, ClassTypeKind_Reactor)) {
-		err::setFormatStringError("'%s' is not a reactor", getItemName().sz());
-		return NULL;
-	}
+	if (!itemType || !isClassType(itemType, ClassTypeKind_Reactor))
+		return err::fail<Function*>(NULL, "'%s' is not a reactor", getItemName().sz());
 
 	ReactorClassType* originType = (ReactorClassType*)itemType ;
 	Function* originReactor = originType->getReactor();
@@ -280,10 +272,8 @@ Orphan::copyArgNames(FunctionType* targetFunctionType) {
 		FunctionArg* dstArg = dstArgArray[iDst];
 		FunctionArg* srcArg = srcArgArray[iSrc];
 
-		if (!srcArg->m_initializer.isEmpty()) {
-			err::setFormatStringError("redefinition of default value for '%s'", srcArg->m_name.sz());
-			return false;
-		}
+		if (!srcArg->m_initializer.isEmpty())
+			return err::fail("redefinition of default value for '%s'", srcArg->m_name.sz());
 
 		dstArg->m_name = srcArg->m_name;
 	}
@@ -296,8 +286,7 @@ Orphan::verifyStorageKind(ModuleItemDecl* targetDecl) {
 	if (!m_storageKind || m_storageKind == targetDecl->getStorageKind())
 		return true;
 
-	err::setFormatStringError("storage specifier mismatch for orphan '%s'", getItemName().sz());
-	return false;
+	return err::fail("storage specifier mismatch for orphan '%s'", getItemName().sz());
 }
 
 void

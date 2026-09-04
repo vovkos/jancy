@@ -92,8 +92,7 @@ ClassType::addMethod(Function* function) {
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
-		return false;
+		return err::fail("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 	}
 
 	sl::Array<FunctionArg*> argArray;
@@ -150,31 +149,26 @@ ClassType::addMethod(Function* function) {
 
 	case FunctionKind_Getter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 2) {
-			err::setError("indexer property getter should take at least one index argument");
-			return false;
-		}
+		if (argArray.getCount() < 2)
+			return err::fail("indexer property getter should take at least one index argument");
 
 		targetFunction = &ensureIndexerProperty()->m_getter;
 		break;
 
 	case FunctionKind_Setter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 3) {
-			err::setError("indexer property setter should take at least one index argument");
-			return false;
-		}
+		if (argArray.getCount() < 3)
+			return err::fail("indexer property setter should take at least one index argument");
 
 		targetOverloadableFunction = &ensureIndexerProperty()->m_setter;
 		break;
 
 	default:
-		err::setFormatStringError(
+		return err::fail(
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
 			getTypeString().sz()
 		);
-		return false;
 	}
 
 	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
@@ -280,19 +274,15 @@ ClassType::calcLayout() {
 		if (!result)
 			return false;
 
-		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable)) {
-			err::setFormatStringError("'%s' cannot be a base type of a class", slot->m_type->getTypeString().sz());
-			return false;
-		}
+		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable))
+			return err::fail("'%s' cannot be a base type of a class", slot->m_type->getTypeString().sz());
 
 		sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.visit(slot->m_type->getSignature());
-		if (it->m_value) {
-			err::setFormatStringError(
+		if (it->m_value)
+			return err::fail(
 				"'%s' is already a base type",
 				slot->m_type->getTypeString().sz()
 			);
-			return false;
-		}
 
 		it->m_value = slot;
 
@@ -315,10 +305,8 @@ ClassType::calcLayout() {
 		}
 
 		ClassType* baseClassType = (ClassType*)slot->m_type;
-		if (baseClassType->m_flags & ClassTypeFlag_OpaqueNonCreatable) {
-			err::setFormatStringError("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString().sz());
-			return false;
-		}
+		if (baseClassType->m_flags & ClassTypeFlag_OpaqueNonCreatable)
+			return err::fail("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString().sz());
 
 		baseTypeRwi[i] = m_ifaceStructType->addBaseType(baseClassType->getIfaceStructType());
 		slot->m_vtableIndex = m_vtable.getCount();
@@ -359,10 +347,8 @@ ClassType::calcLayout() {
 
 		if (type->getTypeKind() == TypeKind_Class) {
 			ClassType* classType = (ClassType*)type;
-			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable)) {
-				err::setFormatStringError("cannot instantiate '%s'", type->getTypeString().sz());
-				return false;
-			}
+			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
+				return err::fail("cannot instantiate '%s'", type->getTypeString().sz());
 
 			if (classType->getClassTypeKind() == ClassTypeKind_Reactor)
 				((ReactorClassType*)classType)->m_parentOffset = field->getOffset() + sizeof(Box); // reactor's box
@@ -503,10 +489,8 @@ ClassType::overrideVirtualFunction(Function* function) {
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item) {
-		err::setFormatStringError("cannot override '%s': method not found", function->getItemName().sz());
-		return false;
-	}
+	if (!findResult.m_item)
+		return err::fail("cannot override '%s': method not found", function->getItemName().sz());
 
 	OverloadableFunction setter;
 	FunctionOverload* overridenOverload = NULL;
@@ -531,10 +515,8 @@ ClassType::overrideVirtualFunction(Function* function) {
 
 		case FunctionKind_Setter:
 			setter = ((Property*)member)->getSetter();
-			if (!setter) {
-				err::setFormatStringError("cannot override '%s': property has no setter", function->getItemName().sz());
-				return false;
-			}
+			if (!setter)
+				return err::fail("cannot override '%s': property has no setter", function->getItemName().sz());
 
 			if (setter->getItemKind() == ModuleItemKind_Function)
 				overridenFunction = setter.getFunction();
@@ -544,15 +526,13 @@ ClassType::overrideVirtualFunction(Function* function) {
 			break;
 
 		default:
-			err::setFormatStringError("cannot override '%s': function kind mismatch", function->getItemName().sz());
-			return false;
+			return err::fail("cannot override '%s': function kind mismatch", function->getItemName().sz());
 		}
 
 		break;
 
 	default:
-		err::setFormatStringError("cannot override '%s': not a method or property", function->getItemName().sz());
-		return false;
+		return err::fail("cannot override '%s': not a method or property", function->getItemName().sz());
 	}
 
 	if (overridenFunction) {
@@ -564,15 +544,11 @@ ClassType::overrideVirtualFunction(Function* function) {
 		result = overridenFunction != NULL;
 	}
 
-	if (!result) {
-		err::setFormatStringError("cannot override '%s': method signature mismatch", function->getItemName().sz());
-		return false;
-	}
+	if (!result)
+		return err::fail("cannot override '%s': method signature mismatch", function->getItemName().sz());
 
-	if (!overridenFunction->isVirtual()) {
-		err::setFormatStringError("cannot override '%s': method is not virtual", function->getItemName().sz());
-		return false;
-	}
+	if (!overridenFunction->isVirtual())
+		return err::fail("cannot override '%s': method is not virtual", function->getItemName().sz());
 
 	AXL_TODO("virtual multipliers")
 
@@ -656,10 +632,8 @@ ClassType::prepareForOperatorNew() {
 
 	for (size_t i = 0; i < count; i++) {
 		Function* function = m_vtable[i];
-		if (function->getStorageKind() == StorageKind_Abstract) {
-			err::setFormatStringError("abstract class '%s'", getItemName().sz());
-			return false;
-		}
+		if (function->getStorageKind() == StorageKind_Abstract)
+			return err::fail("abstract class '%s'", getItemName().sz());
 
 		function->require();
 		rwi[i] = function->getLlvmFunction();

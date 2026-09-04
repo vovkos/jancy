@@ -92,10 +92,8 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 		::SetDllDirectoryW(io::win::getSystemDir() + L"\\npcap");
 
 	const char* pcapVersion = getPcapVersion();
-	if (!pcapVersion) {
-		err::setError("can't delay-load pcap (wpcap.dll is missing or invalid)");
-		return NULL;
-	}
+	if (!pcapVersion)
+		return err::fail<jnc_ExtensionLib*>(NULL, "can't delay-load pcap (wpcap.dll is missing or invalid)");
 #endif
 
 	TRACE("jnc_io_pcap: Pcap version: %s\n", pcapVersion);

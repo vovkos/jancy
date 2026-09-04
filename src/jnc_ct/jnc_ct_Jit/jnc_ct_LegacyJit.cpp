@@ -40,10 +40,8 @@ LegacyJit::create(uint_t optLevel) {
 	// which would reside close enough to the generated code
 
 	void* chkstk = ::GetProcAddress(::GetModuleHandleA("ntdll.dll"), "__chkstk");
-	if (!chkstk) {
-		err::setError("__chkstk is not found");
-		return false;
-	}
+	if (!chkstk)
+		return err::fail("__chkstk is not found");
 
 	llvm::JITMemoryManager* jitMemoryMgr = llvm::JITMemoryManager::CreateDefaultMemManager();
 	engineBuilder.setJITMemoryManager(jitMemoryMgr);
@@ -76,10 +74,8 @@ LegacyJit::create(uint_t optLevel) {
 #endif
 
 	m_llvmExecutionEngine = engineBuilder.create();
-	if (!m_llvmExecutionEngine) {
-		err::setFormatStringError("cannot create execution engine: %s", errorString.c_str());
-		return false;
-	}
+	if (!m_llvmExecutionEngine)
+		return err::fail("cannot create execution engine: %s", errorString.c_str());
 
 	return true;
 }
@@ -91,10 +87,8 @@ LegacyJit::mapVariable(
 ) {
 	ASSERT(m_llvmExecutionEngine);
 
-	if (variable->getStorageKind() != StorageKind_Static) {
-		err::setFormatStringError("attempt to map non-global variable: %s", variable->getItemName().sz());
-		return false;
-	}
+	if (variable->getStorageKind() != StorageKind_Static)
+		return err::fail("attempt to map non-global variable: %s", variable->getItemName().sz());
 
 	setVariableStaticData(variable, p);
 

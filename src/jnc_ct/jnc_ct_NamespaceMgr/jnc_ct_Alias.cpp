@@ -28,7 +28,7 @@ failWithFindError(
 	ASSERT(!findResult.m_item);
 
 	if (findResult.m_result)
-		err::setFormatStringError("'%s' not found", name.getFullName().sz());
+		err::setError("'%s' not found", name.getFullName().sz());
 
 	return false;
 }
@@ -73,10 +73,8 @@ Alias::resolveImpl() {
 
 	ASSERT(!m_targetItem);
 
-	if (m_flags & AliasFlag_InResolve) {
-		err::setFormatStringError("can't resolve alias '%s' due to recursion", getItemName().sz());
-		return false;
-	}
+	if (m_flags & AliasFlag_InResolve)
+		return err::fail("can't resolve alias '%s' due to recursion", getItemName().sz());
 
 	m_flags |= AliasFlag_InResolve;
 
@@ -118,10 +116,8 @@ Alias::resolveImpl() {
 				// member operators should respect MemberCoord::m_variable and adjust opValue accordingly
 
 				AXL_TODO("support aliases to fields within statics");
-				if (coord.m_variable) {
-					err::setError("fields within statics not supported yet");
-					return false;
-				}
+				if (coord.m_variable)
+					return err::fail("fields within statics not supported yet");
 
 				Field* field = (Field*)findResult.m_item;
 				Type* fieldType = field->getType();
@@ -148,10 +144,8 @@ Alias::resolveImpl() {
 				break;
 			}
 
-			if (!nspace) {
-				err::setFormatStringError("'%s' is not a namespace", findResult.m_item->getItemName().sz());
-				return false;
-			}
+			if (!nspace)
+				return err::fail("'%s' is not a namespace", findResult.m_item->getItemName().sz());
 		}
 
 		MemberCoord nextCoord;

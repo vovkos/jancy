@@ -116,27 +116,21 @@ OrcJit::create(uint_t optLevel) {
 	m_llvmExecutionSession = new llvm::orc::ExecutionSession();
 #else
 	llvm::Expected<std::unique_ptr<llvm::orc::SelfExecutorProcessControl> > llvmEpc = llvm::orc::SelfExecutorProcessControl::Create();
-	if (!llvmEpc) {
-		err::setError(llvmEpc.takeError() >> toAxl);
-		return false;
-	}
+	if (!llvmEpc)
+		return err::fail(llvmEpc.takeError() >> toAxl);
 
 	m_llvmExecutionSession = new llvm::orc::ExecutionSession(std::move(*llvmEpc));
 #endif
 
 	llvm::Expected<llvm::orc::JITTargetMachineBuilder> llvmTmb = llvm::orc::JITTargetMachineBuilder::detectHost();
-	if (!llvmTmb) {
-		err::setError(llvmTmb.takeError() >> toAxl);
-		return false;
-	}
+	if (!llvmTmb)
+		return err::fail(llvmTmb.takeError() >> toAxl);
 
 	llvmTmb->setCodeGenOptLevel((llvm::CodeGenOptLevel)optLevel);
 
 	llvm::Expected<llvm::DataLayout> llvmDl = llvmTmb->getDefaultDataLayoutForTarget();
-	if (!llvmDl) {
-		err::setError(llvmDl.takeError() >> toAxl);
-		return false;
-	}
+	if (!llvmDl)
+		return err::fail(llvmDl.takeError() >> toAxl);
 
 	m_llvmDataLayout = new llvm::DataLayout(*llvmDl);
 	m_llvmMangle = new llvm::orc::MangleAndInterner(*m_llvmExecutionSession, *m_llvmDataLayout);
@@ -177,10 +171,8 @@ OrcJit::prepare() { // called after everything is mapped and before jitting
 		llvm::orc::cloneToNewContext(m_llvmThreadSafeModule)
 	);
 
-	if (llvmError) {
-		err::setError(std::move(llvmError) >> toAxl);
-		return false;
-	}
+	if (llvmError)
+		return err::fail(std::move(llvmError) >> toAxl);
 
 	return true;
 }
@@ -190,10 +182,8 @@ OrcJit::mapVariable(
 	Variable* variable,
 	void* p
 ) {
-	if (variable->getStorageKind() != StorageKind_Static) {
-		err::setFormatStringError("attempt to map non-global variable: %s", variable->getItemName().sz());
-		return false;
-	}
+	if (variable->getStorageKind() != StorageKind_Static)
+		return err::fail("attempt to map non-global variable: %s", variable->getItemName().sz());
 
 	setVariableStaticData(variable, p);
 
@@ -205,10 +195,8 @@ OrcJit::mapVariable(
 		return true; // optimized out
 
 	sl::StringHashTableIterator<void*> it = m_symbolMap.visit(llvmMapping->getName().data());
-	if (it->m_value) {
-		err::setFormatStringError("attempt to re-map variable: %s", variable->getItemName().sz());
-		return false;
-	}
+	if (it->m_value)
+		return err::fail("attempt to re-map variable: %s", variable->getItemName().sz());
 
 	it->m_value = p;
 	return true;
@@ -229,10 +217,8 @@ OrcJit::mapFunction(
 		return true;
 
 	sl::StringHashTableIterator<void*> it = m_symbolMap.visit(llvmFunction->getName().data());
-	if (it->m_value) {
-		err::setFormatStringError("attempt to re-map function: %s/%s", function->getItemName().sz(), llvmFunction->getName().data());
-		return false;
-	}
+	if (it->m_value)
+		return err::fail("attempt to re-map function: %s/%s", function->getItemName().sz(), llvmFunction->getName().data());
 
 	it->m_value = p;
 	return true;
@@ -250,10 +236,8 @@ OrcJit::lookup(const llvm::StringRef& name) {
 		(*m_llvmMangle)(name)
 	);
 
-	if (!symbol) {
-		err::setError(symbol.takeError() >> toAxl);
-		return NULL;
-	}
+	if (!symbol)
+		return err::fail<void*>(NULL, symbol.takeError() >> toAxl);
 
 #if (LLVM_VERSION_MAJOR < 17)
 	return (void*)symbol->getAddress();

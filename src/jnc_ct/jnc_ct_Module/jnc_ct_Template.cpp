@@ -62,10 +62,8 @@ ModuleItem*
 Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 	size_t argCount = m_argArray.getCount();
 	size_t actualArgCount = argArray0.getCount();
-	if (actualArgCount > argCount) {
-		err::setFormatStringError("too many template arguments for '%s'", getItemName().sz());
-		return NULL;
-	}
+	if (actualArgCount > argCount)
+		return err::fail<ModuleItem*>(NULL, "too many template arguments for '%s'", getItemName().sz());
 
 	if (actualArgCount == argCount && argArray0.find(NULL) == -1) {
 		m_module->m_namespaceMgr.openTemplateInstNamespace(*this, m_argArray, argArray0);
@@ -114,15 +112,12 @@ Template::setDefaultArgs(sl::Array<Type*>* argArray) {
 			continue;
 
 		TemplateDeclType* defaultType = m_argArray[i]->getDefaultType();
-		if (!defaultType) {
-			err::setFormatStringError(
+		if (!defaultType)
+			return err::fail(
 				"argument '%s' of template '%s' has no default type",
 				m_argArray[i]->getName().sz(),
 				getItemName().sz()
 			);
-
-			return false;
-		}
 
 		Type* type = defaultType->instantiate(*argArray);
 		if (!type)
@@ -153,10 +148,8 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 	if (instance->m_item)
 		return instance->m_item;
 
-	if (instance->m_error) {
-		err::setError(instance->m_error);
-		return NULL;
-	}
+	if (instance->m_error)
+		return err::fail<ModuleItem*>(NULL, instance->m_error);
 
 	if (m_flags & PtrTypeFlag_ConstKindMask) {
 		ASSERT(argArray.getCount() == 2);
@@ -180,7 +173,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			instance->m_item = tdef;
 		} else {
 			if (type->getTypeKind() != TypeKind_Function) {
-				err::setFormatStringError("cannot instantiate template '%s' (not a function)", getItemName().sz());
+				err::setError("cannot instantiate template '%s' (not a function)", getItemName().sz());
 				return instance->failInstantiation();
 			}
 
@@ -242,7 +235,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		for (size_t i = 0; i < orphanCount; i++) {
 			Orphan* orphan = m_module->m_namespaceMgr.cloneOrphan(m_orphanArray[i]);
 			if (orphan->getOrphanKind() != OrphanKind_Template) {
-				err::setFormatStringError(
+				err::setError(
 					"incompatible orphan '%s' in '%s'",
 					orphan->getItemName().sz(),
 					getItemName().sz()
@@ -272,17 +265,13 @@ Template::deduceArgs(
 	if (!deductionType)
 		return false;
 
-	if (deductionType->getTypeKind() != TypeKind_Function) {
-		err::setFormatStringError("cannot deduce arguments of template '%s' (not a function)", getItemName().sz());
-		return false;
-	}
+	if (deductionType->getTypeKind() != TypeKind_Function)
+		return err::fail("cannot deduce arguments of template '%s' (not a function)", getItemName().sz());
 
 	const sl::Array<FunctionArg*>& functionArgArray = deductionType->getArgArray();
 	size_t functionArgCount = functionArgArray.getCount();
-	if (functionArgCount != argValueList.getCount()) {
-		err::setFormatStringError("'%s' does not take %d argument(s)", getItemName().sz(), argValueList.getCount());
-		return false;
-	}
+	if (functionArgCount != argValueList.getCount())
+		return err::fail("'%s' does not take %d argument(s)", getItemName().sz(), argValueList.getCount());
 
 	size_t templateArgCount = m_argArray.getCount();
 	templateArgArray->setCountZeroConstruct(templateArgCount);
@@ -310,15 +299,12 @@ Template::deduceArgs(
 	}
 
 	for (size_t i = 0; i < templateArgCount; i++) {
-		if (!(*templateArgArray)[i]) {
-			err::setFormatStringError(
+		if (!(*templateArgArray)[i])
+			return err::fail(
 				"cannot deduce argument '%s' of template '%s'",
 				m_argArray[i]->getName().sz(),
 				getItemName().sz()
 			);
-
-			return false;
-		}
 	}
 
 	return result;

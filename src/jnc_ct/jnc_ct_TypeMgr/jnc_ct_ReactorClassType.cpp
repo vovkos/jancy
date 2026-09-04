@@ -86,10 +86,8 @@ ReactorClassType::createItemString(size_t index) {
 
 bool
 ReactorClassType::calcLayout() {
-	if (m_body.isEmpty()) {
-		err::setFormatStringError("reactor '%s' has no body", getItemName().sz());
-		return false;
-	}
+	if (m_body.isEmpty())
+		return err::fail("reactor '%s' has no body", getItemName().sz());
 
 	return ClassType::calcLayout();
 }

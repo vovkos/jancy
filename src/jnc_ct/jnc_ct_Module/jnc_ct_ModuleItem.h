@@ -522,8 +522,7 @@ public:
 	virtual
 	bool
 	require() {
-		err::setFormatStringError("don't know how to require %s", getModuleItemKindString(m_itemKind));
-		return false;
+		return err::fail("don't know how to require %s", getModuleItemKindString(m_itemKind));
 	}
 
 	virtual
@@ -681,15 +680,11 @@ ModuleItemDecl::createSynopsisImpl(ModuleItem* item) const {
 inline
 bool
 ModuleItemBodyDecl::canSetBody() {
-	if (!m_body.isEmpty() || !m_bodyTokenList.isEmpty()) {
-		err::setFormatStringError("'%s' already has a body", getDeclItem()->getItemName().sz());
-		return false;
-	}
+	if (!m_body.isEmpty() || !m_bodyTokenList.isEmpty())
+		return err::fail("'%s' already has a body", getDeclItem()->getItemName().sz());
 
-	if (m_storageKind == StorageKind_Abstract) {
-		err::setFormatStringError("'%s' is abstract and hence cannot have a body", getDeclItem()->getItemName().sz());
-		return false;
-	}
+	if (m_storageKind == StorageKind_Abstract)
+		return err::fail("'%s' is abstract and hence cannot have a body", getDeclItem()->getItemName().sz());
 
 	return true;
 }

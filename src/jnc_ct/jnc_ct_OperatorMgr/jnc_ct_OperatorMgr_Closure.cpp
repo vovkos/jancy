@@ -61,10 +61,8 @@ OperatorMgr::createClosureObject(
 		sl::Array<FunctionArg*> srcArgArray = srcFunctionType->getArgArray();
 		size_t srcArgCount = srcArgArray.getCount();
 
-		if (closureArgCount > srcArgCount) {
-			err::setFormatStringError("closure is too big for '%s'", srcFunctionType->getTypeString().sz());
-			return false;
-		}
+		if (closureArgCount > srcArgCount)
+			return err::fail("closure is too big for '%s'", srcFunctionType->getTypeString().sz());
 
 		closureArgTypeArray.setCount(closureArgCount);
 		sl::Array<Type*>::Rwi typeRwi = closureArgTypeArray;

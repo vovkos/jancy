@@ -74,10 +74,8 @@ ArrayType::calcLayout() {
 	if (!result)
 		return false;
 
-	if (m_elementType->getTypeKind() == TypeKind_Class) {
-		err::setFormatStringError("'%s' cannot be an element of an array", m_elementType->getTypeString().sz());
-		return false;
-	}
+	if (m_elementType->getTypeKind() == TypeKind_Class)
+		return err::fail("'%s' cannot be an element of an array", m_elementType->getTypeString().sz());
 
 	// ensure update
 
@@ -179,14 +177,14 @@ UserArrayType::calcLayout() {
 		return false;
 
 	if (value <= 0) {
-		err::setFormatStringError("invalid array size '%lld'\n", value);
+		err::setError("invalid array size '%lld'\n", value);
 		lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
 		return false;
 	}
 
 #if (JNC_PTR_SIZE == 4)
 	if (value >= (uint32_t) -1) {
-		err::setFormatStringError("array size '%lld' is too big\n", value);
+		err::setError("array size '%lld' is too big\n", value);
 		lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
 		return false;
 	}

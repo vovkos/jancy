@@ -240,15 +240,12 @@ WebSocketHandshakeParser::verifyAccept() {
 	const WebSocketHandshakeHeader* accept = m_handshake->m_headers->getStdHeader(WebSocketHandshakeStdHeader_WebSocketAccept);
 	ASSERT(!m_key.isEmpty() && accept);
 
-	if (m_handshake->m_statusCode != 101) {
-		err::setFormatStringError(
+	if (m_handshake->m_statusCode != 101)
+		return err::fail(
 			"failure to switch HTTP protocol: %d %s",
 			m_handshake->m_statusCode,
 			m_handshake->m_reasonPhrase.sz()
 		);
-
-		return false;
-	}
 
 	char buffer[256];
 	sl::Array<char> acceptHash(rc::BufKind_Stack, buffer, sizeof(buffer));

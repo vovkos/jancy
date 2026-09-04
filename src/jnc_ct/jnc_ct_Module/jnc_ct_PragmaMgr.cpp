@@ -55,10 +55,8 @@ PragmaConfig::setPragma(
 		break;
 
 	case PragmaState_NoValue:
-		if (pragmaKind < Pragma_FirstBool) {
-			err::setFormatStringError("pragma '%s' requires a value", getPragmaName(pragmaKind));
-			return false;
-		}
+		if (pragmaKind < Pragma_FirstBool)
+			return err::fail("pragma '%s' requires a value", getPragmaName(pragmaKind));
 
 		value = true;
 		break;
@@ -72,8 +70,7 @@ PragmaConfig::setPragma(
 		else if (sl::isPowerOf2(value) && value <= 16)
 			m_fieldAlignment = value;
 		else {
-			err::setFormatStringError("invalid alignment %d", value);
-			return false;
+			return err::fail("invalid alignment %d", value);
 		}
 		break;
 

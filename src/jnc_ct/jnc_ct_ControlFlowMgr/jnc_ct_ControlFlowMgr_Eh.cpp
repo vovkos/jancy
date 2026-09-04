@@ -216,18 +216,15 @@ ControlFlowMgr::endTryOperator(
 	} else if (isErrorCodeType(type)) {
 		errorValue = type->getErrorCodeValue();
 	} else {
-		err::setFormatStringError("'%s' cannot be used as error code", type->getTypeString().sz());
-		return false;
+		return err::fail("'%s' cannot be used as error code", type->getTypeString().sz());
 	}
 
 	if (!m_module->hasCodeGen())
 		return true;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	if (scope->m_tryExpr != tryExpr) {
-		err::setError("invalid scope structure due to previous errors");
-		return false;
-	}
+	if (scope->m_tryExpr != tryExpr)
+		return err::fail("invalid scope structure due to previous errors");
 
 	BasicBlock* prevBlock = m_currentBlock;
 	BasicBlock* phiBlock = createBlock("try_phi_block");
@@ -319,10 +316,8 @@ ControlFlowMgr::catchLabel(const lex::LineCol& pos) {
 		scope = m_module->m_namespaceMgr.getCurrentScope();
 	}
 
-	if (!(scope->m_flags & ScopeFlag_CatchAhead)) {
-		err::setError("'catch' is already defined");
-		return false;
-	}
+	if (!(scope->m_flags & ScopeFlag_CatchAhead))
+		return err::fail("'catch' is already defined");
 
 	ASSERT(!(scope->m_flags & ScopeFlag_Finally));
 
@@ -373,15 +368,11 @@ ControlFlowMgr::finallyLabel(const lex::LineCol& pos) {
 		scope = m_module->m_namespaceMgr.getCurrentScope();
 	}
 
-	if (scope->m_flags & ScopeFlag_CatchAhead) {
-		err::setError("'finally' should follow 'catch'");
-		return false;
-	}
+	if (scope->m_flags & ScopeFlag_CatchAhead)
+		return err::fail("'finally' should follow 'catch'");
 
-	if (!(scope->m_flags & ScopeFlag_FinallyAhead)) {
-		err::setError("'finally' is already defined");
-		return false;
-	}
+	if (!(scope->m_flags & ScopeFlag_FinallyAhead))
+		return err::fail("'finally' is already defined");
 
 	if (scope->m_flags & ScopeFlag_Try) {
 		scope->m_flags |= ScopeFlag_CatchAhead;

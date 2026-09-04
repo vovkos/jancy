@@ -89,10 +89,8 @@ OperatorMgr::checkDataPtrRange(const Value& value) {
 			validatorValue = validator->getValidatorValue();
 		else {
 			size_t rangeLength = validator->getRangeLength();
-			if (rangeLength < targetSize) {
-				err::setFormatStringError("'%s' fails range check", type->getTypeString().sz());
-				return false;
-			}
+			if (rangeLength < targetSize)
+				return err::fail("'%s' fails range check", type->getTypeString().sz());
 
 			rangeLength -= targetSize;
 

@@ -138,8 +138,7 @@ DeclTypeCalc::calcType(
 		if (!type)
 			return NULL;
 	} else if (type->getStdType() == StdType_AbstractData) {
-		err::setError("can only use 'anydata' in pointer declaration");
-		return NULL;
+		return err::fail<Type*>(NULL, "can only use 'anydata' in pointer declaration");
 	}
 
 	if (m_typeModifiers & TypeModifier_Property) {
@@ -355,7 +354,7 @@ DeclTypeCalc::getIntegerType(Type* type) {
 	}
 
 	if (!(type->getTypeKindFlags() & TypeKindFlag_Integer)) {
-		err::setFormatStringError("'%s' modifier cannot be applied to '%s'",
+		err::setError("'%s' modifier cannot be applied to '%s'",
 			getTypeModifierString(typeModifiers).sz(),
 			type->getTypeString().sz()
 		);
@@ -373,10 +372,8 @@ DeclTypeCalc::getIntegerType(Type* type) {
 
 ArrayType*
 DeclTypeCalc::getArrayType(Type* elementType) {
-	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Array) {
-		err::setError("missing array suffix");
-		return NULL;
-	}
+	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Array)
+		return err::fail<ArrayType*>(NULL, "missing array suffix");
 
 	DeclArraySuffix* suffix = (DeclArraySuffix*)*m_suffix--;
 
@@ -386,22 +383,18 @@ DeclTypeCalc::getArrayType(Type* elementType) {
 	case TypeKind_Class:
 	case TypeKind_Function:
 	case TypeKind_Property:
-		err::setFormatStringError("cannot create array of '%s'", elementType->getTypeString().sz() );
-		return NULL;
+		return err::fail<ArrayType*>(NULL, "cannot create array of '%s'", elementType->getTypeString().sz() );
 
 	default:
-		if (isAutoSizeArrayType(elementType)) {
-			err::setFormatStringError("cannot create array of auto-size-array '%s'", elementType->getTypeString().sz() );
-			return NULL;
-		}
+		if (isAutoSizeArrayType(elementType))
+			return err::fail<ArrayType*>(NULL, "cannot create array of auto-size-array '%s'", elementType->getTypeString().sz() );
 
 		if (m_typeModifiers & TypeModifierMaskKind_Integer) {
 			elementType = getIntegerType(elementType);
 			if (!elementType)
 				return NULL;
 		} else if (elementType->getStdType() == StdType_AbstractData) {
-			err::setError("can only use 'anydata' in pointer declaration");
-			return NULL;
+			return err::fail<ArrayType*>(NULL, "can only use 'anydata' in pointer declaration");
 		}
 	}
 
@@ -434,24 +427,20 @@ DeclTypeCalc::prepareReturnType(Type* type) {
 	case TypeKind_Class:
 	case TypeKind_Function:
 	case TypeKind_Property:
-		err::setFormatStringError(
+		err::setError(
 			"function cannot return '%s'",
 			type->getTypeString().sz()
 		);
 		return NULL;
 
 	default:
-		if (isAutoSizeArrayType(type)) {
-			err::setFormatStringError("function cannot return auto-size-array '%s'", type->getTypeString().sz() );
-			return NULL;
-		}
+		if (isAutoSizeArrayType(type))
+			return err::fail<Type*>(NULL, "function cannot return auto-size-array '%s'", type->getTypeString().sz() );
 
 		if (m_typeModifiers & TypeModifierMaskKind_Integer)
 			return getIntegerType(type);
-		else if (type->getStdType() == StdType_AbstractData) {
-			err::setError("can only use 'anydata' in pointer declaration");
-			return NULL;
-		}
+		else if (type->getStdType() == StdType_AbstractData)
+			return err::fail<Type*>(NULL, "can only use 'anydata' in pointer declaration");
 	}
 
 	return type;
@@ -485,10 +474,8 @@ DeclTypeCalc::getFunctionType(Type* returnType) {
 	if (!returnType)
 		return NULL;
 
-	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Function) {
-		err::setError("missing function suffix");
-		return NULL;
-	}
+	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Function)
+		return err::fail<FunctionType*>(NULL, "missing function suffix");
 
 	DeclFunctionSuffix* suffix = (DeclFunctionSuffix*)*m_suffix--;
 
@@ -505,15 +492,11 @@ DeclTypeCalc::getFunctionType(Type* returnType) {
 	if (typeFlags & FunctionTypeFlag_VarArg) {
 		uint_t callConvFlags = callConv->getFlags();
 
-		if (callConvFlags & CallConvFlag_NoVarArg) {
-			err::setFormatStringError("vararg cannot be used with '%s'", callConv->getCallConvDisplayString());
-			return NULL;
-		}
+		if (callConvFlags & CallConvFlag_NoVarArg)
+			return err::fail<FunctionType*>(NULL, "vararg cannot be used with '%s'", callConv->getCallConvDisplayString());
 
-		if (!(callConvFlags & CallConvFlag_UnsafeVarArg)) {
-			err::setError("only 'cdecl' vararg is currently supported");
-			return NULL;
-		}
+		if (!(callConvFlags & CallConvFlag_UnsafeVarArg))
+			return err::fail<FunctionType*>(NULL, "only 'cdecl' vararg is currently supported");
 	}
 
 	if (m_typeModifiers & TypeModifier_Async)
@@ -547,10 +530,8 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 	if (!returnType)
 		return NULL;
 
-	if (returnType->getTypeKind() == TypeKind_Void) {
-		err::setError("property cannot return 'void'");
-		return NULL;
-	}
+	if (returnType->getTypeKind() == TypeKind_Void)
+		return err::fail<PropertyType*>(NULL, "property cannot return 'void'");
 
 	CallConvKind callConvKind = getCallConvKindFromModifiers(m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv(callConvKind);
@@ -570,15 +551,11 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 
 	// indexed property
 
-	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Function) {
-		err::setError("missing indexed property suffix");
-		return NULL;
-	}
+	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Function)
+		return err::fail<PropertyType*>(NULL, "missing indexed property suffix");
 
-	if (!m_templateArgArray.isEmpty()) {
-		err::setError("property cannot be templated");
-		return NULL;
-	}
+	if (!m_templateArgArray.isEmpty())
+		return err::fail<PropertyType*>(NULL, "property cannot be templated");
 
 	DeclFunctionSuffix* suffix = (DeclFunctionSuffix*)*m_suffix--;
 	return m_module->m_typeMgr.createIndexedPropertyType(
@@ -606,15 +583,11 @@ DeclTypeCalc::getBindableDataType(Type* dataType) {
 	if (!dataType)
 		return NULL;
 
-	if (dataType->getTypeKind() == TypeKind_Void) {
-		err::setError("bindable data cannot be 'void'");
-		return NULL;
-	}
+	if (dataType->getTypeKind() == TypeKind_Void)
+		return err::fail<PropertyType*>(NULL, "bindable data cannot be 'void'");
 
-	if (m_typeModifiers & TypeModifier_Indexed) {
-		err::setError("bindable data cannot be 'indexed'");
-		return NULL;
-	}
+	if (m_typeModifiers & TypeModifier_Indexed)
+		return err::fail<PropertyType*>(NULL, "bindable data cannot be 'indexed'");
 
 	CallConvKind callConvKind = getCallConvKindFromModifiers(m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv(callConvKind);

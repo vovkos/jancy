@@ -74,8 +74,7 @@ public:
 		const Value& opValue2,
 		Value* resultValue
 	) {
-		err::setFormatStringError("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString().sz());
-		return false;
+		return err::fail("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString().sz());
 	}
 };
 

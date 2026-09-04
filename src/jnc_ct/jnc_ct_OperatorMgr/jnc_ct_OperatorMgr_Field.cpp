@@ -99,8 +99,7 @@ OperatorMgr::getField(
 		return getClassField(opValue, (ClassType*)type, field, coord, resultValue);
 
 	default:
-		err::setFormatStringError("cannot get a field '%s' of '%s'", field->getName().sz(), type->getTypeString().sz());
-		return false;
+		return err::fail("cannot get a field '%s' of '%s'", field->getName().sz(), type->getTypeString().sz());
 	}
 }
 
@@ -260,10 +259,8 @@ OperatorMgr::getStructField(
 	}
 
 	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr)) {
-		if (!coord->m_unionCoordArray.isEmpty()) {
-			err::setError("union member operator on registers is not implemented yet");
-			return false;
-		}
+		if (!coord->m_unionCoordArray.isEmpty())
+			return err::fail("union member operator on registers is not implemented yet");
 
 		if (!m_module->hasCodeGen())
 			resultValue->setType(field->getType());
@@ -349,10 +346,8 @@ OperatorMgr::getUnionField(
 		return true;
 	}
 
-	if (opValue.getType()->getTypeKind() != TypeKind_DataRef) {
-		err::setError("union member operator on registers is not implemented yet");
-		return false;
-	}
+	if (opValue.getType()->getTypeKind() != TypeKind_DataRef)
+		return err::fail("union member operator on registers is not implemented yet");
 
 	DataPtrType* opType = (DataPtrType*)opValue.getType();
 	DataPtrKind ptrKind = opType->getPtrKind();

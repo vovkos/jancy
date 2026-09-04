@@ -142,15 +142,12 @@ OperatorMgr::storeDataRef(
 	DataPtrType* dstType = (DataPtrType*)dstValue.getType();
 	uint_t dstTypeFlags = dstType->getFlags();
 
-	if (dstType->getFlags() & PtrTypeFlag_ConstKindMask) {
-		err::setError(
+	if (dstType->getFlags() & PtrTypeFlag_ConstKindMask)
+		return err::fail(
 			(dstType->getFlags() & ConstKind_Const) ?
 				"cannot store into const location" :
 				"cannot store into possibly const location"
 		);
-
-		return false;
-	}
 
 	Type* targetType = dstType->getTargetType();
 	Value srcValue;

@@ -413,7 +413,7 @@ protected:
 
 	void
 	setTemplateArgDeductionError(Type* argValueType) {
-		err::setFormatStringError(
+		err::setError(
 			"incompatible types while deducing template argument: '%s' vs '%s'",
 			argValueType->getTypeString().sz(),
 			getTypeString().sz()
@@ -680,7 +680,7 @@ setAutoConstError(
 	Type* mtype,
 	Type* ctype
 ) {
-	err::setFormatStringError(
+	err::setError(
 		"incompatible autoconst type: '%s' vs '%s'",
 		mtype->getTypeString().sz(),
 		ctype->getTypeString().sz()

@@ -75,10 +75,8 @@ OperatorMgr::memberOperator(
 		if (!result)
 			return false;
 
-		if (!(field->getType()->getTypeKindFlags() & TypeKindFlag_Named)) {
-			err::setFormatStringError("member operator cannot be applied to '%s'", field->getType()->getTypeString().sz());
-			return false;
-		}
+		if (!(field->getType()->getTypeKindFlags() & TypeKindFlag_Named))
+			return err::fail("member operator cannot be applied to '%s'", field->getType()->getTypeString().sz());
 
 		nspace = (NamedType*)field->getType();
 		return getNamespaceMember(nspace, name, rawOpValue.getFieldOffset(), resultValue);
@@ -137,8 +135,7 @@ OperatorMgr::memberOperator(
 		return getStringMember(opValue, name, resultValue);
 
 	default:
-		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString().sz());
-		return false;
+		return err::fail("member operator cannot be applied to '%s'", type->getTypeString().sz());
 	}
 }
 
@@ -158,10 +155,8 @@ OperatorMgr::baseTypeOperator(
 		(opTypeKindFlags & TypeKindFlag_ClassPtr) ? ((DataPtrType*)opType)->getTargetType() :
 		opType;
 
-	if (!(targetType->getTypeKindFlags() & TypeKindFlag_Derivable)) {
-		err::setFormatStringError("basetype operator cannot be applied to '%s'", opType->getTypeString().sz());
-		return false;
-	}
+	if (!(targetType->getTypeKindFlags() & TypeKindFlag_Derivable))
+		return err::fail("basetype operator cannot be applied to '%s'", opType->getTypeString().sz());
 
 	DerivableType* derivableType = (DerivableType*)targetType;
 	BaseTypeSlot* slot = derivableType->getBaseTypeByIndex(baseTypeIdx);
@@ -225,14 +220,11 @@ OperatorMgr::createMemberClosure(Value* value) {
 bool
 OperatorMgr::getThisValue(Value* value) {
 	Value thisValue = m_module->m_functionMgr.getThisValue();
-	if (!thisValue) {
-		err::setFormatStringError(
+	if (!thisValue)
+		return err::fail(
 			"function '%s' has no 'this' pointer",
 			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
 		);
-
-		return false;
-	}
 
 	if (isClassPtrType(thisValue.getType(), ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisValue.getType())->getTargetType();
@@ -261,7 +253,7 @@ Type*
 OperatorMgr::getThisValueType() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	if (!function->isMember()) {
-		err::setFormatStringError(
+		err::setError(
 			"function '%s' has no 'this' pointer",
 			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
 		);
@@ -326,10 +318,8 @@ OperatorMgr::getNamespaceMember(
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item) {
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getDeclItem()->getItemName().sz());
-		return false;
-	}
+	if (!findResult.m_item)
+		return err::fail("'%s' is not a member of '%s'", name.sz(), nspace->getDeclItem()->getItemName().sz());
 
 	ModuleItemDecl* decl = NULL;
 	ModuleItem* item = findResult.m_item;
@@ -351,10 +341,8 @@ OperatorMgr::getNamespaceMember(
 		// and fall through
 
 	case ModuleItemKind_Type:
-		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named)) {
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
-			return false;
-		}
+		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
+			return err::fail("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
 
 		resultValue->setNamespace((NamedType*)item);
 		decl = (NamedType*)item;
@@ -372,10 +360,8 @@ OperatorMgr::getNamespaceMember(
 		Function* function;
 		function = (Function*)item;
 		if (function->isVirtual()) {
-			if (function->getStorageKind() == StorageKind_Abstract) {
-				err::setFormatStringError("'%s' is abstract", function->getItemName().sz());
-				return false;
-			}
+			if (function->getStorageKind() == StorageKind_Abstract)
+				return err::fail("'%s' is abstract", function->getItemName().sz());
 
 			result = function->getType()->ensureLayout();
 			if (!result)
@@ -444,14 +430,12 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_Field:
-		if (nspace->getNamespaceKind() != NamespaceKind_Type) {
-			err::setFormatStringError(
+		if (nspace->getNamespaceKind() != NamespaceKind_Type)
+			return err::fail(
 				"'%s.%s' cannot be used as expression",
 				nspace->getDeclItem()->getItemName().sz(),
 				name.sz()
 			);
-			return false;
-		}
 
 		result = static_cast<NamedType*>(nspace)->ensureLayout();
 		if (!result)
@@ -473,12 +457,11 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	default:
-		err::setFormatStringError(
+		return err::fail(
 			"'%s.%s' cannot be used as expression",
 			nspace->getDeclItem()->getItemName().sz(),
 			name.sz()
 		);
-		return false;
 	};
 
 	return finalizeMemberOperator(Value(), decl, nspace, resultValue);
@@ -500,10 +483,8 @@ OperatorMgr::getNamedTypeMember(
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item) {
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
-		return false;
-	}
+	if (!findResult.m_item)
+		return err::fail("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
 
 	ModuleItemDecl* decl = NULL;
 	ModuleItem* member = findResult.m_item;
@@ -563,8 +544,7 @@ OperatorMgr::getNamedTypeMember(
 		break;
 
 	default:
-		err::setFormatStringError("invalid member '%s'", member->getItemName().sz());
-		return false;
+		return err::fail("invalid member '%s'", member->getItemName().sz());
 	}
 
 	result = finalizeMemberOperator(opValue, decl, namedType, resultValue);
@@ -578,8 +558,7 @@ OperatorMgr::getNamedTypeMember(
 		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 		if ((member->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			(opValue.getType()->getFlags() & PtrTypeFlag_Event)) {
-			err::setFormatStringError("'%s' is inaccessible via 'event' pointer", name.sz());
-			return false;
+			return err::fail("'%s' is inaccessible via 'event' pointer", name.sz());
 		}
 	}
 
@@ -599,10 +578,8 @@ OperatorMgr::getEnumTypeMember(
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item) {
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), enumType->getTypeString().sz());
-		return false;
-	}
+	if (!findResult.m_item)
+		return err::fail("'%s' is not a member of '%s'", name.sz(), enumType->getTypeString().sz());
 
 	ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_EnumConst);
 	EnumConst* enumConst = (EnumConst*)findResult.m_item;
@@ -723,8 +700,7 @@ OperatorMgr::memberOperator(
 			return getVariantMember(opValue, index, resultValue);
 
 		default:
-			err::setFormatStringError("indexed member operator cannot be applied to '%s'", type->getTypeString().sz());
-			return false;
+			return err::fail("indexed member operator cannot be applied to '%s'", type->getTypeString().sz());
 		}
 
 	case TypeKind_ClassPtr:
@@ -734,8 +710,7 @@ OperatorMgr::memberOperator(
 		return field && getClassField(opValue, (ClassType*)type, field, NULL, resultValue);
 
 	default:
-		err::setFormatStringError("indexed member operator cannot be applied to '%s'", type->getTypeString().sz());
-		return false;
+		return err::fail("indexed member operator cannot be applied to '%s'", type->getTypeString().sz());
 	}
 }
 

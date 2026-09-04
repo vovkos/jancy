@@ -213,8 +213,7 @@ OperatorMgr::construct(
 		break;
 
 	default:
-		err::setFormatStringError("'%s' is not a pointer or reference", type->getTypeString().sz());
-		return false;
+		return err::fail("'%s' is not a pointer or reference", type->getTypeString().sz());
 	}
 
 	Value thisValue;
@@ -242,8 +241,7 @@ OperatorMgr::construct(
 		if (argList->getCount() == 1)
 			return binaryOperator(BinOpKind_Assign, opValue, *argList->getHead());
 
-		err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
-		return false;
+		return err::fail("'%s' has no constructor", type->getTypeString().sz());
 	}
 
 	return true;
@@ -393,8 +391,7 @@ OperatorMgr::parseConstIntegerExpression(
 			return true;
 		}
 
-		err::setError("expression is not integer constant");
-		return false;
+		return err::fail("expression is not integer constant");
 	}
 
 	*integer = 0;
@@ -420,8 +417,7 @@ OperatorMgr::getAutoSizeArrayElementCount(
 		return getAutoSizeArrayElementCount_curly(arrayType, initializerTokenList);
 
 	default:
-		err::setError("invalid initializer for auto-size-array");
-		return -1;
+		return err::fail<size_t>(-1, "invalid initializer for auto-size-array");
 	}
 }
 
@@ -472,7 +468,7 @@ OperatorMgr::getAutoSizeArrayElementCount_curly(
 			return getAutoSizeArrayElementCount_curly(arrayType, tokenList);
 
 		case TokenKind_Error:
-			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
+			err::setError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
 			lex::pushSrcPosError(unit->getFilePath(), token->m_pos);
 			return -1;
 		}
@@ -577,10 +573,8 @@ OperatorMgr::gcHeapAllocate(
 	Value ptrValue;
 
 	if (type->getTypeKind() == TypeKind_Class) {
-		if (type->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable)) {
-			err::setFormatStringError("cannot instantiate '%s'", type->getTypeString().sz());
-			return false;
-		}
+		if (type->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
+			return err::fail("cannot instantiate '%s'", type->getTypeString().sz());
 
 		allocate = m_module->m_functionMgr.getStdFunction(StdFunc_AllocateClass);
 	} else if (!rawElementCountValue) {

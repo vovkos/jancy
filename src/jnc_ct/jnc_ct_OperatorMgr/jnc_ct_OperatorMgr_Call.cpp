@@ -60,10 +60,8 @@ OperatorMgr::closureOperator(
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 ) {
-	if (argValueList->isEmpty()) {
-		err::setError("closure operator without arguments has no effect");
-		return false;
-	}
+	if (argValueList->isEmpty())
+		return err::fail("closure operator without arguments has no effect");
 
 	Value opValue;
 	bool result = prepareOperand(rawOpValue, &opValue);
@@ -71,13 +69,11 @@ OperatorMgr::closureOperator(
 		return false;
 
 	TypeKind typeKind = opValue.getType()->getTypeKind();
-	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr) {
-		err::setFormatStringError(
+	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr)
+		return err::fail(
 			"closure operator cannot be applied to '%s'",
 			opValue.getType()->getTypeString().sz()
 		);
-		return false;
-	}
 
 	*resultValue = opValue;
 
@@ -172,8 +168,7 @@ OperatorMgr::callOperator(
 		if ((opFunc->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			(opValue.getType()->getFlags() & PtrTypeFlag_Event)
 		) {
-			err::setError("'call' is inaccessible via 'event' pointer");
-			return false;
+			return err::fail("'call' is inaccessible via 'event' pointer");
 		}
 
 		Value thisValue;
@@ -232,8 +227,7 @@ OperatorMgr::callOperator(
 			break;
 
 		default:
-			err::setFormatStringError("cannot call '%s'", item->getItemName().sz());
-			return false;
+			return err::fail("cannot call '%s'", item->getItemName().sz());
 		}
 
 		closure = NULL; // template closure carries template type args
@@ -267,10 +261,8 @@ OperatorMgr::callOperator(
 
 	case ValueKind_Namespace: {
 		Namespace* nspace = opValue.getNamespace();
-		if (nspace->getNamespaceKind() != NamespaceKind_Type) {
-			err::setFormatStringError("cannot call '%s'", nspace->getDeclItem()->getItemName().sz());
-			return false;
-		}
+		if (nspace->getNamespaceKind() != NamespaceKind_Type)
+			return err::fail("cannot call '%s'", nspace->getDeclItem()->getItemName().sz());
 
 		NamedType* type = static_cast<NamedType*>(nspace);
 		if (type->getStdType() == StdType_StringStruct) {
@@ -300,8 +292,7 @@ OperatorMgr::callOperator(
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr) ||
 		((FunctionPtrType*)opType)->getPtrKind() == FunctionPtrKind_Weak
 	) {
-		err::setFormatStringError("cannot call '%s'", opType->getTypeString().sz());
-		return false;
+		return err::fail("cannot call '%s'", opType->getTypeString().sz());
 	}
 
 	FunctionPtrType* functionPtrType = (FunctionPtrType*)opValue.getType();
@@ -406,8 +397,7 @@ OperatorMgr::castArgValueList(
 	} else if (isVarArg) {
 		commonArgCount = formalArgCount;
 	} else {
-		err::setFormatStringError("too many arguments in a call to '%s'", functionType->getTypeString().sz());
-		return false;
+		return err::fail("too many arguments in a call to '%s'", functionType->getTypeString().sz());
 	}
 
 	size_t i = 0;
@@ -420,14 +410,12 @@ OperatorMgr::castArgValueList(
 
 		FunctionArg* arg = argArray[i];
 		if (argValue.isEmpty()) {
-			if (!arg->hasInitializer()) {
-				err::setFormatStringError(
+			if (!arg->hasInitializer())
+				return err::fail(
 					"argument (%d) of '%s' has no default value",
 					i + 1,
 					functionType->getTypeString().sz()
 				);
-				return false;
-			}
 
 			result = parseFunctionArgDefaultValue(arg, closure, arg->getInitializer(), &argValue);
 			if (!result)
@@ -450,14 +438,12 @@ OperatorMgr::castArgValueList(
 		Value argValue;
 
 		FunctionArg* arg = argArray[i];
-		if (!arg->hasInitializer()) {
-			err::setFormatStringError(
+		if (!arg->hasInitializer())
+			return err::fail(
 				"argument (%d) of '%s' has no default value",
 				i + 1,
 				functionType->getTypeString().sz()
 			);
-			return false;
-		}
 
 		result = parseFunctionArgDefaultValue(arg, closure, arg->getInitializer(), &argValue);
 		if (!result)
@@ -480,17 +466,13 @@ OperatorMgr::castArgValueList(
 
 	// vararg arguments
 
-	if (!isCdeclVarArg) {
-		err::setError("only 'cdecl' vararg is currently supported");
-		return false;
-	}
+	if (!isCdeclVarArg)
+		return err::fail("only 'cdecl' vararg is currently supported");
 
 	for (; argValueIt; argValueIt++) {
 		Value argValue = *argValueIt;
-		if (argValue.isEmpty()) {
-			err::setError("vararg arguments cannot be skipped");
-			return false;
-		}
+		if (argValue.isEmpty())
+			return err::fail("vararg arguments cannot be skipped");
 
 		Value typeValue;
 		bool result = prepareOperandType(argValue, &typeValue);
@@ -561,10 +543,8 @@ OperatorMgr::callImpl(
 	FunctionType* functionType = ((FunctionPtrType*)pfnValue.getType())->getTargetType();
 	uint_t flags = functionType->getFlags();
 
-	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn()) {
-		err::setError("can only call unsafe functions from unsafe regions");
-		return false;
-	}
+	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn())
+		return err::fail("can only call unsafe functions from unsafe regions");
 
 	bool result = castArgValueList(functionType, pfnValue.getClosure(), argValueList);
 	if (!result)

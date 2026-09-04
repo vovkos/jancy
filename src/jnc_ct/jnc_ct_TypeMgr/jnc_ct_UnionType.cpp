@@ -74,7 +74,7 @@ UnionType::calcLayout() {
 		size_t fieldAlignment = field->m_type->getAlignment();
 
 		if (!(fieldTypeFlags & TypeFlag_Pod)) {
-			err::setFormatStringError("non-POD '%s' cannot be a union member", field->m_type->getTypeString().sz());
+			err::setError("non-POD '%s' cannot be a union member", field->m_type->getTypeString().sz());
 			field->pushSrcPosError();
 			return false;
 		}
@@ -96,7 +96,7 @@ UnionType::calcLayout() {
 	}
 
 	if (!largestFieldType) {
-		err::setFormatStringError("empty union '%s'", getItemName().sz());
+		err::setError("empty union '%s'", getItemName().sz());
 		pushSrcPosError();
 		return false;
 	}
@@ -111,10 +111,8 @@ UnionType::calcLayout() {
 	scanStaticVariables();
 	scanPropertyCtorDtors();
 
-	if (!m_propertyDestructArray.isEmpty()) {
-		err::setError("invalid property destructor in 'union'");
-		return false;
-	}
+	if (!m_propertyDestructArray.isEmpty())
+		return err::fail("invalid property destructor in 'union'");
 
 	result = createDefaultMethods();
 	if (!result)

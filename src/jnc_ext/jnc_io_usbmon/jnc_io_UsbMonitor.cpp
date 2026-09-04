@@ -56,8 +56,7 @@ JNC_CDECL
 UsbMonitor::setKernelBufferSize(size_t size) {
 	if (m_isOpen) {
 #if (_AXL_OS_WIN)
-		err::setError("USBPcap has a bug that leads to BSOD on changing kernel buffer size");
-		return false;
+		return err::fail("USBPcap has a bug that leads to BSOD on changing kernel buffer size");
 #else
 		if (!m_monitor.setKernelBufferSize(size))
 			return false;

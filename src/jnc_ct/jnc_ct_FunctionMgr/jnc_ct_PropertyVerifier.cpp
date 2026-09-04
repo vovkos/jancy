@@ -33,10 +33,8 @@ PropertyVerifier::checkIndexSignature(
 		indexArgArray = functionType->getArgArray();
 	if (functionKind == FunctionKind_Setter) {
 		size_t count = functionType->getArgArray().getCount();
-		if (!count) {
-			err::setError("'set' must have at least one argument");
-			return false;
-		}
+		if (!count)
+			return err::fail("'set' must have at least one argument");
 
 		indexArgArray = sl::ArrayRef<FunctionArg*>(functionType->getArgArray().cp(), count - 1);
 	}
@@ -48,18 +46,14 @@ PropertyVerifier::checkIndexSignature(
 	}
 
 	size_t count = indexArgArray.getCount();
-	if (count != m_indexArgArray.getCount()) {
-		err::setError("index argument count mismatch in property accessors");
-		return false;
-	}
+	if (count != m_indexArgArray.getCount())
+		return err::fail("index argument count mismatch in property accessors");
 
 	for (size_t i = 0; i < count; i++) {
 		Type* type1 = indexArgArray[i]->getItemType();
 		Type* type2 = m_indexArgArray[i]->getItemType();
-		if (!type1->isEqual(type2)) {
-			err::setError("index argument type mismatch in property accessors");
-			return false;
-		}
+		if (!type1->isEqual(type2))
+			return err::fail("index argument type mismatch in property accessors");
 	}
 
 	return true;

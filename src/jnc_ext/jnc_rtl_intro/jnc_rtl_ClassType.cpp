@@ -61,10 +61,8 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 IfaceHdr*
 ClassType::createObject() {
-	if (m_item->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable)) {
-		err::setFormatStringError("cannot instantiate '%s'", m_item->getTypeString().sz());
-		return NULL;
-	}
+	if (m_item->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
+		return err::fail<IfaceHdr*>(NULL, "cannot instantiate '%s'", m_item->getTypeString().sz());
 
 	IfaceHdr* p = jnc::rt::getCurrentThreadRuntime()->getGcHeap()->allocateClass(m_item);
 	OverloadableFunction constructor = m_item->getConstructor();
@@ -87,10 +85,8 @@ ClassType::createObject() {
 		}
 	}
 
-	if (!simpleConstructor) {
-		err::setError("cannot dynamically instantiate classes with non-trivial constructors");
-		return NULL;
-	}
+	if (!simpleConstructor)
+		return err::fail<IfaceHdr*>(NULL, "cannot dynamically instantiate classes with non-trivial constructors");
 
 	callVoidFunction(simpleConstructor, p);
 	return p;

@@ -67,17 +67,13 @@ UsingSet::addNamespaceImpl(
 	NamespaceKind namespaceKind
 ) {
 	Namespace* nspace = item->getNamespace();
-	if (!nspace) {
-		err::setFormatStringError("'%s' is a %s, not a namespace", item->getItemName().sz(), getModuleItemKindString(item->getItemKind()));
-		return false;
-	}
+	if (!nspace)
+		return err::fail("'%s' is a %s, not a namespace", item->getItemName().sz(), getModuleItemKindString(item->getItemKind()));
 
 	if (!namespaceKind)
 		namespaceKind = nspace->getNamespaceKind();
-	else if (namespaceKind != nspace->getNamespaceKind()) {
-		err::setFormatStringError("'%s' is not %s", item->getItemName().sz(), getNamespaceKindString(namespaceKind));
-		return false;
-	}
+	else if (namespaceKind != nspace->getNamespaceKind())
+		return err::fail("'%s' is not %s", item->getItemName().sz(), getNamespaceKindString(namespaceKind));
 
 	switch (namespaceKind) {
 	case NamespaceKind_Global:
@@ -89,8 +85,7 @@ UsingSet::addNamespaceImpl(
 		break;
 
 	default:
-		err::setFormatStringError("invalid using: %s", getNamespaceKindString(namespaceKind));
-		return false;
+		return err::fail("invalid using: %s", getNamespaceKindString(namespaceKind));
 	}
 
 	return true;

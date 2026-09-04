@@ -221,13 +221,11 @@ EnumType::calcLayout() {
 	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		m_baseType->getTypeKind() != TypeKind_TypedefShadow // typedef shadows are for documentation & code-assist
 	) {
-		err::setFormatStringError(
+		return err::fail(
 			"invalid base type %s for %s (must be integer type)",
 			m_baseType->getTypeString().sz(),
 			getTypeString().sz()
 		);
-
-		return false;
 	}
 
 	m_size = m_baseType->getSize();
