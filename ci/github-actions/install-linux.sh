@@ -38,15 +38,8 @@ else
 
 	sudo apt-get install -y g++-multilib
 
-	# CMake fails to properly switch between 32-bit and 64-bit libraries on Ubuntu
-
 	echo "set (OPENSSL_INC_DIR /usr/include/i386-linux-gnu)" >> paths.cmake
-	echo "set (OPENSSL_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
-	echo "set (LUA_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
-	echo "set (PCAP_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
-	echo "set (LIBUSB_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (ZLIB_ROOT /usr/lib/i386-linux-gnu)" >> paths.cmake
-	echo "set (EXPAT_INC_DIR DISABLED)" >> paths.cmake
 fi
 
 sudo apt-get install -y p7zip-full
