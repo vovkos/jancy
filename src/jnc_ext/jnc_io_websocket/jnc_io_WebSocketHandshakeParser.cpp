@@ -205,6 +205,15 @@ WebSocketHandshakeParser::finalize() {
 	if (m_handshake->m_httpVersion < 0x0101) // HTTP/1.1
 		return err::fail("unsupported HTTP version");
 
+	// any response code other than 101 is an ordinary HTTP response
+
+	if (!m_key.isEmpty() && m_handshake->m_statusCode != 101)
+		return err::fail(
+			"failure to switch HTTP protocol: %d %s",
+			m_handshake->m_statusCode,
+			m_handshake->m_reasonPhrase.sz()
+		);
+
 	const WebSocketHandshakeHeader* const* stdHeaderTable = m_handshake->m_headers->getStdHeaderTable();
 
 	bool hasMissingFields = !m_key.isEmpty() ?
@@ -238,14 +247,7 @@ WebSocketHandshakeParser::finalize() {
 bool
 WebSocketHandshakeParser::verifyAccept() {
 	const WebSocketHandshakeHeader* accept = m_handshake->m_headers->getStdHeader(WebSocketHandshakeStdHeader_WebSocketAccept);
-	ASSERT(!m_key.isEmpty() && accept);
-
-	if (m_handshake->m_statusCode != 101)
-		return err::fail(
-			"failure to switch HTTP protocol: %d %s",
-			m_handshake->m_statusCode,
-			m_handshake->m_reasonPhrase.sz()
-		);
+	ASSERT(!m_key.isEmpty() && accept && m_handshake->m_statusCode == 101);
 
 	char buffer[256];
 	sl::Array<char> acceptHash(rc::BufKind_Stack, buffer, sizeof(buffer));
