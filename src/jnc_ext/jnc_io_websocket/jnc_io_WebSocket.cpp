@@ -444,6 +444,10 @@ WebSocket::processIncomingData(
 		WebSocketState prevState = m_stateMachine.getState();
 		size_t result = m_stateMachine.parse(p, end - p);
 		if (result == -1) {
+			// publish whatever was parsed so far for diagnostics
+
+			m_publicHandshakeRequest = m_handshakeRequest;
+			m_publicHandshakeResponse = m_handshakeResponse;
 			setIoErrorEvent();
 			return false;
 		}
