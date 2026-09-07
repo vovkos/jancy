@@ -7,7 +7,7 @@ on:
 jobs:
     windowsBuild:
         name: Windows Build
-        runs-on: windows-2022
+        runs-on: ${{matrix.OS}}
 
         strategy:
             fail-fast: false
@@ -19,10 +19,22 @@ jobs:
                 TARGET_CPU:
                 -   x86
                 -   amd64
+                -   arm64
 
                 LLVM_VERSION:
                 -   llvm-3.4.2
-                -   llvm-20.1.8
+                -   llvm-14.0.6
+
+                include:
+                -   TARGET_CPU: x86
+                    OS:         windows-2022
+                -   TARGET_CPU: amd64
+                    OS:         windows-2022
+                -   TARGET_CPU: arm64
+                    OS:         windows-11-arm
+
+                exclude:
+                -   { LLVM_VERSION: llvm-3.4.2, TARGET_CPU: arm64 }
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
@@ -107,7 +119,7 @@ jobs:
 
     linuxBuild:
         name: Linux Build
-        runs-on: ubuntu-22.04
+        runs-on: ${{matrix.OS}}
 
         strategy:
             fail-fast: false
@@ -119,10 +131,19 @@ jobs:
                 TARGET_CPU:
                 -   x86
                 -   amd64
+                -   arm64
 
                 LLVM_VERSION:
                 -   llvm-12
                 -   llvm-14
+
+                include:
+                -   TARGET_CPU: x86
+                    OS:         ubuntu-24.04
+                -   TARGET_CPU: amd64
+                    OS:         ubuntu-24.04
+                -   TARGET_CPU: arm64
+                    OS:         ubuntu-24.04-arm
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
