@@ -1955,29 +1955,34 @@ StructType*
 TypeMgr::createBoxType() {
 	StructType* type = createInternalStructType("jnc.Box");
 	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
-	type->createField("!m_flags", getPrimitiveType(TypeKind_IntPtr_u));
+	type->createField("!m_flags", getPrimitiveType(TypeKind_Int32_u));
+	type->createField("!m_rootOffset", getPrimitiveType(TypeKind_Int32_u));
+#if (JNC_PTR_SIZE == 4)
+	type->createField("!_m_align64", getPrimitiveType(TypeKind_Int32_u));
+#endif
 	type->ensureLayout();
+	ASSERT(type->getSize() == sizeof(Box));
 	return type;
 }
 
 StructType*
 TypeMgr::createDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DataBox");
-	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
-	type->createField("!m_flags", getPrimitiveType(TypeKind_IntPtr_u));
+	type->createField("!m_box", getStdType(StdType_Box));
 	type->createField("!m_validator", getStdType(StdType_DataPtrValidator));
 	type->ensureLayout();
+	ASSERT(type->getSize() == sizeof(DataBox));
 	return type;
 }
 
 StructType*
 TypeMgr::createDetachedDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DetachedDataBox");
-	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
-	type->createField("!m_flags", getPrimitiveType(TypeKind_IntPtr_u));
+	type->createField("!m_box", getStdType(StdType_Box));
 	type->createField("!m_validator", getStdType(StdType_DataPtrValidator));
 	type->createField("!m_p", getStdType(StdType_ByteThinPtr));
 	type->ensureLayout();
+	ASSERT(type->getSize() == sizeof(DetachedDataBox));
 	return type;
 }
 

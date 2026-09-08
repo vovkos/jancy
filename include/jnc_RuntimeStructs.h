@@ -76,13 +76,10 @@ typedef enum jnc_BoxFlag jnc_BoxFlag;
 
 struct jnc_Box {
 	jnc_Type* m_type;
-
-	uintptr_t m_flags      : 10;
-
-#if (JNC_PTR_BITS == 64)
-	uintptr_t m_rootOffset : 54;
-#else
-	uintptr_t m_rootOffset : 22; // more than enough
+	uint32_t m_flags;
+	uint32_t m_rootOffset;
+#if (JNC_PTR_SIZE == 4)
+	uint32_t _m_align64; // keep it 64-bit aligned
 #endif
 };
 

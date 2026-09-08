@@ -463,7 +463,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 
 	// validator initializer
 
-	llvm::Constant* llvmMemberArray[4]; // this buffer is used twice
+	llvm::Constant* llvmFieldArray[4];
 
 	Value boxPtrValue;
 	m_module->m_llvmIrBuilder.createBitCast(
@@ -474,37 +474,56 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 
 	ASSERT(llvm::isa<llvm::Constant>(boxPtrValue.getLlvmValue()));
 
-	llvmMemberArray[0] = (llvm::Constant*)boxPtrValue.getLlvmValue();
-	llvmMemberArray[1] = (llvm::Constant*)boxPtrValue.getLlvmValue();
-	llvmMemberArray[2] = (llvm::Constant*)variablePtrValue.getLlvmValue();
-	llvmMemberArray[3] = (llvm::Constant*)variableEndPtrValue.getLlvmValue();
+	llvmFieldArray[0] = (llvm::Constant*)boxPtrValue.getLlvmValue();
+	llvmFieldArray[1] = (llvm::Constant*)boxPtrValue.getLlvmValue();
+	llvmFieldArray[2] = (llvm::Constant*)variablePtrValue.getLlvmValue();
+	llvmFieldArray[3] = (llvm::Constant*)variableEndPtrValue.getLlvmValue();
 
 	llvm::Constant* llvmValidatorConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)validatorType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*>(llvmMemberArray, 4)
+		llvm::ArrayRef<llvm::Constant*>(llvmFieldArray, 4)
 	);
 
-	// box initializer
+	// jnc.Box initializer
 
-	uintptr_t flags = BoxFlag_Detached | BoxFlag_Static | BoxFlag_DataMark | BoxFlag_WeakMark;
+	Type* int32uType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32_u);
+	uint32_t flags = BoxFlag_Detached | BoxFlag_Static | BoxFlag_DataMark | BoxFlag_WeakMark;
+	uint32_t rootOffset = 0; // a detached box is its own root
 
-	llvmMemberArray[0] = Value::getLlvmConst(m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &variable->m_type);
-	llvmMemberArray[1] = Value::getLlvmConst(m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u), &flags);
-	llvmMemberArray[2] = llvmValidatorConst;
-	llvmMemberArray[3] = (llvm::Constant*)variablePtrValue.getLlvmValue();
+	llvmFieldArray[0] = Value::getLlvmConst(m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &variable->m_type);
+	llvmFieldArray[1] = Value::getLlvmConst(int32uType, &flags);
+	llvmFieldArray[2] = Value::getLlvmConst(int32uType, &rootOffset);
+#if (JNC_PTR_SIZE == 4)
+	llvmFieldArray[3] = Value::getLlvmConst(int32uType, &rootOffset); // !_m_align64
+#endif
 
 	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get(
-		(llvm::StructType*)boxType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*>(llvmMemberArray, 4)
+		(llvm::StructType*)m_module->m_typeMgr.getStdType(StdType_Box)->getLlvmType(),
+#if (JNC_PTR_SIZE == 4)
+		llvm::ArrayRef<llvm::Constant*>(llvmFieldArray, 4)
+#else
+		llvm::ArrayRef<llvm::Constant*>(llvmFieldArray, 3)
+#endif
 	);
 
-	llvmBoxVariable->setInitializer(llvmBoxConst);
+	// jnc.DetachedDataBox initializer
+
+	llvmFieldArray[0] = llvmBoxConst;
+	llvmFieldArray[1] = llvmValidatorConst;
+	llvmFieldArray[2] = (llvm::Constant*)variablePtrValue.getLlvmValue();
+
+	llvm::Constant* llvmDetachedBoxConst = llvm::ConstantStruct::get(
+		(llvm::StructType*)boxType->getLlvmType(),
+		llvm::ArrayRef<llvm::Constant*>(llvmFieldArray, 3)
+	);
+
+	llvmBoxVariable->setInitializer(llvmDetachedBoxConst);
 
 	Value validatorPtrValue;
 	m_module->m_llvmIrBuilder.createGep2(
 		llvmBoxVariable,
 		boxType,
-		2,
+		1, // !m_validator
 		m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr),
 		&validatorPtrValue
 	);
