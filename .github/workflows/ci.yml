@@ -134,8 +134,8 @@ jobs:
                 -   arm64
 
                 LLVM_VERSION:
-                -   llvm-12
                 -   llvm-14
+                -   llvm-18
 
                 include:
                 -   TARGET_CPU: x86
