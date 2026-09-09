@@ -281,9 +281,9 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                OS:
-                -   macos-15
-                -   macos-15-intel
+                TARGET_CPU:
+                -   amd64
+                -   arm64
 
                 CONFIGURATION:
                 -   Debug
@@ -292,6 +292,12 @@ jobs:
                 LLVM_VERSION:
                 -   llvm@15
                 -   llvm@17
+
+                include:
+                -   TARGET_CPU: amd64
+                    OS:         macos-15-intel
+                -   TARGET_CPU: arm64
+                    OS:         macos-15
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
@@ -374,4 +380,4 @@ jobs:
             env:
                 JANCY_PACKAGE_ID_RSA: ${{secrets.JANCY_PACKAGE_ID_RSA}}
             run: |
-                source ci/github-actions/deploy-package.sh osx-amd64
+                source ci/github-actions/deploy-package.sh osx-${{matrix.TARGET_CPU}}
