@@ -29,6 +29,7 @@ cp ../build/$PACKAGE_FILE ./
 
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git config user.name "GitHub Actions"
+git add $PACKAGE_FILE
 git commit --all --amend --message "GitHub Actions auto-deploy for: $GITHUB_SHA"
 git push --force
 popd
