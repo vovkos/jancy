@@ -345,7 +345,7 @@ HidRd::clear() {
 		size_t count = reportArray.getCount();
 		for (size_t j = 0; j < count; j++) {
 			HidReport* report = reportArray[j];
-			if (!(report->m_box->m_flags & jnc::BoxFlag_Destructed))
+			if (!(report->m_box->m_flags & jnc::BoxFlag_Destructing))
 				report->detach();
 		}
 
@@ -354,20 +354,20 @@ HidRd::clear() {
 
 	sl::MapIterator<const axl::io::HidReport*, HidReport*> it = m_reportMap.getHead();
 	for (; it; it++)
-		if (!(it->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+		if (!(it->m_value->m_box->m_flags & jnc::BoxFlag_Destructing))
 			it->m_value->detach();
 
 	sl::MapIterator<const axl::io::HidReportField*, HidReportField*> it2 = m_fieldMap.getHead();
 	for (; it2; it2++)
-		if (!(it2->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+		if (!(it2->m_value->m_box->m_flags & jnc::BoxFlag_Destructing))
 			it2->m_value->detach();
 
 	sl::MapIterator<const axl::io::HidRdCollection*, HidRdCollection*> it3 = m_collectionMap.getHead();
 	for (; it3; it3++)
-		if (!(it3->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+		if (!(it3->m_value->m_box->m_flags & jnc::BoxFlag_Destructing))
 			it3->m_value->detach();
 
-	if (!(m_rootCollection->m_box->m_flags & jnc::BoxFlag_Destructed))
+	if (!(m_rootCollection->m_box->m_flags & jnc::BoxFlag_Destructing))
 		m_rootCollection->detach();
 
 	m_reportMap.clear();

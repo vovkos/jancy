@@ -47,6 +47,7 @@ protected:
 
 	sl::Array<Function*> m_vtable;
 	Variable* m_vtableVariable;
+	Function* m_disposer;
 
 	ClassPtrTypeTuple* m_classPtrTypeTuple;
 	const OpaqueClassTypeInfo* m_opaqueClassTypeInfo;
@@ -132,6 +133,11 @@ public:
 	Variable*
 	getVtableVariable() {
 		return m_vtableVariable;
+	}
+
+	Function*
+	getDisposer() const {
+		return m_disposer;
 	}
 
 	virtual
@@ -226,6 +232,7 @@ ClassType::ClassType() {
 	m_vtableStructType = NULL;
 	m_classPtrTypeTuple = NULL;
 	m_vtableVariable = NULL;
+	m_disposer = NULL;
 	m_opaqueClassTypeInfo = NULL;
 	m_constructorThinThisFlag = 0;
 }

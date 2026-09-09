@@ -189,7 +189,7 @@ HidDb::clear() {
 
 	sl::MapIterator<uint_t, HidUsagePage*> it = m_usagePageMap.getHead();
 	for (; it; it++)
-		if (!(it->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+		if (!(it->m_value->m_box->m_flags & jnc::BoxFlag_Destructing))
 			it->m_value->detach();
 
 	m_usagePageMap.clear();

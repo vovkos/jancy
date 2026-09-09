@@ -769,7 +769,7 @@ GcHeap::finalizeShutdown() {
 		!m_noCollectMutatorThreadCount &&
 		!m_waitingMutatorThreadCount &&
 		m_staticDestructorList.isEmpty() &&
-		m_dynamicDestructArray.isEmpty() &&
+		m_destructArray.isEmpty() &&
 		m_allocBoxArray.isEmpty() &&
 		m_classBoxArray.isEmpty()
 	);
@@ -784,7 +784,7 @@ GcHeap::finalizeShutdown() {
 	m_waitingMutatorThreadCount = 0;
 
 	m_staticDestructorList.clear();
-	m_dynamicDestructArray.clear();
+	m_destructArray.clear();
 	m_allocBoxArray.clear();
 	m_classBoxArray.clear();
 #if (_JNC_TRACK_FOREIGN_DATA)
@@ -1045,22 +1045,32 @@ GcHeap::markString(const String& string) {
 
 void
 GcHeap::markClass(Box* box) {
+	if (m_state == State_MarkDisposeCandidates)
+		markClassImpl<BoxFlag_ClassMark>(box);
+	else
+		markClassImpl<BoxFlag_DisposeMark>(box);
+}
+
+template <BoxFlag Flag>
+void
+GcHeap::markClassImpl(Box* box) {
 	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
 
-	if (box->m_flags & BoxFlag_ClassMark)
+	if (box->m_flags & Flag)
 		return;
 
 	ASSERT(!(box->m_flags & BoxFlag_Static)); // statics are always marked
 
 	weakMark(box);
-	markClassFields((ClassType*)box->m_type, (IfaceHdr*)(box + 1));
+	markClassFields<Flag>((ClassType*)box->m_type, (IfaceHdr*)(box + 1));
 
-	box->m_flags |= BoxFlag_ClassMark | BoxFlag_DataMark;
+	box->m_flags |= Flag | BoxFlag_ClassMark | BoxFlag_DataMark;
 
 	if ((box->m_type->getFlags() & TypeFlag_GcRoot) && !(box->m_flags & BoxFlag_Invalid))
 		addRoot(box, box->m_type);
 }
 
+template <BoxFlag Flag>
 void
 GcHeap::markClassFields(
 	ClassType* type,
@@ -1074,7 +1084,7 @@ GcHeap::markClassFields(
 	size_t count = classBaseTypeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		ct::BaseTypeSlot* slot = classBaseTypeArray[i];
-		markClassFields((ClassType*)slot->getType(), (IfaceHdr*)(p + slot->getOffset()));
+		markClassFields<Flag>((ClassType*)slot->getType(), (IfaceHdr*)(p + slot->getOffset()));
 	}
 
 	// mark class fields in this class
@@ -1087,11 +1097,11 @@ GcHeap::markClassFields(
 		ASSERT(fieldBox->m_type == field->getType());
 		ASSERT(fieldBox->m_type->getTypeKind() == TypeKind_Class);
 
-		if (fieldBox->m_flags & BoxFlag_ClassMark)
+		if (fieldBox->m_flags & Flag)
 			continue;
 
-		fieldBox->m_flags |= BoxFlag_ClassMark | BoxFlag_DataMark | BoxFlag_WeakMark;
-		markClassFields((ClassType*)fieldBox->m_type, (IfaceHdr*)(fieldBox + 1));
+		fieldBox->m_flags |= Flag | BoxFlag_ClassMark | BoxFlag_DataMark | BoxFlag_WeakMark;
+		markClassFields<Flag>((ClassType*)fieldBox->m_type, (IfaceHdr*)(fieldBox + 1));
 	}
 }
 
@@ -1137,7 +1147,7 @@ GcHeap::addRoot(
 	const void* p,
 	ct::Type* type
 ) {
-	ASSERT(m_state == State_Mark && p);
+	ASSERT(p && (m_state == State_Mark || m_state == State_MarkDisposeCandidates));
 
 	if (type->getFlags() & TypeFlag_GcRoot) {
 		Root root = { p, type };
@@ -1411,6 +1421,12 @@ GcHeap::collect_l(bool isMutatorThread) {
 			weakMark(thread->m_foreignDataBoxPoolBegin->m_validator.m_validatorBox);
 	}
 
+	// add pending disposals
+
+	sl::ConstHashTableIterator<IfaceHdr*, bool> it = m_disposeMap.getHead();
+	for (; it; it++)
+		markClass(it->getKey()->m_box);
+
 	// run mark cycle
 
 	runMarkCycle();
@@ -1419,42 +1435,68 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	// schedule destruction for unmarked class boxes
 
-	sl::Array<IfaceHdr*> destructArray;
+	sl::Array<IfaceHdr*> disposeArray;
 
 	size_t dstIdx = 0;
 	count = m_destructibleClassBoxArray.getCount();
 	sl::Array<Box*>::Rwi rwi = m_destructibleClassBoxArray;
 	for (size_t i = 0; i < count; i++) {
 		Box* box = rwi[i];
-		ASSERT(!(box->m_flags & BoxFlag_Destructed) && ((ct::ClassType*)box->m_type)->getDestructor());
+		ASSERT(!(box->m_flags & BoxFlag_Destructing));
 
 		if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark)) {
 			rwi[dstIdx++] = box;
+			continue;
+		}
+
+		ClassType* type = (ct::ClassType*)box->m_type;
+		IfaceHdr* iface = (IfaceHdr*)(box + 1);
+		ASSERT(type->getDestructor() && iface->m_box == box);
+
+		if (type->getDisposer()) {
+			rwi[dstIdx++] = box;
+			disposeArray.append(iface);
 		} else {
-			IfaceHdr* iface = (IfaceHdr*)(box + 1);
-			ASSERT(iface->m_box == box);
-
-			box->m_flags |= BoxFlag_Destructed;
-			destructArray.append(iface);
-
+			box->m_flags |= BoxFlag_Destructing;
+			m_destructArray.append(iface);
 			JNC_TRACE_GC_DESTRUCT("GcHeap::collect_l: scheduling destruction of %s(%p)...\n", box->m_type->getTypeString().sz(), iface);
 		}
 	}
 
 	m_destructibleClassBoxArray.setCount(dstIdx);
 
-	if (!destructArray.isEmpty())
-		m_dynamicDestructArray.append(destructArray);
+	// mark all class boxes scheduled for disposal and unschedulue dependencies
 
-	// mark all class boxes scheduled for destruction
+	if (!disposeArray.isEmpty()) {
+		size_t count = disposeArray.getCount();
+		for (size_t i = 0; i < count; i++)
+			markClass(disposeArray[i]->m_box);
 
-	if (!m_dynamicDestructArray.isEmpty()) {
-		size_t count = m_dynamicDestructArray.getCount();
-		IfaceHdr* const* iface = m_dynamicDestructArray;
+		m_state = State_MarkDisposeCandidates;
+		runMarkCycle();
 
-		for (size_t i = 0; i < count; i++, iface++)
-			markClass((*iface)->m_box);
+		size_t prevCount = m_disposeMap.getCount();
 
+		for (size_t i = 0; i < count; i++) {
+			IfaceHdr* iface = disposeArray[i];
+			if (!(iface->m_box->m_flags & BoxFlag_DisposeMark))
+				m_disposeMap[iface] = true;
+		}
+
+		if (prevCount == m_disposeMap.getCount()) {
+			TRACE("-- WARNING: loop of disposable classes detected\n");
+			AXL_TODO("probably add them to some leak array?")
+		}
+	}
+
+	// mark all class boxes scheduled for disposal or destruction
+
+	if (!m_destructArray.isEmpty()) {
+		size_t count = m_destructArray.getCount();
+		for (size_t i = 0; i < count; i++)
+			markClass(m_destructArray[i]->m_box);
+
+		m_state = State_Mark;
 		runMarkCycle();
 	}
 
@@ -1516,7 +1558,7 @@ GcHeap::collect_l(bool isMutatorThread) {
 			it->m_value.m_typeString = it->getKey().sz();
 			it->m_value.m_count++;
 			it->m_value.m_size += size;
-			if (box->m_flags & BoxFlag_Destructed) {
+			if (box->m_flags & BoxFlag_Destructing) {
 				it->m_value.m_destructCount++;
 				it->m_value.m_destructSize += size;
 			}
@@ -1558,7 +1600,7 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 		s.format("Total: %d (%d B)\n", dstIdx, allocSize);
 		m_allocTopFile.write(s.cp(), s.getLength());
-		s.format("To destruct: %d\n\n", m_dynamicDestructArray.getCount());
+		s.format("To destruct: %d\n\n", m_destructArray.getCount());
 		m_allocTopFile.write(s.cp(), s.getLength());
 
 		for (size_t i = 0; i < allocTopCount; i++) {
@@ -1594,7 +1636,7 @@ GcHeap::collect_l(bool isMutatorThread) {
 	m_stats.m_lastCollectTimeTaken = sys::getTimestamp() - m_stats.m_lastCollectTime;
 	m_stats.m_totalCollectTimeTaken += m_stats.m_lastCollectTimeTaken;
 
-	if (!m_dynamicDestructArray.isEmpty())
+	if (!m_destructArray.isEmpty())
 		m_destructEvent.signal();
 
 	m_idleEvent.signal();
@@ -1665,8 +1707,8 @@ GcHeap::runMarkCycle() {
 
 void
 GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
-	while (!m_dynamicDestructArray.isEmpty()) {
-		destructBuffer->forceCopy(m_dynamicDestructArray);
+	while (!m_destructArray.isEmpty()) {
+		destructBuffer->forceCopy(m_destructArray);
 		m_lock.unlock();
 
 		size_t count = destructBuffer->getCount();
@@ -1708,8 +1750,8 @@ GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
 
 		waitIdleAndLock();
 
-		ASSERT(m_dynamicDestructArray.getCount() >= count);
-		m_dynamicDestructArray.remove(0, count);
+		ASSERT(m_destructArray.getCount() >= count);
+		m_destructArray.remove(0, count);
 	}
 }
 

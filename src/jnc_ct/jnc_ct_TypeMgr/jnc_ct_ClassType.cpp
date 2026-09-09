@@ -441,6 +441,19 @@ ClassType::calcLayout() {
 	if (!result)
 		return false;
 
+	// assign class disposer
+
+	FindModuleItemResult findResult = findDirectChildItem(AXL_STR("dispose"));
+	if (findDirectChildItem(AXL_STR("dispose")).m_item) {
+		Function* function = (Function*)findResult.m_item;
+		if (function->getItemKind() != ModuleItemKind_Function ||
+			function->getStorageKind() != StorageKind_Member
+		)
+			return err::fail("'dispose' must be a non-virtual method");
+
+		m_disposer = function;
+	}
+
 	m_size = m_classStructType->getSize();
 	m_alignment = m_classStructType->getAlignment();
 	return true;
@@ -602,6 +615,9 @@ ClassType::ensureClassFieldsCreatable() {
 bool
 ClassType::prepareForOperatorNew() {
 	ASSERT(m_flags & TypeFlag_LayoutReady);
+
+	if (m_disposer)
+		m_disposer->require();
 
 	if (m_destructor)
 		m_destructor->require();

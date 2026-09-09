@@ -58,16 +58,17 @@ typedef struct jnc_CallSite jnc_CallSite;
 
 enum jnc_BoxFlag {
 	jnc_BoxFlag_WeakMark        = 0x0001,
-	jnc_BoxFlag_ClosureWeakMark = 0x0002,
-	jnc_BoxFlag_DataMark        = 0x0004,
-	jnc_BoxFlag_ClassMark       = 0x0008,
-	jnc_BoxFlag_Destructed      = 0x0010,
-	jnc_BoxFlag_Static          = 0x0020,
-	jnc_BoxFlag_DynamicArray    = 0x0040,
-	jnc_BoxFlag_Detached        = 0x0080,
-	jnc_BoxFlag_CallSiteLocal   = 0x0100,
-	jnc_BoxFlag_Invalid         = 0x0200,
-	jnc_BoxFlag_MarkMask        = 0x000f,
+	jnc_BoxFlag_DataMark        = 0x0002,
+	jnc_BoxFlag_ClassMark       = 0x0004,
+	jnc_BoxFlag_ClosureWeakMark = 0x0008,
+	jnc_BoxFlag_DisposeMark     = 0x0010,
+	jnc_BoxFlag_Destructing     = 0x0020,
+	jnc_BoxFlag_Invalid         = 0x0040,
+	jnc_BoxFlag_Static          = 0x0080,
+	jnc_BoxFlag_DynamicArray    = 0x0100,
+	jnc_BoxFlag_Detached        = 0x0200,
+	jnc_BoxFlag_CallSiteLocal   = 0x0400,
+	jnc_BoxFlag_MarkMask        = 0x001f,
 };
 
 typedef enum jnc_BoxFlag jnc_BoxFlag;
@@ -381,15 +382,16 @@ typedef jnc_BoxFlag BoxFlag;
 
 const BoxFlag
 	BoxFlag_WeakMark        = jnc_BoxFlag_WeakMark,
-	BoxFlag_ClosureWeakMark = jnc_BoxFlag_ClosureWeakMark,
 	BoxFlag_DataMark        = jnc_BoxFlag_DataMark,
 	BoxFlag_ClassMark       = jnc_BoxFlag_ClassMark,
-	BoxFlag_Destructed      = jnc_BoxFlag_Destructed,
+	BoxFlag_ClosureWeakMark = jnc_BoxFlag_ClosureWeakMark,
+	BoxFlag_DisposeMark     = jnc_BoxFlag_DisposeMark,
+	BoxFlag_Destructing     = jnc_BoxFlag_Destructing,
+	BoxFlag_Invalid         = jnc_BoxFlag_Invalid,
 	BoxFlag_Static          = jnc_BoxFlag_Static,
 	BoxFlag_DynamicArray    = jnc_BoxFlag_DynamicArray,
 	BoxFlag_Detached        = jnc_BoxFlag_Detached,
 	BoxFlag_CallSiteLocal   = jnc_BoxFlag_CallSiteLocal,
-	BoxFlag_Invalid         = jnc_BoxFlag_Invalid,
 	BoxFlag_MarkMask        = jnc_BoxFlag_MarkMask;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
