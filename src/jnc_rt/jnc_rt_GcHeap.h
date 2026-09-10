@@ -29,6 +29,7 @@ protected:
 		State_Idle,
 		State_StopTheWorld,
 		State_Mark,
+		State_BuildDestructGraph,
 		State_Sweep,
 		State_ResumeTheWorld,
 	};
@@ -40,7 +41,27 @@ protected:
 		Flag_Abort                   = 0x10,
 	};
 
+	// we do our best to sort destructibles in a topological order
+
+	struct DestructGraphNode {
+		Box* m_box;
+		size_t m_index;
+		sl::Array<DestructGraphNode*> m_outEdgeArray;
+
+		DestructGraphNode(
+			Box* box,
+			size_t index
+		);
+
+		void
+		addEdge(DestructGraphNode* node) {
+			if (node != this) // skip self-references
+				m_outEdgeArray.append(node);
+		}
+	};
+
 	struct Root {
+		DestructGraphNode* m_parent; // for building destruct graph
 		const void* m_p;
 		ct::Type* m_type;
 	};
@@ -91,7 +112,14 @@ protected:
 	GcStats m_stats;
 	sys::NotificationEvent m_idleEvent;
 	sl::List<StaticDestructor> m_staticDestructorList;
-	sl::Array<IfaceHdr*> m_destructArray;
+	sl::Array<IfaceHdr*> m_destructArray; // main destruct queue
+
+	// destruct graph
+
+	sl::AutoPtrArray<DestructGraphNode> m_destructGraph;
+	size_t m_destructGraphCandidateCount;
+	sl::SimpleHashTable<Box*, DestructGraphNode*> m_destructGraphNodeMap; // backup for index overflow
+	DestructGraphNode* m_currentDestructGraphNode;
 
 	DestructThread m_destructThread;
 
@@ -381,6 +409,15 @@ public:
 	addRoot(
 		const void* p,
 		ct::Type* type
+	) {
+		addRoot(m_currentDestructGraphNode, p, type);
+	}
+
+	void
+	addRoot(
+		DestructGraphNode* parent,
+		const void* p,
+		ct::Type* type
 	);
 
 	void
@@ -388,10 +425,17 @@ public:
 		const void* p,
 		ct::Type* type,
 		size_t count
-	);
+	) {
+		addRootArray(m_currentDestructGraphNode, p, type, count);
+	}
 
 	void
-	handleGuardPageHit(GcMutatorThread* thread);
+	addRootArray(
+		DestructGraphNode* parent,
+		const void* p,
+		ct::Type* type,
+		size_t count
+	);
 
 	static
 	bool
@@ -400,7 +444,13 @@ public:
 	void
 	addShadowStackFrame(GcShadowStackFrame* frame);
 
+	void
+	handleGuardPageHit(GcMutatorThread* thread);
+
 protected:
+	DestructGraphNode*
+	getDestructGraphNode(Box* box);
+
 	void
 	destructThreadFunc();
 
@@ -473,6 +523,7 @@ protected:
 
 	void
 	markClassFields(
+		DestructGraphNode* parent,
 		ClassType* type,
 		IfaceHdr* ifaceHdr
 	);
@@ -494,6 +545,15 @@ protected:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+GcHeap::DestructGraphNode::DestructGraphNode(
+	Box* box,
+	size_t index
+) {
+	m_box = box;
+	m_index = index;
+}
 
 inline
 void

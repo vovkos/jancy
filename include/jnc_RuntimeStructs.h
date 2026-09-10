@@ -67,6 +67,8 @@ enum jnc_BoxFlag {
 	jnc_BoxFlag_DynamicArray    = 0x0080,
 	jnc_BoxFlag_Detached        = 0x0100,
 	jnc_BoxFlag_CallSiteLocal   = 0x0200,
+	jnc_BoxFlag_Index           = 0x0400,
+	jnc_BoxFlag_Map             = 0x0800,
 	jnc_BoxFlag_MarkMask        = 0x000f,
 };
 
@@ -76,11 +78,18 @@ typedef enum jnc_BoxFlag jnc_BoxFlag;
 
 struct jnc_Box {
 	jnc_Type* m_type;
-	uint32_t m_flags;
+	uint32_t m_flags : 12;
+	uint32_t m_index : 20;
 	uint32_t m_rootOffset;
 #if (JNC_PTR_SIZE == 4)
 	uint32_t _m_align64; // keep it 64-bit aligned
 #endif
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum {
+	jnc_BoxIndexLimit = 1 << 20,
 };
 
 //..............................................................................
@@ -390,7 +399,15 @@ const BoxFlag
 	BoxFlag_DynamicArray    = jnc_BoxFlag_DynamicArray,
 	BoxFlag_Detached        = jnc_BoxFlag_Detached,
 	BoxFlag_CallSiteLocal   = jnc_BoxFlag_CallSiteLocal,
+	BoxFlag_Index           = jnc_BoxFlag_Index,
+	BoxFlag_Map             = jnc_BoxFlag_Map,
 	BoxFlag_MarkMask        = jnc_BoxFlag_MarkMask;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum {
+	BoxIndexLimit = jnc_BoxIndexLimit,
+};
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
