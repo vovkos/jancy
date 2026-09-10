@@ -29,7 +29,6 @@ protected:
 		State_Idle,
 		State_StopTheWorld,
 		State_Mark,
-		State_MarkDisposeCandidates,
 		State_Sweep,
 		State_ResumeTheWorld,
 	};
@@ -92,7 +91,6 @@ protected:
 	GcStats m_stats;
 	sys::NotificationEvent m_idleEvent;
 	sl::List<StaticDestructor> m_staticDestructorList;
-	sl::SimpleHashTable<IfaceHdr*, bool> m_disposeMap;
 	sl::Array<IfaceHdr*> m_destructArray;
 
 	DestructThread m_destructThread;
@@ -473,11 +471,6 @@ protected:
 		IfaceHdr* ifaceHdr
 	);
 
-	template <BoxFlag Flag>
-	void
-	markClassImpl(Box* box);
-
-	template <BoxFlag Flag>
 	void
 	markClassFields(
 		ClassType* type,
