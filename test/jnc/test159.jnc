@@ -1,0 +1,255 @@
+// destruct order: the GC topologically sorts destructibles, so an owner is
+// always destructed before anything it can reach
+
+int g_seq;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 1. owner -> separately allocated child
+//
+// the child is allocated inside the owner's constructor, so it is registered
+// (and destructed, without sorting) *after* the owner -- the exact shape that
+// used to destruct the child first
+
+int g_ownerSeq;
+int g_childSeq;
+
+class Child {
+	destruct() {
+		g_childSeq = ++g_seq;
+	}
+}
+
+class Owner {
+	Child* m_child;
+
+	construct() {
+		m_child = new Child;
+	}
+
+	destruct() {
+		g_ownerSeq = ++g_seq;
+	}
+}
+
+void createOwner() {
+	Owner* owner = new Owner;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 2. chain a -> b -> c
+
+int g_aSeq;
+int g_bSeq;
+int g_cSeq;
+
+class C {
+	destruct() {
+		g_cSeq = ++g_seq;
+	}
+}
+
+class B {
+	C* m_c;
+
+	construct() {
+		m_c = new C;
+	}
+
+	destruct() {
+		g_bSeq = ++g_seq;
+	}
+}
+
+class A {
+	B* m_b;
+
+	construct() {
+		m_b = new B;
+	}
+
+	destruct() {
+		g_aSeq = ++g_seq;
+	}
+}
+
+void createChain() {
+	A* a = new A;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 3. diamond: top -> left, top -> right, left -> bottom, right -> bottom
+
+int g_topSeq;
+int g_leftSeq;
+int g_rightSeq;
+int g_bottomSeq;
+
+class Bottom {
+	destruct() {
+		g_bottomSeq = ++g_seq;
+	}
+}
+
+class Left {
+	Bottom* m_bottom;
+
+	destruct() {
+		g_leftSeq = ++g_seq;
+	}
+}
+
+class Right {
+	Bottom* m_bottom;
+
+	destruct() {
+		g_rightSeq = ++g_seq;
+	}
+}
+
+class Top {
+	Left* m_left;
+	Right* m_right;
+
+	construct() {
+		Bottom* bottom = new Bottom;
+		m_left = new Left;
+		m_right = new Right;
+		m_left.m_bottom = bottom;
+		m_right.m_bottom = bottom;
+	}
+
+	destruct() {
+		g_topSeq = ++g_seq;
+	}
+}
+
+void createDiamond() {
+	Top* top = new Top;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 4. unrelated objects keep the legacy newest-first order
+
+int g_firstSeq;
+int g_secondSeq;
+
+class First {
+	destruct() {
+		g_firstSeq = ++g_seq;
+	}
+}
+
+class Second {
+	destruct() {
+		g_secondSeq = ++g_seq;
+	}
+}
+
+void createUnrelated() {
+	First* first = new First;
+	Second* second = new Second;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 5. embedded class field box -- the owner box is registered after its fields
+
+int g_holderSeq;
+int g_fieldSeq;
+
+class Field {
+	destruct() {
+		g_fieldSeq = ++g_seq;
+	}
+}
+
+class Holder {
+	Field m_field;
+
+	destruct() {
+		g_holderSeq = ++g_seq;
+	}
+}
+
+void createHolder() {
+	Holder* holder = new Holder;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 6. a weak back-pointer breaks what would otherwise be a destruct loop
+
+int g_headSeq;
+int g_tailSeq;
+
+class Tail {
+	Head weak* m_head; // weak -- no ordering edge, no loop
+
+	destruct() {
+		g_tailSeq = ++g_seq;
+	}
+}
+
+class Head {
+	Tail* m_tail;
+
+	construct() {
+		m_tail = new Tail;
+		m_tail.m_head = this;
+	}
+
+	destruct() {
+		g_headSeq = ++g_seq;
+	}
+}
+
+void createWeakLoop() {
+	Head* head = new Head;
+}
+
+//..............................................................................
+
+int main() {
+	createOwner();
+	createChain();
+	createDiamond();
+	createUnrelated();
+	createHolder();
+	createWeakLoop();
+
+	printf("collecting...\n");
+	jnc.collectGarbage();
+	sys.sleep(250); // enough for the destruct thread to drain the queue
+	printf("collect completed (%d destructors)\n", g_seq);
+
+	// everything must be gone
+
+	assert(g_seq == 15);
+
+	// 1. owner before child
+
+	assert(g_ownerSeq < g_childSeq);
+
+	// 2. chain, top-down
+
+	assert(g_aSeq < g_bSeq && g_bSeq < g_cSeq);
+
+	// 3. diamond: top first, bottom last; the two middles are unordered
+
+	assert(g_topSeq < g_leftSeq && g_topSeq < g_rightSeq);
+	assert(g_leftSeq < g_bottomSeq && g_rightSeq < g_bottomSeq);
+
+	// 4. no constraint between them -- newest allocated goes first
+
+	assert(g_secondSeq < g_firstSeq);
+
+	// 5. holder before its embedded field box
+
+	assert(g_holderSeq < g_fieldSeq);
+
+	// 6. the weak edge imposes nothing, so the normal one decides
+
+	assert(g_headSeq < g_tailSeq);
+
+	return 0;
+}
+
+//..............................................................................

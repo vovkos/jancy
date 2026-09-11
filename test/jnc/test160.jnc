@@ -1,0 +1,190 @@
+// destruct loops: a cycle of destructibles has no topological order, so the GC
+// warns and falls back to an arbitrary one -- but it must still destruct every
+// participant exactly once, and must not hang or drop anyone
+
+int g_seq;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 1. two-node loop: a <-> b
+
+int g_aSeq;
+int g_bSeq;
+
+class LoopB {
+	LoopA* m_a;
+
+	destruct() {
+		g_bSeq = ++g_seq;
+	}
+}
+
+class LoopA {
+	LoopB* m_b;
+
+	construct() {
+		m_b = new LoopB;
+		m_b.m_a = this;
+	}
+
+	destruct() {
+		g_aSeq = ++g_seq;
+	}
+}
+
+void createLoop2() {
+	LoopA* a = new LoopA;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 2. three-node loop: x -> y -> z -> x
+
+int g_xSeq;
+int g_ySeq;
+int g_zSeq;
+
+class RingZ {
+	RingX* m_x;
+
+	destruct() {
+		g_zSeq = ++g_seq;
+	}
+}
+
+class RingY {
+	RingZ* m_z;
+
+	destruct() {
+		g_ySeq = ++g_seq;
+	}
+}
+
+class RingX {
+	RingY* m_y;
+
+	construct() {
+		m_y = new RingY;
+		m_y.m_z = new RingZ;
+		m_y.m_z.m_x = this;
+	}
+
+	destruct() {
+		g_xSeq = ++g_seq;
+	}
+}
+
+void createLoop3() {
+	RingX* x = new RingX;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 3. an owner hanging off a loop -- the owner is NOT part of the cycle, so its
+// order relative to the cycle must still be honoured
+
+int g_ownerSeq;
+int g_pSeq;
+int g_qSeq;
+
+class LoopQ {
+	LoopP* m_p;
+
+	destruct() {
+		g_qSeq = ++g_seq;
+	}
+}
+
+class LoopP {
+	LoopQ* m_q;
+
+	destruct() {
+		g_pSeq = ++g_seq;
+	}
+}
+
+class LoopOwner {
+	LoopP* m_p;
+
+	construct() {
+		m_p = new LoopP;
+		m_p.m_q = new LoopQ;
+		m_p.m_q.m_p = m_p;
+	}
+
+	destruct() {
+		g_ownerSeq = ++g_seq;
+	}
+}
+
+void createLoopWithOwner() {
+	LoopOwner* owner = new LoopOwner;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// 4. a loop that is pure plumbing -- neither node has a destructor, so it forms
+// a component with no destructibles at all (the emit path must skip it)
+
+class PlumbingB {
+	PlumbingA* m_a;
+}
+
+class PlumbingA {
+	PlumbingB* m_b;
+}
+
+int g_plumbingOwnerSeq;
+
+class PlumbingOwner {
+	PlumbingA* m_a;
+
+	construct() {
+		m_a = new PlumbingA;
+		m_a.m_b = new PlumbingB;
+		m_a.m_b.m_a = m_a;
+	}
+
+	destruct() {
+		g_plumbingOwnerSeq = ++g_seq;
+	}
+}
+
+void createPlumbingLoop() {
+	PlumbingOwner* owner = new PlumbingOwner;
+}
+
+//..............................................................................
+
+int main() {
+	createLoop2();
+	createLoop3();
+	createLoopWithOwner();
+	createPlumbingLoop();
+
+	printf("collecting (expect destruct loop warnings)...\n");
+	jnc.collectGarbage();
+	sys.sleep(250); // enough for the destruct thread to drain the queue
+	printf("collect completed (%d destructors)\n", g_seq);
+
+	// nobody may be dropped, and nobody may run twice
+
+	assert(g_seq == 9);
+
+	// 1. both loop members ran; the order between them is unspecified
+
+	assert(g_aSeq != 0 && g_bSeq != 0);
+
+	// 2. all three ring members ran
+
+	assert(g_xSeq != 0 && g_ySeq != 0 && g_zSeq != 0);
+
+	// 3. the owner is outside the cycle, so it must still go first
+
+	assert(g_ownerSeq != 0 && g_pSeq != 0 && g_qSeq != 0);
+	assert(g_ownerSeq < g_pSeq && g_ownerSeq < g_qSeq);
+
+	// 4. a destructor-less loop must not confuse the emit path
+
+	assert(g_plumbingOwnerSeq != 0);
+
+	return 0;
+}
+
+//..............................................................................

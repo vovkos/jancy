@@ -248,6 +248,7 @@ DestructGraph::emit(sl::Array<IfaceHdr*>* destructArray) {
 				*dst++ = (IfaceHdr*)(box + 1);
 				TRACE("    %s\n", box->m_type->getTypeString().sz());
 			}
+
 			break;
 		}
 	}
