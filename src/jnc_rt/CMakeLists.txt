@@ -18,6 +18,7 @@ set(
 	jnc_rt_ExceptionMgr.h
 	jnc_rt_Runtime.h
 	jnc_rt_GcHeap.h
+	jnc_rt_DestructGraph.h
 	jnc_rt_Event.h
 )
 
@@ -26,6 +27,7 @@ set(
 	jnc_rt_ExceptionMgr.cpp
 	jnc_rt_Runtime.cpp
 	jnc_rt_GcHeap.cpp
+	jnc_rt_DestructGraph.cpp
 )
 
 source_group(

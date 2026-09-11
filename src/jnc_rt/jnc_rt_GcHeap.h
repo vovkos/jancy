@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_GcHeap.h"
+#include "jnc_rt_DestructGraph.h"
 #include "jnc_Type.h"
 #include "jnc_Variant.h"
 
@@ -24,6 +25,8 @@ namespace rt {
 //..............................................................................
 
 class GcHeap {
+	friend class DestructGraph;
+
 protected:
 	enum State {
 		State_Idle,
@@ -39,39 +42,6 @@ protected:
 		Flag_ShuttingDown            = 0x02,
 		Flag_TerminateDestructThread = 0x04,
 		Flag_Abort                   = 0x10,
-	};
-
-	// we do our best to sort destructibles in a topological order
-
-	struct DestructGraphNode {
-		Box* m_box;
-		uint32_t m_index;
-
-		DestructGraphNode(
-			Box* box,
-			uint32_t index
-		);
-	};
-
-	struct DestructGraphEdge {
-		uint32_t m_srcIdx;
-		uint32_t m_dstIdx;
-
-		DestructGraphEdge() {
-			m_srcIdx = m_dstIdx = 0;
-		}
-
-		DestructGraphEdge(
-			uint32_t srcIdx,
-			uint32_t dstIdx
-		) {
-			m_srcIdx = srcIdx;
-			m_dstIdx = dstIdx;
-		}
-
-		operator size_t() const {
-			return m_srcIdx; // sort by the source index for tarjan
-		}
 	};
 
 	struct Root {
@@ -127,17 +97,7 @@ protected:
 	sys::NotificationEvent m_idleEvent;
 	sl::List<StaticDestructor> m_staticDestructorList;
 	sl::Array<IfaceHdr*> m_destructArray; // main destruct queue
-
-	// destruct graph
-
-	sl::AutoPtrArray<DestructGraphNode> m_destructGraphNodeArray;
-	sl::SimpleHashTable<Box*, DestructGraphNode*> m_destructGraphNodeMap; // backup for box index overflow
-	sl::Array<DestructGraphEdge> m_destructGraphEdgeArray;
-	sl::Array<DestructGraphEdge> m_sortedDestructGraphEdgeArray;
-	sl::Array<size_t> m_destructGraphEdgeIndexArray;
-	DestructGraphNode* m_currentDestructGraphNode;
-	size_t m_destructGraphCandidateCount;
-
+	DestructGraph m_destructGraph; // destruct candidates go through this graph
 	DestructThread m_destructThread;
 
 	MutatorThreadList m_mutatorThreadList;
@@ -427,7 +387,7 @@ public:
 		const void* p,
 		ct::Type* type
 	) {
-		addRoot(m_currentDestructGraphNode, p, type);
+		addRoot(m_destructGraph.m_currentNode, p, type);
 	}
 
 	void
@@ -443,7 +403,7 @@ public:
 		ct::Type* type,
 		size_t count
 	) {
-		addRootArray(m_currentDestructGraphNode, p, type, count);
+		addRootArray(m_destructGraph.m_currentNode, p, type, count);
 	}
 
 	void
@@ -465,21 +425,6 @@ public:
 	handleGuardPageHit(GcMutatorThread* thread);
 
 protected:
-	DestructGraphNode*
-	getDestructGraphNode(Box* box);
-
-	void
-	addDestructGraphEdge(
-		DestructGraphNode* srcNode,
-		DestructGraphNode* dstNode
-	) {
-		if (srcNode != dstNode) // skip self-references
-			m_destructGraphEdgeArray.append(DestructGraphEdge(
-				srcNode->m_index,
-				dstNode->m_index
-			));
-	}
-
 	void
 	destructThreadFunc();
 
@@ -494,7 +439,6 @@ protected:
 				m_stats.m_currentAllocSize > m_allocSizeTrigger
 			);
 	}
-
 
 	bool
 	waitIdleAndLock(); // return true if this thread is registered mutator thread
@@ -574,15 +518,6 @@ protected:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-GcHeap::DestructGraphNode::DestructGraphNode(
-	Box* box,
-	uint32_t index
-) {
-	m_box = box;
-	m_index = index;
-}
 
 inline
 void

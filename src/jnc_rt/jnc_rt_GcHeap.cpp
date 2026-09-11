@@ -66,7 +66,6 @@ GcHeap::GcHeap() {
 	m_runtime = containerof(this, Runtime, m_gcHeap);
 	m_state = State_Idle;
 	m_flags = 0;
-	m_currentDestructGraphNode = NULL;
 	m_waitingMutatorThreadCount = 0;
 	m_noCollectMutatorThreadCount = 0;
 	m_handshakeCount = 0;
@@ -1004,12 +1003,7 @@ void
 GcHeap::markData(Box* box) {
 	weakMark(box); // weak mark anyway -- this way, we can still reach foreign data box pool after replacing validator
 
-	DestructGraphNode* node = NULL;
-	if (m_state == State_BuildDestructGraph) {
-		node = getDestructGraphNode(box);
-		addDestructGraphEdge(m_currentDestructGraphNode, node);
-	}
-
+	DestructGraphNode* node = m_state == State_BuildDestructGraph ? m_destructGraph.addEdge(box) : NULL;
 	if (box->m_flags & BoxFlag_DataMark)
 		return;
 
@@ -1053,12 +1047,7 @@ void
 GcHeap::markClass(Box* box) {
 	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
 
-	DestructGraphNode* node = NULL;
-	if (m_state == State_BuildDestructGraph) {
-		node = getDestructGraphNode(box);
-		addDestructGraphEdge(m_currentDestructGraphNode, node);
-	}
-
+	DestructGraphNode* node = m_state == State_BuildDestructGraph ? m_destructGraph.addEdge(box) : NULL;
 	if (box->m_flags & BoxFlag_ClassMark)
 		return;
 
@@ -1100,9 +1089,7 @@ GcHeap::markClassFields(
 		ASSERT(fieldBox->m_type == field->getType());
 		ASSERT(fieldBox->m_type->getTypeKind() == TypeKind_Class);
 
-		DestructGraphNode* fieldNode = m_state == State_BuildDestructGraph ? getDestructGraphNode(fieldBox) : NULL;
-		addDestructGraphEdge(parent, fieldNode);
-
+		DestructGraphNode* fieldNode = m_state == State_BuildDestructGraph ? m_destructGraph.addEdge(parent, fieldBox) : NULL;
 		if (fieldBox->m_flags & BoxFlag_ClassMark)
 			continue;
 
@@ -1470,71 +1457,12 @@ GcHeap::collect_l(bool isMutatorThread) {
 	m_destructibleClassBoxArray.setCount(dstIdx);
 
 	if (!destructArray.isEmpty()) {
-		count = destructArray.getCount();
-
-		ASSERT(
-			m_destructGraphNodeArray.isEmpty() &&
-			m_destructGraphNodeMap.isEmpty() &&
-			m_destructGraphEdgeArray.isEmpty()
-		);
-
-		m_destructGraphNodeArray.setCount(count);
-		m_destructGraphCandidateCount = count;
-
-		sl::Array<DestructGraphNode*>::Rwi rwi = m_destructGraphNodeArray.rwi();
-
-		size_t i = 0;
-		size_t indexedCount = AXL_MIN(count, BoxIndexLimit);
-		for (; i < indexedCount; i++) {
-			Box* box = destructArray[i]->m_box;
-			rwi[i] = new DestructGraphNode(box, (uint32_t)i);
-			box->m_flags |= BoxFlag_Index;
-			box->m_index = i;
-		}
-
-		for (; i < count; i++) {
-			Box* box = destructArray[i]->m_box;
-			DestructGraphNode* node = new DestructGraphNode(box, (uint32_t)i);
-			rwi[i] = node;
-			box->m_flags |= BoxFlag_Map;
-			m_destructGraphNodeMap[box] = node;
-		}
-
 		m_state = State_BuildDestructGraph;
-
-		for (size_t i = 0; i < count; i++) {
-			m_currentDestructGraphNode = m_destructGraphNodeArray[i];
-			markClass(m_currentDestructGraphNode->m_box);
-		}
-
-		runMarkCycle();
-
-		size_t nodeCount = m_destructGraphNodeArray.getCount();
-		size_t edgeCount = m_destructGraphEdgeArray.getCount();
-
-		m_sortedDestructGraphEdgeArray.setCount(edgeCount);
-		m_destructGraphEdgeIndexArray.setCount(nodeCount);
-
-		sl::countSort(
-			m_sortedDestructGraphEdgeArray.p(),
-			m_destructGraphEdgeArray.cp(),
-			edgeCount,
-			m_destructGraphEdgeIndexArray.p(),
-			nodeCount - 1
-		);
-
-		// tarjan goes here
-
-		for (size_t i = 0; i < nodeCount; i++)
-			m_destructGraphNodeArray[i]->m_box->m_flags &= ~(BoxFlag_Index | BoxFlag_Map);
-
-		m_destructGraphNodeArray.clear();
-		m_destructGraphNodeMap.clear();
-		m_destructGraphEdgeArray.clear();
-		m_currentDestructGraphNode = NULL;
+		m_destructGraph.build(destructArray, this);
+		m_destructGraph.tarjan();
+		m_destructGraph.emit(&m_destructArray);
+		m_destructGraph.cleanup();
 	}
-
-	m_destructArray.append(destructArray);
 
 	JNC_TRACE_GC_COLLECT("   ... GcHeap::collect_l () -- destruct mark complete\n");
 
@@ -1681,28 +1609,6 @@ GcHeap::collect_l(bool isMutatorThread) {
 	JNC_TRACE_GC_COLLECT("--- GcHeap::collect_l ()\n");
 }
 
-GcHeap::DestructGraphNode*
-GcHeap::getDestructGraphNode(Box* box) {
-	if (box->m_flags & BoxFlag_Index)
-		return m_destructGraphNodeArray[box->m_index];
-	else if (box->m_flags & BoxFlag_Map)
-		return m_destructGraphNodeMap[box];
-
-	uint32_t i = (uint32_t)m_destructGraphNodeArray.getCount();
-	DestructGraphNode* node = new DestructGraphNode(box, i);
-	m_destructGraphNodeArray.append(node);
-
-	if (i < BoxIndexLimit) {
-		box->m_flags |= BoxFlag_Index;
-		box->m_index = i;
-	} else {
-		box->m_flags |= BoxFlag_Map;
-		m_destructGraphNodeMap[box] = node;
-	}
-
-	return node;
-}
-
 void
 GcHeap::addShadowStackFrame(GcShadowStackFrame* frame) {
 	GcShadowStackFrameMap* frameMap = frame->m_map;
@@ -1758,7 +1664,7 @@ GcHeap::runMarkCycle() {
 				dump.sz()
 			);
 #endif
-			m_currentDestructGraphNode = root->m_parent;
+			m_destructGraph.m_currentNode = root->m_parent;
 			root->m_type->markGcRoots(root->m_p, this);
 		}
 	}
