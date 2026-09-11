@@ -1685,7 +1685,9 @@ GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
 
 		JNC_BEGIN_CALL_SITE(m_runtime)
 
-		for (intptr_t i = count - 1; i >= 0; i--) {
+		// DestructGraph emits the array in topological order -- so walk it forward
+
+		for (size_t i = 0; i < count; i++) {
 			IfaceHdr* iface = (*destructBuffer)[i];
 			ct::ClassType* classType = (ct::ClassType*)iface->m_box->m_type;
 			ct::Function* destructor = classType->getDestructor();
