@@ -22,15 +22,15 @@ namespace rt {
 
 struct DestructGraphNode {
 	Box* m_box;
-	uint32_t m_index;
+	size_t m_index;
 
-	uint32_t m_tarjanIdx;        // -1 -- not visited yet
-	uint32_t m_tarjanLowlinkIdx;
-	uint32_t m_tarjanSccIdx;     // -1 -- still on the tarjan stack
+	size_t m_tarjanIdx;        // -1 -- not visited yet
+	size_t m_tarjanLowlinkIdx;
+	size_t m_tarjanSccIdx;     // -1 -- still on the tarjan stack
 
 	DestructGraphNode(
 		Box* box,
-		uint32_t index
+		size_t index
 	);
 };
 
@@ -39,7 +39,7 @@ struct DestructGraphNode {
 inline
 DestructGraphNode::DestructGraphNode(
 	Box* box,
-	uint32_t index
+	size_t index
 ) {
 	m_box = box;
 	m_index = index;
@@ -53,16 +53,16 @@ DestructGraphNode::DestructGraphNode(
 class DestructGraph {
 protected:
 	struct Edge {
-		uint32_t m_srcIdx;
-		uint32_t m_dstIdx;
+		size_t m_srcIdx;
+		size_t m_dstIdx;
 
 		Edge() {
 			m_srcIdx = m_dstIdx = 0;
 		}
 
 		Edge(
-			uint32_t srcIdx,
-			uint32_t dstIdx
+			size_t srcIdx,
+			size_t dstIdx
 		) {
 			m_srcIdx = srcIdx;
 			m_dstIdx = dstIdx;
@@ -76,9 +76,9 @@ protected:
 	// an explicit stack -- dfs depth can be the depth of the whole garbage graph
 
 	struct TarjanDfsFrame {
-		uint32_t m_nodeIdx;
-		uint32_t m_edgeIdx;
-		uint32_t m_edgeEndIdx;
+		size_t m_nodeIdx;
+		size_t m_edgeIdx;
+		size_t m_edgeEndIdx;
 	};
 
 protected:
@@ -93,10 +93,10 @@ protected:
 
 	// tarjan over destruct graph
 
-	sl::Array<uint32_t> m_tarjanStack;  // nodes discovered but not yet assigned to a SCC
+	sl::Array<size_t> m_tarjanStack;  // nodes discovered but not yet assigned to a SCC
 	sl::Array<TarjanDfsFrame> m_tarjanDfsStack; // explicit DFS stack instead of recursion
-	sl::Array<uint32_t> m_tarjanSccNodeArray; // all nodes, grouped by SCC, in pop order
-	sl::Array<uint32_t> m_tarjanSccBaseArray; // where each SCC starts in sccNodeArray
+	sl::Array<size_t> m_tarjanSccNodeArray; // all nodes, grouped by SCC, in pop order
+	sl::Array<size_t> m_tarjanSccBaseArray; // where each SCC starts in sccNodeArray
 
 public:
 	DestructGraphNode* m_currentNode;

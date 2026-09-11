@@ -26,13 +26,13 @@ DestructGraph::getNode(Box* box) {
 	else if (box->m_flags & BoxFlag_Map)
 		return m_nodeMap[box];
 
-	uint32_t i = (uint32_t)m_nodeArray.getCount();
+	size_t i = m_nodeArray.getCount();
 	DestructGraphNode* node = new DestructGraphNode(box, i);
 	m_nodeArray.append(node);
 
 	if (i < BoxIndexLimit) {
 		box->m_flags |= BoxFlag_Index;
-		box->m_index = i;
+		box->m_index = (uint32_t)i;
 	} else {
 		box->m_flags |= BoxFlag_Map;
 		m_nodeMap[box] = node;
@@ -59,14 +59,14 @@ DestructGraph::build(
 	size_t indexedCount = AXL_MIN(count, BoxIndexLimit);
 	for (; i < indexedCount; i++) {
 		Box* box = destructArray[i]->m_box;
-		rwi[i] = new DestructGraphNode(box, (uint32_t)i);
+		rwi[i] = new DestructGraphNode(box, i);
 		box->m_flags |= BoxFlag_Index;
-		box->m_index = i;
+		box->m_index = (uint32_t)i;
 	}
 
 	for (; i < count; i++) {
 		Box* box = destructArray[i]->m_box;
-		DestructGraphNode* node = new DestructGraphNode(box, (uint32_t)i);
+		DestructGraphNode* node = new DestructGraphNode(box, i);
 		rwi[i] = node;
 		box->m_flags |= BoxFlag_Map;
 		m_nodeMap[box] = node;
@@ -93,7 +93,7 @@ DestructGraph::build(
 		nodeCount - 1
 	);
 
-	m_edgeBaseArray.rwi()[nodeCount] = (uint32_t)edgeCount; // sentinel
+	m_edgeBaseArray.rwi()[nodeCount] = edgeCount; // sentinel
 	m_destructCount = count;
 }
 
@@ -108,6 +108,8 @@ DestructGraph::cleanup() {
 	// free nodes
 
 	m_nodeArray.clear();
+	m_nodeMap.clear();
+	m_currentNode = NULL;
 
 	// the rest is non-essential
 }
@@ -126,11 +128,11 @@ DestructGraph::tarjan() {
 	m_tarjanSccNodeArray.clear();
 	m_tarjanSccBaseArray.clear();
 
-	uint32_t dfsCounter = 0;
+	size_t dfsCounter = 0;
 
 	// seed from candidates in the original order to preserves the newest-first order we had before sorting
 
-	for (uint32_t i = 0; i < m_destructCount; i++) {
+	for (size_t i = 0; i < m_destructCount; i++) {
 		DestructGraphNode* rootNode = m_nodeArray[i];
 		if (rootNode->m_tarjanIdx != -1)
 			continue;
@@ -142,8 +144,8 @@ DestructGraph::tarjan() {
 
 		TarjanDfsFrame rootFrame;
 		rootFrame.m_nodeIdx = i;
-		rootFrame.m_edgeIdx = (uint32_t)m_edgeBaseArray[i];
-		rootFrame.m_edgeEndIdx = (uint32_t)m_edgeBaseArray[i + 1];
+		rootFrame.m_edgeIdx = m_edgeBaseArray[i];
+		rootFrame.m_edgeEndIdx = m_edgeBaseArray[i + 1];
 		m_tarjanDfsStack.append(rootFrame);
 
 		while (!m_tarjanDfsStack.isEmpty()) {
@@ -151,7 +153,7 @@ DestructGraph::tarjan() {
 			DestructGraphNode* node = m_nodeArray[frame->m_nodeIdx];
 
 			if (frame->m_edgeIdx < frame->m_edgeEndIdx) {
-				uint32_t dstIdx = m_sortedEdgeArray[frame->m_edgeIdx].m_dstIdx;
+				size_t dstIdx = m_sortedEdgeArray[frame->m_edgeIdx].m_dstIdx;
 				frame->m_edgeIdx++;
 
 				DestructGraphNode* dstNode = m_nodeArray[dstIdx];
@@ -167,8 +169,8 @@ DestructGraph::tarjan() {
 
 				TarjanDfsFrame nextFrame;
 				nextFrame.m_nodeIdx = dstIdx;
-				nextFrame.m_edgeIdx = (uint32_t)m_edgeBaseArray[dstIdx];
-				nextFrame.m_edgeEndIdx = (uint32_t)m_edgeBaseArray[dstIdx + 1];
+				nextFrame.m_edgeIdx = m_edgeBaseArray[dstIdx];
+				nextFrame.m_edgeEndIdx = m_edgeBaseArray[dstIdx + 1];
 				m_tarjanDfsStack.append(nextFrame); // invalidates frame pointer
 				continue;
 			}
@@ -176,11 +178,11 @@ DestructGraph::tarjan() {
 			// node is done
 
 			if (node->m_tarjanLowlinkIdx == node->m_tarjanIdx) { // scc root -- pop the component
-				uint32_t sccIdx = (uint32_t)m_tarjanSccBaseArray.getCount();
-				m_tarjanSccBaseArray.append((uint32_t)m_tarjanSccNodeArray.getCount());
+				size_t sccIdx = m_tarjanSccBaseArray.getCount();
+				m_tarjanSccBaseArray.append(m_tarjanSccNodeArray.getCount());
 
 				for (;;) {
-					uint32_t j = m_tarjanStack.getBackAndPop();
+					size_t j = m_tarjanStack.getBackAndPop();
 					m_nodeArray[j]->m_tarjanSccIdx = sccIdx;
 					m_tarjanSccNodeArray.append(j);
 
@@ -216,8 +218,8 @@ DestructGraph::emit(sl::Array<IfaceHdr*>* destructArray) {
 
 		// compat candidates
 
-		uint32_t* p = m_tarjanSccNodeArray.p() + base;
-		uint32_t* p0 = p;
+		size_t* p = m_tarjanSccNodeArray.p() + base;
+		size_t* p0 = p;
 
 		for (size_t j = base; j < end; j++) {
 			size_t k = m_tarjanSccNodeArray[j];
@@ -227,19 +229,19 @@ DestructGraph::emit(sl::Array<IfaceHdr*>* destructArray) {
 
 		size_t loopLength = p - p0;
 		switch (loopLength) {
-		case 0:
-			continue; // no candidates in this SCC
+		case 0: // no candidates in this SCC
+			continue;
 
-		case 1: {
+		case 1: { // single candidate
 			Box* box = m_nodeArray[*p0]->m_box;
 			*dst++ = (IfaceHdr*)(box + 1);
-			break; // single candidate -- no loop
+			break;
 			}
 
-		default:
+		default: // loop
 			TRACE("-- WARNING: destruct loop length %d detected (fix topology with weak refs):\n", loopLength);
 
-			std::sort(p0, p, sl::Gt<uint32_t>());
+			std::sort(p0, p, sl::Gt<size_t>());
 
 			for (; p0 < p; p0++) {
 				Box* box = m_nodeArray[*p0]->m_box;
