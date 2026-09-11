@@ -45,18 +45,32 @@ protected:
 
 	struct DestructGraphNode {
 		Box* m_box;
-		size_t m_index;
-		sl::Array<DestructGraphNode*> m_outEdgeArray;
+		uint32_t m_index;
 
 		DestructGraphNode(
 			Box* box,
-			size_t index
+			uint32_t index
 		);
+	};
 
-		void
-		addEdge(DestructGraphNode* node) {
-			if (node != this) // skip self-references
-				m_outEdgeArray.append(node);
+	struct DestructGraphEdge {
+		uint32_t m_srcIdx;
+		uint32_t m_dstIdx;
+
+		DestructGraphEdge() {
+			m_srcIdx = m_dstIdx = 0;
+		}
+
+		DestructGraphEdge(
+			uint32_t srcIdx,
+			uint32_t dstIdx
+		) {
+			m_srcIdx = srcIdx;
+			m_dstIdx = dstIdx;
+		}
+
+		operator size_t() const {
+			return m_srcIdx; // sort by the source index for tarjan
 		}
 	};
 
@@ -116,10 +130,13 @@ protected:
 
 	// destruct graph
 
-	sl::AutoPtrArray<DestructGraphNode> m_destructGraph;
-	size_t m_destructGraphCandidateCount;
-	sl::SimpleHashTable<Box*, DestructGraphNode*> m_destructGraphNodeMap; // backup for index overflow
+	sl::AutoPtrArray<DestructGraphNode> m_destructGraphNodeArray;
+	sl::SimpleHashTable<Box*, DestructGraphNode*> m_destructGraphNodeMap; // backup for box index overflow
+	sl::Array<DestructGraphEdge> m_destructGraphEdgeArray;
+	sl::Array<DestructGraphEdge> m_sortedDestructGraphEdgeArray;
+	sl::Array<size_t> m_destructGraphEdgeIndexArray;
 	DestructGraphNode* m_currentDestructGraphNode;
+	size_t m_destructGraphCandidateCount;
 
 	DestructThread m_destructThread;
 
@@ -452,6 +469,18 @@ protected:
 	getDestructGraphNode(Box* box);
 
 	void
+	addDestructGraphEdge(
+		DestructGraphNode* srcNode,
+		DestructGraphNode* dstNode
+	) {
+		if (srcNode != dstNode) // skip self-references
+			m_destructGraphEdgeArray.append(DestructGraphEdge(
+				srcNode->m_index,
+				dstNode->m_index
+			));
+	}
+
+	void
 	destructThreadFunc();
 
 	GcMutatorThread*
@@ -549,7 +578,7 @@ protected:
 inline
 GcHeap::DestructGraphNode::DestructGraphNode(
 	Box* box,
-	size_t index
+	uint32_t index
 ) {
 	m_box = box;
 	m_index = index;

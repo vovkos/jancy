@@ -15,5 +15,6 @@
 
 #include "jnc_ct_Pch.h"
 #include "axl_sys_ExceptionError.h"
+#include "axl_sl_CountSort.h"
 
 using namespace axl;
