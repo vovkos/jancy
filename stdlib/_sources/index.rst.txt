@@ -1,0 +1,73 @@
+.. include:: def.rst
+.. include:: intro.rst
+
+.. toctree::
+	:hidden:
+
+	group_stdt-operator.rst
+	group_c-typedefs.rst
+	group_rtl.rst
+	group_crt.rst
+	group_std.rst
+	group_sys.rst
+	group_io.rst
+
+.. rubric:: Further Reading:
+
+|	:ref:`stdt-operator<doxid-group_stdt_operator>`
+|	:ref:`Standard Typedefs<doxid-group_c_typedefs>`
+|	:ref:`RTL (Runtime Library)<doxid-group_rtl>`
+|		:ref:`Core RTL<doxid-group_rtl_core>`
+|		:ref:`Garbage Collection<doxid-group_rtl_gc>`
+|		:ref:`Async-await<doxid-group_rtl_async>`
+|		:ref:`Regular Expressions<doxid-group_rtl_regex>`
+|		:ref:`Dynamic Layouts<doxid-group_rtl_dylayout>`
+|		:ref:`Introspection<doxid-group_rtl_intro>`
+|	:ref:`C Runtime Functions<doxid-group_crt>`
+|	:ref:`General Purpose Library<doxid-group_std>`
+|		:ref:`Containers & Collections<doxid-group_std_container>`
+|		:ref:`Strings<doxid-group_std_string>`
+|		:ref:`Error Facilities<doxid-group_std_error>`
+|		:ref:`Miscellaneous Facilities<doxid-group_std_misc>`
+|	:ref:`System Facilities<doxid-group_sys>`
+|		:ref:`Time & Timers<doxid-group_sys_time>`
+|		:ref:`Thread Management<doxid-group_sys_thread>`
+|		:ref:`Synchronization Facilities<doxid-group_sys_sync>`
+|		:ref:`Windows Registry Management<doxid-group_sys_registry>`
+|	:ref:`IO (Input/Output) Library<doxid-group_io>`
+|		:ref:`Generic File IO<doxid-group_io_file>`
+|		:ref:`Socket Communications<doxid-group_io_socket>`
+|		:ref:`Serial Communications<doxid-group_io_serial>`
+|		:ref:`Network Adapter Management<doxid-group_io_network_adapter>`
+|		:ref:`SSL Communications<doxid-group_io_ssl>`
+|		:ref:`SSH Communications<doxid-group_io_ssh>`
+|		:ref:`WebSockets<doxid-group_io_websock>`
+|		:ref:`Pcap (Packet Capturing Library)<doxid-group_io_pcap>`
+|		:ref:`USB Communications<doxid-group_io_usb>`
+|		:ref:`USB Monitoring<doxid-group_io_usbmon>`
+|		:ref:`HID Communications<doxid-group_io_hid>`
+|		:ref:`Device Monitoring<doxid-group_io_devmon>`
+
+
+.. toctree::
+	:hidden:
+
+	disposable.rst
+	errorcode.rst
+
+.. rubric:: Related Pages:
+
+|	:doc:`disposable`
+|	:doc:`errorcode`
+
+
+.. rubric:: Reference and Index:
+
+.. toctree::
+	:hidden:
+
+	global.rst
+
+|	:doc:`global`
+|	:ref:`genindex`
+

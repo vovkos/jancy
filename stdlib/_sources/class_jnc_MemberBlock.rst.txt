@@ -1,0 +1,36 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.MemberBlock
+.. _doxid-typejnc_memberblock:
+
+class jnc.MemberBlock
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class MemberBlock {
+		// properties
+	
+		:ref:`jnc.Function<doxid-typejnc_function>`* const property :target:`m_staticConstructor<doxid-propertyjnc_memberblock_m_staticconstructor>`;
+		:ref:`jnc.Function<doxid-typejnc_function>`* const property :target:`m_constructor<doxid-propertyjnc_memberblock_m_constructor>`;
+		:ref:`jnc.Function<doxid-typejnc_function>`* const property :target:`m_destructor<doxid-propertyjnc_memberblock_m_destructor>`;
+		:ref:`size_t<doxid-typedefsize_t>` const property :target:`m_staticVariableCount<doxid-propertyjnc_memberblock_m_staticvariablecount>`;
+		:ref:`jnc.Variable<doxid-typejnc_variable>`* const indexed property :target:`m_staticVariableArray<doxid-propertyjnc_memberblock_m_staticvariablearray>`(:ref:`size_t<doxid-typedefsize_t>` index);
+		:ref:`size_t<doxid-typedefsize_t>` const property :target:`m_fieldCount<doxid-propertyjnc_memberblock_m_fieldcount>`;
+		:ref:`jnc.Field<doxid-typejnc_field>`* const indexed property :target:`m_fieldArray<doxid-propertyjnc_memberblock_m_fieldarray>`(:ref:`size_t<doxid-typedefsize_t>` index);
+		:ref:`size_t<doxid-typedefsize_t>` const property :target:`m_methodCount<doxid-propertyjnc_memberblock_m_methodcount>`;
+		:ref:`jnc.Function<doxid-typejnc_function>`* const indexed property :target:`m_methodArray<doxid-propertyjnc_memberblock_m_methodarray>`(:ref:`size_t<doxid-typedefsize_t>` index);
+		:ref:`size_t<doxid-typedefsize_t>` const property :target:`m_propertyCount<doxid-propertyjnc_memberblock_m_propertycount>`;
+		:ref:`jnc.Property<doxid-typejnc_property>`* const indexed property :target:`m_propertyArray<doxid-propertyjnc_memberblock_m_propertyarray>`(:ref:`size_t<doxid-typedefsize_t>` index);
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_memberblock_construct>`(long p);
+	};

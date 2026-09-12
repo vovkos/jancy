@@ -1,0 +1,55 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.Promisifier
+.. _doxid-typejnc_promisifier:
+
+class jnc.Promisifier
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class Promisifier: :ref:`jnc.Promise<doxid-typejnc_promise>` {
+		// methods
+	
+		void :target:`complete<doxid-functionjnc_promisifier_complete>`();
+		void :target:`complete<doxid-functionjnc_promisifier_complete_2>`(:ref:`std.Error<doxid-typestd_error>` const* error);
+	
+		void :target:`complete<doxid-functionjnc_promisifier_complete_3>`(
+			:ref:`variant_t<doxid-typedefvariant_t>` result,
+			:ref:`std.Error<doxid-typestd_error>` const* error
+		);
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef Variant variant_t readonly :ref:`m_result<doxid-fieldjnc_promise_m_result>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly :ref:`m_error<doxid-fieldjnc_promise_m_error>`;
+
+		// properties
+	
+		bool const property :ref:`m_isCompleted<doxid-propertyjnc_promise_m_iscompleted>`;
+
+		// methods
+	
+		void async :ref:`asyncSetScheduler<doxid-functionjnc_promise_asyncsetscheduler>`(:ref:`jnc.Scheduler<doxid-typejnc_scheduler>`* scheduler);
+		long errorcode :ref:`wait<doxid-functionjnc_promise_wait>`(void function* handler());
+		long errorcode :ref:`wait<doxid-functionjnc_promise_wait_2>`(void function* handler(std.Error const* error));
+		long errorcode :ref:`wait<doxid-functionjnc_promise_wait_3>`(void function* handler(variant_t result, std.Error const* error));
+		bool errorcode :ref:`cancelWait<doxid-functionjnc_promise_cancelwait>`(long handle);
+		:ref:`variant_t<doxid-typedefvariant_t>` :ref:`blockingWait<doxid-functionjnc_promise_blockingwait>`();
+		:ref:`variant_t<doxid-typedefvariant_t>` async :ref:`asyncWait<doxid-functionjnc_promise_asyncwait>`();
+

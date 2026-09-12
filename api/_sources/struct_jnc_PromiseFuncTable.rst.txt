@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_PromiseFuncTable
+.. _doxid-structjnc___promise_func_table:
+
+struct jnc_PromiseFuncTable
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_PromiseFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___promise_func_table_1a286bfd3526e64050c04a02fb5454bc58>`;
+		jnc_Promise_CreateFunc* :target:`m_createFunc<doxid-structjnc___promise_func_table_1ad6f8f6a8420d8543a4c105a3a33aa86c>`;
+		jnc_Promise_CompleteFunc* :target:`m_completeFunc<doxid-structjnc___promise_func_table_1a9fef84b12ae7fff01491a777d063d234>`;
+	};

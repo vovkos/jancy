@@ -1,0 +1,33 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.RegexCapture
+.. _doxid-typejnc_regexcapture:
+
+class jnc.RegexCapture
+======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class RegexCapture {
+		// fields
+	
+		typedef unsigned long uint64_t readonly :target:`m_offset<doxid-fieldjnc_regexcapture_m_offset>`;
+		typedef unsigned long uint64_t readonly :target:`m_endOffset<doxid-fieldjnc_regexcapture_m_endoffset>`;
+
+		// properties
+	
+		:ref:`uint64_t<doxid-typedefuint64_t>` const property :target:`m_length<doxid-propertyjnc_regexcapture_m_length>`;
+		bool const property :target:`m_hasText<doxid-propertyjnc_regexcapture_m_hastext>`;
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_text<doxid-propertyjnc_regexcapture_m_text>`;
+
+		// methods
+	
+		:ref:`string_t<doxid-typedefstring_t>` :target:`toString<doxid-functionjnc_regexcapture_tostring>`() const;
+	};

@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: enum; WebSocketFrameOpcode
+.. _doxid-typeio_websocketframeopcode:
+
+enum io.WebSocketFrameOpcode
+============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum WebSocketFrameOpcode {
+	    :target:`Continuation<doxid-enum_memberio_websocketframeopcode_continuation>` = 0,
+	    :target:`Text<doxid-enum_memberio_websocketframeopcode_text>`         = 1,
+	    :target:`Binary<doxid-enum_memberio_websocketframeopcode_binary>`       = 2,
+	    :target:`Close<doxid-enum_memberio_websocketframeopcode_close>`        = 8,
+	    :target:`Ping<doxid-enum_memberio_websocketframeopcode_ping>`         = 9,
+	    :target:`Pong<doxid-enum_memberio_websocketframeopcode_pong>`         = 10,
+	};
+

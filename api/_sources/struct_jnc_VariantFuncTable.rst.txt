@@ -1,0 +1,32 @@
+.. index:: pair: struct; jnc_VariantFuncTable
+.. _doxid-structjnc___variant_func_table:
+
+struct jnc_VariantFuncTable
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_VariantFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___variant_func_table_1a74815468fae901b081cd0d6da8a492a9>`;
+		jnc_Variant_CreateFunc* :target:`m_createFunc<doxid-structjnc___variant_func_table_1ad989dcb4056d5dc4f667d92f4707e0fd>`;
+		jnc_Variant_CastFunc* :target:`m_castFunc<doxid-structjnc___variant_func_table_1abc349d9ed79f4075786a74708bd23add>`;
+		jnc_Variant_UnaryOperatorFunc* :target:`m_unaryOperatorFunc<doxid-structjnc___variant_func_table_1ae5c65e516f35347313a6a9b05249de77>`;
+		jnc_Variant_BinaryOperatorFunc* :target:`m_binaryOperatorFunc<doxid-structjnc___variant_func_table_1a9689c1a4f35d2069858cd0d70987c058>`;
+		jnc_Variant_RelationalOperatorFunc* :target:`m_relationalOperatorFunc<doxid-structjnc___variant_func_table_1a74d2cc832d53101affe04c737be0c631>`;
+		jnc_Variant_GetMemberFunc* :target:`m_getMemberFunc<doxid-structjnc___variant_func_table_1a8a7169cd47aa1efadb021ce0cc910ae9>`;
+		jnc_Variant_SetMemberFunc* :target:`m_setMemberFunc<doxid-structjnc___variant_func_table_1ac6cd776736fcdeeec732690eeff74559>`;
+		jnc_Variant_GetElementFunc* :target:`m_getElementFunc<doxid-structjnc___variant_func_table_1a6c0cb18cb3a31a7cfefeaadb2dea7d27>`;
+		jnc_Variant_SetElementFunc* :target:`m_setElementFunc<doxid-structjnc___variant_func_table_1a838dcbefdfbcd66faee024c3e77e2746>`;
+		jnc_Variant_HashFunc* :target:`m_hashFunc<doxid-structjnc___variant_func_table_1ab82d774a31fa4a12332cc759c17735f9>`;
+		jnc_Variant_FormatFunc* :target:`m_formatFunc<doxid-structjnc___variant_func_table_1a66fd177788dca407be98ca100fbeef10>`;
+	};

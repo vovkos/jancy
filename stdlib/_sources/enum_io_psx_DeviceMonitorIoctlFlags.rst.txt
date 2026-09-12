@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; DeviceMonitorIoctlFlags
+.. _doxid-typeio_psx_devicemonitorioctlflags:
+
+bitflag enum io.psx.DeviceMonitorIoctlFlags
+===========================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum DeviceMonitorIoctlFlags {
+	    :target:`HasArgSizeField<doxid-enum_memberio_psx_devicemonitorioctlflags_hasargsizefield>`,
+	    :target:`ArgSizeField8<doxid-enum_memberio_psx_devicemonitorioctlflags_argsizefield8>`,
+	    :target:`ArgSizeField16<doxid-enum_memberio_psx_devicemonitorioctlflags_argsizefield16>`,
+	    :target:`ArgSizeFieldBigEndian<doxid-enum_memberio_psx_devicemonitorioctlflags_argsizefieldbigendian>`,
+	};
+

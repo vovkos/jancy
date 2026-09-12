@@ -1,0 +1,115 @@
+.. include:: def.rst
+.. index:: pair: enum; SocketOptions
+.. _doxid-typeio_socketoptions:
+
+bitflag enum io.SocketOptions
+=============================
+
+Overview
+~~~~~~~~
+
+This enum lists all possible IO flags applicable to `io.Socket`
+class. :ref:`More...<details-typeio_socketoptions>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SocketOptions: :ref:`io.StreamOptions<doxid-typeio_streamoptions>` {
+	    :ref:`ReuseAddress<doxid-enum_memberio_socketoptions_reuseaddress>`,
+	    :ref:`TcpKeepAlive<doxid-enum_memberio_socketoptions_tcpkeepalive>`,
+	    :ref:`TcpNagle<doxid-enum_memberio_socketoptions_tcpnagle>`,
+	    :ref:`TcpReset<doxid-enum_memberio_socketoptions_tcpreset>`,
+	    :ref:`UdpBroadcast<doxid-enum_memberio_socketoptions_udpbroadcast>`,
+	    :ref:`RawHdrIncluded<doxid-enum_memberio_socketoptions_rawhdrincluded>`,
+	};
+
+.. _details-typeio_socketoptions:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enum lists all possible IO flags applicable to `io.Socket`
+class.
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; ReuseAddress
+.. _doxid-enum_memberio_socketoptions_reuseaddress:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	ReuseAddress
+
+Allow forcibly binding multiple sockets to the same local address
+(unless there's an active listening a socket  already bound to the same
+address). Internally maps to ``SO_REUSEADDR`` socket option.
+
+.. index:: pair: enumvalue; TcpKeepAlive
+.. _doxid-enum_memberio_socketoptions_tcpkeepalive:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	TcpKeepAlive
+
+Translates to SO_KEEPALIVE socket option.
+
+.. index:: pair: enumvalue; TcpNagle
+.. _doxid-enum_memberio_socketoptions_tcpnagle:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	TcpNagle
+
+This option is used for turning the Nagle algorithm *ON* or *OFF* for
+``TCP`` sockets. When this property is set to ``true``, the socket
+attempts to delay the transmission of TCP data segments in order to
+reduce the overall number of transmitted packets.
+
+For detailed description of Nagle algorithm refer to:
+http://en.wikipedia.org/wiki/Nagle's_algorithm
+
+.. index:: pair: enumvalue; TcpReset
+.. _doxid-enum_memberio_socketoptions_tcpreset:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	TcpReset
+
+This option is used for setting the disconnect type for ``TCP`` sockets
+-- whether it should be **graceful** (via ``FIN`` sequence) or **reset**
+(via ``RST`` packet).
+
+.. index:: pair: enumvalue; UdpBroadcast
+.. _doxid-enum_memberio_socketoptions_udpbroadcast:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	UdpBroadcast
+
+This option is used for allowing the *broadcast* transmission over
+datagram-oriented protocols(such as ``UDP``). When this option is set,
+the socket is allowed to send broadcast packets into the network.
+
+.. index:: pair: enumvalue; RawHdrIncluded
+.. _doxid-enum_memberio_socketoptions_rawhdrincluded:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	RawHdrIncluded
+
+This option is used for setting the ``IP_HDRINCL`` flag for ``RAW``
+sockets. When this property is set to ``true``, the application must
+provide ``IP`` header together with the rest of the packet(however,
+the kernel may still overwrite certain fields, such as ``checksum``).
+
+For detailed description of raw sockets refer to:
+http://man7.org/linux/man-pages/man7/raw.7.html
+

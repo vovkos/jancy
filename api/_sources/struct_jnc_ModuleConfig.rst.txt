@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_ModuleConfig
+.. _doxid-structjnc___module_config:
+
+struct jnc_ModuleConfig
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ModuleConfig {
+		// fields
+	
+		jnc_JitKind :target:`m_jitKind<doxid-structjnc___module_config_1a709d28ce412a265af3c3e3244027e42b>`;
+		uint_t :target:`m_jitOptLevel<doxid-structjnc___module_config_1a8733bfc4ffc795a464f92985ed1bccce>`;
+		uint_t :target:`m_compileFlags<doxid-structjnc___module_config_1a11c9c7a893544189f9d5ede46d2aadd6>`;
+		size_t :target:`m_uniqueLinkIdBase<doxid-structjnc___module_config_1ac3d5c31038ae40f5f2281e5883c46922>`;
+	};

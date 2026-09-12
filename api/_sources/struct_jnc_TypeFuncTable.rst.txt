@@ -1,0 +1,31 @@
+.. index:: pair: struct; jnc_TypeFuncTable
+.. _doxid-structjnc___type_func_table:
+
+struct jnc_TypeFuncTable
+========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_TypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___type_func_table_1abe7476f22b58408a99505be402e1fca8>`;
+		jnc_Type_GetTypeKindFunc* :target:`m_getTypeKindFunc<doxid-structjnc___type_func_table_1a987f9de6b925da09ec7bf3f3582e0d28>`;
+		jnc_Type_GetSizeFunc* :target:`m_getSizeFunc<doxid-structjnc___type_func_table_1a0a5948d5707fa1de3effd651f73ac76f>`;
+		jnc_Type_GetTypeStringFunc* :target:`m_getTypeStringFunc<doxid-structjnc___type_func_table_1a306de472dd397bbd0ccd614833c1d405>`;
+		jnc_Type_IsEqualFunc* :target:`m_isEqualFunc<doxid-structjnc___type_func_table_1aa008de58078578b4e33128050bd23333>`;
+		jnc_Type_GetArrayTypeFunc* :target:`m_getArrayTypeFunc<doxid-structjnc___type_func_table_1a51b2b9d9776758b9441c4656bf86ca7a>`;
+		jnc_Type_GetBitFieldDataPtrTypeFunc* :target:`m_getBitFieldDataPtrTypeFunc<doxid-structjnc___type_func_table_1aa11c27d1ffa75cc72f6f5959f2f38257>`;
+		jnc_Type_GetDataPtrTypeFunc* :target:`m_getDataPtrTypeFunc<doxid-structjnc___type_func_table_1abafc171433808e6c514e586b63705d5b>`;
+		jnc_Type_ensureLayoutFunc* :target:`m_ensureLayoutFunc<doxid-structjnc___type_func_table_1acfbd3ef4840369ccf5fd5b7300200565>`;
+		jnc_Type_ensureNoImportsFunc* :target:`m_ensureNoImportsFunc<doxid-structjnc___type_func_table_1ac20e4b1d70379bd23bf1bf88c7f70a04>`;
+		jnc_Type_MarkGcRootsFunc* :target:`m_markGcRootsFunc<doxid-structjnc___type_func_table_1af563f217203da49980d50e374b5a06b8>`;
+	};

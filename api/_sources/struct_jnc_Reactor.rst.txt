@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_Reactor
+.. _doxid-structjnc___reactor:
+
+struct jnc_Reactor
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_Reactor {
+		// fields
+	
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>` :target:`m_ifaceHdr<doxid-structjnc___reactor_1a90073bb73f07f77eb8f825cbb6809f8f>`;
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>`* :target:`m_userData<doxid-structjnc___reactor_1a2e383cb456daa157ac0fadbbb246c83c>`;
+	};

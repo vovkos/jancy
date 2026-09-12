@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: group; General Purpose Library
+.. _doxid-group_std:
+
+General Purpose Library
+=======================
+
+.. toctree::
+	:hidden:
+
+	group_std-container.rst
+	group_std-string.rst
+	group_std-error.rst
+	group_std-misc.rst
+
+This section describes standard general-purpose classes and functions.
+
+|	:ref:`Containers & Collections<doxid-group_std_container>`
+|	:ref:`Strings<doxid-group_std_string>`
+|	:ref:`Error Facilities<doxid-group_std_error>`
+|	:ref:`Miscellaneous Facilities<doxid-group_std_misc>`
+
+

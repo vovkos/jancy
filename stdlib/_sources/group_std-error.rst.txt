@@ -1,0 +1,122 @@
+.. include:: def.rst
+.. index:: pair: group; Error Facilities
+.. _doxid-group_std_error:
+
+Error Facilities
+================
+
+.. toctree::
+	:hidden:
+
+	struct_std_Error.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities for setting and retrieving
+error information. :ref:`More...<details-group_std_error>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// structs
+
+	struct :ref:`std.Error<doxid-typestd_error>`;
+
+	// global variables
+
+	:ref:`std.Guid<doxid-typestd_guid>` :target:`std.g_errnoGuid<doxid-variablestd_g_errnoguid>` = { 0x25a6a7b5, 0xf662, 0x48ae, { 0xbc, 0xb6, 0x9a, 0x5c, 0xb5, 0xce, 0x5b, 0xb9 } };
+	:ref:`std.Guid<doxid-typestd_guid>` :target:`std.g_winErrorGuid<doxid-variablestd_g_winerrorguid>` = { 0x54e100e8, 0x2137, 0x40b8, { 0xbc, 0xd8, 0x00, 0xac, 0x1d, 0x0b, 0xaa, 0x16 } };
+	:ref:`std.Guid<doxid-typestd_guid>` :target:`std.g_ntStatusGuid<doxid-variablestd_g_ntstatusguid>` = { 0x81443347, 0x3bc9, 0x4d5e, { 0x8b, 0x23, 0x32, 0xd7, 0x80, 0xed, 0xb5, 0x2b } };
+
+	// global functions
+
+	:ref:`std.Error<doxid-typestd_error>` const* :ref:`std.getLastError<doxid-functionstd_getlasterror>`();
+	:ref:`string_t<doxid-typedefstring_t>` :ref:`std.getLastErrorDescription<doxid-functionstd_getlasterrordescription>`();
+	void :ref:`std.setError<doxid-functionstd_seterror>`(:ref:`std.Error<doxid-typestd_error>` const* error);
+	void :target:`std.pushError<doxid-functionstd_pusherror>`(:ref:`std.Error<doxid-typestd_error>` const* error);
+	void :ref:`std.setErrno<doxid-functionstd_seterrno>`(int errno);
+	void :target:`std.pushErrno<doxid-functionstd_pusherrno>`(int errno);
+	void :ref:`std.setError<doxid-functionstd_seterror_2>`(:ref:`string_t<doxid-typedefstring_t>` string);
+	void :target:`std.pushError<doxid-functionstd_pusherror_2>`(:ref:`string_t<doxid-typedefstring_t>` string);
+
+.. _details-group_std_error:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities for setting and retrieving
+error information.
+
+Global Functions
+----------------
+
+.. index:: pair: function; getLastError
+.. _doxid-functionstd_getlasterror:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`std.Error<doxid-typestd_error>` const* std.getLastError()
+
+Returns a pointer to the last error set in the context of the current
+thread.
+
+Currently this function allocates a new error buffer on every call. In the
+future caching will be implemented(if ``AXL`` error has not changed since
+the last invokation of ``getLastError`` then previously allocated error
+buffer could be re-used).
+
+.. index:: pair: function; getLastErrorDescription
+.. _doxid-functionstd_getlasterrordescription:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedefstring_t>` std.getLastErrorDescription()
+
+Returns a human readable description of the the last error set in the
+context of the current thread.
+
+Equivalent to:
+
+.. ref-code-block::
+
+	std.getLastError().`m_description<std.Error.m_description>`
+
+.. index:: pair: function; setError
+.. _doxid-functionstd_seterror:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void std.setError(:ref:`std.Error<doxid-typestd_error>` const* error)
+
+Sets the last error of the current thread.
+
+.. index:: pair: function; setErrno
+.. _doxid-functionstd_seterrno:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void std.setErrno(int errno)
+
+Sets ``errno`` error as the last error of the current thread.
+
+.. index:: pair: function; setError
+.. _doxid-functionstd_seterror_2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void std.setError(:ref:`string_t<doxid-typedefstring_t>` string)
+
+Sets string error described by a null-terminated string pointed to by
+``string`` as the last error of the current thread.
+
+Calling `std.Error.m_description` on a string error will yield a
+null-terminated string identical to ``string``.
+

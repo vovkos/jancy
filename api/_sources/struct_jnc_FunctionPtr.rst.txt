@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_FunctionPtr
+.. _doxid-structjnc___function_ptr:
+
+struct jnc_FunctionPtr
+======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_FunctionPtr {
+		// fields
+	
+		void* :target:`m_p<doxid-structjnc___function_ptr_1aa00371585d6ace428abf2b1298c58a52>`;
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>`* :target:`m_closure<doxid-structjnc___function_ptr_1af4e302f41a13fe76216d38b6cdce7598>`;
+	};

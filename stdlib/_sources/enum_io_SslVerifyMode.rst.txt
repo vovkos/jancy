@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; SslVerifyMode
+.. _doxid-typeio_sslverifymode:
+
+bitflag enum io.SslVerifyMode
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SslVerifyMode {
+	    :target:`None<doxid-enum_memberio_sslverifymode_none>`                        = 0,
+	    :target:`VerifyPeerCertificate<doxid-enum_memberio_sslverifymode_verifypeercertificate>`       = 1,
+	    :target:`RequireClientCertificate<doxid-enum_memberio_sslverifymode_requireclientcertificate>`    = 2,
+	    :target:`VerifyClientCertificateOnce<doxid-enum_memberio_sslverifymode_verifyclientcertificateonce>` = 4,
+	};
+

@@ -1,0 +1,109 @@
+.. include:: def.rst
+.. index:: pair: struct; std.Guid
+.. _doxid-typestd_guid:
+
+struct std.Guid
+===============
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct describes a globally unique identifier(GUID). :ref:`More...<details-typestd_guid>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct Guid {
+		// fields
+	
+		typedef unsigned int uint32_t :ref:`m_data1<doxid-fieldstd_guid_m_data1>`;
+		typedef unsigned short uint16_t :ref:`m_data2<doxid-fieldstd_guid_m_data2>`;
+		typedef unsigned short uint16_t :ref:`m_data3<doxid-fieldstd_guid_m_data3>`;
+		:ref:`uint8_t<doxid-typedefuint8_t>` :ref:`m_data4<doxid-fieldstd_guid_m_data4>`[8];
+
+		// construction
+	
+		:target:`construct<doxid-functionstd_guid_construct>`();
+		:target:`construct<doxid-functionstd_guid_construct_2>`(:ref:`string_t<doxid-typedefstring_t>` string);
+		:target:`construct<doxid-functionstd_guid_construct_3>`(std.Guid);
+
+		// methods
+	
+		bool :target:`isEqual<doxid-functionstd_guid_isequal>`(std.Guid const* op) const;
+		:ref:`string_t<doxid-typedefstring_t>` :target:`getString<doxid-functionstd_guid_getstring>`(:ref:`std.GuidStringFlags<doxid-typestd_guidstringflags>` flags = 0);
+		bool errorcode :target:`parse<doxid-functionstd_guid_parse>`(:ref:`string_t<doxid-typedefstring_t>` string);
+	};
+.. _details-typestd_guid:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct describes a globally unique identifier(GUID).
+
+GUIDs are 128-bit values often used as permanent labels which uniquely
+identify some sort of information. Creation of GUIDs does not require any
+significant central coordination.
+
+In practice any two generated GUIDs could be assumed to be distinct -- even
+though neither of GUID generation algorithms could strictly guarantee
+uniqueness of generated identifiers. The probability of collision is too low
+and can be neglected in most practical applications.
+
+In Jancy standard library GUIDs are used to identify the type of an error
+(``NTSTATUS``, ``WinError``, ``errno``, ``string-error`` etc).
+
+This struct directly maps to ``struct UUID`` as defined in ``WinAPI``.
+
+For more details about globally unique identifiers refer to:
+https://en.wikipedia.org/wiki/Globally_unique_identifier
+
+Fields
+------
+
+.. index:: pair: variable; m_data1
+.. _doxid-fieldstd_guid_m_data1:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned int uint32_t m_data1
+
+Specifies the first 8 hexadecimal digits of the GUID.
+
+.. index:: pair: variable; m_data2
+.. _doxid-fieldstd_guid_m_data2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned short uint16_t m_data2
+
+Specifies the first group of 4 hexadecimal digits of the GUID.
+
+.. index:: pair: variable; m_data3
+.. _doxid-fieldstd_guid_m_data3:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned short uint16_t m_data3
+
+Specifies the second group of 4 hexadecimal digits of the GUID.
+
+.. index:: pair: variable; m_data4
+.. _doxid-fieldstd_guid_m_data4:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint8_t<doxid-typedefuint8_t>` m_data4[8]
+
+Array of eight elements. The first two elements contain the third group
+of 4 hexadecimal digits of the GUID. The remaining six elements contain
+the final 12 hexadecimal digits of the GUID.
+

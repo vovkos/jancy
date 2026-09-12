@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; RbTreeColor
+.. _doxid-typestdt_rbtreecolor:
+
+enum stdt.RbTreeColor
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum RbTreeColor: typedef unsigned char uint8_t {
+	    :target:`Black<doxid-enum_memberstdt_rbtreecolor_black>` = 0,
+	    :target:`Red<doxid-enum_memberstdt_rbtreecolor_red>`   = 1,
+	};
+

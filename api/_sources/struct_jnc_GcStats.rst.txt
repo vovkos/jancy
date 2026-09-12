@@ -1,0 +1,29 @@
+.. index:: pair: struct; jnc_GcStats
+.. _doxid-structjnc___gc_stats:
+
+struct jnc_GcStats
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_GcStats {
+		// fields
+	
+		size_t :target:`m_currentAllocSize<doxid-structjnc___gc_stats_1a745a0a77c74b43e1637426769bbd2daf>`;
+		size_t :target:`m_totalAllocSize<doxid-structjnc___gc_stats_1a5bc9cc11abb8a9df94fce10bf5ec96dc>`;
+		size_t :target:`m_peakAllocSize<doxid-structjnc___gc_stats_1ae8cd0b5ba1cc9a8faa05c43dfa929a7b>`;
+		size_t :target:`m_currentPeriodSize<doxid-structjnc___gc_stats_1ab9a6bae64ffd2d090626c0bf383da4dc>`;
+		size_t :target:`m_totalCollectCount<doxid-structjnc___gc_stats_1abae3d4cafb60fb15b674dc056cd78393>`;
+		size_t :target:`m_lastCollectFreeSize<doxid-structjnc___gc_stats_1acc7fa6a110e3d5af04ae3d72070146cc>`;
+		uint64_t :target:`m_lastCollectTime<doxid-structjnc___gc_stats_1accf897561b6e258a60b9ba3be899ed2c>`;
+		uint64_t :target:`m_lastCollectTimeTaken<doxid-structjnc___gc_stats_1abb615e5c062b9293568ac57b1a6885fd>`;
+		uint64_t :target:`m_totalCollectTimeTaken<doxid-structjnc___gc_stats_1a91f5bd11346a47c82f6af188874b01ae>`;
+	};

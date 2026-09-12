@@ -1,0 +1,23 @@
+.. index:: pair: group; Variant
+.. _doxid-group__variant:
+
+Variant
+=======
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Variant.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Variant.h>
+	
+	// structs
+
+	struct :ref:`jnc_Variant<doxid-structjnc___variant>`;
+

@@ -1,0 +1,35 @@
+.. index:: pair: group; Union Type
+.. _doxid-group__union-type:
+
+Union Type
+==========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_UnionType.rst
+
+Overview
+~~~~~~~~
+
+Union type represents a region of memory which can be interpreted as one type or another depending on some runtime conditions. :ref:`More...<details-group__union-type>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_UnionType.h>
+	
+	// structs
+
+	struct :ref:`jnc_UnionType<doxid-structjnc___union_type>`;
+
+.. _details-group__union-type:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+Union type represents a region of memory which can be interpreted as one type or another depending on some runtime conditions.
+
+Unions provide a convenient and at the same time efficient of re-using the same block of memory for different purposes.
+

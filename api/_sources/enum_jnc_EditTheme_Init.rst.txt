@@ -1,0 +1,19 @@
+.. index:: pair: enum; Init
+.. _doxid-classjnc_1_1_edit_theme_1ab6cbdd87e04b0ea717072fa4ece97f82:
+
+enum jnc::EditTheme::Init
+=========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EditTheme.h>
+
+	enum Init {
+	    :target:`InitNone<doxid-classjnc_1_1_edit_theme_1ab6cbdd87e04b0ea717072fa4ece97f82a2cf9455c127b5d0522a51a957ad85b59>`,
+	    :target:`InitLight<doxid-classjnc_1_1_edit_theme_1ab6cbdd87e04b0ea717072fa4ece97f82ace8eece9cc124ba0c3de83e197d1e391>`,
+	    :target:`InitDark<doxid-classjnc_1_1_edit_theme_1ab6cbdd87e04b0ea717072fa4ece97f82add3e38e1da91be85a60660821e49fbc9>`,
+	};
+

@@ -1,0 +1,27 @@
+.. index:: pair: struct; jnc_ExtensionLib
+.. _doxid-structjnc___extension_lib:
+
+struct jnc_ExtensionLib
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ExtensionLib {
+		// fields
+	
+		const :ref:`jnc_Guid<doxid-structjnc___guid>`* :target:`m_guid<doxid-structjnc___extension_lib_1a8a1cc7d41a8c3ae371eabcd9944a3b8b>`;
+		const char* :target:`m_name<doxid-structjnc___extension_lib_1abd93ed35d79e108913cbb014e19aeb11>`;
+		const char* :target:`m_description<doxid-structjnc___extension_lib_1a0ac2c03e4a7c07d90cafa5768512861b>`;
+		jnc_ExtensionLib_AddSourcesFunc* :target:`m_addSourcesFunc<doxid-structjnc___extension_lib_1a8f4755bf39f219413907aae30791cc5b>`;
+		jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc* :target:`m_addOpaqueClassTypeInfosFunc<doxid-structjnc___extension_lib_1aa9d5aa2df3f90b72045cd8ba899f9876>`;
+		jnc_ExtensionLib_MapAddressesFunc* :target:`m_mapAddressesFunc<doxid-structjnc___extension_lib_1a1fa5ff0ebf8bdfc7df0452e24140e197>`;
+		jnc_ExtensionLib_UpdateCapabilitiesFunc* :target:`m_updateCapabilitiesFunc<doxid-structjnc___extension_lib_1a5aac8b09b5b7005125e462ec4850c4fd>`;
+	};

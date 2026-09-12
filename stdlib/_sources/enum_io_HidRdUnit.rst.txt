@@ -1,0 +1,28 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdUnit
+.. _doxid-typeio_hidrdunit:
+
+enum io.HidRdUnit
+=================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum HidRdUnit {
+	    :target:`None<doxid-enum_memberio_hidrdunit_none>`,
+	    :target:`Centimiter<doxid-enum_memberio_hidrdunit_centimiter>`,
+	    :target:`Radian<doxid-enum_memberio_hidrdunit_radian>`,
+	    :target:`Inch<doxid-enum_memberio_hidrdunit_inch>`,
+	    :target:`Degree<doxid-enum_memberio_hidrdunit_degree>`,
+	    :target:`Gram<doxid-enum_memberio_hidrdunit_gram>`,
+	    :target:`Slug<doxid-enum_memberio_hidrdunit_slug>`,
+	    :target:`Second<doxid-enum_memberio_hidrdunit_second>`,
+	    :target:`Kelvin<doxid-enum_memberio_hidrdunit_kelvin>`,
+	    :target:`Farenheit<doxid-enum_memberio_hidrdunit_farenheit>`,
+	    :target:`Ampere<doxid-enum_memberio_hidrdunit_ampere>`,
+	    :target:`Candela<doxid-enum_memberio_hidrdunit_candela>`,
+	};
+

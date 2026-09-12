@@ -1,0 +1,61 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.RegexState
+.. _doxid-typejnc_regexstate:
+
+class jnc.RegexState
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class RegexState {
+		// fields
+	
+		:ref:`jnc.RegexExecResult<doxid-typejnc_regexexecresult>` readonly :target:`m_lastExecResult<doxid-fieldjnc_regexstate_m_lastexecresult>`;
+
+		// properties
+	
+		:ref:`jnc.RegexExecFlags<doxid-typejnc_regexexecflags>` const property :target:`m_execFlags<doxid-propertyjnc_regexstate_m_execflags>`;
+		:ref:`uint64_t<doxid-typedefuint64_t>` const property :target:`m_baseOffset<doxid-propertyjnc_regexstate_m_baseoffset>`;
+		int const property :target:`m_baseChar<doxid-propertyjnc_regexstate_m_basechar>`;
+		:ref:`uint64_t<doxid-typedefuint64_t>` const property :target:`m_eofOffset<doxid-propertyjnc_regexstate_m_eofoffset>`;
+		int const property :target:`m_eofChar<doxid-propertyjnc_regexstate_m_eofchar>`;
+		:ref:`jnc.RegexMatch<doxid-typejnc_regexmatch>` const* const property :target:`m_match<doxid-propertyjnc_regexstate_m_match>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_regexstate_construct>`(
+			:ref:`jnc.RegexExecFlags<doxid-typejnc_regexexecflags>` flags = 0,
+			:ref:`uint64_t<doxid-typedefuint64_t>` baseOffset = 0,
+			int baseChar = RegexEofChar,
+			:ref:`uint64_t<doxid-typedefuint64_t>` eofOffset = -1,
+			int eofChar = RegexEofChar
+		);
+		:target:`destruct<doxid-functionjnc_regexstate_destruct>`();
+
+		// methods
+	
+		void :target:`reset<doxid-functionjnc_regexstate_reset>`(
+			:ref:`jnc.RegexExecFlags<doxid-typejnc_regexexecflags>` flags,
+			:ref:`uint64_t<doxid-typedefuint64_t>` baseOffset,
+			int baseChar,
+			:ref:`uint64_t<doxid-typedefuint64_t>` eofOffset,
+			int eofChar = RegexEofChar
+		);
+	
+		void :target:`reset<doxid-functionjnc_regexstate_reset_2>`(:ref:`jnc.RegexExecFlags<doxid-typejnc_regexexecflags>` flags = 0);
+	
+		void :target:`setEofOffset<doxid-functionjnc_regexstate_seteofoffset>`(
+			:ref:`uint64_t<doxid-typedefuint64_t>` offset,
+			int eofChar = RegexEofChar
+		);
+	
+		void :target:`setEof<doxid-functionjnc_regexstate_seteof>`(int eofChar = RegexEofChar);
+	};

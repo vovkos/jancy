@@ -1,0 +1,67 @@
+.. include:: def.rst
+.. index:: pair: group; Containers & Collections
+.. _doxid-group_std_container:
+
+Containers & Collections
+========================
+
+.. toctree::
+	:hidden:
+
+	enum_stdt_RbTreeColor.rst
+	struct_std_ListEntry.rst
+	struct_std_MapEntry.rst
+	class_std_Array.rst
+	class_std_Buffer.rst
+	class_std_HashTable.rst
+	class_std_List.rst
+	class_std_RbTree.rst
+	class_std_StringHashTable.rst
+	class_std_StringHashTableIgnoreCase.rst
+
+This section describes types for holding structured collections of other
+objects.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_Array.jnc"
+	import "std_Buffer.jnc"
+	import "std_List.jnc"
+	import "std_HashTable.jnc"
+	import "std_RbTree.jnc"
+	
+	// typedefs
+
+	typedef :ref:`size_t<doxid-typedefsize_t>` :target:`std.HashFunc<doxid-typedefstd_hashfunc>`(:ref:`variant_t<doxid-typedefvariant_t>` key);
+
+	typedef bool :target:`std.IsEqualFunc<doxid-typedefstd_isequalfunc>`(
+		:ref:`variant_t<doxid-typedefvariant_t>` key1,
+		:ref:`variant_t<doxid-typedefvariant_t>` key2
+	);
+
+	typedef int :target:`std.CmpFunc<doxid-typedefstd_cmpfunc>`(
+		:ref:`variant_t<doxid-typedefvariant_t>` key1,
+		:ref:`variant_t<doxid-typedefvariant_t>` key2
+	);
+
+	// enums
+
+	enum :ref:`stdt.RbTreeColor<doxid-typestdt_rbtreecolor>`;
+
+	// structs
+
+	struct :ref:`std.ListEntry<doxid-typestd_listentry>`;
+	struct :ref:`std.MapEntry<doxid-typestd_mapentry>`;
+
+	// classes
+
+	class :ref:`std.Array<doxid-typestd_array>`;
+	class :ref:`std.Buffer<doxid-typestd_buffer>`;
+	class :ref:`std.HashTable<doxid-typestd_hashtable>`;
+	class :ref:`std.List<doxid-typestd_list>`;
+	class :ref:`std.RbTree<doxid-typestd_rbtree>`;
+	class :ref:`std.StringHashTable<doxid-typestd_stringhashtable>`;
+	class :ref:`std.StringHashTableIgnoreCase<doxid-typestd_stringhashtableignorecase>`;
+

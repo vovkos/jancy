@@ -1,0 +1,24 @@
+.. include:: def.rst
+.. index:: pair: enum; ClassTypeKind
+.. _doxid-typejnc_classtypekind:
+
+enum jnc.ClassTypeKind
+======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum ClassTypeKind {
+	    :target:`Normal<doxid-enum_memberjnc_classtypekind_normal>`          = 0,
+	    :target:`Abstract<doxid-enum_memberjnc_classtypekind_abstract>`,
+	    :target:`Multicast<doxid-enum_memberjnc_classtypekind_multicast>`,
+	    :target:`McSnapshot<doxid-enum_memberjnc_classtypekind_mcsnapshot>`,
+	    :target:`Reactor<doxid-enum_memberjnc_classtypekind_reactor>`,
+	    :target:`FunctionClosure<doxid-enum_memberjnc_classtypekind_functionclosure>`,
+	    :target:`PropertyClosure<doxid-enum_memberjnc_classtypekind_propertyclosure>`,
+	    :target:`DataClosure<doxid-enum_memberjnc_classtypekind_dataclosure>`,
+	};
+

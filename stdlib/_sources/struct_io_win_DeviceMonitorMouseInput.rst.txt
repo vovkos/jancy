@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorMouseInput
+.. _doxid-typeio_win_devicemonitormouseinput:
+
+struct io.win.DeviceMonitorMouseInput
+=====================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorMouseInput {
+		// fields
+	
+		typedef unsigned short uint16_t :target:`m_unitId<doxid-fieldio_win_devicemonitormouseinput_m_unitid>`;
+		typedef unsigned short uint16_t :target:`m_flags<doxid-fieldio_win_devicemonitormouseinput_m_flags>`;
+		typedef unsigned int uint32_t :target:`m_rawButtons<doxid-fieldio_win_devicemonitormouseinput_m_rawbuttons>`;
+		typedef unsigned int uint32_t :target:`m_extraInformation<doxid-fieldio_win_devicemonitormouseinput_m_extrainformation>`;
+	};

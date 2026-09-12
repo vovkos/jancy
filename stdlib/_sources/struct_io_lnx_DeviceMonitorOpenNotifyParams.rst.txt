@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: struct; io.lnx.DeviceMonitorOpenNotifyParams
+.. _doxid-typeio_lnx_devicemonitoropennotifyparams:
+
+struct io.lnx.DeviceMonitorOpenNotifyParams
+===========================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorOpenNotifyParams {
+		// fields
+	
+		typedef unsigned long uint64_t :target:`m_fileId<doxid-fieldio_lnx_devicemonitoropennotifyparams_m_fileid>`;
+		typedef unsigned int uint32_t :target:`m_flags<doxid-fieldio_lnx_devicemonitoropennotifyparams_m_flags>`;
+		typedef unsigned int uint32_t :target:`m_mode<doxid-fieldio_lnx_devicemonitoropennotifyparams_m_mode>`;
+		typedef unsigned int uint32_t :target:`m_fileNameLength<doxid-fieldio_lnx_devicemonitoropennotifyparams_m_filenamelength>`;
+		typedef unsigned int uint32_t :target:`_m_padding<doxid-fieldio_lnx_devicemonitoropennotifyparams__m_padding>`;
+	};

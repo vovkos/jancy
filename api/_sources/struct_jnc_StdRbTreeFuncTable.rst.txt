@@ -1,0 +1,27 @@
+.. index:: pair: struct; jnc_StdRbTreeFuncTable
+.. _doxid-structjnc___std_rb_tree_func_table:
+
+struct jnc_StdRbTreeFuncTable
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StdRbTreeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___std_rb_tree_func_table_1ad173e5d7c38f57657fddf3d3ac7e29d5>`;
+		jnc_CreateStdRbTreeFunc* :target:`m_createStdRbTreeFunc<doxid-structjnc___std_rb_tree_func_table_1a0b01cd631760a91a5faafa09deb5313e>`;
+		jnc_StdRbTree_ClearFunc* :target:`m_clearFunc<doxid-structjnc___std_rb_tree_func_table_1a3500286777d40c9fafdc73d575c2020a>`;
+		jnc_StdRbTree_FindFunc* :target:`m_findFunc<doxid-structjnc___std_rb_tree_func_table_1a8e3de219ee1cd96646d566e1c69ae353>`;
+		jnc_StdRbTree_AddFunc* :target:`m_addFunc<doxid-structjnc___std_rb_tree_func_table_1afcc47c36462d061c7a163ea6db02baf6>`;
+		jnc_StdRbTree_RemoveFunc* :target:`m_removeFunc<doxid-structjnc___std_rb_tree_func_table_1a2994b6bf3ae8d36ff5b9e96f9dff7e53>`;
+		jnc_StdRbTree_RemoveKeyFunc* :target:`m_removeKeyFunc<doxid-structjnc___std_rb_tree_func_table_1afcac36fed29fbcace1feb1d9e6793332>`;
+	};

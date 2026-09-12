@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdValueFlags
+.. _doxid-typeio_hidrdvalueflags:
+
+bitflag enum io.HidRdValueFlags
+===============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum HidRdValueFlags {
+	    :target:`Constant<doxid-enum_memberio_hidrdvalueflags_constant>`      = 0x0001,
+	    :target:`Variable<doxid-enum_memberio_hidrdvalueflags_variable>`      = 0x0002,
+	    :target:`Relative<doxid-enum_memberio_hidrdvalueflags_relative>`      = 0x0004,
+	    :target:`Wrap<doxid-enum_memberio_hidrdvalueflags_wrap>`          = 0x0008,
+	    :target:`Nonlinear<doxid-enum_memberio_hidrdvalueflags_nonlinear>`     = 0x0010,
+	    :target:`NoPreferred<doxid-enum_memberio_hidrdvalueflags_nopreferred>`   = 0x0020,
+	    :target:`NullState<doxid-enum_memberio_hidrdvalueflags_nullstate>`     = 0x0040,
+	    :target:`Volatile<doxid-enum_memberio_hidrdvalueflags_volatile>`      = 0x0080,
+	    :target:`BufferedBytes<doxid-enum_memberio_hidrdvalueflags_bufferedbytes>` = 0x0100,
+	};
+

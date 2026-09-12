@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; FunctionKindFlags
+.. _doxid-typejnc_functionkindflags:
+
+bitflag enum jnc.FunctionKindFlags
+==================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum FunctionKindFlags {
+	    :target:`NoStorage<doxid-enum_memberjnc_functionkindflags_nostorage>`   = 0x01,
+	    :target:`NoOverloads<doxid-enum_memberjnc_functionkindflags_nooverloads>` = 0x02,
+	    :target:`NoArgs<doxid-enum_memberjnc_functionkindflags_noargs>`      = 0x04,
+	};
+

@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; RegKeyAccess
+.. _doxid-typesys_regkeyaccess:
+
+enum sys.RegKeyAccess
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum RegKeyAccess {
+	    :target:`All<doxid-enum_membersys_regkeyaccess_all>`   = 0x01f003f,
+	    :target:`Read<doxid-enum_membersys_regkeyaccess_read>`  = 0x0020019,
+	    :target:`Write<doxid-enum_membersys_regkeyaccess_write>` = 0x0020006,
+	};
+

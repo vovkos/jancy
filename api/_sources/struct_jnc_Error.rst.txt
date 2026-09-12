@@ -1,0 +1,26 @@
+.. index:: pair: struct; jnc_Error
+.. _doxid-structjnc___error:
+
+struct jnc_Error
+================
+
+.. toctree::
+	:hidden:
+
+Opaque structure used as a handle to Jancy error-describing buffer.
+
+    Use functions from the `Error Subsystem` group to access and manage the contents of this structure.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Error.h>
+	
+	struct jnc_Error {
+		// fields
+	
+		uint32_t :target:`m_size<doxid-structjnc___error_1a5bba75712adf01e5ccae9627c4a89845>`;
+		:ref:`jnc_Guid<doxid-structjnc___guid>` :target:`m_guid<doxid-structjnc___error_1a731e18880356c076d547650f048182b5>`;
+		uint32_t :target:`m_code<doxid-structjnc___error_1a3a648012b767020374c3c109b2b330bc>`;
+	};

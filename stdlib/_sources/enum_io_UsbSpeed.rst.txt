@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbSpeed
+.. _doxid-typeio_usbspeed:
+
+enum io.UsbSpeed
+================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbSpeed: typedef unsigned char uint8_t {
+	    :target:`Unknown<doxid-enum_memberio_usbspeed_unknown>`   = 0,
+	    :target:`Low<doxid-enum_memberio_usbspeed_low>`,
+	    :target:`Full<doxid-enum_memberio_usbspeed_full>`,
+	    :target:`High<doxid-enum_memberio_usbspeed_high>`,
+	    :target:`Super<doxid-enum_memberio_usbspeed_super>`,
+	    :target:`SuperPlus<doxid-enum_memberio_usbspeed_superplus>`,
+	};
+

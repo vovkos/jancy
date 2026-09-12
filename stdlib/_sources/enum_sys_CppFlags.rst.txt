@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; CppFlags
+.. _doxid-typesys_cppflags:
+
+bitflag enum sys.CppFlags
+=========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum CppFlags {
+	    :target:`Gcc<doxid-enum_membersys_cppflags_gcc>`,
+	};
+

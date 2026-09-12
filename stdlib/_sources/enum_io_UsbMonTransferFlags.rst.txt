@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbMonTransferFlags
+.. _doxid-typeio_usbmontransferflags:
+
+bitflag enum io.UsbMonTransferFlags
+===================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum UsbMonTransferFlags: typedef unsigned short uint16_t {
+	    :target:`Completed<doxid-enum_memberio_usbmontransferflags_completed>`,
+	};
+

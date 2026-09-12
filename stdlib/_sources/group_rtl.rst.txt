@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: group; RTL (Runtime Library)
+.. _doxid-group_rtl:
+
+RTL (Runtime Library)
+=====================
+
+.. toctree::
+	:hidden:
+
+	group_rtl-core.rst
+	group_rtl-gc.rst
+	group_rtl-async.rst
+	group_rtl-regex.rst
+	group_rtl-dylayout.rst
+	group_rtl-intro.rst
+
+This section describes built-in types and facilities that are integral part
+of the Jancy language and constitute the RTL (runtime library) of the Jancy
+compiler.
+
+|	:ref:`Core RTL<doxid-group_rtl_core>`
+|	:ref:`Garbage Collection<doxid-group_rtl_gc>`
+|	:ref:`Async-await<doxid-group_rtl_async>`
+|	:ref:`Regular Expressions<doxid-group_rtl_regex>`
+|	:ref:`Dynamic Layouts<doxid-group_rtl_dylayout>`
+|	:ref:`Introspection<doxid-group_rtl_intro>`
+
+

@@ -1,0 +1,61 @@
+.. include:: def.rst
+.. index:: pair: group; System Facilities
+.. _doxid-group_sys:
+
+System Facilities
+=================
+
+.. toctree::
+	:hidden:
+
+	group_sys-time.rst
+	group_sys-thread.rst
+	group_sys-sync.rst
+	group_sys-registry.rst
+
+Overview
+~~~~~~~~
+
+This section describes classes, auxiliary types and functions which provide access to system services. :ref:`More...<details-group_sys>`
+
+|	:ref:`Time & Timers<doxid-group_sys_time>`
+|	:ref:`Thread Management<doxid-group_sys_thread>`
+|	:ref:`Synchronization Facilities<doxid-group_sys_sync>`
+|	:ref:`Windows Registry Management<doxid-group_sys_registry>`
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// properties
+
+	:ref:`string_t<doxid-typedefstring_t>` indexed property :ref:`sys.g_env<doxid-propertysys_g_env>`(:ref:`string_t<doxid-typedefstring_t>` name);
+
+.. _details-group_sys:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes classes, auxiliary types and functions which provide access to system services.
+
+Properties
+----------
+
+.. index:: pair: property; g_env
+.. _doxid-propertysys_g_env:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedefstring_t>` indexed property sys.g_env(:ref:`string_t<doxid-typedefstring_t>` name)
+
+Provides access to the system environment variable table.
+
+Reading from this property results in a call to ``getenv`` standard C
+library function.
+
+Writing to this property translates to ``setenv`` on Linux/Mac and
+``_putenv`` on Windows.
+

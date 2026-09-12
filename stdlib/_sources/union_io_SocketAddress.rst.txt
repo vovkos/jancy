@@ -1,0 +1,147 @@
+.. include:: def.rst
+.. index:: pair: union; io.SocketAddress
+.. _doxid-typeio_socketaddress:
+
+union io.SocketAddress
+======================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This union is a container for both ``IP4`` and ``IP6`` addresses. :ref:`More...<details-typeio_socketaddress>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_SocketAddress.jnc"
+	
+	union SocketAddress {
+		// fields
+	
+		:ref:`io.SocketAddress_ip4<doxid-typeio_socketaddress_ip4>` :ref:`m_ip4<doxid-fieldio_socketaddress_m_ip4>`;
+		:ref:`io.SocketAddress_ip6<doxid-typeio_socketaddress_ip6>` :ref:`m_ip6<doxid-fieldio_socketaddress_m_ip6>`;
+
+		// methods
+	
+		bool :ref:`isEqual<doxid-functionio_socketaddress_isequal>`(io.SocketAddress const* addr) const;
+		bool :ref:`isMatch<doxid-functionio_socketaddress_ismatch>`(io.SocketAddress const* filterAddress) const;
+		bool errorcode :ref:`parse<doxid-functionio_socketaddress_parse>`(:ref:`string_t<doxid-typedefstring_t>` string);
+		:ref:`string_t<doxid-typedefstring_t>` :ref:`getString<doxid-functionio_socketaddress_getstring>`() const;
+
+		// aliases
+	
+		alias :ref:`toString<doxid-aliasio_socketaddress_tostring>` = getString;
+		alias :target:`fromString<doxid-aliasio_socketaddress_fromstring>` = parse;
+	};
+.. _details-typeio_socketaddress:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This union is a container for both ``IP4`` and ``IP6`` addresses.
+
+All methods and/or properties of `io.Socket` class which accept or return
+addresses, use ``io.SocketAddress`` arguments.
+
+Fields
+------
+
+.. index:: pair: variable; m_ip4
+.. _doxid-fieldio_socketaddress_m_ip4:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SocketAddress_ip4<doxid-typeio_socketaddress_ip4>` m_ip4
+
+Holds ``IP4`` socket address as `io.SocketAddress_ip4`.
+
+.. index:: pair: variable; m_ip6
+.. _doxid-fieldio_socketaddress_m_ip6:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SocketAddress_ip6<doxid-typeio_socketaddress_ip6>` m_ip6
+
+Holds ``IP6`` socket address as `io.SocketAddress_ip6`.
+
+Methods
+-------
+
+.. index:: pair: function; isEqual
+.. _doxid-functionio_socketaddress_isequal:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool isEqual(io.SocketAddress const* addr) const
+
+Checks two socket addresses for *equality*; returns ``true`` if
+addresses are equal and ``false`` otherwise.
+
+.. index:: pair: function; isMatch
+.. _doxid-functionio_socketaddress_ismatch:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool isMatch(io.SocketAddress const* filterAddress) const
+
+Checks two socket addresses for *matching*. See
+`io.SocketAddress_ip4.isMatch` or `io.SocketAddress_ip6.isMatch`
+for definition of the term *match*.
+
+Returns ``true`` if addresses *match* and ``false`` otherwise.
+
+.. index:: pair: function; parse
+.. _doxid-functionio_socketaddress_parse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode parse(:ref:`string_t<doxid-typedefstring_t>` string)
+
+Constructs the address from a string representation in ``string``
+argument.
+
+Returns ``true`` if address string was parsed successfully. Otherwise,
+sets the description of parsing error and returns ``false`` [#f1]_.
+
+.. index:: pair: function; getString
+.. _doxid-functionio_socketaddress_getstring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedefstring_t>` getString() const
+
+Creates and returns a string representation of the address.
+
+Aliases
+-------
+
+.. index:: pair: alias; toString
+.. _doxid-aliasio_socketaddress_tostring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias toString = getString
+
+Effectively makes ``io.SocketAddress`` a *stringable* class.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+

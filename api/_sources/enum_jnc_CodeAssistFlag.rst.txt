@@ -1,0 +1,20 @@
+.. index:: pair: enum; jnc_CodeAssistFlag
+.. _doxid-jnc___code_assist_8h_1a8da749159ce87d55d1a34bee0fec5ea4:
+
+enum jnc_CodeAssistFlag
+=======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_CodeAssist.h>
+
+	enum jnc_CodeAssistFlag {
+	    :target:`jnc_CodeAssistFlag_IncludeParentNamespace<doxid-jnc___code_assist_8h_1a8da749159ce87d55d1a34bee0fec5ea4ab5216a7d734f1db121c80378a6a1b969>` = 0x01,
+	    :target:`jnc_CodeAssistFlag_AutoCompleteFallback<doxid-jnc___code_assist_8h_1a8da749159ce87d55d1a34bee0fec5ea4a673d3d55a72b3695449a1feac52bd8db>`   = 0x02,
+	    :target:`jnc_CodeAssistFlag_QualifiedName<doxid-jnc___code_assist_8h_1a8da749159ce87d55d1a34bee0fec5ea4a7ea282f017d9610278c2cd872761984c>`          = 0x04,
+	    :target:`jnc_CodeAssistFlag_Declarator<doxid-jnc___code_assist_8h_1a8da749159ce87d55d1a34bee0fec5ea4a8fce6ae7301f8df50919f0342efdbe85>`             = 0x08,
+	};
+

@@ -1,0 +1,25 @@
+.. index:: pair: group; Module Item
+.. _doxid-group__module-item:
+
+Module Item
+===========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_FindModuleItemResult.rst
+	struct_jnc_ModuleItem.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ModuleItem.h>
+	
+	// structs
+
+	struct :ref:`jnc_FindModuleItemResult<doxid-structjnc___find_module_item_result>`;
+	struct :ref:`jnc_ModuleItem<doxid-structjnc___module_item>`;
+

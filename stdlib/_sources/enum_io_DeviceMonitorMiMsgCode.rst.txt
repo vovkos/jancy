@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; DeviceMonitorMiMsgCode
+.. _doxid-typeio_devicemonitormimsgcode:
+
+enum io.DeviceMonitorMiMsgCode
+==============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DeviceMonitorMiMsgCode {
+	    :target:`Error<doxid-enum_memberio_devicemonitormimsgcode_error>`,
+	    :target:`Start<doxid-enum_memberio_devicemonitormimsgcode_start>`,
+	    :target:`Notification<doxid-enum_memberio_devicemonitormimsgcode_notification>`,
+	    :target:`_Last<doxid-enum_memberio_devicemonitormimsgcode__last>`        = Notification,
+	};
+

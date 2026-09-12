@@ -1,0 +1,41 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorCreateMailslotNotifyParams
+.. _doxid-typeio_win_devicemonitorcreatemailslotnotifyparams:
+
+struct io.win.DeviceMonitorCreateMailslotNotifyParams
+=====================================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorCreateMailslotNotifyParams: :ref:`io.win.DeviceMonitorCreateNotifyParams<doxid-typeio_win_devicemonitorcreatenotifyparams>` {
+		// fields
+	
+		typedef unsigned int uint32_t :target:`m_mailslotQuota<doxid-fieldio_win_devicemonitorcreatemailslotnotifyparams_m_mailslotquota>`;
+		typedef unsigned int uint32_t :target:`m_maxMessageSize<doxid-fieldio_win_devicemonitorcreatemailslotnotifyparams_m_maxmessagesize>`;
+		typedef unsigned long uint64_t :target:`m_readTimeout<doxid-fieldio_win_devicemonitorcreatemailslotnotifyparams_m_readtimeout>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef unsigned int uint32_t :ref:`m_options<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_options>`;
+		typedef unsigned int uint32_t :ref:`m_desiredAccess<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_desiredaccess>`;
+		typedef unsigned int uint32_t :ref:`m_shareAccess<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_shareaccess>`;
+		typedef unsigned int uint32_t :ref:`m_fileAttributes<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_fileattributes>`;
+		typedef unsigned int uint32_t :ref:`m_fileNameLength<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_filenamelength>`;
+		typedef unsigned int uint32_t :ref:`_m_padding<doxid-fieldio_win_devicemonitorcreatenotifyparams__m_padding>`;
+

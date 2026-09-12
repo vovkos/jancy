@@ -1,0 +1,21 @@
+.. index:: pair: struct; jnc_Scheduler
+.. _doxid-structjnc___scheduler:
+
+struct jnc_Scheduler
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_Scheduler {
+		// fields
+	
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>` :target:`m_ifaceHdr<doxid-structjnc___scheduler_1aea5aed0b49a9d0b8ce5af9dbc781c045>`;
+	};

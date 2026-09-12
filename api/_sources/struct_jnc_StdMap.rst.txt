@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_StdMap
+.. _doxid-structjnc___std_map:
+
+struct jnc_StdMap
+=================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StdMap {
+		// fields
+	
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_headPtr<doxid-structjnc___std_map_1a3bcd286871f82311ae414b049e377811>`;
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_tailPtr<doxid-structjnc___std_map_1a0a874a688023da942136a8f3eb6d4c6f>`;
+		size_t :target:`m_count<doxid-structjnc___std_map_1ad356ebc283fe35346aad18671c92525d>`;
+	};

@@ -1,0 +1,28 @@
+.. include:: def.rst
+.. index:: pair: namespace; stdt
+.. _doxid-namespace_stdt:
+
+namespace stdt
+==============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace stdt {
+
+	// enums
+
+	enum :ref:`RbTreeColor<doxid-typestdt_rbtreecolor>`;
+
+	// structs
+
+	struct :ref:`HashString<doxid-typestdt_hashstring>`;
+
+	} // namespace stdt
