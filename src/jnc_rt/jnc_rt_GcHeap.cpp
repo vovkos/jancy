@@ -1003,7 +1003,7 @@ void
 GcHeap::markData(Box* box) {
 	weakMark(box); // weak mark anyway -- this way, we can still reach foreign data box pool after replacing validator
 
-	DestructGraphNode* node = m_state == State_BuildDestructGraph ? m_destructGraph.addEdge(box) : NULL;
+	DestructGraphNode* node = m_state == State_BuildDestructGraph ? m_destructGraph.addEdge(box) : NULL; // duplicate edges are ok
 	if (box->m_flags & BoxFlag_DataMark)
 		return;
 
@@ -1047,7 +1047,7 @@ void
 GcHeap::markClass(Box* box) {
 	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
 
-	DestructGraphNode* node = m_state == State_BuildDestructGraph ? m_destructGraph.addEdge(box) : NULL;
+	DestructGraphNode* node = m_state == State_BuildDestructGraph ? m_destructGraph.addEdge(box) : NULL; // duplicate edges are ok
 	if (box->m_flags & BoxFlag_ClassMark)
 		return;
 
