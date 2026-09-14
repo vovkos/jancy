@@ -174,8 +174,11 @@ public:
 
 	bool
 	JNC_CDECL
-	loadPrivateKey(String fileName) {
-		return m_ssl.usePrivateKeyFile(fileName >> toAxl, SSL_FILETYPE_PEM);
+	loadPrivateKey(
+		String fileName,
+		String passphrase
+	) {
+		return m_ssl.usePrivateKeyPemFile(fileName >> toAxl, passphrase >> toAxl);
 	}
 
 	bool

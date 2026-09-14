@@ -88,7 +88,11 @@ opaque class SslState {
 	bool errorcode setEphemeralEcdhCurve(string_t curveName = "secp112r1");
 
 	bool errorcode loadCertificate(string_t fileName);
-	bool errorcode loadPrivateKey(string_t fileName);
+
+	bool errorcode loadPrivateKey(
+		string_t fileName,
+		string_t passphrase = null
+	);
 
 	bool errorcode loadVerifyLocations(
 		string_t caFileName,
