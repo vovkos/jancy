@@ -342,7 +342,7 @@ Value::getLlvmConst(
 		const void* p
 	);
 
-	GetLlvmConstantFunc* getLlvmConstantFuncTable[TypeKind_PropertyRef + 1] = {
+	static GetLlvmConstantFunc* getLlvmConstantFuncTable[TypeKind_PropertyRef + 1] = {
 		NULL,                                      // TypeKind_Void (should never happen)
 		getLlvmConstantFunc_variant,               // TypeKind_Variant
 		getLlvmConstantFunc_string,                // TypeKind_String
@@ -378,6 +378,65 @@ Value::getLlvmConst(
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT(typeKind < countof(getLlvmConstantFuncTable) && getLlvmConstantFuncTable[typeKind] != NULL);
 	return getLlvmConstantFuncTable[typeKind](type, p);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename T>
+T
+integerCast(
+	Type* type,
+	const void* p
+) {
+	TypeKind typeKind = type->getTypeKind();
+	switch (typeKind) { // switch will generally be faster than a table here
+	case TypeKind_Int8:
+		return (T)*(int8_t*)p;
+
+	case TypeKind_Bool1:
+	case TypeKind_Bool8:
+	case TypeKind_Int8_u:
+		return (T)*(uint8_t*)p;
+
+	case TypeKind_Int16:
+		return (T)*(int16_t*)p;
+
+	case TypeKind_Int16_u:
+		return (T)*(uint16_t*)p;
+
+	case TypeKind_Int32:
+		return (T)*(int32_t*)p;
+
+	case TypeKind_Int32_u:
+		return (T)*(uint32_t*)p;
+
+	case TypeKind_Int64:
+		return (T)*(int64_t*)p;
+
+	case TypeKind_Int64_u:
+		return (T)*(uint64_t*)p;
+
+	case TypeKind_Enum:
+		return integerCast<T>(((EnumType*)type)->getRootType(), p);
+
+	default:
+		ASSERT(false);
+		return 0;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+int32_t
+Value::integerCast32() const {
+	ASSERT(m_valueKind == ValueKind_Const);
+	return integerCast<int32_t>(m_type, m_constData);
+}
+
+int64_t
+Value::integerCast64() const {
+	ASSERT(m_valueKind == ValueKind_Const);
+	return integerCast<int64_t>(m_type, m_constData);
 }
 
 bool

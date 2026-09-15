@@ -3334,10 +3334,7 @@ Parser::addFmtSite(
 		return err::fail("expression is not integer constant");
 	}
 
-	site->m_index = 0;
-	memcpy(&site->m_index, value.getConstData(), value.getType()->getSize());
-
-	literal->m_fmtIndex = site->m_index;
+	literal->m_fmtIndex = site->m_index = value.integerCastToSizeT();
 	return true;
 }
 

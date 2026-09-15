@@ -280,6 +280,26 @@ public:
 		return *(const size_t*)m_constData.cp();
 	}
 
+	int32_t
+	integerCast32() const;
+
+	int64_t
+	integerCast64() const;
+
+	intptr_t
+	integerCastToIntPtr() const {
+#if (JNC_PTR_BITS == 64)
+		return integerCast64();
+#else
+		return integerCast32();
+#endif
+	}
+
+	size_t
+	integerCastToSizeT() const {
+		return integerCastToIntPtr();
+	}
+
 	float
 	getFloat() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(float));

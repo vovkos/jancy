@@ -284,8 +284,7 @@ constant_integer_expr
 				)
 					return err::fail("expression is not integer constant");
 
-				$.m_value = 0;
-				memcpy(&$.m_value, $1.m_value.getConstData(), type->getSize());
+				$.m_value = $1.m_value.integerCast64();
 			}
 	;
 
