@@ -113,6 +113,18 @@ struct jnc_EnumType: jnc_NamedType {
 
 #endif // _JNC_CORE
 
+//..............................................................................
+
+JNC_INLINE
+bool
+jnc_isSignedIntegerType(jnc_Type* type) {
+	if (jnc_Type_getTypeKind(type) == jnc_TypeKind_Enum)
+		type = jnc_EnumType_getRootType((jnc_EnumType*)type);
+
+	uint_t flags = jnc_Type_getTypeKindFlags(type);
+	return (flags & (jnc_TypeKindFlag_Bool | jnc_TypeKindFlag_Integer | jnc_TypeKindFlag_Unsigned)) == jnc_TypeKindFlag_Integer;
+}
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
@@ -127,6 +139,14 @@ const EnumTypeFlag
 	EnumTypeFlag_Exposed = jnc_EnumTypeFlag_Exposed,
 	EnumTypeFlag_BitFlag = jnc_EnumTypeFlag_BitFlag,
 	EnumTypeFlag_All     = jnc_EnumTypeFlag_All;
+
+//..............................................................................
+
+inline
+bool
+isSignedIntegerType(jnc_Type* type) {
+	return jnc_isSignedIntegerType(type);
+}
 
 //..............................................................................
 
