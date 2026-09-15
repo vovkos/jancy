@@ -204,6 +204,26 @@ public:
 		Value* resultValue
 	);
 
+	llvm::Value*
+	createSelect(
+		const Value& condValue,
+		const Value& trueValue,
+		const Value& falseValue,
+		Type* resultType,
+		Value* resultValue
+	) {
+		ASSERT(m_llvmIrBuilder);
+
+		llvm::Value* inst = m_llvmIrBuilder->CreateSelect(
+			condValue.getLlvmValue(),
+			trueValue.getLlvmValue(),
+			falseValue.getLlvmValue()
+		);
+
+		resultValue->setLlvmValue(inst, resultType);
+		return inst;
+	}
+
 	// memory access
 
 	llvm::AllocaInst*
