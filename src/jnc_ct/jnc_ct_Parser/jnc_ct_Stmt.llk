@@ -390,9 +390,16 @@ try_stmt
 	;
 
 throw_stmt
-	:	TokenKind_Throw expression $e? ';'
+	:	TokenKind_Throw
+		(
+			expression $e
+				{
+					return m_module->m_operatorMgr.setError($e.m_value);
+				}
+		)?
+		';'
 			{
-				m_module->m_controlFlowMgr.throwException(&$e ? $e.m_value : Value());
+				m_module->m_controlFlowMgr.throwException();
 			}
 	;
 

@@ -1064,6 +1064,9 @@ public:
 		size_t count
 	);
 
+	bool
+	setError(const Value& error);
+
 	// closure operators
 
 	bool

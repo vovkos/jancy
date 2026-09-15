@@ -642,6 +642,19 @@ OperatorMgr::closeDynamicGroups(
 	return result;
 }
 
+bool
+OperatorMgr::setError(const Value& value) {
+	FindModuleItemResult findResult = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Std)->findDirectChildItem("setError");
+	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_FunctionOverload)
+		return err::fail("missing or invalid `std.setError`");
+
+	Value funcValue;
+
+	return
+		funcValue.trySetFunctionOverload((jnc::FunctionOverload*)findResult.m_item) &&
+		m_module->m_operatorMgr.callOperator(funcValue, value);
+}
+
 //..............................................................................
 
 } // namespace ct
