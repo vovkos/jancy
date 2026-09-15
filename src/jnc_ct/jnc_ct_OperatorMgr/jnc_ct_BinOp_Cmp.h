@@ -110,9 +110,9 @@ public:
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
 				resultValue->setConstBool1(
-					T::constOpInt32(
-						opValue1.getInt32(),
-						opValue2.getInt32(),
+					T::constOpInt64(
+						opValue1.getInt64(),
+						opValue2.getInt64(),
 						(type->getTypeKindFlags() & TypeKindFlag_Unsigned) != 0
 					),
 					m_module
