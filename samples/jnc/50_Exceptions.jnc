@@ -36,7 +36,7 @@ enum Error {
 // 'false' for bools, negative for signed integers, '-1' for unsigned integers.
 // Other types will be cast to 'bool' for error condition checking.
 
-int errorcode foo(int a) {
+Error errorcode foo(int a) {
 	printf("foo (%d)\n", a);
 
 	if (a > 100) {
@@ -57,7 +57,7 @@ int errorcode foo(int a) {
 // if the return types of the errorcode functions match, the error code is
 // automatically propagated down the call stack
 
-int errorcode bar(
+Error errorcode bar(
 	int a,
 	int b
 ) {
@@ -78,21 +78,25 @@ int main() {
 
 	// use 'try' operator to handle the error code manually...
 
-	int error = try bar(1, -150);
+	Error error = try bar(1, -150);
 	if (error < 0) {
+		assert(error == Error.TooLow);
 		printf("bar returned error %d\n", error);
 	}
 
 	bar(2, 3);
-	bar(5, 150);
-	return 0;
 
 	// ...or use the 'catch' label to handle an error in the exception-style
 	// manner
 
-catch:
-	printf("some of the throwing functions above returned an error\n");
-	return -1;
+	try {
+		bar(5, 150);
+
+	catch:
+		printf("caught an error returned by bar\n");
+	}
+
+	return 0;
 }
 
 //..............................................................................
