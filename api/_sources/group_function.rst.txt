@@ -1,0 +1,28 @@
+.. index:: pair: group; Function
+.. _doxid-group__function:
+
+Function
+========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Function.rst
+	union_jnc_OverloadableFunction.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Function.h>
+	
+	// structs
+
+	struct :ref:`jnc_Function<doxid-structjnc___function>`;
+
+	// unions
+
+	union :ref:`jnc_OverloadableFunction<doxid-unionjnc___overloadable_function>`;
+

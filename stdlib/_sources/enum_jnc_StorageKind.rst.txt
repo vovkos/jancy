@@ -1,0 +1,31 @@
+.. include:: def.rst
+.. index:: pair: enum; StorageKind
+.. _doxid-typejnc_storagekind:
+
+enum jnc.StorageKind
+====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum StorageKind {
+	    :target:`Undefined<doxid-enum_memberjnc_storagekind_undefined>`  = 0,
+	    :target:`Alias<doxid-enum_memberjnc_storagekind_alias>`,
+	    :target:`Typedef<doxid-enum_memberjnc_storagekind_typedef>`,
+	    :target:`Static<doxid-enum_memberjnc_storagekind_static>`,
+	    :target:`Tls<doxid-enum_memberjnc_storagekind_tls>`,
+	    :target:`Stack<doxid-enum_memberjnc_storagekind_stack>`,
+	    :target:`Heap<doxid-enum_memberjnc_storagekind_heap>`,
+	    :target:`Member<doxid-enum_memberjnc_storagekind_member>`,
+	    :target:`Abstract<doxid-enum_memberjnc_storagekind_abstract>`,
+	    :target:`Virtual<doxid-enum_memberjnc_storagekind_virtual>`,
+	    :target:`Override<doxid-enum_memberjnc_storagekind_override>`,
+	    :target:`Mutable<doxid-enum_memberjnc_storagekind_mutable>`,
+	    :target:`Disposable<doxid-enum_memberjnc_storagekind_disposable>`,
+	    :target:`This<doxid-enum_memberjnc_storagekind_this>`,
+	    :target:`_Count<doxid-enum_memberjnc_storagekind__count>`,
+	};
+

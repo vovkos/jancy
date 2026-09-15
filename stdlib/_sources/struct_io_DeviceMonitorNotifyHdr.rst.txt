@@ -1,0 +1,28 @@
+.. include:: def.rst
+.. index:: pair: struct; io.DeviceMonitorNotifyHdr
+.. _doxid-typeio_devicemonitornotifyhdr:
+
+struct io.DeviceMonitorNotifyHdr
+================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorNotifyHdr {
+		// fields
+	
+		typedef unsigned int uint32_t :target:`m_signature<doxid-fieldio_devicemonitornotifyhdr_m_signature>`;
+		typedef unsigned short uint16_t :target:`m_code<doxid-fieldio_devicemonitornotifyhdr_m_code>`;
+		typedef unsigned short uint16_t :target:`m_flags<doxid-fieldio_devicemonitornotifyhdr_m_flags>`;
+		typedef unsigned int uint32_t :target:`m_paramSize<doxid-fieldio_devicemonitornotifyhdr_m_paramsize>`;
+		typedef unsigned int uint32_t :target:`m_processId<doxid-fieldio_devicemonitornotifyhdr_m_processid>`;
+		typedef unsigned int uint32_t :target:`m_threadId<doxid-fieldio_devicemonitornotifyhdr_m_threadid>`;
+		typedef unsigned long uint64_t :target:`m_timestamp<doxid-fieldio_devicemonitornotifyhdr_m_timestamp>`;
+	};

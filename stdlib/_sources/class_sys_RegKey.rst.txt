@@ -1,0 +1,78 @@
+.. include:: def.rst
+.. index:: pair: class; sys.RegKey
+.. _doxid-typesys_regkey:
+
+class sys.RegKey
+================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class RegKey {
+		// construction
+	
+		:target:`construct<doxid-functionsys_regkey_construct>`();
+		:target:`destruct<doxid-functionsys_regkey_destruct>`();
+
+		// methods
+	
+		void :target:`close<doxid-functionsys_regkey_close>`();
+	
+		bool errorcode :target:`create<doxid-functionsys_regkey_create>`(
+			:ref:`sys.RegStdKey<doxid-typesys_regstdkey>` parent,
+			:ref:`string_t<doxid-typedefstring_t>` path
+		);
+	
+		bool errorcode :target:`create<doxid-functionsys_regkey_create_2>`(
+			sys.RegKey* parent,
+			:ref:`string_t<doxid-typedefstring_t>` path
+		);
+	
+		bool errorcode :target:`open<doxid-functionsys_regkey_open>`(
+			:ref:`sys.RegStdKey<doxid-typesys_regstdkey>` parent,
+			:ref:`string_t<doxid-typedefstring_t>` path,
+			:ref:`sys.RegKeyAccess<doxid-typesys_regkeyaccess>` access = RegKeyAccess.All
+		);
+	
+		bool errorcode :target:`open<doxid-functionsys_regkey_open_2>`(
+			sys.RegKey* parent,
+			:ref:`string_t<doxid-typedefstring_t>` path,
+			:ref:`sys.RegKeyAccess<doxid-typesys_regkeyaccess>` access = RegKeyAccess.All
+		);
+	
+		void const* errorcode :target:`read<doxid-functionsys_regkey_read>`(
+			:ref:`string_t<doxid-typedefstring_t>` name,
+			:ref:`sys.RegValueType<doxid-typesys_regvaluetype>`* type = null
+		);
+	
+		:ref:`uint32_t<doxid-typedefuint32_t>` :target:`readDword<doxid-functionsys_regkey_readdword>`(:ref:`string_t<doxid-typedefstring_t>` name);
+		:ref:`string_t<doxid-typedefstring_t>` :target:`readString<doxid-functionsys_regkey_readstring>`(:ref:`string_t<doxid-typedefstring_t>` name);
+	
+		bool errorcode :target:`write<doxid-functionsys_regkey_write>`(
+			:ref:`string_t<doxid-typedefstring_t>` name,
+			:ref:`sys.RegValueType<doxid-typesys_regvaluetype>` type,
+			void const* data,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		bool errorcode :target:`writeDword<doxid-functionsys_regkey_writedword>`(
+			:ref:`string_t<doxid-typedefstring_t>` name,
+			:ref:`uint32_t<doxid-typedefuint32_t>` value
+		);
+	
+		bool errorcode :target:`writeString<doxid-functionsys_regkey_writestring>`(
+			:ref:`string_t<doxid-typedefstring_t>` name,
+			:ref:`string_t<doxid-typedefstring_t>` value
+		);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-aliassys_regkey_dispose>` = close;
+	};

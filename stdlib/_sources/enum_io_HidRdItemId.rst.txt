@@ -1,0 +1,37 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdItemId
+.. _doxid-typeio_hidrditemid:
+
+enum io.HidRdItemId
+===================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum HidRdItemId {
+	    :target:`Invalid<doxid-enum_memberio_hidrditemid_invalid>`           = -1,
+	    :target:`UsagePage<doxid-enum_memberio_hidrditemid_usagepage>`         = 0,
+	    :target:`LogicalMinimum<doxid-enum_memberio_hidrditemid_logicalminimum>`,
+	    :target:`LogicalMaximum<doxid-enum_memberio_hidrditemid_logicalmaximum>`,
+	    :target:`PhysicalMinimum<doxid-enum_memberio_hidrditemid_physicalminimum>`,
+	    :target:`PhysicalMaximum<doxid-enum_memberio_hidrditemid_physicalmaximum>`,
+	    :target:`UnitExponent<doxid-enum_memberio_hidrditemid_unitexponent>`,
+	    :target:`Unit<doxid-enum_memberio_hidrditemid_unit>`,
+	    :target:`ReportSize<doxid-enum_memberio_hidrditemid_reportsize>`,
+	    :target:`ReportId<doxid-enum_memberio_hidrditemid_reportid>`,
+	    :target:`ReportCount<doxid-enum_memberio_hidrditemid_reportcount>`,
+	    :target:`Usage<doxid-enum_memberio_hidrditemid_usage>`,
+	    :target:`UsageMinimum<doxid-enum_memberio_hidrditemid_usageminimum>`,
+	    :target:`UsageMaximum<doxid-enum_memberio_hidrditemid_usagemaximum>`,
+	    :target:`DesignatorIndex<doxid-enum_memberio_hidrditemid_designatorindex>`,
+	    :target:`DesignatorMinimum<doxid-enum_memberio_hidrditemid_designatorminimum>`,
+	    :target:`DesignatorMaximum<doxid-enum_memberio_hidrditemid_designatormaximum>`,
+	    :target:`String<doxid-enum_memberio_hidrditemid_string>`,
+	    :target:`StringMinimum<doxid-enum_memberio_hidrditemid_stringminimum>`,
+	    :target:`StringMaximum<doxid-enum_memberio_hidrditemid_stringmaximum>`,
+	    :target:`Delimiter<doxid-enum_memberio_hidrditemid_delimiter>`,
+	};
+

@@ -1,0 +1,12 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbControlRequestType
+.. _doxid-typeio_usbcontrolrequesttype:
+
+struct io.UsbControlRequestType
+===============================
+
+.. toctree::
+	:hidden:
+
+
+

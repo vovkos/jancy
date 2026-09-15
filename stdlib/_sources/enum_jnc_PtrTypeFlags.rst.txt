@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: enum; PtrTypeFlags
+.. _doxid-typejnc_ptrtypeflags:
+
+bitflag enum jnc.PtrTypeFlags
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum PtrTypeFlags {
+	    :target:`Volatile<doxid-enum_memberjnc_ptrtypeflags_volatile>`  = 0x00400000,
+	    :target:`Safe<doxid-enum_memberjnc_ptrtypeflags_safe>`      = 0x00800000,
+	    :target:`Event<doxid-enum_memberjnc_ptrtypeflags_event>`     = 0x01000000,
+	    :target:`AutoEvent<doxid-enum_memberjnc_ptrtypeflags_autoevent>` = 0x02000000,
+	    :target:`Bindable<doxid-enum_memberjnc_ptrtypeflags_bindable>`  = 0x04000000,
+	    :target:`AutoGet<doxid-enum_memberjnc_ptrtypeflags_autoget>`   = 0x08000000,
+	    :target:`BigEndian<doxid-enum_memberjnc_ptrtypeflags_bigendian>` = 0x10000000,
+	    :target:`BitField<doxid-enum_memberjnc_ptrtypeflags_bitfield>`  = 0x20000000,
+	    :target:`ThinThis<doxid-enum_memberjnc_ptrtypeflags_thinthis>`  = 0x40000000,
+	};
+

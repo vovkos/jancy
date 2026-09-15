@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbDeviceStringId
+.. _doxid-typeio_usbdevicestringid:
+
+bitflag enum io.UsbDeviceStringId
+=================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum UsbDeviceStringId {
+	    :target:`Description<doxid-enum_memberio_usbdevicestringid_description>`,
+	    :target:`Manufacturer<doxid-enum_memberio_usbdevicestringid_manufacturer>`,
+	    :target:`Driver<doxid-enum_memberio_usbdevicestringid_driver>`,
+	    :target:`ManufacturerDescriptor<doxid-enum_memberio_usbdevicestringid_manufacturerdescriptor>`,
+	    :target:`ProductDescriptor<doxid-enum_memberio_usbdevicestringid_productdescriptor>`,
+	    :target:`SerialNumberDescriptor<doxid-enum_memberio_usbdevicestringid_serialnumberdescriptor>`,
+	    :target:`Database<doxid-enum_memberio_usbdevicestringid_database>`               = Description | Manufacturer | Driver,
+	    :target:`Descriptors<doxid-enum_memberio_usbdevicestringid_descriptors>`            = ManufacturerDescriptor | ProductDescriptor | SerialNumberDescriptor,
+	    :target:`All<doxid-enum_memberio_usbdevicestringid_all>`                    = Database | Descriptors,
+	};
+

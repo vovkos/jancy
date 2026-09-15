@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.ModuleItem
+.. _doxid-typejnc_moduleitem:
+
+class jnc.ModuleItem
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class ModuleItem {
+		// properties
+	
+		:ref:`jnc.Module<doxid-typejnc_module>`* const property :target:`m_module<doxid-propertyjnc_moduleitem_m_module>`;
+		:ref:`jnc.ModuleItemKind<doxid-typejnc_moduleitemkind>` const property :target:`m_itemKind<doxid-propertyjnc_moduleitem_m_itemkind>`;
+		:ref:`uint_t<doxid-typedefuint_t>` const property :target:`m_flags<doxid-propertyjnc_moduleitem_m_flags>`;
+		:ref:`jnc.Type<doxid-typejnc_type>`* const property :target:`m_type<doxid-propertyjnc_moduleitem_m_type>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_moduleitem_construct>`(long p);
+	};

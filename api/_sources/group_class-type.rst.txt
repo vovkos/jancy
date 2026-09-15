@@ -1,0 +1,35 @@
+.. index:: pair: group; Class Type
+.. _doxid-group__class-type:
+
+Class Type
+==========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_ClassType.rst
+
+Overview
+~~~~~~~~
+
+Class type is used to describe a class in Jancy. :ref:`More...<details-group__class-type>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+	
+	// structs
+
+	struct :ref:`jnc_ClassType<doxid-structjnc___class_type>`;
+
+.. _details-group__class-type:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+Class type is used to describe a class in Jancy.
+
+Unlike structs and unions, classes can contain destructors and virtual functions.
+

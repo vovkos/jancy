@@ -1,0 +1,21 @@
+.. index:: pair: enum; jnc_DynamicSectionKind
+.. _doxid-jnc___dynamic_layout_8h_1abd511bbfa4525b7f616766803db4e2ba:
+
+enum jnc_DynamicSectionKind
+===========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_DynamicLayout.h>
+
+	enum jnc_DynamicSectionKind {
+	    :target:`jnc_DynamicSectionKind_Undefined<doxid-jnc___dynamic_layout_8h_1abd511bbfa4525b7f616766803db4e2baa51969636d6c13ee3b976e84f188c889a>` = 0,
+	    :target:`jnc_DynamicSectionKind_Struct<doxid-jnc___dynamic_layout_8h_1abd511bbfa4525b7f616766803db4e2baa90a62f4933ea5d50dd1fbc14fc9487eb>`,
+	    :target:`jnc_DynamicSectionKind_Array<doxid-jnc___dynamic_layout_8h_1abd511bbfa4525b7f616766803db4e2baa74a4a9b6223ff72d47245746d029f1c3>`,
+	    :target:`jnc_DynamicSectionKind_Field<doxid-jnc___dynamic_layout_8h_1abd511bbfa4525b7f616766803db4e2baad4f52846c929c9ed5f2ad3e10b4beee1>`,
+	    :target:`jnc_DynamicSectionKind_Group<doxid-jnc___dynamic_layout_8h_1abd511bbfa4525b7f616766803db4e2baaad98ece26b11a5d16596c9013ebd1279>`,
+	};
+

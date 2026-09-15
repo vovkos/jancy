@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: enum; RegStdKey
+.. _doxid-typesys_regstdkey:
+
+enum sys.RegStdKey
+==================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum RegStdKey {
+	    :target:`ClassesRoot<doxid-enum_membersys_regstdkey_classesroot>`              = 0x80000000,
+	    :target:`CurrentUser<doxid-enum_membersys_regstdkey_currentuser>`              = 0x80000001,
+	    :target:`LocalMachine<doxid-enum_membersys_regstdkey_localmachine>`             = 0x80000002,
+	    :target:`Users<doxid-enum_membersys_regstdkey_users>`                    = 0x80000003,
+	    :target:`PerformanceData<doxid-enum_membersys_regstdkey_performancedata>`          = 0x80000004,
+	    :target:`PerformanceText<doxid-enum_membersys_regstdkey_performancetext>`          = 0x80000050,
+	    :target:`PerformanceNlstext<doxid-enum_membersys_regstdkey_performancenlstext>`       = 0x80000060,
+	    :target:`CurrentConfig<doxid-enum_membersys_regstdkey_currentconfig>`            = 0x80000005,
+	    :target:`DynData<doxid-enum_membersys_regstdkey_dyndata>`                  = 0x80000006,
+	    :target:`CurrentUserLocalSettings<doxid-enum_membersys_regstdkey_currentuserlocalsettings>` = 0x80000007,
+	};
+

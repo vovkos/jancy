@@ -1,0 +1,85 @@
+.. include:: def.rst
+.. index:: pair: enum; Protocol
+.. _doxid-typeio_protocol:
+
+enum io.Protocol
+================
+
+Overview
+~~~~~~~~
+
+This enumeration contains all possible values for network protocols
+that can be used with sockets. :ref:`More...<details-typeio_protocol>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum Protocol {
+	    :ref:`Icmp<doxid-enum_memberio_protocol_icmp>` = 1,
+	    :ref:`Tcp<doxid-enum_memberio_protocol_tcp>`  = 6,
+	    :ref:`Udp<doxid-enum_memberio_protocol_udp>`  = 17,
+	    :ref:`Raw<doxid-enum_memberio_protocol_raw>`  = 255,
+	};
+
+.. _details-typeio_protocol:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains all possible values for network protocols
+that can be used with sockets.
+
+When opening a socket using `io.Socket.open` method you have to specify the
+protocol to use(all overloads of `io.Socket.open` methods require a
+``protocol`` argument).
+
+
+
+.. rubric:: See also:
+
+`io.Socket`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; Icmp
+.. _doxid-enum_memberio_protocol_icmp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Icmp
+
+``ICMP`` protocol; maps to ``IPPROTO_ICMP`` platform constant.
+
+.. index:: pair: enumvalue; Tcp
+.. _doxid-enum_memberio_protocol_tcp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Tcp
+
+``TCP`` protocol; maps to ``IPPROTO_TCP`` platform constant.
+
+.. index:: pair: enumvalue; Udp
+.. _doxid-enum_memberio_protocol_udp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Udp
+
+``UDP`` protocol; maps to ``IPPROTO_UDP`` platform constant.
+
+.. index:: pair: enumvalue; Raw
+.. _doxid-enum_memberio_protocol_raw:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Raw
+
+Raw ``IP`` protocol; maps to ``IPPROTO_RAW`` platform constant.
+

@@ -1,0 +1,26 @@
+.. index:: pair: struct; jnc_StdBufferFuncTable
+.. _doxid-structjnc___std_buffer_func_table:
+
+struct jnc_StdBufferFuncTable
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StdBufferFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___std_buffer_func_table_1a733c43d7d71273fdb7204365c4411f2e>`;
+		jnc_CreateStdBufferFunc* :target:`m_createStdBufferFunc<doxid-structjnc___std_buffer_func_table_1a89f4edc757085dd67e8026cf56241559>`;
+		jnc_StdBuffer_ReserveFunc* :target:`m_reserveFunc<doxid-structjnc___std_buffer_func_table_1aeb0e368561c15f896b49974d8b31827e>`;
+		jnc_StdBuffer_CopyFunc* :target:`m_copyFunc<doxid-structjnc___std_buffer_func_table_1ae541797034c84cefae2bcf5bc2783076>`;
+		jnc_StdBuffer_InsertFunc* :target:`m_insertFunc<doxid-structjnc___std_buffer_func_table_1a4ff43816c8d09c70b739035d36aaab7b>`;
+		jnc_StdBuffer_RemoveFunc* :target:`m_removeFunc<doxid-structjnc___std_buffer_func_table_1a905dd3d070ec4c27f0018fbd78f3e6b7>`;
+	};

@@ -1,0 +1,92 @@
+.. include:: def.rst
+.. index:: pair: struct; io.PcapAddress
+.. _doxid-typeio_pcapaddress:
+
+struct io.PcapAddress
+=====================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about single address of the Pcap
+device. :ref:`More...<details-typeio_pcapaddress>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_pcap.jncx"
+	
+	struct PcapAddress {
+		// fields
+	
+		io.PcapAddress const* :ref:`m_next<doxid-fieldio_pcapaddress_m_next>`;
+		:ref:`io.Address_ip4<doxid-typeio_address_ip4>` :ref:`m_address<doxid-fieldio_pcapaddress_m_address>`;
+		:ref:`io.Address_ip4<doxid-typeio_address_ip4>` :ref:`m_mask<doxid-fieldio_pcapaddress_m_mask>`;
+		:ref:`io.Address_ip4<doxid-typeio_address_ip4>` :ref:`m_broadcast<doxid-fieldio_pcapaddress_m_broadcast>`;
+	};
+.. _details-typeio_pcapaddress:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about single address of the Pcap
+device.
+
+A list of network adapter addresses is part of Pcap device description
+stored in `io.PcapDeviceDesc`.
+
+
+
+.. rubric:: See also:
+
+`io.PcapDeviceDesc`, `io.createPcapDeviceDescList`
+
+Fields
+------
+
+.. index:: pair: variable; m_next
+.. _doxid-fieldio_pcapaddress_m_next:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	io.PcapAddress const* m_next
+
+Holds a pointer to the next Pcap device or ``null`` if this is the last
+address.
+
+.. index:: pair: variable; m_address
+.. _doxid-fieldio_pcapaddress_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.Address_ip4<doxid-typeio_address_ip4>` m_address
+
+Holds ``IP4`` address of the Pcap device as `io.Address_ip4`.
+
+.. index:: pair: variable; m_mask
+.. _doxid-fieldio_pcapaddress_m_mask:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.Address_ip4<doxid-typeio_address_ip4>` m_mask
+
+Holds ``IP4`` mask of the Pcap device as `io.Address_ip4`.
+
+.. index:: pair: variable; m_broadcast
+.. _doxid-fieldio_pcapaddress_m_broadcast:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.Address_ip4<doxid-typeio_address_ip4>` m_broadcast
+
+Holds ``IP4`` subnet broadcast address of the Pcap device as
+`io.Address_ip4`.
+

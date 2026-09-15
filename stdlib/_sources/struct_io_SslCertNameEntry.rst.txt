@@ -1,0 +1,24 @@
+.. include:: def.rst
+.. index:: pair: struct; io.SslCertNameEntry
+.. _doxid-typeio_sslcertnameentry:
+
+struct io.SslCertNameEntry
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct SslCertNameEntry {
+		// fields
+	
+		:ref:`io.SslNid<doxid-typeio_sslnid>` :target:`m_nid<doxid-fieldio_sslcertnameentry_m_nid>`;
+		typedef String string_t :target:`m_name<doxid-fieldio_sslcertnameentry_m_name>`;
+		typedef String string_t :target:`m_value<doxid-fieldio_sslcertnameentry_m_value>`;
+	};

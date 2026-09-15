@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_FmtLiteral
+.. _doxid-structjnc___fmt_literal:
+
+struct jnc_FmtLiteral
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_FmtLiteral {
+		// fields
+	
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_ptr<doxid-structjnc___fmt_literal_1aeb5e31a9cf1e1ce86bac8679baff9ce1>`;
+		size_t :target:`m_length<doxid-structjnc___fmt_literal_1acd90caaaa7c24fa8e57a6da8227dd948>`;
+		size_t :target:`m_maxLength<doxid-structjnc___fmt_literal_1aefaacbb4ae48661067a916eac54288e6>`;
+	};

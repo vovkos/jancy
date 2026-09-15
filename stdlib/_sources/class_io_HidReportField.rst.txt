@@ -1,0 +1,37 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidReportField
+.. _doxid-typeio_hidreportfield:
+
+class io.HidReportField
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidReportField {
+		// fields
+	
+		:ref:`io.HidReport<doxid-typeio_hidreport>` const* const :target:`m_report<doxid-fieldio_hidreportfield_m_report>`;
+		:ref:`io.HidUsagePage<doxid-typeio_hidusagepage>` const* const :target:`m_usagePage<doxid-fieldio_hidreportfield_m_usagepage>`;
+		typedef unsigned long size_t const :target:`m_bitCount<doxid-fieldio_hidreportfield_m_bitcount>`;
+		:ref:`io.HidRdValueFlags<doxid-typeio_hidrdvalueflags>` const :target:`m_valueFlags<doxid-fieldio_hidreportfield_m_valueflags>`;
+		typedef unsigned long size_t :target:`m_usageCount<doxid-fieldio_hidreportfield_m_usagecount>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedefuint_t>` const indexed property :target:`m_usageArray<doxid-propertyio_hidreportfield_m_usagearray>`(:ref:`size_t<doxid-typedefsize_t>` i);
+		bool const property :target:`m_isPadding<doxid-propertyio_hidreportfield_m_ispadding>`;
+		bool const property :target:`m_isUnsigned<doxid-propertyio_hidreportfield_m_isunsigned>`;
+
+		// methods
+	
+		bool :target:`isSet<doxid-functionio_hidreportfield_isset>`(:ref:`io.HidRdItemId<doxid-typeio_hidrditemid>` id) const;
+		bool :target:`isSet<doxid-functionio_hidreportfield_isset_2>`(:ref:`io.HidRdItemMask<doxid-typeio_hidrditemmask>` mask) const;
+	};

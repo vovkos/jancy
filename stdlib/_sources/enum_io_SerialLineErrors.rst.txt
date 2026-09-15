@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; SerialLineErrors
+.. _doxid-typeio_seriallineerrors:
+
+bitflag enum io.SerialLineErrors
+================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SerialLineErrors {
+	    :target:`FramingError<doxid-enum_memberio_seriallineerrors_framingerror>`,
+	    :target:`ParityError<doxid-enum_memberio_seriallineerrors_parityerror>`,
+	    :target:`BreakError<doxid-enum_memberio_seriallineerrors_breakerror>`,
+	};
+

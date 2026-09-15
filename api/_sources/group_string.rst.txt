@@ -1,0 +1,23 @@
+.. index:: pair: group; String
+.. _doxid-group__string:
+
+String
+======
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_String.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_String.h>
+	
+	// structs
+
+	struct :ref:`jnc_String<doxid-structjnc___string>`;
+

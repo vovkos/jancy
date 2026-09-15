@@ -1,0 +1,55 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidRd
+.. _doxid-typeio_hidrd:
+
+class io.HidRd
+==============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidRd {
+		// fields
+	
+		:ref:`io.HidRdFlags<doxid-typeio_hidrdflags>` const :target:`m_flags<doxid-fieldio_hidrd_m_flags>`;
+		:ref:`io.HidRdCollection<doxid-typeio_hidrdcollection>` const :target:`m_rootCollection<doxid-fieldio_hidrd_m_rootcollection>`;
+
+		// properties
+	
+		:ref:`size_t<doxid-typedefsize_t>` const indexed property :target:`m_reportCount<doxid-propertyio_hidrd_m_reportcount>`(:ref:`io.HidReportType<doxid-typeio_hidreporttype>` reportType);
+	
+		:ref:`io.HidReport<doxid-typeio_hidreport>` const* const indexed property :target:`m_reportArray<doxid-propertyio_hidrd_m_reportarray>`(
+			:ref:`io.HidReportType<doxid-typeio_hidreporttype>` reportType,
+			:ref:`size_t<doxid-typedefsize_t>` i
+		);
+
+		// construction
+	
+		:target:`construct<doxid-functionio_hidrd_construct>`();
+		:target:`destruct<doxid-functionio_hidrd_destruct>`();
+
+		// methods
+	
+		:ref:`io.HidReport<doxid-typeio_hidreport>` const* :target:`findReport<doxid-functionio_hidrd_findreport>`(
+			:ref:`io.HidReportType<doxid-typeio_hidreporttype>` reportType,
+			:ref:`uint_t<doxid-typedefuint_t>` reportId
+		) const;
+	
+		void :target:`clear<doxid-functionio_hidrd_clear>`();
+	
+		void :target:`parse<doxid-functionio_hidrd_parse>`(
+			:ref:`io.HidDb<doxid-typeio_hiddb>` const* db,
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		void :target:`printReports<doxid-functionio_hidrd_printreports>`();
+		void :target:`printCollections<doxid-functionio_hidrd_printcollections>`();
+	};

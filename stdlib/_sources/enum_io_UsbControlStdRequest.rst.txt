@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbControlStdRequest
+.. _doxid-typeio_usbcontrolstdrequest:
+
+enum io.UsbControlStdRequest
+============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbControlStdRequest: typedef unsigned char uint8_t {
+	    :target:`GetStatus<doxid-enum_memberio_usbcontrolstdrequest_getstatus>`,
+	    :target:`ClearFeature<doxid-enum_memberio_usbcontrolstdrequest_clearfeature>`,
+	    :target:`Reserved<doxid-enum_memberio_usbcontrolstdrequest_reserved>`,
+	    :target:`SetFeature<doxid-enum_memberio_usbcontrolstdrequest_setfeature>`,
+	    :target:`Reserved2<doxid-enum_memberio_usbcontrolstdrequest_reserved2>`,
+	    :target:`SetAddress<doxid-enum_memberio_usbcontrolstdrequest_setaddress>`,
+	    :target:`GetDescriptor<doxid-enum_memberio_usbcontrolstdrequest_getdescriptor>`,
+	    :target:`SetDescriptor<doxid-enum_memberio_usbcontrolstdrequest_setdescriptor>`,
+	    :target:`GetConfiguration<doxid-enum_memberio_usbcontrolstdrequest_getconfiguration>`,
+	    :target:`SetConfiguration<doxid-enum_memberio_usbcontrolstdrequest_setconfiguration>`,
+	    :target:`GetInterface<doxid-enum_memberio_usbcontrolstdrequest_getinterface>`,
+	    :target:`SetInterface<doxid-enum_memberio_usbcontrolstdrequest_setinterface>`,
+	    :target:`SynchFrame<doxid-enum_memberio_usbcontrolstdrequest_synchframe>`,
+	};
+

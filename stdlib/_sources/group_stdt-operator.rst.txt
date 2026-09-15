@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: group; stdt-operator
+.. _doxid-group_stdt_operator:
+
+stdt-operator
+=============
+
+.. toctree::
+	:hidden:
+
+	struct_stdt_HashString.rst
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// structs
+
+	struct :ref:`stdt.HashString<doxid-typestdt_hashstring>`;
+

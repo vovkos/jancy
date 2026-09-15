@@ -1,0 +1,85 @@
+.. include:: def.rst
+.. index:: pair: class; io.UsbDevice
+.. _doxid-typeio_usbdevice:
+
+class io.UsbDevice
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class UsbDevice {
+		// fields
+	
+		bool readonly :target:`m_isOpen<doxid-fieldio_usbdevice_m_isopen>`;
+
+		// properties
+	
+		:ref:`io.UsbDeviceDescriptor<doxid-typeio_usbdevicedescriptor>` const* const property :target:`m_deviceDescriptor<doxid-propertyio_usbdevice_m_devicedescriptor>`;
+		:ref:`io.UsbConfigurationDescriptor<doxid-typeio_usbconfigurationdescriptor>` const* const property :target:`m_activeConfigurationDescriptor<doxid-propertyio_usbdevice_m_activeconfigurationdescriptor>`;
+		:ref:`uint8_t<doxid-typedefuint8_t>` property :target:`m_configurationId<doxid-propertyio_usbdevice_m_configurationid>`;
+		:ref:`uint8_t<doxid-typedefuint8_t>` const property :target:`m_address<doxid-propertyio_usbdevice_m_address>`;
+		:ref:`uint8_t<doxid-typedefuint8_t>` const property :target:`m_bus<doxid-propertyio_usbdevice_m_bus>`;
+		:ref:`uint8_t<doxid-typedefuint8_t>` const property :target:`m_port<doxid-propertyio_usbdevice_m_port>`;
+		:ref:`io.UsbSpeed<doxid-typeio_usbspeed>` const property :target:`m_speed<doxid-propertyio_usbdevice_m_speed>`;
+		bool autoget property :target:`m_isAutoDetachKernelDriverEnabled<doxid-propertyio_usbdevice_m_isautodetachkerneldriverenabled>`;
+		bool const indexed property :target:`m_isKernelDriverActive<doxid-propertyio_usbdevice_m_iskerneldriveractive>`(:ref:`uint_t<doxid-typedefuint_t>` interfaceId);
+
+		// construction
+	
+		:target:`construct<doxid-functionio_usbdevice_construct>`();
+		:target:`destruct<doxid-functionio_usbdevice_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`open<doxid-functionio_usbdevice_open>`();
+		void :target:`close<doxid-functionio_usbdevice_close>`();
+		:ref:`uint16_t<doxid-typedefuint16_t>` const* errorcode :target:`getLangIdTable<doxid-functionio_usbdevice_getlangidtable>`();
+	
+		:ref:`string_t<doxid-typedefstring_t>` errorcode :target:`getStringDescriptor<doxid-functionio_usbdevice_getstringdescriptor>`(
+			:ref:`uint_t<doxid-typedefuint_t>` stringId,
+			:ref:`uint_t<doxid-typedefuint_t>` langId = 0
+		);
+	
+		bool errorcode :target:`attachKernelDriver<doxid-functionio_usbdevice_attachkerneldriver>`(:ref:`uint_t<doxid-typedefuint_t>` interfaceId);
+		bool errorcode :target:`detachKernelDriver<doxid-functionio_usbdevice_detachkerneldriver>`(:ref:`uint_t<doxid-typedefuint_t>` interfaceId);
+	
+		:ref:`io.UsbInterface<doxid-typeio_usbinterface>`* errorcode :target:`claimInterface<doxid-functionio_usbdevice_claiminterface>`(
+			:ref:`uint_t<doxid-typedefuint_t>` interfaceId,
+			:ref:`uint_t<doxid-typedefuint_t>` altSettingId = 0
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`controlTransfer<doxid-functionio_usbdevice_controltransfer>`(
+			:ref:`uint_t<doxid-typedefuint_t>` requestType,
+			:ref:`uint_t<doxid-typedefuint_t>` requestCode,
+			:ref:`uint_t<doxid-typedefuint_t>` value,
+			:ref:`uint_t<doxid-typedefuint_t>` index,
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		bool errorcode :target:`controlTransfer<doxid-functionio_usbdevice_controltransfer_2>`(
+			:ref:`uint_t<doxid-typedefuint_t>` requestType,
+			:ref:`uint_t<doxid-typedefuint_t>` requestCode,
+			:ref:`uint_t<doxid-typedefuint_t>` value,
+			:ref:`uint_t<doxid-typedefuint_t>` index,
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1,
+			void function* onCompleted(size_t size, std.Error const* error)
+		);
+	
+		void :target:`cancelControlTransfers<doxid-functionio_usbdevice_cancelcontroltransfers>`();
+
+		// aliases
+	
+		alias :target:`dispose<doxid-aliasio_usbdevice_dispose>` = close;
+	};

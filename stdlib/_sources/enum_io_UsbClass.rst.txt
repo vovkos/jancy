@@ -1,0 +1,38 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbClass
+.. _doxid-typeio_usbclass:
+
+enum io.UsbClass
+================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbClass: typedef unsigned char uint8_t {
+	    :target:`MultiFunction<doxid-enum_memberio_usbclass_multifunction>`       = 0x00,
+	    :target:`Audio<doxid-enum_memberio_usbclass_audio>`               = 0x01,
+	    :target:`Communication<doxid-enum_memberio_usbclass_communication>`       = 0x02,
+	    :target:`Hid<doxid-enum_memberio_usbclass_hid>`                 = 0x03,
+	    :target:`Physical<doxid-enum_memberio_usbclass_physical>`            = 0x05,
+	    :target:`Image<doxid-enum_memberio_usbclass_image>`               = 0x06,
+	    :target:`Printer<doxid-enum_memberio_usbclass_printer>`             = 0x07,
+	    :target:`MassStorage<doxid-enum_memberio_usbclass_massstorage>`         = 0x08,
+	    :target:`Hub<doxid-enum_memberio_usbclass_hub>`                 = 0x09,
+	    :target:`CdcData<doxid-enum_memberio_usbclass_cdcdata>`             = 0x0a,
+	    :target:`SmartCard<doxid-enum_memberio_usbclass_smartcard>`           = 0x0b,
+	    :target:`ContentSecurity<doxid-enum_memberio_usbclass_contentsecurity>`     = 0x0d,
+	    :target:`Video<doxid-enum_memberio_usbclass_video>`               = 0x0e,
+	    :target:`PersonalHealthcare<doxid-enum_memberio_usbclass_personalhealthcare>`  = 0x0f,
+	    :target:`AudioVideo<doxid-enum_memberio_usbclass_audiovideo>`          = 0x10,
+	    :target:`Billboard<doxid-enum_memberio_usbclass_billboard>`           = 0x11,
+	    :target:`UsbTypeCBridge<doxid-enum_memberio_usbclass_usbtypecbridge>`      = 0x12,
+	    :target:`I3c<doxid-enum_memberio_usbclass_i3c>`                 = 0x3c,
+	    :target:`Diagnostic<doxid-enum_memberio_usbclass_diagnostic>`          = 0xdc,
+	    :target:`WirelessController<doxid-enum_memberio_usbclass_wirelesscontroller>`  = 0xe0,
+	    :target:`ApplicationSpecific<doxid-enum_memberio_usbclass_applicationspecific>` = 0xfe,
+	    :target:`VendorSpecific<doxid-enum_memberio_usbclass_vendorspecific>`      = 0xff,
+	};
+

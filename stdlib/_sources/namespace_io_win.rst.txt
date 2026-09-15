@@ -1,0 +1,41 @@
+.. include:: def.rst
+.. index:: pair: namespace; io.win
+.. _doxid-namespace_io_win:
+
+namespace io.win
+================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace win {
+
+	// enums
+
+	enum :ref:`DeviceMonitorKeyboardEventFlag<doxid-typeio_win_devicemonitorkeyboardeventflag>`;
+	enum :ref:`DeviceMonitorMouseEventFlag<doxid-typeio_win_devicemonitormouseeventflag>`;
+	enum :ref:`DeviceMonitorNotifyCode<doxid-typeio_win_devicemonitornotifycode>`;
+	enum :ref:`URB_FUNCTION<doxid-typeio_win_urb_function>`;
+	enum :ref:`USBD_STATUS<doxid-typeio_win_usbd_status>`;
+
+	// structs
+
+	struct :ref:`DeviceMonitorCloseNotifyParams<doxid-typeio_win_devicemonitorclosenotifyparams>`;
+	struct :ref:`DeviceMonitorCreateMailslotNotifyParams<doxid-typeio_win_devicemonitorcreatemailslotnotifyparams>`;
+	struct :ref:`DeviceMonitorCreateNamedPipeNotifyParams<doxid-typeio_win_devicemonitorcreatenamedpipenotifyparams>`;
+	struct :ref:`DeviceMonitorCreateNotifyParams<doxid-typeio_win_devicemonitorcreatenotifyparams>`;
+	struct :ref:`DeviceMonitorIoctlNotifyParams<doxid-typeio_win_devicemonitorioctlnotifyparams>`;
+	struct :ref:`DeviceMonitorKeyboardEventParams<doxid-typeio_win_devicemonitorkeyboardeventparams>`;
+	struct :ref:`DeviceMonitorKeyboardInput<doxid-typeio_win_devicemonitorkeyboardinput>`;
+	struct :ref:`DeviceMonitorMouseEventParams<doxid-typeio_win_devicemonitormouseeventparams>`;
+	struct :ref:`DeviceMonitorMouseInput<doxid-typeio_win_devicemonitormouseinput>`;
+	struct :ref:`DeviceMonitorReadWriteNotifyParams<doxid-typeio_win_devicemonitorreadwritenotifyparams>`;
+
+	} // namespace win

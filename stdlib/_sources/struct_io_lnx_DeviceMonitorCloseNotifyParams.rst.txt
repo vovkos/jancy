@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: struct; io.lnx.DeviceMonitorCloseNotifyParams
+.. _doxid-typeio_lnx_devicemonitorclosenotifyparams:
+
+struct io.lnx.DeviceMonitorCloseNotifyParams
+============================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorCloseNotifyParams {
+		// fields
+	
+		typedef unsigned long uint64_t :target:`m_fileId<doxid-fieldio_lnx_devicemonitorclosenotifyparams_m_fileid>`;
+	};

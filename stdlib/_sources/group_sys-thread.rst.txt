@@ -1,0 +1,69 @@
+.. include:: def.rst
+.. index:: pair: group; Thread Management
+.. _doxid-group_sys_thread:
+
+Thread Management
+=================
+
+.. toctree::
+	:hidden:
+
+	class_sys_Thread.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities for thread creation and management. :ref:`More...<details-group_sys_thread>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "sys_Thread.jnc"
+	
+	// classes
+
+	class :ref:`sys.Thread<doxid-typesys_thread>`;
+
+	// global functions
+
+	:ref:`uintptr_t<doxid-typedefuintptr_t>` :ref:`sys.getCurrentThreadId<doxid-functionsys_getcurrentthreadid>`();
+	:ref:`uint_t<doxid-typedefuint_t>` :ref:`sys.getCurrentProcessId<doxid-functionsys_getcurrentprocessid>`();
+	:ref:`string_t<doxid-typedefstring_t>` errorcode :target:`sys.getProcessImageName<doxid-functionsys_getprocessimagename>`(:ref:`uint_t<doxid-typedefuint_t>` pid);
+
+.. _details-group_sys_thread:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities for thread creation and management.
+
+Global Functions
+----------------
+
+.. index:: pair: function; getCurrentThreadId
+.. _doxid-functionsys_getcurrentthreadid:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uintptr_t<doxid-typedefuintptr_t>` sys.getCurrentThreadId()
+
+Returns the thread identifier (TID) of the current thread.
+
+Translates to ``GetCurrentThreadId`` on Windows and ``pthread_self`` on
+POSIX.
+
+.. index:: pair: function; getCurrentProcessId
+.. _doxid-functionsys_getcurrentprocessid:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint_t<doxid-typedefuint_t>` sys.getCurrentProcessId()
+
+Returns the process identifier (PID) of the current process.
+
+Translates to ``GetCurrentProcessId`` on Windows and ``getpid`` on
+POSIX.
+

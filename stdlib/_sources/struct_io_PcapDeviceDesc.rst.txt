@@ -1,0 +1,104 @@
+.. include:: def.rst
+.. index:: pair: struct; io.PcapDeviceDesc
+.. _doxid-typeio_pcapdevicedesc:
+
+struct io.PcapDeviceDesc
+========================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about the device available for Pcap
+live capture. :ref:`More...<details-typeio_pcapdevicedesc>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_pcap.jncx"
+	
+	struct PcapDeviceDesc {
+		// fields
+	
+		io.PcapDeviceDesc const* :ref:`m_next<doxid-fieldio_pcapdevicedesc_m_next>`;
+		typedef String string_t :ref:`m_name<doxid-fieldio_pcapdevicedesc_m_name>`;
+		typedef String string_t :ref:`m_description<doxid-fieldio_pcapdevicedesc_m_description>`;
+		:ref:`io.PcapAddress<doxid-typeio_pcapaddress>` :ref:`m_address<doxid-fieldio_pcapdevicedesc_m_address>`;
+		typedef unsigned int uint_t :ref:`m_flags<doxid-fieldio_pcapdevicedesc_m_flags>`;
+	};
+.. _details-typeio_pcapdevicedesc:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about the device available for Pcap
+live capture.
+
+A list of Pcap device descriptions is returned by
+`io.createPcapDeviceDescList`.
+
+
+
+.. rubric:: See also:
+
+`io.createPcapDeviceDescList`
+
+Fields
+------
+
+.. index:: pair: variable; m_next
+.. _doxid-fieldio_pcapdevicedesc_m_next:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	io.PcapDeviceDesc const* m_next
+
+Holds a pointer to the next Pcap device description or ``null`` if this
+is the last adapter.
+
+.. index:: pair: variable; m_name
+.. _doxid-fieldio_pcapdevicedesc_m_name:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_name
+
+Holds the Pcap device name; use this name as ``deviceName`` argument in
+`io.Pcap.openDevice` method.
+
+.. index:: pair: variable; m_description
+.. _doxid-fieldio_pcapdevicedesc_m_description:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_description
+
+Holds a human-readable description of Pcap device.
+
+.. index:: pair: variable; m_address
+.. _doxid-fieldio_pcapdevicedesc_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.PcapAddress<doxid-typeio_pcapaddress>` m_address
+
+Holds the head of the list of addresses of this Pcap device. Iterate
+through the list by instpecting `io.PcapAddress.m_next` field.
+
+.. index:: pair: variable; m_flags
+.. _doxid-fieldio_pcapdevicedesc_m_flags:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned int uint_t m_flags
+
+Holds flag options of the Pcap device; currently unused.
+

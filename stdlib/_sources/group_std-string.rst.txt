@@ -1,0 +1,76 @@
+.. include:: def.rst
+.. index:: pair: group; Strings
+.. _doxid-group_std_string:
+
+Strings
+=======
+
+.. toctree::
+	:hidden:
+
+	class_std_StringBuilder.rst
+
+Overview
+~~~~~~~~
+
+This section describes facilities for the efficient string handling. :ref:`More...<details-group_std_string>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_String.jnc"
+	
+	// classes
+
+	class :ref:`std.StringBuilder<doxid-typestd_stringbuilder>`;
+
+	// global functions
+
+	:ref:`string_t<doxid-typedefstring_t>` cdecl :ref:`std.format<doxid-functionstd_format>`(
+		:ref:`string_t<doxid-typedefstring_t>` fmtSpecifier,
+		...
+	);
+
+.. _details-group_std_string:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes facilities for the efficient string handling.
+
+Global Functions
+----------------
+
+.. index:: pair: function; format
+.. _doxid-functionstd_format:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedefstring_t>` cdecl std.format(
+		:ref:`string_t<doxid-typedefstring_t>` fmtSpecifier,
+		...
+	)
+
+Composes a string with the same text that would be printed if
+``fmtSpecifier`` was used in `printf` function, but instead of being
+printed, the content is stored in a memory buffer [#f3]_.
+
+Returns a pointer to null-terminated string containing the newly formatted
+text.
+
+For detailed description of format specifier ``fmtSpecifier`` please refer
+to: http://www.cplusplus.com/reference/cstdio/printf/
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f3]
+
+	Note that this function uses ``C`` vararg calling convention (and
+	actually maps directly to libc ``snprintf``). As such, it is **not
+	safe**. It is recommended to use formatting literals instead.
+

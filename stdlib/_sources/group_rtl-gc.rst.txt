@@ -1,0 +1,57 @@
+.. include:: def.rst
+.. index:: pair: group; Garbage Collection
+.. _doxid-group_rtl_gc:
+
+Garbage Collection
+==================
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_GcStats.rst
+	struct_jnc_GcTriggers.rst
+
+Overview
+~~~~~~~~
+
+This section describes facilities for GC (garbage collection). :ref:`More...<details-group_rtl_gc>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// structs
+
+	struct :ref:`jnc.GcStats<doxid-typejnc_gcstats>`;
+	struct :ref:`jnc.GcTriggers<doxid-typejnc_gctriggers>`;
+
+	// properties
+
+	:ref:`jnc.GcTriggers<doxid-typejnc_gctriggers>` property :target:`jnc.g_gcTriggers<doxid-propertyjnc_g_gctriggers>`;
+
+	// global functions
+
+	:ref:`jnc.GcStats<doxid-typejnc_gcstats>` :target:`jnc.getGcStats<doxid-functionjnc_getgcstats>`();
+	void :ref:`jnc.collectGarbage<doxid-functionjnc_collectgarbage>`();
+
+.. _details-group_rtl_gc:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes facilities for GC (garbage collection).
+
+Global Functions
+----------------
+
+.. index:: pair: function; collectGarbage
+.. _doxid-functionjnc_collectgarbage:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void jnc.collectGarbage()
+
+Forces a full cycle of garbage collection.
+
