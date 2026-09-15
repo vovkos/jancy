@@ -58,6 +58,14 @@ enum SslStdDh {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum SslPrivateKeyResult {
+	PassphraseError = -2,
+	Error           = -1,
+	Success         = 0,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class SslState {
 	size_t const property m_availableCipherCount;
 	SslCipher* const property m_availableCipherSet(size_t i);
@@ -89,7 +97,7 @@ opaque class SslState {
 
 	bool errorcode loadCertificate(string_t fileName);
 
-	bool errorcode loadPrivateKey(
+	SslPrivateKeyResult errorcode loadPrivateKey(
 		string_t fileName,
 		string_t passphrase = null
 	);

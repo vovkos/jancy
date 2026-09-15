@@ -172,7 +172,7 @@ public:
 		return m_ssl.useCertificateFile(fileName >> toAxl, SSL_FILETYPE_PEM);
 	}
 
-	bool
+	cry::PrivateKeyResult
 	JNC_CDECL
 	loadPrivateKey(
 		String fileName,
