@@ -557,12 +557,12 @@ opaque class Serial {
 		size_t size
 	);
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		SerialEvents eventMask,
 		function* handler(SerialEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	SerialEvents blockingWait(
 		SerialEvents eventMask,

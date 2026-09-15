@@ -76,12 +76,12 @@ opaque class SslSocket: SslState {
 		size_t size
 	);
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		SslSocketEvents eventMask,
 		function* handler(SslSocketEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	SslSocketEvents blockingWait(
 		SslSocketEvents eventMask,

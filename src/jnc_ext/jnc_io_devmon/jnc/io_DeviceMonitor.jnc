@@ -60,12 +60,12 @@ opaque class DeviceMonitor {
 		size_t size
 	);
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		DeviceMonitorEvents eventMask,
 		function* handler(DeviceMonitorEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	DeviceMonitorEvents blockingWait(
 		DeviceMonitorEvents eventMask,

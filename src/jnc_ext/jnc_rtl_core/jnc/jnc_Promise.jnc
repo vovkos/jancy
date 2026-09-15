@@ -39,15 +39,15 @@ public:
 		m_scheduler = scheduler;
 	}
 
-	intptr errorcode wait(function* handler());
-	intptr errorcode wait(function* handler(std.Error const* error));
+	uintptr_t errorcode wait(function* handler());
+	uintptr_t errorcode wait(function* handler(std.Error const* error));
 
-	intptr errorcode wait(function* handler(
+	uintptr_t errorcode wait(function* handler(
 		variant_t result,
 		std.Error const* error
 	));
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	variant_t blockingWait();
 	async variant_t asyncWait();

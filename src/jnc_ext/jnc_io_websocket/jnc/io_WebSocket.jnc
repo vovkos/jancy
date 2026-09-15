@@ -202,12 +202,12 @@ opaque class WebSocket {
 		return write(WebSocketFrameOpcode.Close, null, 0);
 	}
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		WebSocketEvents eventMask,
 		function* handler(WebSocketEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	WebSocketEvents blockingWait(
 		WebSocketEvents eventMask,

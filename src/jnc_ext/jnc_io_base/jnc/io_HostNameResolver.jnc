@@ -47,12 +47,12 @@ opaque class HostNameResolver {
 	void close();
 	alias dispose = cancel;
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		HostNameResolverEvents eventMask,
 		function* handler(HostNameResolverEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	HostNameResolverEvents blockingWait(
 		HostNameResolverEvents eventMask,

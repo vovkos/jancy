@@ -92,12 +92,12 @@ opaque class ChildProcess {
 		size_t size
 	);
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		ChildProcessEvents eventMask,
 		function* handler(ChildProcessEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	ChildProcessEvents blockingWait(
 		ChildProcessEvents eventMask,

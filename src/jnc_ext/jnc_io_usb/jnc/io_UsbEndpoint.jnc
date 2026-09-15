@@ -72,12 +72,12 @@ opaque class UsbEndpoint {
 		size_t size
 	);
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		UsbEndpointEvents eventMask,
 		function* handler(UsbEndpointEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	UsbEndpointEvents blockingWait(
 		UsbEndpointEvents eventMask,

@@ -325,12 +325,12 @@ opaque class Pcap {
 		size_t size
 	);
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		PcapEvents eventMask,
 		function* handler(PcapEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	PcapEvents blockingWait(
 		PcapEvents eventMask,

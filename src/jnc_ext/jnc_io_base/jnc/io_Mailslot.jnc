@@ -192,12 +192,12 @@ opaque class Mailslot {
 		size_t size
 	);
 
-	intptr errorcode wait(
+	uintptr_t errorcode wait(
 		MailslotEvents eventMask,
 		function* handler(MailslotEvents triggeredEvents)
 	);
 
-	bool errorcode cancelWait(intptr handle);
+	bool errorcode cancelWait(uintptr_t handle);
 
 	MailslotEvents blockingWait(
 		MailslotEvents eventMask,
