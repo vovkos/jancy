@@ -360,11 +360,13 @@ public:
 		Value* value
 	);
 
-	bool
+	void
 	throwException(const Value& value);
 
 	void
-	throwException();
+	throwException() {
+		throwException(Value());
+	}
 
 	void
 	checkErrorCode(

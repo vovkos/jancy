@@ -606,7 +606,7 @@ Scope*
 NamespaceMgr::findCatchScope() {
 	Scope* scope = m_currentScope;
 	for (; scope; scope = scope->getParentScope()) {
-		if (scope->m_tryExpr || scope->m_catchBlock)
+		if (scope->m_catchBlock)
 			break;
 	}
 

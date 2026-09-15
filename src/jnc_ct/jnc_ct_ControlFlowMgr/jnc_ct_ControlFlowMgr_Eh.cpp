@@ -65,32 +65,8 @@ ControlFlowMgr::markLandingPad(
 	block->m_landingPadScope = scope;
 }
 
-bool
-ControlFlowMgr::throwException(const Value& value) {
-	if (value.isEmpty()) {
-		throwException();
-		return true;
-	}
-
-	FindModuleItemResult findResult = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Std)->findDirectChildItem("setError");
-	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_FunctionOverload)
-		return err::fail("missing or invalid `std.setError`");
-
-	Value setError;
-
-	bool result =
-		setError.trySetFunctionOverload((jnc::FunctionOverload*)findResult.m_item) &&
-		m_module->m_operatorMgr.callOperator(setError, value);
-
-	if (!result)
-		return false;
-
-	throwException();
-	return true;
-}
-
 void
-ControlFlowMgr::throwException() {
+ControlFlowMgr::throwException(const Value& value) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -102,13 +78,20 @@ ControlFlowMgr::throwException() {
 
 	Scope* catchScope = m_module->m_namespaceMgr.findCatchScope();
 	if (catchScope) {
+		if (catchScope->m_tryExpr)
+			catchScope->m_tryExpr->m_throwValue = value;
+
 		escapeScope(catchScope, catchScope->getCatchBlock());
 	} else {
 		FunctionType* currentFunctionType = m_module->m_functionMgr.getCurrentFunction()->getType();
 		ASSERT(currentFunctionType->getFlags() & FunctionTypeFlag_ErrorCode);
 
-		Value throwValue = currentFunctionType->getReturnType()->getErrorCodeValue();
-		ret(throwValue);
+		Value throwValue;
+		bool result =
+			m_module->m_operatorMgr.castErrorCodeValue(value, currentFunctionType->getReturnType(), &throwValue) &&
+			ret(throwValue);
+
+		ASSERT(result);
 	}
 }
 
@@ -192,14 +175,16 @@ ControlFlowMgr::beginTryOperator() {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 
 	TryExpr* tryExpr = m_module->m_namespaceMgr.createScopeExtension<TryExpr>();
-	tryExpr->m_prev = scope->m_tryExpr;
+	tryExpr->m_prevTryExpr = scope->m_tryExpr;
+	tryExpr->m_prevCatchBlock = scope->m_catchBlock;
 	tryExpr->m_catchBlock = createBlock("try_catch_block");
-	tryExpr->m_sjljFrameIdx = tryExpr->m_prev ?
-		tryExpr->m_prev->m_sjljFrameIdx + 1 :
+	tryExpr->m_sjljFrameIdx = tryExpr->m_prevTryExpr ?
+		tryExpr->m_prevTryExpr->m_sjljFrameIdx + 1 :
 		scope->m_sjljFrameIdx + 1;
 
 	setJmp(tryExpr->m_catchBlock, tryExpr->m_sjljFrameIdx);
 	scope->m_tryExpr = tryExpr;
+	scope->m_catchBlock = tryExpr->m_catchBlock;
 	return tryExpr;
 }
 
@@ -214,10 +199,11 @@ ControlFlowMgr::endTryOperator(
 		value->setConstBool1(true, m_module);
 		errorValue.setConstBool1(false, m_module);
 	} else if (isErrorCodeType(type)) {
-		errorValue = type->getErrorCodeValue();
-	} else {
+		bool result = m_module->m_operatorMgr.castErrorCodeValue(tryExpr->m_throwValue, type, &errorValue);
+		if (!result)
+			return false;
+	} else
 		return err::fail("'%s' cannot be used as error code", type->getTypeString().sz());
-	}
 
 	if (!m_module->hasCodeGen())
 		return true;
@@ -238,7 +224,8 @@ ControlFlowMgr::endTryOperator(
 
 	m_module->m_llvmIrBuilder.createPhi(*value, prevBlock, errorValue, tryExpr->m_catchBlock, value);
 
-	scope->m_tryExpr = tryExpr->m_prev;
+	scope->m_tryExpr = tryExpr->m_prevTryExpr;
+	scope->m_catchBlock = tryExpr->m_prevCatchBlock;
 	return true;
 }
 
@@ -257,12 +244,24 @@ ControlFlowMgr::checkErrorCode(
 	if ((typeKindFlags & (TypeKindFlag_Bool | TypeKindFlag_Integer)) != TypeKindFlag_Integer) // bool or not integer
 		indicatorValue = returnValue;
 	else {
-		uint64_t minusOne = -1;
-		Value minusOneValue;
-		minusOneValue.createConst(&minusOne, returnType);
-
-		result = m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, returnValue, minusOneValue, &indicatorValue);
-		ASSERT(result);
+		Type* intType = returnType->getTypeKind() == TypeKind_Enum ? ((EnumType*)returnType)->getRootType() : returnType;
+		if (intType->getTypeKindFlags() & TypeKindFlag_Unsigned) { // != -1 for unsigned integers
+			result = m_module->m_operatorMgr.binaryOperator(
+				BinOpKind_Ne,
+				returnValue,
+				Value((int64_t)-1, returnType),
+				&indicatorValue
+			);
+			ASSERT(result);
+		} else { // >= 0 for signed integers
+			result = m_module->m_operatorMgr.binaryOperator(
+				BinOpKind_Ge,
+				returnValue,
+				Value((int64_t)0, returnType),
+				&indicatorValue
+			);
+			ASSERT(result);
+		}
 	}
 
 	BasicBlock* followBlock = createBlock("follow_block");
@@ -285,7 +284,7 @@ ControlFlowMgr::checkErrorCode(
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, throwBlock);
 		ASSERT(result);
 
-		throwException();
+		throwException(returnValue);
 		setCurrentBlock(followBlock);
 	}
 }

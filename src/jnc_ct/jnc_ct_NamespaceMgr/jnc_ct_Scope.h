@@ -31,8 +31,10 @@ struct ScopeExtension {
 };
 
 struct TryExpr: ScopeExtension {
-	TryExpr* m_prev;
+	TryExpr* m_prevTryExpr;
+	BasicBlock* m_prevCatchBlock;
 	BasicBlock* m_catchBlock;
+	Value m_throwValue;
 	size_t m_sjljFrameIdx;
 };
 
@@ -147,7 +149,7 @@ public:
 
 	BasicBlock*
 	getCatchBlock() {
-		return m_tryExpr ? m_tryExpr->m_catchBlock : m_catchBlock;
+		return m_catchBlock;
 	}
 
 protected:

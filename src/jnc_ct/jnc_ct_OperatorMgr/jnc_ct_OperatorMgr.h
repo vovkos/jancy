@@ -551,6 +551,21 @@ public:
 		return castOperator(OperatorDynamism_Static, *value, typeKind, value);
 	}
 
+	bool
+	castErrorCodeValue(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue = NULL
+	);
+
+	bool
+	castErrorCodeValue(
+		Value* value,
+		Type* type
+	) {
+		return castErrorCodeValue(*value, type, value);
+	}
+
 	void
 	swapByteOrder(
 		const Value& opValue,

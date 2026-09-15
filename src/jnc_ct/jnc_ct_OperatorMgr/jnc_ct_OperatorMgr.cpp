@@ -594,6 +594,51 @@ OperatorMgr::castOperator(
 }
 
 bool
+OperatorMgr::castErrorCodeValue(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	ASSERT(isErrorCodeType(type));
+
+	// a specific error code only survives if both sides are signed integers
+
+	if (!opValue ||
+		!isSignedIntegerType(opValue.getType()) ||
+		!isSignedIntegerType(type)
+	) { // nope, use canonical error code
+		*resultValue = type->getErrorCodeValue();
+		return true;
+	}
+
+	Value errorValue;
+	bool result = castOperator(opValue, type, &errorValue);
+	if (!result)
+		return false;
+
+	if (type->getSize() >= opValue.getType()->getSize() || // the sign survives a widening cast
+		!m_module->hasCodeGen()
+	) {
+		*resultValue = errorValue;
+		return true;
+	}
+
+	// narrowing can clearthe sign -- check the actual value
+
+	if (errorValue.getValueKind() ==  ValueKind_Const) { // preferably, at compile time
+		*resultValue = errorValue.integerCast64() < 0 ? errorValue : type->getErrorCodeValue();
+		return true;
+	}
+
+	// ...otherwise, at run time
+
+	Value cmpValue;
+	m_module->m_llvmIrBuilder.createLt_i(errorValue, type->getZeroValue(), &cmpValue);
+	m_module->m_llvmIrBuilder.createSelect(cmpValue, errorValue, type->getErrorCodeValue(), type, resultValue);
+	return true;
+}
+
+bool
 OperatorMgr::dynamicCastDataPtr(
 	const Value& opValue,
 	DataPtrType* type,
