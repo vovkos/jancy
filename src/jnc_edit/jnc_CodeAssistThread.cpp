@@ -20,8 +20,8 @@ namespace jnc {
 CodeAssistThread::CodeAssistThread(QObject* parent):
 	CodeAssistThreadBase(parent) {
 	rc::Ptr<AutoModule> module = AXL_RC_NEW(rc::Box<AutoModule>);
-	m_module.attach(module->p(), module.getRefCount());
-	module.detach();
+	rc::DetachedPtr<AutoModule> detached = module.detach();
+	m_module.attach(detached->p(), detached.m_refCount);
 }
 
 void
