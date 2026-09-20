@@ -236,6 +236,26 @@ LlvmIrBuilder::createPhi(
 	return phiNode;
 }
 
+llvm::PHINode*
+LlvmIrBuilder::createPhi(
+	const sl::BoxList<PhiEdge>& phiList,
+	Value* resultValue
+) {
+	ASSERT(m_llvmIrBuilder);
+
+	// all edges must already be cast to a common type -- the first one decides
+
+	sl::ConstBoxIterator<PhiEdge> it = phiList.getHead();
+	Type* type = it->m_value.getType();
+	llvm::PHINode* phiNode = m_llvmIrBuilder->CreatePHI(type->getLlvmType(), (uint_t)phiList.getCount());
+
+	for (; it; it++)
+		phiNode->addIncoming(it->m_value.getLlvmValue(), it->m_block->getLlvmBlock());
+
+	resultValue->setLlvmValue(phiNode, type);
+	return phiNode;
+}
+
 llvm::Value*
 LlvmIrBuilder::createGep(
 	const Value& value,

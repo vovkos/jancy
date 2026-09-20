@@ -197,6 +197,12 @@ public:
 
 	llvm::PHINode*
 	createPhi(
+		const sl::BoxList<PhiEdge>& phiList,
+		Value* resultValue
+	);
+
+	llvm::PHINode*
+	createPhi(
 		const Value& value1,
 		BasicBlock* block1,
 		const Value& value2,

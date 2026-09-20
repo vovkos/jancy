@@ -375,7 +375,9 @@ public:
 		BasicBlock* throwBlock = NULL
 	);
 
-	void
+	// returns the block the longjmp edge arrives from (different on win vs POSIX)
+
+	BasicBlock*
 	setJmp(
 		BasicBlock* catchBlock,
 		size_t sjljFrameIdx

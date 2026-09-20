@@ -30,11 +30,13 @@ struct ScopeExtension {
 	~ScopeExtension() {}
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct TryExpr: ScopeExtension {
 	TryExpr* m_prevTryExpr;
 	BasicBlock* m_prevCatchBlock;
 	BasicBlock* m_catchBlock;
-	Value m_throwValue;
+	sl::BoxList<PhiEdge> m_phiEdgeList;
 	size_t m_sjljFrameIdx;
 };
 

@@ -78,8 +78,11 @@ ControlFlowMgr::throwException(const Value& value) {
 
 	Scope* catchScope = m_module->m_namespaceMgr.findCatchScope();
 	if (catchScope) {
-		if (catchScope->m_tryExpr)
-			catchScope->m_tryExpr->m_throwValue = value;
+		if (catchScope->m_tryExpr) {
+			sl::BoxIterator<PhiEdge> it = catchScope->m_tryExpr->m_phiEdgeList.insertTail();
+			it->m_block = m_currentBlock;
+			it->m_value = value;
+		}
 
 		escapeScope(catchScope, catchScope->getCatchBlock());
 	} else {
@@ -95,13 +98,13 @@ ControlFlowMgr::throwException(const Value& value) {
 	}
 }
 
-void
+BasicBlock*
 ControlFlowMgr::setJmp(
 	BasicBlock* catchBlock,
 	size_t sjljFrameIdx
 ) {
 	if (!m_module->hasCodeGen())
-		return;
+		return NULL;
 
 	if (!m_sjljFrameArrayValue)
 		preCreateSjljFrameArray();
@@ -127,6 +130,8 @@ ControlFlowMgr::setJmp(
 	BasicBlock* followBlock = createBlock("follow_block");
 
 #if (!_JNC_OS_POSIX)
+	BasicBlock* throwBlock = m_currentBlock; // the setjmp block branches straight to the catch block
+
 	bool result = conditionalJump(returnValue, catchBlock, followBlock, followBlock);
 	ASSERT(result);
 #else
@@ -139,12 +144,16 @@ ControlFlowMgr::setJmp(
 	setCurrentBlock(preCatchBlock);
 	m_module->m_llvmIrBuilder.createCall(saveSignalInfoFunc, saveSignalInfoFunc->getType(), sjljFrameValue, NULL);
 	jump(catchBlock, followBlock);
+
+	BasicBlock* throwBlock = preCatchBlock; // POSIX detours through pre_catch_block
 #endif
 
 	if (sjljFrameIdx >= m_sjljFrameCount) {
 		ASSERT(m_sjljFrameCount == sjljFrameIdx);
 		m_sjljFrameCount = sjljFrameIdx + 1;
 	}
+
+	return throwBlock;
 }
 
 void
@@ -182,7 +191,10 @@ ControlFlowMgr::beginTryOperator() {
 		tryExpr->m_prevTryExpr->m_sjljFrameIdx + 1 :
 		scope->m_sjljFrameIdx + 1;
 
-	setJmp(tryExpr->m_catchBlock, tryExpr->m_sjljFrameIdx);
+	BasicBlock* throwBlock = setJmp(tryExpr->m_catchBlock, tryExpr->m_sjljFrameIdx);
+	sl::BoxIterator<PhiEdge> it = tryExpr->m_phiEdgeList.insertTail();
+	it->m_block = throwBlock;
+
 	scope->m_tryExpr = tryExpr;
 	scope->m_catchBlock = tryExpr->m_catchBlock;
 	return tryExpr;
@@ -195,14 +207,15 @@ ControlFlowMgr::endTryOperator(
 ) {
 	Value errorValue;
 	Type* type = value->getType();
+
+	bool hasStaticThrowPhi;
 	if (type->getTypeKind() == TypeKind_Void) {
 		value->setConstBool1(true, m_module);
 		errorValue.setConstBool1(false, m_module);
-	} else if (isErrorCodeType(type)) {
-		bool result = m_module->m_operatorMgr.castErrorCodeValue(tryExpr->m_throwValue, type, &errorValue);
-		if (!result)
-			return false;
-	} else
+		hasStaticThrowPhi = false;
+	} else if (isErrorCodeType(type))
+		hasStaticThrowPhi = !tryExpr->m_phiEdgeList.isEmpty();
+	else
 		return err::fail("'%s' cannot be used as error code", type->getTypeString().sz());
 
 	if (!m_module->hasCodeGen())
@@ -218,10 +231,28 @@ ControlFlowMgr::endTryOperator(
 	ASSERT(tryExpr->m_sjljFrameIdx != -1);
 	setSjljFrame(tryExpr->m_sjljFrameIdx - 1); // restore prev sjlj frame on normal flow
 	jump(phiBlock, tryExpr->m_catchBlock);
-
 	markLandingPad(tryExpr->m_catchBlock, scope, BasicBlockFlag_ExceptionLandingPad);
-	jump(phiBlock, phiBlock);
 
+	if (hasStaticThrowPhi) {
+		BasicBlock* prevBlock = m_currentBlock;
+		sl::BoxIterator<PhiEdge> it = tryExpr->m_phiEdgeList.getHead();
+		for (; it; it++) {
+			setCurrentBlock(it->m_block);
+			ASSERT(it->m_block->hasTerminator());
+			m_module->m_llvmIrBuilder.setInsertPoint(it->m_block->getLlvmBlock()->getTerminator());
+
+			bool result = m_module->m_operatorMgr.castErrorCodeValue(&it->m_value, type);
+			if (!result)
+				return false;
+
+			ASSERT(m_currentBlock == it->m_block); // cast shouldn't alter control flow
+		}
+
+		setCurrentBlock(prevBlock);
+		m_module->m_llvmIrBuilder.createPhi(tryExpr->m_phiEdgeList, &errorValue);
+	}
+
+	jump(phiBlock, phiBlock);
 	m_module->m_llvmIrBuilder.createPhi(*value, prevBlock, errorValue, tryExpr->m_catchBlock, value);
 
 	scope->m_tryExpr = tryExpr->m_prevTryExpr;
@@ -669,7 +700,7 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 		BasicBlock* block = m_landingPadBlockArray[i];
 		ASSERT(block->m_landingPadScope && !block->m_llvmBlock->empty());
 
-		m_module->m_llvmIrBuilder.setInsertPoint(&*block->m_llvmBlock->begin());
+		m_module->m_llvmIrBuilder.setInsertPoint(&*block->m_llvmBlock->getFirstNonPHI());
 		setSjljFrame(block->m_landingPadScope->m_sjljFrameIdx);
 
 		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr    not do it for us
