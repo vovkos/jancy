@@ -1,0 +1,36 @@
+.. include:: def.rst
+.. index:: pair: struct; io.SshConnectParams
+.. _doxid-typeio_sshconnectparams:
+
+struct io.SshConnectParams
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct SshConnectParams {
+		// fields
+	
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` :target:`m_address<doxid-fieldio_sshconnectparams_m_address>`;
+		typedef String string_t :target:`m_userName<doxid-fieldio_sshconnectparams_m_username>`;
+		typedef String string_t :target:`m_privateKeyFileName<doxid-fieldio_sshconnectparams_m_privatekeyfilename>`;
+		void const* :target:`m_privateKey<doxid-fieldio_sshconnectparams_m_privatekey>`;
+		typedef unsigned long size_t :target:`m_privateKeySize<doxid-fieldio_sshconnectparams_m_privatekeysize>`;
+		typedef String string_t :target:`m_password<doxid-fieldio_sshconnectparams_m_password>`;
+		typedef String string_t :target:`m_channelType<doxid-fieldio_sshconnectparams_m_channeltype>`;
+		void const* :target:`m_channelExtra<doxid-fieldio_sshconnectparams_m_channelextra>`;
+		typedef unsigned long size_t :target:`m_channelExtraSize<doxid-fieldio_sshconnectparams_m_channelextrasize>`;
+		typedef String string_t :target:`m_processType<doxid-fieldio_sshconnectparams_m_processtype>`;
+		void const* :target:`m_processExtra<doxid-fieldio_sshconnectparams_m_processextra>`;
+		typedef unsigned long size_t :target:`m_processExtraSize<doxid-fieldio_sshconnectparams_m_processextrasize>`;
+		typedef String string_t :target:`m_ptyType<doxid-fieldio_sshconnectparams_m_ptytype>`;
+		typedef unsigned int uint_t :target:`m_ptyWidth<doxid-fieldio_sshconnectparams_m_ptywidth>`;
+		typedef unsigned int uint_t :target:`m_ptyHeight<doxid-fieldio_sshconnectparams_m_ptyheight>`;
+	};

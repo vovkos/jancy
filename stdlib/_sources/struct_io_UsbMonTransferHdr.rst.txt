@@ -1,0 +1,33 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbMonTransferHdr
+.. _doxid-typeio_usbmontransferhdr:
+
+struct io.UsbMonTransferHdr
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbMonTransferHdr {
+		// fields
+	
+		typedef unsigned long uint64_t :target:`m_id<doxid-fieldio_usbmontransferhdr_m_id>`;
+		typedef unsigned long uint64_t :target:`m_timestamp<doxid-fieldio_usbmontransferhdr_m_timestamp>`;
+		typedef unsigned int uint32_t :target:`m_status<doxid-fieldio_usbmontransferhdr_m_status>`;
+		typedef unsigned short uint16_t :target:`m_urbFunction<doxid-fieldio_usbmontransferhdr_m_urbfunction>`;
+		:ref:`io.UsbMonTransferFlags<doxid-typeio_usbmontransferflags>` :target:`m_flags<doxid-fieldio_usbmontransferhdr_m_flags>`;
+		:ref:`io.UsbTransferType<doxid-typeio_usbtransfertype>` :target:`m_transferType<doxid-fieldio_usbmontransferhdr_m_transfertype>`;
+		typedef unsigned char uint8_t :target:`m_bus<doxid-fieldio_usbmontransferhdr_m_bus>`;
+		typedef unsigned char uint8_t :target:`m_address<doxid-fieldio_usbmontransferhdr_m_address>`;
+		typedef unsigned char uint8_t :target:`m_endpoint<doxid-fieldio_usbmontransferhdr_m_endpoint>`;
+		typedef unsigned int uint32_t :target:`m_originalDataSize<doxid-fieldio_usbmontransferhdr_m_originaldatasize>`;
+		typedef unsigned int uint32_t :target:`m_capturedDataSize<doxid-fieldio_usbmontransferhdr_m_captureddatasize>`;
+		typedef unsigned int uint32_t :target:`_m_padding<doxid-fieldio_usbmontransferhdr__m_padding>`;
+	};

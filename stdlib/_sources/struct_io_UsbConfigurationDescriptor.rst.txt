@@ -1,0 +1,27 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbConfigurationDescriptor
+.. _doxid-typeio_usbconfigurationdescriptor:
+
+struct io.UsbConfigurationDescriptor
+====================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbConfigurationDescriptor {
+		// fields
+	
+		:ref:`io.UsbInterfaceDescriptor<doxid-typeio_usbinterfacedescriptor>` const* :target:`m_interfaceDescriptorTable<doxid-fieldio_usbconfigurationdescriptor_m_interfacedescriptortable>`;
+		typedef unsigned long size_t :target:`m_interfaceCount<doxid-fieldio_usbconfigurationdescriptor_m_interfacecount>`;
+		typedef unsigned char uint8_t :target:`m_configurationId<doxid-fieldio_usbconfigurationdescriptor_m_configurationid>`;
+		typedef unsigned char uint8_t :target:`m_descriptionStringId<doxid-fieldio_usbconfigurationdescriptor_m_descriptionstringid>`;
+		typedef unsigned char uint8_t :target:`m_attributes<doxid-fieldio_usbconfigurationdescriptor_m_attributes>`;
+		typedef unsigned char uint8_t :target:`m_maxPower<doxid-fieldio_usbconfigurationdescriptor_m_maxpower>`;
+	};

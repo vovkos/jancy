@@ -1,0 +1,34 @@
+.. include:: def.rst
+.. index:: pair: group; SSH Communications
+.. _doxid-group_io_ssh:
+
+SSH Communications
+==================
+
+.. toctree::
+	:hidden:
+
+	enum_io_SshEvents.rst
+	struct_io_SshConnectParams.rst
+	class_io_SshChannel.rst
+
+This section describes types and facilities used when programming SSH (secure-shell) socket communicatins.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_ssh.jncx"
+	
+	// enums
+
+	bitflag enum :ref:`io.SshEvents<doxid-typeio_sshevents>`;
+
+	// structs
+
+	struct :ref:`io.SshConnectParams<doxid-typeio_sshconnectparams>`;
+
+	// classes
+
+	class :ref:`io.SshChannel<doxid-typeio_sshchannel>`;
+

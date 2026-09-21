@@ -1,0 +1,58 @@
+.. include:: def.rst
+.. index:: pair: group; Socket Communications
+.. _doxid-group_io_socket:
+
+Socket Communications
+=====================
+
+.. toctree::
+	:hidden:
+
+	enum_io_AddressFamily.rst
+	enum_io_HostNameResolverEvents.rst
+	enum_io_Protocol.rst
+	enum_io_SocketEvents.rst
+	enum_io_SocketOptions.rst
+	struct_io_SocketAddress_ip4.rst
+	struct_io_SocketAddress_ip6.rst
+	union_io_Address_ip4.rst
+	union_io_Address_ip6.rst
+	union_io_SocketAddress.rst
+	class_io_HostNameResolver.rst
+	class_io_Socket.rst
+
+This section describes types and facilities used when programming socket communicatins.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_Socket.jnc"
+	import "io_SocketAddress.jnc"
+	import "io_SocketAddressResolver.jnc"
+	
+	// enums
+
+	enum :ref:`io.AddressFamily<doxid-typeio_addressfamily>`;
+	bitflag enum :ref:`io.HostNameResolverEvents<doxid-typeio_hostnameresolverevents>`;
+	enum :ref:`io.Protocol<doxid-typeio_protocol>`;
+	bitflag enum :ref:`io.SocketEvents<doxid-typeio_socketevents>`;
+	bitflag enum :ref:`io.SocketOptions<doxid-typeio_socketoptions>`;
+
+	// structs
+
+	struct :ref:`io.SocketAddress_ip4<doxid-typeio_socketaddress_ip4>`;
+	struct :ref:`io.SocketAddress_ip6<doxid-typeio_socketaddress_ip6>`;
+
+	// unions
+
+	union :ref:`io.Address_ip4<doxid-typeio_address_ip4>`;
+	union :ref:`io.Address_ip6<doxid-typeio_address_ip6>`;
+	union :ref:`io.SocketAddress<doxid-typeio_socketaddress>`;
+
+	// classes
+
+	class :ref:`io.HostNameResolver<doxid-typeio_hostnameresolver>`;
+	class :ref:`io.Socket<doxid-typeio_socket>`;
+

@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; EnumTypeFlags
+.. _doxid-typejnc_enumtypeflags:
+
+bitflag enum jnc.EnumTypeFlags
+==============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum EnumTypeFlags {
+	    :target:`Exposed<doxid-enum_memberjnc_enumtypeflags_exposed>` = 0x010000,
+	    :target:`BitFlag<doxid-enum_memberjnc_enumtypeflags_bitflag>` = 0x020000,
+	};
+

@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_PropertyPtr
+.. _doxid-structjnc___property_ptr:
+
+struct jnc_PropertyPtr
+======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_PropertyPtr {
+		// fields
+	
+		const void*const* :target:`m_vtable<doxid-structjnc___property_ptr_1a8f90346b92b42b078b7e68d4e4246b7b>`;
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>`* :target:`m_closure<doxid-structjnc___property_ptr_1a6f3705aeb2bb45ed78196584f9fa2f72>`;
+	};

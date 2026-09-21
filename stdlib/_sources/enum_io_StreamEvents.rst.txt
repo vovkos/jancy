@@ -1,0 +1,56 @@
+.. include:: def.rst
+.. index:: pair: enum; StreamEvents
+.. _doxid-typeio_streamevents:
+
+bitflag enum io.StreamEvents
+============================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of standard events that might
+happen on a buffered stream object. The set of *active* events is accessible
+via the ``m_activeEvents`` field. :ref:`More...<details-typeio_streamevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum StreamEvents: :ref:`io.ReadOnlyStreamEvents<doxid-typeio_readonlystreamevents>` {
+	    :ref:`WriteBufferEmpty<doxid-enum_memberio_streamevents_writebufferempty>`,
+	    :ref:`WriteBufferReady<doxid-enum_memberio_streamevents_writebufferready>` = WriteBufferEmpty,
+	};
+
+.. _details-typeio_streamevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of standard events that might
+happen on a buffered stream object. The set of *active* events is accessible
+via the ``m_activeEvents`` field.
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; WriteBufferEmpty
+.. _doxid-enum_memberio_streamevents_writebufferempty:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	WriteBufferEmpty
+
+The stream transmit buffer is empty.
+
+.. index:: pair: enumvalue; WriteBufferReady
+.. _doxid-enum_memberio_streamevents_writebufferready:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	WriteBufferReady
+
+The stream transmit buffer is ready to accept more data; it's OK to
+issue more ``write`` requests.
+

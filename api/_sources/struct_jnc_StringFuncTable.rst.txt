@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_StringFuncTable
+.. _doxid-structjnc___string_func_table:
+
+struct jnc_StringFuncTable
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StringFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___string_func_table_1af817febf5436a52654eab60c94ccc693>`;
+		jnc_String_SzFunc* :target:`m_szFunc<doxid-structjnc___string_func_table_1a15bc1e484c40cc4f1dcbfa1e49418ae8>`;
+		jnc_String_SetPtrFunc* :target:`m_setPtrFunc<doxid-structjnc___string_func_table_1aa65432d8567d8c1e7add12130f182bff>`;
+	};

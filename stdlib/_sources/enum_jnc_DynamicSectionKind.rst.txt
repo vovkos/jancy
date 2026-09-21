@@ -1,0 +1,21 @@
+.. include:: def.rst
+.. index:: pair: enum; DynamicSectionKind
+.. _doxid-typejnc_dynamicsectionkind:
+
+enum jnc.DynamicSectionKind
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DynamicSectionKind {
+	    :target:`Undefined<doxid-enum_memberjnc_dynamicsectionkind_undefined>`,
+	    :target:`Struct<doxid-enum_memberjnc_dynamicsectionkind_struct>`,
+	    :target:`Array<doxid-enum_memberjnc_dynamicsectionkind_array>`,
+	    :target:`Field<doxid-enum_memberjnc_dynamicsectionkind_field>`,
+	    :target:`Group<doxid-enum_memberjnc_dynamicsectionkind_group>`,
+	};
+

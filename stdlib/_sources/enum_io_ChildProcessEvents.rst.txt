@@ -1,0 +1,42 @@
+.. include:: def.rst
+.. index:: pair: enum; ChildProcessEvents
+.. _doxid-typeio_childprocessevents:
+
+bitflag enum io.ChildProcessEvents
+==================================
+
+Overview
+~~~~~~~~
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum ChildProcessEvents: :ref:`io.StreamEvents<doxid-typeio_streamevents>` {
+	    :ref:`Eof<doxid-enum_memberio_childprocessevents_eof>`,
+	    :target:`ProcessFinished<doxid-enum_memberio_childprocessevents_processfinished>`,
+	    :target:`ProcessCrashed<doxid-enum_memberio_childprocessevents_processcrashed>`,
+	};
+
+.. _details-typeio_childprocessevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; Eof
+.. _doxid-enum_memberio_childprocessevents_eof:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Eof
+
+End-of-file was reached on the ``stdin`` stream.
+

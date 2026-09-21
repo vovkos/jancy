@@ -1,0 +1,95 @@
+.. include:: def.rst
+.. index:: pair: namespace; std
+.. _doxid-namespace_std:
+
+namespace std
+=============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace std {
+
+	// typedefs
+
+	typedef bool :target:`LessFunc<doxid-typedefstd_lessfunc>`(
+		:ref:`variant_t<doxid-typedefvariant_t>` e1,
+		:ref:`variant_t<doxid-typedefvariant_t>` e2
+	);
+
+	typedef :ref:`size_t<doxid-typedefsize_t>` :target:`HashFunc<doxid-typedefstd_hashfunc>`(:ref:`variant_t<doxid-typedefvariant_t>` key);
+
+	typedef bool :target:`IsEqualFunc<doxid-typedefstd_isequalfunc>`(
+		:ref:`variant_t<doxid-typedefvariant_t>` key1,
+		:ref:`variant_t<doxid-typedefvariant_t>` key2
+	);
+
+	typedef int :target:`CmpFunc<doxid-typedefstd_cmpfunc>`(
+		:ref:`variant_t<doxid-typedefvariant_t>` key1,
+		:ref:`variant_t<doxid-typedefvariant_t>` key2
+	);
+
+	// enums
+
+	bitflag enum :ref:`GuidStringFlags<doxid-typestd_guidstringflags>`;
+
+	// structs
+
+	struct :ref:`Error<doxid-typestd_error>`;
+	struct :ref:`Guid<doxid-typestd_guid>`;
+	struct :ref:`ListEntry<doxid-typestd_listentry>`;
+	struct :ref:`MapEntry<doxid-typestd_mapentry>`;
+
+	// classes
+
+	class :ref:`Array<doxid-typestd_array>`;
+	class :ref:`Buffer<doxid-typestd_buffer>`;
+	class :ref:`HashTable<doxid-typestd_hashtable>`;
+	class :ref:`List<doxid-typestd_list>`;
+	class :ref:`RbTree<doxid-typestd_rbtree>`;
+	class :ref:`StringBuilder<doxid-typestd_stringbuilder>`;
+	class :ref:`StringHashTable<doxid-typestd_stringhashtable>`;
+	class :ref:`StringHashTableIgnoreCase<doxid-typestd_stringhashtableignorecase>`;
+
+	// global variables
+
+	:ref:`std.Guid<doxid-typestd_guid>` :target:`g_errnoGuid<doxid-variablestd_g_errnoguid>` = { 0x25a6a7b5, 0xf662, 0x48ae, { 0xbc, 0xb6, 0x9a, 0x5c, 0xb5, 0xce, 0x5b, 0xb9 } };
+	:ref:`std.Guid<doxid-typestd_guid>` :target:`g_winErrorGuid<doxid-variablestd_g_winerrorguid>` = { 0x54e100e8, 0x2137, 0x40b8, { 0xbc, 0xd8, 0x00, 0xac, 0x1d, 0x0b, 0xaa, 0x16 } };
+	:ref:`std.Guid<doxid-typestd_guid>` :target:`g_ntStatusGuid<doxid-variablestd_g_ntstatusguid>` = { 0x81443347, 0x3bc9, 0x4d5e, { 0x8b, 0x23, 0x32, 0xd7, 0x80, 0xed, 0xb5, 0x2b } };
+
+	// global functions
+
+	:ref:`string_t<doxid-typedefstring_t>` cdecl :ref:`format<doxid-functionstd_format>`(
+		:ref:`string_t<doxid-typedefstring_t>` fmtSpecifier,
+		...
+	);
+
+	void :target:`sort<doxid-functionstd_sort>`(
+		:ref:`variant_t<doxid-typedefvariant_t>`* p,
+		:ref:`size_t<doxid-typedefsize_t>` count
+	);
+
+	void :target:`sort<doxid-functionstd_sort_2>`(
+		:ref:`variant_t<doxid-typedefvariant_t>`* p,
+		:ref:`size_t<doxid-typedefsize_t>` count,
+		:ref:`std.LessFunc<doxid-typedefstd_lessfunc>`* lessFunc
+	);
+
+	:ref:`size_t<doxid-typedefsize_t>` :target:`getAllocSize<doxid-functionstd_getallocsize>`(:ref:`size_t<doxid-typedefsize_t>` size);
+	:ref:`std.Error<doxid-typestd_error>` const* :ref:`getLastError<doxid-functionstd_getlasterror>`();
+	:ref:`string_t<doxid-typedefstring_t>` :ref:`getLastErrorDescription<doxid-functionstd_getlasterrordescription>`();
+	void :ref:`setError<doxid-functionstd_seterror>`(:ref:`std.Error<doxid-typestd_error>` const* error);
+	void :target:`pushError<doxid-functionstd_pusherror>`(:ref:`std.Error<doxid-typestd_error>` const* error);
+	void :ref:`setErrno<doxid-functionstd_seterrno>`(int errno);
+	void :target:`pushErrno<doxid-functionstd_pusherrno>`(int errno);
+	void :ref:`setError<doxid-functionstd_seterror_2>`(:ref:`string_t<doxid-typedefstring_t>` string);
+	void :target:`pushError<doxid-functionstd_pusherror_2>`(:ref:`string_t<doxid-typedefstring_t>` string);
+
+	} // namespace std

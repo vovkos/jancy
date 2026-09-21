@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; TypeFlags
+.. _doxid-typejnc_typeflags:
+
+bitflag enum jnc.TypeFlags
+==========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum TypeFlags {
+	    :target:`Pod<doxid-enum_memberjnc_typeflags_pod>`       = 0x0100,
+	    :target:`GcRoot<doxid-enum_memberjnc_typeflags_gcroot>`    = 0x0200,
+	    :target:`StructRet<doxid-enum_memberjnc_typeflags_structret>` = 0x0400,
+	    :target:`NoStack<doxid-enum_memberjnc_typeflags_nostack>`   = 0x0800,
+	};
+

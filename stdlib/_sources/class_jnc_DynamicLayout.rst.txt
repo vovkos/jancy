@@ -1,0 +1,89 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.DynamicLayout
+.. _doxid-typejnc_dynamiclayout:
+
+class jnc.DynamicLayout
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class DynamicLayout: :ref:`jnc.DynamicSectionGroup<doxid-typejnc_dynamicsectiongroup>` {
+		// fields
+	
+		:ref:`jnc.Promise<doxid-typejnc_promise>` const* readonly :target:`m_promise<doxid-fieldjnc_dynamiclayout_m_promise>`;
+		void const* readonly :target:`m_p<doxid-fieldjnc_dynamiclayout_m_p>`;
+		typedef unsigned long size_t readonly :target:`m_size<doxid-fieldjnc_dynamiclayout_m_size>`;
+		typedef unsigned long size_t readonly :target:`m_bufferSize<doxid-fieldjnc_dynamiclayout_m_buffersize>`;
+		typedef unsigned long size_t :target:`m_sizeLimit<doxid-fieldjnc_dynamiclayout_m_sizelimit>`;
+		:ref:`jnc.DynamicLayoutMode<doxid-typejnc_dynamiclayoutmode>` readonly :target:`m_mode<doxid-fieldjnc_dynamiclayout_m_mode>`;
+
+		// properties
+	
+		bool const property :target:`m_isIncomplete<doxid-propertyjnc_dynamiclayout_m_isincomplete>`;
+		void const* const property :target:`m_end<doxid-propertyjnc_dynamiclayout_m_end>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_dynamiclayout_construct>`();
+	
+		:target:`construct<doxid-functionjnc_dynamiclayout_construct_2>`(
+			:ref:`jnc.DynamicLayoutMode<doxid-typejnc_dynamiclayoutmode>` mode,
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:target:`construct<doxid-functionjnc_dynamiclayout_construct_3>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+		:target:`destruct<doxid-functionjnc_dynamiclayout_destruct>`();
+
+		// methods
+	
+		void :target:`clear<doxid-functionjnc_dynamiclayout_clear>`();
+	
+		void :target:`reset<doxid-functionjnc_dynamiclayout_reset>`(
+			:ref:`jnc.DynamicLayoutMode<doxid-typejnc_dynamiclayoutmode>` mode,
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		void :target:`reset<doxid-functionjnc_dynamiclayout_reset_2>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		void :target:`updateGroupSizes<doxid-functionjnc_dynamiclayout_updategroupsizes>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` :target:`resume<doxid-functionjnc_dynamiclayout_resume>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` async :target:`asyncScanTo<doxid-functionjnc_dynamiclayout_asyncscanto>`(char c);
+		:ref:`size_t<doxid-typedefsize_t>` async :target:`asyncStrlen<doxid-functionjnc_dynamiclayout_asyncstrlen>`();
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef unsigned long size_t readonly :ref:`m_sectionCount<doxid-fieldjnc_dynamicsectiongroup_m_sectioncount>`;
+
+		// properties
+	
+		:ref:`jnc.DynamicSection<doxid-typejnc_dynamicsection>`* const indexed property :ref:`m_sectionArray<doxid-propertyjnc_dynamicsectiongroup_m_sectionarray>`(:ref:`size_t<doxid-typedefsize_t>` index);
+

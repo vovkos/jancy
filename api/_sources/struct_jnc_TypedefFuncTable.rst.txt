@@ -1,0 +1,21 @@
+.. index:: pair: struct; jnc_TypedefFuncTable
+.. _doxid-structjnc___typedef_func_table:
+
+struct jnc_TypedefFuncTable
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_TypedefFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___typedef_func_table_1a5ba28157a4e880a4fe40ff0192141df0>`;
+	};

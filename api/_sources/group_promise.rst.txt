@@ -1,0 +1,23 @@
+.. index:: pair: group; Promise
+.. _doxid-group__promise:
+
+Promise
+=======
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Promise.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Promise.h>
+	
+	// structs
+
+	struct :ref:`jnc_Promise<doxid-structjnc___promise>`;
+

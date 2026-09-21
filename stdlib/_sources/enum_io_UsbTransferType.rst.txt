@@ -1,0 +1,21 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbTransferType
+.. _doxid-typeio_usbtransfertype:
+
+enum io.UsbTransferType
+=======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbTransferType: typedef unsigned char uint8_t {
+	    :target:`Control<doxid-enum_memberio_usbtransfertype_control>`,
+	    :target:`Isochronous<doxid-enum_memberio_usbtransfertype_isochronous>`,
+	    :target:`Bulk<doxid-enum_memberio_usbtransfertype_bulk>`,
+	    :target:`Interrupt<doxid-enum_memberio_usbtransfertype_interrupt>`,
+	    :target:`BulkStream<doxid-enum_memberio_usbtransfertype_bulkstream>`,
+	};
+

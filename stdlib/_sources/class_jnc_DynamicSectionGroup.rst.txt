@@ -1,0 +1,31 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.DynamicSectionGroup
+.. _doxid-typejnc_dynamicsectiongroup:
+
+class jnc.DynamicSectionGroup
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class DynamicSectionGroup {
+		// fields
+	
+		typedef unsigned long size_t readonly :target:`m_sectionCount<doxid-fieldjnc_dynamicsectiongroup_m_sectioncount>`;
+
+		// properties
+	
+		:ref:`jnc.DynamicSection<doxid-typejnc_dynamicsection>`* const indexed property :target:`m_sectionArray<doxid-propertyjnc_dynamicsectiongroup_m_sectionarray>`(:ref:`size_t<doxid-typedefsize_t>` index);
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_dynamicsectiongroup_construct>`();
+		:target:`destruct<doxid-functionjnc_dynamicsectiongroup_destruct>`();
+	};

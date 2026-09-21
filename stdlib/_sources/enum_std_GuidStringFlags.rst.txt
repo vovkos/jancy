@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; GuidStringFlags
+.. _doxid-typestd_guidstringflags:
+
+bitflag enum std.GuidStringFlags
+================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum GuidStringFlags {
+	    :target:`UpperCase<doxid-enum_memberstd_guidstringflags_uppercase>`,
+	    :target:`CurlyBraces<doxid-enum_memberstd_guidstringflags_curlybraces>`,
+	};
+

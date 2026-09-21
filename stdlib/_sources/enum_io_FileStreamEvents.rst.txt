@@ -1,0 +1,50 @@
+.. include:: def.rst
+.. index:: pair: enum; FileStreamEvents
+.. _doxid-typeio_filestreamevents:
+
+bitflag enum io.FileStreamEvents
+================================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.FileStream` object. The set of *active* events is accessible
+via `io.FileStream.m_activeEvents`. :ref:`More...<details-typeio_filestreamevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum FileStreamEvents: :ref:`io.StreamEvents<doxid-typeio_streamevents>` {
+	    :ref:`Eof<doxid-enum_memberio_filestreamevents_eof>`,
+	};
+
+.. _details-typeio_filestreamevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.FileStream` object. The set of *active* events is accessible
+via `io.FileStream.m_activeEvents`.
+
+
+
+.. rubric:: See also:
+
+`io.FileStream`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; Eof
+.. _doxid-enum_memberio_filestreamevents_eof:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Eof
+
+End-of-file was reached on the file stream.
+

@@ -1,0 +1,13 @@
+.. index:: pair: struct; jnc_DerivableType
+.. _doxid-structjnc___derivable_type:
+
+struct jnc_DerivableType
+========================
+
+.. toctree::
+	:hidden:
+
+Opaque structure used as a handle to Jancy derivable type.
+
+    Use functions from the `Derivable Type` group to access and manage the contents of this structure.
+

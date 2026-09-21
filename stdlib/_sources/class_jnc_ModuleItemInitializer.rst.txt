@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.ModuleItemInitializer
+.. _doxid-typejnc_moduleiteminitializer:
+
+class jnc.ModuleItemInitializer
+===============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class ModuleItemInitializer {
+		// properties
+	
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_initializer<doxid-propertyjnc_moduleiteminitializer_m_initializer>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_moduleiteminitializer_construct>`(long p);
+	};
