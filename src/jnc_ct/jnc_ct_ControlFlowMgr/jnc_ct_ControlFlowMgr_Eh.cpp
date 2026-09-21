@@ -700,10 +700,12 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 		BasicBlock* block = m_landingPadBlockArray[i];
 		ASSERT(block->m_landingPadScope && !block->m_llvmBlock->empty());
 
+		// endTryOperator normally inserts a phi at the beginning of the catch block
+
 		m_module->m_llvmIrBuilder.setInsertPoint(&*block->m_llvmBlock->getFirstNonPHI());
 		setSjljFrame(block->m_landingPadScope->m_sjljFrameIdx);
 
-		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr    not do it for us
+		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr not do it for us
 
 		if (!hasGcShadowStackFrame && (block->m_flags & BasicBlockFlag_SjljLandingPadMask))
 			m_module->m_llvmIrBuilder.createStore(prevGcShadowStackFrameValue, gcShadowStackTopVariable);

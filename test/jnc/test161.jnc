@@ -1,0 +1,151 @@
+// errorcode propagation through the 'try' operator
+//
+// the catch block has one edge per static throw PLUS the longjmp edge. a
+// specific error code must survive each static-throw edge; only the longjmp
+// edge carries the canonical one. before the phi redesign in
+// ControlFlowMgr::endTryOperator this emitted invalid IR -- both phi operands
+// were the call result, so one edge read an undefined value
+
+//..............................................................................
+
+enum Result {
+	Success         = 0,
+	PassphraseError = -2,
+	KeyNotFound     = -3,
+}
+
+Result errorcode loadKey(int a) {
+	switch (a) {
+	case -1:
+		return Result.PassphraseError;
+
+	case -2:
+		return Result.KeyNotFound;
+	}
+
+	return Result.Success;
+}
+
+// the specific code must survive -- NOT be replaced by the canonical one
+
+void testSpecificErrorCode() {
+	Result result = try loadKey(0);
+	assert(result == Result.Success);
+
+	result = try loadKey(-1);
+	assert(result == Result.PassphraseError);
+
+	result = try loadKey(-2);
+	assert(result == Result.KeyNotFound);
+}
+
+//..............................................................................
+
+int errorcode echo(int x) {
+	return x; // a negative x is an error
+}
+
+// more than one static throw inside a single try expression -- each throw is a
+// separate edge into the same catch block, and each must keep its own value
+
+void testMultipleStaticThrows() {
+	int result = try (echo(5) + echo(7));
+	assert(result == 12);
+
+	result = try (echo(-11) + echo(7)); // the first one throws
+	assert(result == -11);
+
+	result = try (echo(5) + echo(-12)); // the second one throws
+	assert(result == -12);
+
+	result = try (echo(1) + echo(2) + echo(-13)); // three edges
+	assert(result == -13);
+}
+
+//..............................................................................
+
+bool errorcode openKey(int a) {
+	return a >= 0;
+}
+
+// 'bool errorcode' takes a different path -- both phi operands are constants
+
+void testBoolErrorCode() {
+	bool result = try openKey(1);
+	assert(result);
+
+	result = try openKey(-1);
+	assert(!result);
+}
+
+//..............................................................................
+
+void boom() {
+	throw; // no catch scope and not errorcode -- a dynamic (longjmp) throw
+}
+
+int errorcode viaDynamicThrow() {
+	boom();
+	return 7;
+}
+
+// the longjmp edge has no value of its own, so it must carry the canonical
+// error code -- reading the call result there was the original bug
+
+void testDynamicThrowEdge() {
+	int result = try viaDynamicThrow();
+	assert(result == -1);
+}
+
+//..............................................................................
+
+int errorcode outer(int a) {
+	int result = try loadKey(a); // a try inside a try -- nested sjlj frames
+	return result < 0 ? result - 100 : result;
+}
+
+void testNestedTry() {
+	int result = try outer(0);
+	assert(result == 0);
+
+	result = try outer(-1);
+	assert(result == -102); // PassphraseError (-2) propagated, then adjusted
+}
+
+//..............................................................................
+
+// a gc-rooted local (the string parameter) makes the scope carry a frame map,
+// so GcShadowStackMgr prepends a restore to the landing pad. that must not push
+// the error-value phi out of the leading phi group -- a phi that is not first
+// is invalid IR, and LLVM's splitBasicBlock only repoints phis via phis(),
+// which walks the leading group only, so the inliner then leaves its incoming
+// block stale (GcShadowStackMgr.cpp had to switch begin() -> getFirstNonPHI())
+
+bool errorcode parseAddress(char const* s) {
+	return s != null;
+}
+
+bool connect(char const* s) {
+	return try parseAddress(s);
+}
+
+void testGcRootedScope() {
+	assert(connect("localhost:80"));
+	assert(!connect(null));
+}
+
+//..............................................................................
+
+int main() {
+	testSpecificErrorCode();
+	testMultipleStaticThrows();
+	testBoolErrorCode();
+	testDynamicThrowEdge();
+	testNestedTry();
+	testGcRootedScope();
+
+	printf("errorcode propagation ok\n");
+	return 0;
+}
+
+//..............................................................................

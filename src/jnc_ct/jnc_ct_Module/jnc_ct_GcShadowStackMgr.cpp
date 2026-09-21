@@ -293,7 +293,9 @@ GcShadowStackMgr::finalizeFrame() {
 		Scope* scope = block->getLandingPadScope();
 		ASSERT(scope && !block->getLlvmBlock()->empty());
 
-		m_module->m_llvmIrBuilder.setInsertPoint(&*block->getLlvmBlock()->begin());
+		// endTryOperator normally inserts a phi at the beginning of the catch block
+
+		m_module->m_llvmIrBuilder.setInsertPoint(&*block->getLlvmBlock()->getFirstNonPHI());
 
 		// on async & exception landing pads we must restore frame pointer
 
