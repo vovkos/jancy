@@ -313,7 +313,7 @@ AsyncIoBase::setEvents_l(uint_t events) {
 void
 AsyncIoBase::setIoErrorEvent_l(
 	uint_t event,
-	const err::Error& error
+	const err::ErrorRef& error
 ) {
 	m_lock.unlock();
 

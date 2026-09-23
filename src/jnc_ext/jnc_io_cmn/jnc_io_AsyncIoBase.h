@@ -152,11 +152,11 @@ protected:
 	void
 	setIoErrorEvent_l(
 		uint_t event,
-		const err::Error& error
+		const err::ErrorRef& error
 	);
 
 	void
-	setIoErrorEvent_l(const err::Error& error) {
+	setIoErrorEvent_l(const err::ErrorRef& error) {
 		setIoErrorEvent_l(AsyncIoBaseEvent_IoError, error);
 	}
 
@@ -168,14 +168,14 @@ protected:
 	void
 	setIoErrorEvent(
 		uint_t event,
-		const err::Error& error
+		const err::ErrorRef& error
 	) {
 		m_lock.lock();
 		setIoErrorEvent_l(event, error);
 	}
 
 	void
-	setIoErrorEvent(const err::Error& error) {
+	setIoErrorEvent(const err::ErrorRef& error) {
 		setIoErrorEvent(AsyncIoBaseEvent_IoError, error);
 	}
 
