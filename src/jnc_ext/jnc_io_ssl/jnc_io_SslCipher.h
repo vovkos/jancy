@@ -25,7 +25,7 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(SslCipher)
 
 protected:
-	const SSL_CIPHER* m_cipher;
+	axl::io::SslCipher m_cipher;
 	String m_name;
 	String m_description;
 

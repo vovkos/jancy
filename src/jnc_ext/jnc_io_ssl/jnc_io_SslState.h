@@ -133,6 +133,20 @@ public:
 		return allocateString(self->m_ssl.getStateStringLong());
 	}
 
+	static
+	String
+	JNC_CDECL
+	getVersion(SslState* self) {
+		return allocateString(self->m_ssl.getVersionString());
+	}
+
+	static
+	String
+	JNC_CDECL
+	getKeyExchangeGroup(SslState* self) {
+		return allocateString(self->m_ssl.getKeyExchangeGroupName());
+	}
+
 	bool
 	JNC_CDECL
 	enableCiphers(String ciphers) {

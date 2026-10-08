@@ -39,6 +39,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslState)
 	JNC_MAP_CONST_PROPERTY("m_availableCipherCount", &SslState::getAvailableCipherCount)
 	JNC_MAP_CONST_PROPERTY("m_availableCipherSet", &SslState::getAvailableCipherSetEntry)
 	JNC_MAP_CONST_PROPERTY("m_currentCipher", &SslState::getCurrentCipher)
+	JNC_MAP_CONST_PROPERTY("m_version", &SslState::getVersion)
+	JNC_MAP_CONST_PROPERTY("m_keyExchangeGroup", &SslState::getKeyExchangeGroup)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainLength", &SslState::getPeerCertificateChainLength)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificateChain", &SslState::getPeerCertificateChainEntry)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificate", &SslState::getPeerCertificate)
@@ -143,7 +145,7 @@ SslState::getAvailableCipherSetEntry(size_t i) {
 SslCipher*
 JNC_CDECL
 SslState::getCurrentCipher() {
-	const SSL_CIPHER* cipher = ::SSL_get_current_cipher(m_ssl);
+	const SSL_CIPHER* cipher = m_ssl.getCurrentCipher();
 	return cipher ? SslCipher::create(cipher) : NULL;
 }
 

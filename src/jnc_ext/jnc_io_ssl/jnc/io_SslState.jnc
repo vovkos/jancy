@@ -70,6 +70,8 @@ opaque class SslState {
 	size_t const property m_availableCipherCount;
 	SslCipher* const property m_availableCipherSet(size_t i);
 	SslCipher* const property m_currentCipher;
+	string_t const property m_version;          // TLSv1.3, DTLSv1.2, etc
+	string_t const property m_keyExchangeGroup; // X25519, P-256, etc
 	size_t const property m_peerCertificateChainLength;
 	SslCertificate const* const property m_peerCertificateChain(size_t i);
 	SslCertificate const* const property m_peerCertificate;

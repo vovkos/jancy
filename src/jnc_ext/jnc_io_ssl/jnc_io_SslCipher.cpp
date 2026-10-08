@@ -56,7 +56,7 @@ String
 JNC_CDECL
 SslCipher::getName(SslCipher* self) {
 	if (!self->m_name.m_ptr.m_p)
-		self->m_name = allocateString(::SSL_CIPHER_get_name(self->m_cipher));
+		self->m_name = allocateString(self->m_cipher.getName());
 
 	return self->m_name;
 }
@@ -67,9 +67,7 @@ SslCipher::getDescription(SslCipher* self) {
 	if (self->m_description.m_ptr.m_p)
 		return self->m_description;
 
-	char buffer[256];
-	::SSL_CIPHER_description(self->m_cipher, buffer, sizeof(buffer));
-	self->m_description = allocateString(buffer);
+	self->m_description = allocateString(self->m_cipher.getDescription());
 	return self->m_description;
 }
 
@@ -77,7 +75,7 @@ uint_t
 JNC_CDECL
 SslCipher::getBitCount() {
 	int bitCount = 0;
-	::SSL_CIPHER_get_bits(m_cipher, &bitCount);
+	m_cipher.getBits(&bitCount);
 	return bitCount;
 }
 
