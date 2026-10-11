@@ -152,6 +152,13 @@ target_link_libraries(
 	${OPENSSL_CRYPTO_LIB_NAME}
 )
 
+if(WIN32)
+	target_link_libraries(
+		jnc_io_websocket
+		crypt32 # axl_io_ssl: Windows root certificates
+	)
+endif()
+
 if(LINUX)
 	target_link_libraries(
 		jnc_io_websocket
