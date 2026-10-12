@@ -173,6 +173,12 @@ public:
 
 	bool
 	JNC_CDECL
+	setDefaultVerifyPaths() {
+		return m_sslCtx.setDefaultVerifyPaths();
+	}
+
+	bool
+	JNC_CDECL
 	loadVerifyLocations(
 		String caFileName,
 		String caDir

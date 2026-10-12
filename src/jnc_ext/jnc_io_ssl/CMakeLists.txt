@@ -153,6 +153,17 @@ if(WIN32)
 		jnc_io_ssl
 		crypt32 # axl_io_ssl: Windows root certificates
 	)
+elseif(APPLE)
+	find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+	find_library(SECURITY_FRAMEWORK Security)
+
+	target_link_libraries(
+		jnc_io_ssl
+		axl_sec
+		axl_cf
+		${CORE_FOUNDATION_FRAMEWORK}
+		${SECURITY_FRAMEWORK} # axl_io_ssl: keychain root certificates
+	)
 endif()
 
 if(LINUX)

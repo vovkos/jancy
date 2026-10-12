@@ -104,6 +104,8 @@ opaque class SslState {
 		string_t passphrase = null
 	);
 
+	bool errorcode setDefaultVerifyPaths(); // the system trust store
+
 	bool errorcode loadVerifyLocations(
 		string_t caFileName,
 		string_t caDir = null
