@@ -1,0 +1,110 @@
+// 'onevent' handlers in reactors never fire
+//
+// reactor expression statements and direct 'bindingof(x) +=' subscriptions
+// react fine; 'onevent' does not -- on a plain event, a global bindable,
+// a bindable member field or a bindable autoget property alike
+// (samples/jnc/41_OnEventStmt.jnc shows the same: no onevent output at all)
+
+//..............................................................................
+
+int g_eventCount;      // onevent g_onEvent()
+int g_globalCount;     // onevent bindingof(g_bindable)()
+int g_statementCount;  // reactor expression statement (control)
+
+event g_onEvent();
+bool bindable g_bindable;
+
+void countStatement(bool value) {
+	g_statementCount++;
+}
+
+reactor g_reactor {
+	countStatement(g_bindable); // control: runs once on start and on each change
+
+	onevent g_onEvent() {
+		g_eventCount++;
+	}
+
+	onevent bindingof(g_bindable)() {
+		g_globalCount++;
+	}
+}
+
+void testGlobalReactor() {
+	g_reactor.start();
+	assert(g_statementCount == 1); // initial evaluation
+
+	g_bindable = true;
+	g_bindable = false;
+	g_onEvent();
+
+	assert(g_statementCount == 3); // passes
+	assert(g_globalCount == 2);    // fails: 0
+	assert(g_eventCount == 1);     // fails: 0
+
+	g_reactor.stop();
+}
+
+//..............................................................................
+
+class C {
+	bool bindable m_field;
+	bool bindable autoget property m_prop;
+
+	int m_directCount; // bindingof(m_field) += (control)
+	int m_fieldCount;  // onevent bindingof(m_field)()
+	int m_propCount;   // onevent bindingof(m_prop)()
+
+	reactor m_reactor;
+
+	construct() {
+		bindingof(m_field) += onFieldChanged;
+		m_reactor.start();
+	}
+
+	void onFieldChanged() {
+		m_directCount++;
+	}
+
+	void update(bool value) {
+		m_field = value;
+		m_prop = value;
+	}
+}
+
+void C.m_prop.set(bool value) {
+	m_value = value;
+	m_onChanged();
+}
+
+reactor C.m_reactor {
+	onevent bindingof(m_field)() {
+		m_fieldCount++;
+	}
+
+	onevent bindingof(m_prop)() {
+		m_propCount++;
+	}
+}
+
+void testMemberReactor() {
+	C c;
+	c.update(true);
+	c.update(false);
+
+	assert(c.m_directCount == 2); // passes
+	assert(c.m_fieldCount == 2);  // fails: 0
+	assert(c.m_propCount == 2);   // fails: 0
+}
+
+//..............................................................................
+
+int main() {
+	testGlobalReactor();
+	testMemberReactor();
+
+	printf("onevent ok\n");
+	return 0;
+}
+
+//..............................................................................

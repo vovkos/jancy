@@ -67,6 +67,17 @@ ReactorClassType::Reactor::compile() {
 		return false;
 
 	m_module->m_functionMgr.internalEpilogue();
+
+	// explicitly mark all event handlers for compilation as we don't call those directly
+	// they are called from RTL in rtl::ReactorImpl::reactionLoop
+
+	size_t count = reactorType->m_onEventHandlerMap.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Function* handler = reactorType->m_onEventHandlerMap[i];
+		if (handler)
+			m_module->markForCompile(handler);
+	}
+
 	return true;
 }
 
@@ -102,16 +113,6 @@ ReactorClassType::prepareForOperatorNew() {
 	// it's called from RTL in rtl::ReactorImpl::reactionLoop
 
 	m_module->markForCompile(getReactor());
-
-	// explicitly mark all event handlers for compilation as we don't call those directly
-	// they are called from RTL in rtl::ReactorImpl::reactionLoop
-
-	size_t count = m_onEventHandlerMap.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Function* handler = m_onEventHandlerMap[i];
-		if (handler)
-			m_module->markForCompile(handler);
-	}
 
 	// ensure closure type is created -- it's used in rtl::ReactorImpl::reactionLoop
 	m_module->m_typeMgr.getStdType(StdType_ReactorClosure);
