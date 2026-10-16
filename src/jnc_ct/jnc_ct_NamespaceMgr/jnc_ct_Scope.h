@@ -109,11 +109,7 @@ public:
 	}
 
 	Scope*
-	getParentScope() {
-		return m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Scope ?
-			static_cast<Scope*>(m_parentNamespace) :
-			NULL;
-	}
+	getParentScope();
 
 	GcShadowStackFrameMap*
 	findGcShadowStackFrameMap();
@@ -192,6 +188,16 @@ Scope::Scope() {
 	m_disposeLevelVariable = NULL;
 	m_gcShadowStackFrameMap = NULL;
 	m_sjljFrameIdx = -1;
+}
+
+inline
+Scope*
+Scope::getParentScope() {
+	if (!m_parentNamespace || m_parentNamespace->getNamespaceKind() != NamespaceKind_Scope)
+		return NULL;
+
+	Scope* scope = static_cast<Scope*>(m_parentNamespace);
+	return scope->m_function == m_function ? scope : NULL;
 }
 
 //..............................................................................

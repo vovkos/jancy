@@ -1,0 +1,77 @@
+// gc shadow stack frame maps of an 'onevent' handler must not chain into the
+// frame maps of the enclosing reactor
+//
+// the handler is a separate function, but its parent namespace is a scope of
+// the reactor function; Scope::getParentScope() follows that link, so the
+// handler's frame map gets the reactor's map as m_prev. the gc then walks the
+// reactor's root indices against the *handler's* root array
+//
+// here the reactor's map lists slot 0 (Obj*), and the handler's slot 0 holds a
+// stale Obj* from a closed scope -- the object must be collected, but survives
+
+//..............................................................................
+
+class Obj {
+	int m_x;
+}
+
+Obj* createObj(int x) {
+	Obj* obj = new Obj;
+	obj.m_x = x;
+	return obj;
+}
+
+Obj weak* g_weak;
+bool g_isCollected;
+
+// control: same body in a plain function
+
+void testPlainFunction() {
+	{ g_weak = createObj(1); } // temp gc root in slot 0, stale after the scope
+
+	jnc.collectGarbage();
+
+	Obj* obj = g_weak;
+	g_isCollected = obj == null;
+}
+
+//..............................................................................
+
+int bindable g_trigger;
+event g_onEvent();
+Obj* g_reactorObj;
+
+reactor g_reactor {
+	g_reactorObj = createObj(g_trigger); // temp gc root (Obj*) in reactor's slot 0
+
+	onevent g_onEvent() {
+		{ g_weak = createObj(2); } // temp gc root in slot 0, stale after the scope
+
+		jnc.collectGarbage();
+
+		Obj* obj = g_weak;
+		g_isCollected = obj == null;
+	}
+}
+
+void testOnEventHandler() {
+	g_reactor.start();
+	g_onEvent();
+	g_reactor.stop();
+}
+
+//..............................................................................
+
+int main() {
+	testPlainFunction();
+	assert(g_isCollected); // passes
+
+	g_isCollected = false;
+	testOnEventHandler();
+	assert(g_isCollected); // fails: reactor's frame map keeps the stale slot alive
+
+	printf("onevent frame map ok\n");
+	return 0;
+}
+
+//..............................................................................
