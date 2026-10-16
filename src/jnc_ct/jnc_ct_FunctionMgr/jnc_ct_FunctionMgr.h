@@ -22,6 +22,8 @@ namespace ct {
 
 class DerivableType;
 class AsyncSequencerFunction;
+struct RegexCondStmt;
+struct ReactorBody;
 
 //..............................................................................
 
@@ -34,6 +36,51 @@ enum GlobalCtorDtorKind {
 };
 
 //..............................................................................
+
+struct FunctionComplileContext {
+	// FunctionMgr
+
+	Function* m_currentFunction;
+	Value m_thisValue;
+	Value m_promiseValue;
+
+	// VariableMgr
+
+	sl::Array<Variable*> m_liftedStackVariableArray;
+	sl::Array<Variable*> m_argVariableArray;
+	sl::Array<Variable*> m_reactorVariableArray;
+	uint_t m_extraStackPtrFlags;
+
+	// GcShadowStackMgr
+
+	Variable* m_frameVariable;
+	Value m_gcRootArrayValue;
+	sl::Array<GcShadowStackFrameMap*> m_functionFrameMapArray;
+	size_t m_gcRootCount;
+
+	// ControlFlowMgr
+
+	sl::Array<BasicBlock*> m_asyncBlockArray;
+	sl::Array<BasicBlock*> m_returnBlockArray;
+	sl::Array<BasicBlock*> m_landingPadBlockArray;
+	BasicBlock* m_currentBlock;
+	BasicBlock* m_unreachableBlock;
+	BasicBlock* m_catchFinallyFollowBlock;
+	BasicBlock* m_returnBlock;
+	BasicBlock* m_dynamicThrowBlock;
+	BasicBlock* m_emissionLockBlock;
+	Variable* m_returnValueVariable;
+	Variable* m_finallyRouteIdxVariable;
+	RegexCondStmt* m_regexCondStmt;
+	ReactorBody* m_reactorBody;
+	size_t m_emissionLockCount;
+	size_t m_finallyRouteIdx;
+	size_t m_sjljFrameCount;
+	Value m_sjljFrameArrayValue;
+	Value m_prevSjljFrameValue;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class FunctionMgr {
 	friend class Module;
