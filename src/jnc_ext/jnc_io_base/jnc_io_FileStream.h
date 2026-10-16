@@ -96,7 +96,7 @@ protected:
 	FinalizeIoThreadFunc* m_finalizeIoThreadFunc;
 
 #if (_AXL_OS_WIN)
-	OverlappedIo* m_overlappedIo;
+	std::unique_ptr<OverlappedIo> m_overlappedIo;
 #endif
 
 public:

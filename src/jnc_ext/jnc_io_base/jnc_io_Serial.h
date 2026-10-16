@@ -138,7 +138,7 @@ protected:
 	IoThread m_ioThread;
 
 #if (_AXL_OS_WIN)
-	OverlappedIo* m_overlappedIo;
+	std::unique_ptr<OverlappedIo> m_overlappedIo;
 #elif (_AXL_OS_LINUX)
 	WaitThread m_waitThread;
 	sys::Event m_waitThreadTerminateEvent;

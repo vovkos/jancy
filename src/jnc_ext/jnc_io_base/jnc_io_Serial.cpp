@@ -88,10 +88,6 @@ Serial::Serial() {
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
-
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
 	m_lineErrors = 0;
 }
 
@@ -140,7 +136,7 @@ Serial::open(String name) {
 	}
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = std::make_unique<OverlappedIo>();
 	m_lineErrors = 0;
 #endif
 
@@ -182,8 +178,7 @@ Serial::close() {
 	AsyncIoDevice::close();
 
 #if (_AXL_OS_WIN)
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 #endif
 }
 

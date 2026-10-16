@@ -79,8 +79,7 @@ ArrayType::calcLayout() {
 
 	// ensure update
 
-	delete m_stringCache;
-	m_stringCache = NULL;
+	m_stringCache.reset();
 	m_rootType = NULL;
 
 	uint_t rootTypeFlags = getRootType()->getFlags();

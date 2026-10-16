@@ -146,7 +146,7 @@ protected:
 	SshSessionHandle m_sshSession;
 	SshChannelHandle m_sshChannel;
 
-	ConnectParams* m_connectParams;
+	std::unique_ptr<ConnectParams> m_connectParams;
 	jnc::io::SocketAddress m_localAddress;
 	jnc::io::SocketAddress m_remoteAddress;
 	volatile uint_t m_ptyWidth;

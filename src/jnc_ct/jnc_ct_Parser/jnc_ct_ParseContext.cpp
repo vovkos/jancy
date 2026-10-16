@@ -27,7 +27,7 @@ ParseContext::set(
 ) {
 	m_module = module;
 	m_prevUnit = module->m_unitMgr.setCurrentUnit(unit);
-	m_prevReactorBody = module->m_controlFlowMgr.setCurrentReactor(NULL);
+	m_prevReactorBody = module->m_controlFlowMgr.setCurrentReactor(nullptr);
 
 	if (contextKind != ParseContextKind_Expression)
 		m_isNamespaceOpened = module->m_namespaceMgr.openNamespaceIf(nspace);
@@ -41,7 +41,7 @@ ParseContext::set(
 void
 ParseContext::restore() {
 	m_module->m_unitMgr.setCurrentUnit(m_prevUnit);
-	m_module->m_controlFlowMgr.setCurrentReactor(m_prevReactorBody);
+	m_module->m_controlFlowMgr.setCurrentReactor(std::move(m_prevReactorBody));
 	if (m_isNamespaceOpened)
 		m_module->m_namespaceMgr.closeNamespace();
 }

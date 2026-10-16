@@ -23,8 +23,6 @@ namespace ct {
 LlvmDiBuilder::LlvmDiBuilder() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
-
-	m_llvmDiBuilder = NULL;
 }
 
 void
@@ -34,7 +32,7 @@ LlvmDiBuilder::create() {
 	llvm::Module* llvmModule = m_module->getLlvmModule();
 	ASSERT(llvmModule);
 
-	m_llvmDiBuilder = new llvm::DIBuilder(*llvmModule);
+	m_llvmDiBuilder = std::make_unique<llvm::DIBuilder>(*llvmModule);
 
 	m_llvmDiBuilder->createCompileUnit(
 		llvm::dwarf::DW_LANG_C99,

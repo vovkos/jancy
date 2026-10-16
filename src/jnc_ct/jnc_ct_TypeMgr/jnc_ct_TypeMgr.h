@@ -62,18 +62,6 @@ struct PropertyPtrTypeTuple;
 
 //..............................................................................
 
-struct DualPtrTypeTuple: sl::ListLink {
-	union {
-		DataPtrTypeTuple* m_readOnlyDataPtrTypeTuple;
-		ClassPtrTypeTuple* m_readOnlyClassPtrTypeTuple;
-		PropertyPtrTypeTuple* m_readOnlyPropertyPtrTypeTuple;
-	};
-
-	ClassPtrTypeTuple* m_dualEventClassPtrTypeTuple;
-};
-
-//..............................................................................
-
 class TypeMgr {
 	friend class Module;
 
@@ -105,14 +93,6 @@ protected:
 	sl::List<Typedef> m_typedefList;
 	sl::List<FunctionArg> m_functionArgList;
 	sl::List<Field> m_fieldList;
-
-	sl::List<SimplePropertyTypeTuple> m_simplePropertyTypeTupleList;
-	sl::List<FunctionArgTuple> m_functionArgTupleList;
-	sl::List<DataPtrTypeTuple> m_dataPtrTypeTupleList;
-	sl::List<ClassPtrTypeTuple> m_classPtrTypeTupleList;
-	sl::List<FunctionPtrTypeTuple> m_functionPtrTypeTupleList;
-	sl::List<PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
-	sl::List<DualTypeTuple> m_dualTypeTupleList;
 
 	sl::Array<MulticastClassType*> m_multicastClassTypeArray;
 	sl::AutoPtrArray<ImportTypeNameAnchor> m_importTypeNameAnchorArray;

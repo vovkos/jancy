@@ -85,7 +85,7 @@ protected:
 	sl::String_w m_pipeName;
 	mem::Pool<IncomingConnection> m_incomingConnectionPool;
 	sl::List<IncomingConnection> m_pendingIncomingConnectionList;
-	OverlappedIo* m_overlappedIo;
+	std::unique_ptr<OverlappedIo> m_overlappedIo;
 
 public:
 	NamedPipe();

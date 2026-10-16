@@ -24,7 +24,6 @@ CodeAssistMgr::CodeAssistMgr() {
 	ASSERT(m_module);
 
 	m_codeAssistKind = CodeAssistKind_None;
-	m_codeAssist = NULL;
 	m_offset = -1;
 	m_containerItem = NULL;
 	m_fallbackMode = FallbackMode_None;
@@ -32,9 +31,8 @@ CodeAssistMgr::CodeAssistMgr() {
 
 void
 CodeAssistMgr::clear() {
-	freeCodeAssist();
+	m_codeAssist.reset();
 	m_codeAssistKind = CodeAssistKind_None;
-	m_codeAssist = NULL;
 	m_offset = -1;
 	m_containerItem = NULL;
 	m_argumentTipStack.clear();
@@ -59,7 +57,7 @@ CodeAssistMgr::initialize(
 CodeAssist*
 CodeAssistMgr::generateCodeAssist() {
 	if (m_codeAssist)
-		return m_codeAssist;
+		return m_codeAssist.get();
 
 	if (m_containerItem) {
 		ModuleItem* item = m_containerItem;
@@ -70,7 +68,7 @@ CodeAssistMgr::generateCodeAssist() {
 	if (!m_codeAssist && m_fallbackMode)
 		createFallbackCodeAssist();
 
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
@@ -109,7 +107,7 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item) {
 		break;
 	}
 
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
@@ -118,14 +116,12 @@ CodeAssistMgr::createModuleItemCodeAssist(
 	size_t offset,
 	ModuleItem* item
 ) {
-	freeCodeAssist();
-
-	m_codeAssist = new CodeAssist;
+	m_codeAssist = std::make_unique<CodeAssist>();
 	m_codeAssist->m_codeAssistKind = kind;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_item = item;
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
@@ -134,15 +130,13 @@ CodeAssistMgr::createArgumentTip(
 	FunctionType* functionType,
 	size_t argumentIdx
 ) {
-	freeCodeAssist();
-
-	m_codeAssist = new CodeAssist;
+	m_codeAssist = std::make_unique<CodeAssist>();
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_functionTypeOverload = functionType;
 	m_codeAssist->m_argumentIdx = argumentIdx;
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
@@ -151,19 +145,17 @@ CodeAssistMgr::createArgumentTip(
 	const FunctionTypeOverload& typeOverload,
 	size_t argumentIdx
 ) {
-	freeCodeAssist();
-
 	size_t overloadCount = typeOverload.getOverloadCount();
 	for (size_t i = 0; i < overloadCount; i++)
 		typeOverload.getOverload(i)->ensureNoImports();
 
-	m_codeAssist = new CodeAssist;
+	m_codeAssist = std::make_unique<CodeAssist>();
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_functionTypeOverload = typeOverload;
 	m_codeAssist->m_argumentIdx = argumentIdx;
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
@@ -172,15 +164,13 @@ CodeAssistMgr::createArgumentTip(
 	Template* templ,
 	size_t argumentIdx
 ) {
-	freeCodeAssist();
-
-	m_codeAssist = new CodeAssist;
+	m_codeAssist = std::make_unique<CodeAssist>();
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_template = templ;
 	m_codeAssist->m_argumentIdx = argumentIdx;
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
@@ -219,8 +209,6 @@ CodeAssistMgr::createAutoComplete(
 	Namespace* nspace,
 	uint_t flags
 ) {
-	freeCodeAssist();
-
 	NamespaceKind nspaceKind = nspace->getNamespaceKind();
 	if (nspaceKind == NamespaceKind_Type)
 		static_cast<NamedType*>(nspace)->ensureLayout();
@@ -231,33 +219,33 @@ CodeAssistMgr::createAutoComplete(
 		nspace->ensureNamespaceReady();
 	}
 
-	m_codeAssist = new CodeAssist;
+	m_codeAssist = std::make_unique<CodeAssist>();
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoComplete;
 	m_codeAssist->m_flags = flags;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_namespace = nspace;
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
 CodeAssistMgr::createImportCodeAssist(size_t offset) {
-	freeCodeAssist();
-
 	switch (m_codeAssistKind) {
 	case CodeAssistKind_AutoComplete:
-		m_codeAssist = new CodeAssist;
+		m_codeAssist = std::make_unique<CodeAssist>();
 		m_codeAssist->m_codeAssistKind = CodeAssistKind_ImportAutoComplete;
 		m_codeAssist->m_offset = offset;
 		m_codeAssist->m_module = m_module;
 		break;
 
 	case CodeAssistKind_QuickInfoTip:
-		// full path?
-		break;
+		// return full path maybe?
+
+	default:
+		m_codeAssist.reset();
 	}
 
-	return m_codeAssist;
+	return m_codeAssist.get();
 }
 
 CodeAssist*
@@ -358,7 +346,7 @@ CodeAssistMgr::createFallbackCodeAssist() {
 	m_module->m_functionMgr.epilogue();
 
 	return
-		m_codeAssist ? m_codeAssist :
+		m_codeAssist ? m_codeAssist.get() :
 		m_fallbackMode && m_fallbackMode != FallbackMode_Expression ? createFallbackCodeAssist() :
 		NULL;
 }

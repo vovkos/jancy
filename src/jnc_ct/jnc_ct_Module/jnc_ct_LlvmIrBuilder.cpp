@@ -21,26 +21,14 @@ namespace ct {
 LlvmIrBuilder::LlvmIrBuilder() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
-
-	m_llvmIrBuilder = NULL;
-	m_llvmAllocaIrBuilder = NULL;
 }
 
 void
 LlvmIrBuilder::create() {
 	ASSERT(!m_llvmIrBuilder);
 
-	m_llvmIrBuilder = new LlvmIrBuilderImpl(*m_module->getLlvmContext());
-	m_llvmAllocaIrBuilder = new LlvmIrBuilderImpl(*m_module->getLlvmContext());
-}
-
-void
-LlvmIrBuilder::clear() {
-	delete m_llvmIrBuilder;
-	delete m_llvmAllocaIrBuilder;
-
-	m_llvmIrBuilder = NULL;
-	m_llvmAllocaIrBuilder = NULL;
+	m_llvmIrBuilder = std::make_unique<LlvmIrBuilderImpl>(*m_module->getLlvmContext());
+	m_llvmAllocaIrBuilder = std::make_unique<LlvmIrBuilderImpl>(*m_module->getLlvmContext());
 }
 
 void

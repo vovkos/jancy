@@ -76,10 +76,6 @@ FileStream::FileStream() {
 	m_writeFile = &m_file;
 	m_finalizeIoThreadFunc = NULL;
 	m_openFlags = 0;
-
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
 }
 
 bool
@@ -121,7 +117,7 @@ FileStream::open(
 	}
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = std::make_unique<OverlappedIo>();
 #else
 	result = m_file.open(name >> toAxl, openFlags);
 	if (!result)
@@ -155,8 +151,7 @@ FileStream::close() {
 	AsyncIoDevice::close();
 
 #if (_AXL_OS_WIN)
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 #endif
 }
 

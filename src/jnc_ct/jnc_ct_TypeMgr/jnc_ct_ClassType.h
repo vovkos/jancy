@@ -18,12 +18,20 @@ namespace jnc {
 namespace ct {
 
 class ClassPtrType;
-struct ClassPtrTypeTuple;
 class StructType;
 class Function;
 class Property;
 
 //..............................................................................
+
+struct ClassPtrTypeTuple {
+	ClassPtrType* m_ptrTypeArray[2][ClassPtrKind__Count][ConstKind__Count][2][2]; // ref x ptrkind x constkind/event x volatile x safe
+
+	ClassPtrTypeTuple():
+		m_ptrTypeArray() {}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class ClassType: public DerivableType {
 	friend class TypeMgr;
@@ -48,7 +56,7 @@ protected:
 	sl::Array<Function*> m_vtable;
 	Variable* m_vtableVariable;
 
-	ClassPtrTypeTuple* m_classPtrTypeTuple;
+	std::unique_ptr<ClassPtrTypeTuple> m_classPtrTypeTuple;
 	const OpaqueClassTypeInfo* m_opaqueClassTypeInfo;
 
 public:
@@ -224,7 +232,6 @@ ClassType::ClassType() {
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
 	m_vtableStructType = NULL;
-	m_classPtrTypeTuple = NULL;
 	m_vtableVariable = NULL;
 	m_opaqueClassTypeInfo = NULL;
 	m_constructorThinThisFlag = 0;

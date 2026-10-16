@@ -180,14 +180,10 @@ protected:
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
 	Property* m_indexerProperty;
-	DualConstTuple* m_dualConstTuple;
+	std::unique_ptr<DualConstTuple> m_dualConstTuple;
 
 public:
 	DerivableType();
-
-	virtual ~DerivableType() {
-		delete m_dualConstTuple;
-	}
 
 	virtual
 	Type*
@@ -503,7 +499,6 @@ DerivableType::DerivableType():
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
 	m_indexerProperty = NULL;
-	m_dualConstTuple = NULL;
 }
 
 inline

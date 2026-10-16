@@ -95,14 +95,5 @@ FunctionArg::appendArgString(sl::String* string) {
 
 //..............................................................................
 
-struct FunctionArgTuple: sl::ListLink {
-	FunctionArg* m_argArray[2][2][2]; // this x const x volatile
-
-	FunctionArgTuple():
-		m_argArray() {}
-};
-
-//..............................................................................
-
 } // namespace ct
 } // namespace jnc

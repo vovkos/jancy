@@ -363,7 +363,7 @@ ChildProcess::start(
 	m_file.m_file.attach(parentStdout.detach());
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new FileStream::OverlappedIo;
+	m_overlappedIo = std::make_unique<FileStream::OverlappedIo>();
 
 	if (isSeparateStderr)
 		m_stderr = createFileStream(&parentStderr);
@@ -567,7 +567,7 @@ ChildProcess::createFileStream(AxlOsFile* file) {
 
 #if (_JNC_OS_WIN)
 	ASSERT(!fileStream->m_overlappedIo);
-	fileStream->m_overlappedIo = new FileStream::OverlappedIo;
+	fileStream->m_overlappedIo = std::make_unique<FileStream::OverlappedIo>();
 #endif
 
 	fileStream->AsyncIoDevice::open();

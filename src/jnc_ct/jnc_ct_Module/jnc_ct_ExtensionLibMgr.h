@@ -54,7 +54,7 @@ protected:
 	sl::StringHashTable<const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
 	sl::List<ItemCacheEntry> m_itemCache;
 	ItemCacheMap m_itemCacheMap;
-	sys::CodeAuthenticator* m_codeAuthenticator;
+	std::unique_ptr<sys::CodeAuthenticator> m_codeAuthenticator;
 
 public:
 	sl::String m_dynamicLibraryDir;

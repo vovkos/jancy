@@ -25,8 +25,6 @@ class Const;
 class Value;
 class MemberBlock;
 
-struct DualPtrTypeTuple;
-
 //..............................................................................
 
 enum {
@@ -62,7 +60,6 @@ protected:
 	err::Error m_parseError;
 	sl::Array<ModuleItem*> m_itemArray;
 	sl::StringHashTable<ModuleItem*> m_itemMap;
-	sl::StringHashTable<DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
 
 public:
 	Namespace() {

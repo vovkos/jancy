@@ -53,13 +53,6 @@ TypeMgr::clear() {
 	m_typedefList.clear();
 	m_functionArgList.clear();
 	m_fieldList.clear();
-	m_simplePropertyTypeTupleList.clear();
-	m_functionArgTupleList.clear();
-	m_dataPtrTypeTupleList.clear();
-	m_classPtrTypeTupleList.clear();
-	m_functionPtrTypeTupleList.clear();
-	m_propertyPtrTypeTupleList.clear();
-	m_dualTypeTupleList.clear();
 	m_typeMap.clear();
 	m_importTypeNameAnchorArray.clear();
 	m_multicastClassTypeArray.clear();
@@ -1598,35 +1591,26 @@ TypeMgr::foldDualType(
 
 DualTypeTuple*
 TypeMgr::getDualTypeTuple(Type* type) {
-	if (type->m_dualTypeTuple)
-		return type->m_dualTypeTuple;
+	if (!type->m_dualTypeTuple)
+		type->m_dualTypeTuple = std::make_unique<DualTypeTuple>();
 
-	DualTypeTuple* tuple = new DualTypeTuple;
-	type->m_dualTypeTuple = tuple;
-	m_dualTypeTupleList.insertTail(tuple);
-	return tuple;
+	return type->m_dualTypeTuple.get();
 }
 
 SimplePropertyTypeTuple*
 TypeMgr::getSimplePropertyTypeTuple(Type* type) {
-	if (type->m_simplePropertyTypeTuple)
-		return type->m_simplePropertyTypeTuple;
+	if (!type->m_simplePropertyTypeTuple)
+		type->m_simplePropertyTypeTuple = std::make_unique<SimplePropertyTypeTuple>();
 
-	SimplePropertyTypeTuple* tuple = new SimplePropertyTypeTuple;
-	type->m_simplePropertyTypeTuple = tuple;
-	m_simplePropertyTypeTupleList.insertTail(tuple);
-	return tuple;
+	return type->m_simplePropertyTypeTuple.get();
 }
 
 FunctionArgTuple*
 TypeMgr::getFunctionArgTuple(Type* type) {
-	if (type->m_functionArgTuple)
-		return type->m_functionArgTuple;
+	if (!type->m_functionArgTuple)
+		type->m_functionArgTuple = std::make_unique<FunctionArgTuple>();
 
-	FunctionArgTuple* tuple = new FunctionArgTuple;
-	type->m_functionArgTuple = tuple;
-	m_functionArgTupleList.insertTail(tuple);
-	return tuple;
+	return type->m_functionArgTuple.get();
 }
 
 DataPtrTypeTuple*
@@ -1634,70 +1618,49 @@ TypeMgr::getDataPtrTypeTuple(
 	Type* type,
 	uint_t flags
 ) {
-	DataPtrTypeTuple* tuple;
+	if (!type->m_dataPtrTypeTuple)
+		type->m_dataPtrTypeTuple = std::make_unique<DataPtrTypeTuple>();
 
-	if (type->m_dataPtrTypeTuple)
-		tuple = type->m_dataPtrTypeTuple;
-	else {
-		tuple = new DataPtrTypeTuple;
-		type->m_dataPtrTypeTuple = tuple;
-		m_dataPtrTypeTupleList.insertTail(tuple);
-	}
-
+	DataPtrTypeTuple* tuple = type->m_dataPtrTypeTuple.get();
 	if (!(flags & PtrTypeFlag_BigEndian))
 		return tuple;
 
-	if (tuple->m_bigEndianTuple)
-		return tuple->m_bigEndianTuple;
+	if (!tuple->m_bigEndianTuple)
+		tuple->m_bigEndianTuple = std::make_unique<DataPtrTypeTuple>();
 
-	DataPtrTypeTuple* tuple2 = new DataPtrTypeTuple;
-	tuple->m_bigEndianTuple = tuple2;
-	m_dataPtrTypeTupleList.insertTail(tuple2);
-	return tuple2;
+	return tuple->m_bigEndianTuple.get();
 }
 
 ClassPtrTypeTuple*
 TypeMgr::getClassPtrTypeTuple(ClassType* classType) {
-	if (classType->m_classPtrTypeTuple)
-		return classType->m_classPtrTypeTuple;
+	if (!classType->m_classPtrTypeTuple)
+		classType->m_classPtrTypeTuple = std::make_unique<ClassPtrTypeTuple>();
 
-	ClassPtrTypeTuple* tuple = new ClassPtrTypeTuple;
-	classType->m_classPtrTypeTuple = tuple;
-	m_classPtrTypeTupleList.insertTail(tuple);
-	return tuple;
+	return classType->m_classPtrTypeTuple.get();
 }
 
 ClassPtrTypeTuple*
 TypeMgr::getEventClassPtrTypeTuple(MulticastClassType* classType) {
-	if (classType->m_eventClassPtrTypeTuple)
-		return classType->m_eventClassPtrTypeTuple;
+	if (!classType->m_eventClassPtrTypeTuple)
+		classType->m_eventClassPtrTypeTuple = std::make_unique<ClassPtrTypeTuple>();
 
-	ClassPtrTypeTuple* tuple = new ClassPtrTypeTuple;
-	classType->m_eventClassPtrTypeTuple = tuple;
-	m_classPtrTypeTupleList.insertTail(tuple);
-	return tuple;
+	return classType->m_eventClassPtrTypeTuple.get();
 }
 
 FunctionPtrTypeTuple*
 TypeMgr::getFunctionPtrTypeTuple(FunctionType* functionType) {
-	if (functionType->m_functionPtrTypeTuple)
-		return functionType->m_functionPtrTypeTuple;
+	if (!functionType->m_functionPtrTypeTuple)
+		functionType->m_functionPtrTypeTuple = std::make_unique<FunctionPtrTypeTuple>();
 
-	FunctionPtrTypeTuple* tuple = new FunctionPtrTypeTuple;
-	functionType->m_functionPtrTypeTuple = tuple;
-	m_functionPtrTypeTupleList.insertTail(tuple);
-	return tuple;
+	return functionType->m_functionPtrTypeTuple.get();
 }
 
 PropertyPtrTypeTuple*
 TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType) {
-	if (propertyType->m_propertyPtrTypeTuple)
-		return propertyType->m_propertyPtrTypeTuple;
+	if (!propertyType->m_propertyPtrTypeTuple)
+		propertyType->m_propertyPtrTypeTuple = std::make_unique<PropertyPtrTypeTuple>();
 
-	PropertyPtrTypeTuple* tuple = new PropertyPtrTypeTuple;
-	propertyType->m_propertyPtrTypeTuple = tuple;
-	m_propertyPtrTypeTupleList.insertTail(tuple);
-	return tuple;
+	return propertyType->m_propertyPtrTypeTuple.get();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1826,10 +1789,10 @@ TypeMgr::setupPrimitiveType(
 	type->m_llvmDiType = NULL;
 #endif
 	type->m_typeVariable = NULL;
-	type->m_simplePropertyTypeTuple = NULL;
-	type->m_functionArgTuple = NULL;
-	type->m_dataPtrTypeTuple = NULL;
-	type->m_dualTypeTuple = NULL;
+	type->m_simplePropertyTypeTuple.reset();
+	type->m_functionArgTuple.reset();
+	type->m_dataPtrTypeTuple.reset();
+	type->m_dualTypeTuple.reset();
 }
 
 void

@@ -32,7 +32,6 @@ ControlFlowMgr::ControlFlowMgr() {
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
 	m_regexCondStmt = NULL;
-	m_reactorBody = NULL;
 	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;
@@ -53,8 +52,7 @@ ControlFlowMgr::clear() {
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
 	m_regexCondStmt = NULL;
-	delete m_reactorBody;
-	m_reactorBody = NULL;
+	m_reactorBody.reset();
 	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;
@@ -94,9 +92,13 @@ ControlFlowMgr::finalizeFunction() {
 	m_catchFinallyFollowBlock = NULL;
 	m_returnBlock = NULL;
 	m_dynamicThrowBlock = NULL;
-	m_finallyRouteIdxVariable = NULL;
+	m_emissionLockBlock = NULL;
 	m_returnValueVariable = NULL;
+	m_finallyRouteIdxVariable = NULL;
+	m_regexCondStmt = NULL;
+	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
+	m_sjljFrameCount = 0;
 	m_sjljFrameArrayValue.clear();
 	m_prevSjljFrameValue.clear();
 }

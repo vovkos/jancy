@@ -38,14 +38,10 @@ class LlvmDiBuilder {
 
 protected:
 	Module* m_module;
-	llvm::DIBuilder* m_llvmDiBuilder;
+	std::unique_ptr<llvm::DIBuilder> m_llvmDiBuilder;
 
 public:
 	LlvmDiBuilder();
-
-	~LlvmDiBuilder() {
-		clear();
-	}
 
 	Module*
 	getModule() {
@@ -54,7 +50,7 @@ public:
 
 	llvm::DIBuilder*
 	getLlvmDiBuilder() {
-		return m_llvmDiBuilder;
+		return m_llvmDiBuilder.get();
 	}
 
 	void
@@ -62,8 +58,7 @@ public:
 
 	void
 	clear() {
-		delete m_llvmDiBuilder;
-		m_llvmDiBuilder = NULL;
+		m_llvmDiBuilder.reset();
 	}
 
 	void

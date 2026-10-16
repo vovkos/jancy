@@ -41,18 +41,14 @@ class LlvmIrBuilder {
 
 protected:
 	Module* m_module;
-	LlvmIrBuilderImpl* m_llvmIrBuilder;
-	LlvmIrBuilderImpl* m_llvmAllocaIrBuilder;
+	std::unique_ptr<LlvmIrBuilderImpl> m_llvmIrBuilder;
+	std::unique_ptr<LlvmIrBuilderImpl> m_llvmAllocaIrBuilder;
 
 public:
 	LlvmIrBuilder();
 
-	~LlvmIrBuilder() {
-		clear();
-	}
-
 	explicit operator bool () {
-		return m_llvmIrBuilder != NULL;
+		return (bool)m_llvmIrBuilder;
 	}
 
 	Module*
@@ -62,19 +58,22 @@ public:
 
 	LlvmIrBuilderImpl*
 	getLlvmIrBuilder() {
-		return m_llvmIrBuilder;
+		return m_llvmIrBuilder.get();
 	}
 
 	LlvmIrBuilderImpl*
 	getLlvmAllocaIrBuilder() {
-		return m_llvmAllocaIrBuilder;
+		return m_llvmAllocaIrBuilder.get();
 	}
 
 	void
 	create();
 
 	void
-	clear();
+	clear() {
+		m_llvmIrBuilder.reset();
+		m_llvmAllocaIrBuilder.reset();
+	}
 
 	void
 	setAllocaBlock(BasicBlock* block);

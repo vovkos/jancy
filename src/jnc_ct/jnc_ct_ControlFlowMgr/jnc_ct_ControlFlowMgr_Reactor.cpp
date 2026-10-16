@@ -26,7 +26,7 @@ ControlFlowMgr::enterReactor(
 ) {
 	ASSERT(!m_reactorBody);
 
-	m_reactorBody = new ReactorBody;
+	m_reactorBody = std::make_unique<ReactorBody>();
 	m_reactorBody->m_reactorType = reactorType;
 	m_reactorBody->m_reactionIdxValue = reactionIdxValue;
 	m_reactorBody->m_switchBlock = m_currentBlock;
@@ -49,8 +49,7 @@ ControlFlowMgr::leaveReactor() {
 	m_reactorBody->m_reactorType->m_reactionCount = reactionCount;
 
 	if (!m_module->hasCodeGen()) { // shortcut
-		delete m_reactorBody;
-		m_reactorBody = NULL;
+		m_reactorBody.reset();
 		return true;
 	}
 
@@ -97,8 +96,7 @@ ControlFlowMgr::leaveReactor() {
 		);
 
 	setCurrentBlock(m_reactorBody->m_followBlock);
-	delete m_reactorBody;
-	m_reactorBody = NULL;
+	m_reactorBody.reset();
 	return true;
 }
 

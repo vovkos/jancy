@@ -27,9 +27,16 @@ class ReactorClassType;
 class CallConv;
 class Function;
 
-struct FunctionPtrTypeTuple;
-
 //..............................................................................
+
+struct FunctionPtrTypeTuple {
+	FunctionPtrType* m_ptrTypeArray[2][FunctionPtrKind__Count][2]; // ref x ptrkind x safe
+
+	FunctionPtrTypeTuple():
+		m_ptrTypeArray() {}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class FunctionType: public Type {
 	friend class TypeMgr;
@@ -50,7 +57,7 @@ protected:
 	sl::StringRef m_argSignature;
 	FunctionType* m_shortType;
 	FunctionType* m_stdObjectMemberMethodType;
-	FunctionPtrTypeTuple* m_functionPtrTypeTuple;
+	std::unique_ptr<FunctionPtrTypeTuple> m_functionPtrTypeTuple;
 
 public:
 	FunctionType();
@@ -246,8 +253,6 @@ FunctionType::FunctionType() {
 	m_asyncReturnType = NULL;
 	m_shortType = this;
 	m_stdObjectMemberMethodType = NULL;
-	m_functionPtrTypeTuple = NULL;
-	m_functionPtrTypeTuple = NULL;
 }
 
 inline

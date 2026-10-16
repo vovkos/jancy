@@ -463,7 +463,7 @@ class ModuleItem: public sl::ListLink {
 protected:
 	Module* m_module;
 	sl::StringRef m_linkId;
-	ModuleItemStringCache* m_stringCache;
+	std::unique_ptr<ModuleItemStringCache> m_stringCache;
 	ModuleItemKind m_itemKind;
 	uint_t m_flags;
 
@@ -471,9 +471,7 @@ public:
 	ModuleItem();
 
 	virtual
-	~ModuleItem () {
-		delete m_stringCache;
-	}
+	~ModuleItem () {}
 
 	Module*
 	getModule() const {
@@ -567,7 +565,6 @@ protected:
 inline
 ModuleItem::ModuleItem() {
 	m_module = NULL;
-	m_stringCache = NULL;
 	m_itemKind = ModuleItemKind_Undefined;
 	m_flags = 0;
 }

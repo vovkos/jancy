@@ -59,10 +59,6 @@ NamedPipe::NamedPipe() {
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
-
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
 }
 
 bool
@@ -110,7 +106,7 @@ NamedPipe::open(String name0) {
 	}
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = std::make_unique<OverlappedIo>();
 	sl::takeOver(&m_overlappedIo->m_pipeList, &pipeList);
 
 	AsyncIoDevice::open();
@@ -144,8 +140,7 @@ NamedPipe::close() {
 
 	m_incomingConnectionPool.put(&m_pendingIncomingConnectionList);
 
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 }
 
 bool
@@ -189,7 +184,7 @@ NamedPipe::accept(bool isSuspended) {
 	fileStream->setReadBufferSize(m_readBufferSize);
 	fileStream->setWriteBufferSize(m_writeBufferSize);
 	fileStream->setOptions(m_options);
-	fileStream->m_overlappedIo = new FileStream::OverlappedIo;
+	fileStream->m_overlappedIo = std::make_unique<FileStream::OverlappedIo>();
 	fileStream->m_isOpen = true;
 
 	if (isSuspended)

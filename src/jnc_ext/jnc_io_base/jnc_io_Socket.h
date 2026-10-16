@@ -83,7 +83,7 @@ protected:
 	IoThread m_ioThread;
 
 #if (_AXL_OS_WIN)
-	OverlappedIo* m_overlappedIo;
+	std::unique_ptr<OverlappedIo> m_overlappedIo;
 #endif
 
 public:

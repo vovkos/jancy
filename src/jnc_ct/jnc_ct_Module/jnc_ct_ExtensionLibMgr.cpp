@@ -21,7 +21,6 @@ namespace ct {
 ExtensionLibMgr::ExtensionLibMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	m_dynamicLibraryDir = io::getTempDir();
-	m_codeAuthenticator = NULL;
 	ASSERT(m_module);
 }
 
@@ -36,9 +35,7 @@ ExtensionLibMgr::clear() {
 	m_opaqueClassTypeInfoMap.clear();
 	m_itemCache.clear();
 	m_itemCacheMap.clear();
-
-	delete m_codeAuthenticator;
-	m_codeAuthenticator = NULL;
+	m_codeAuthenticator.reset();
 }
 
 void
@@ -80,7 +77,7 @@ ExtensionLibMgr::unloadDynamicLibs() {
 
 void
 ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config) {
-	m_codeAuthenticator = new sys::CodeAuthenticator;
+	m_codeAuthenticator = std::make_unique<sys::CodeAuthenticator>();
 
 #if (_JNC_OS_WIN)
 	m_codeAuthenticator->setup(

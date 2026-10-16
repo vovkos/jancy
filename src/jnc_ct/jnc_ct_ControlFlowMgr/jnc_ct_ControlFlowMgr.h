@@ -154,7 +154,7 @@ protected:
 	Variable* m_returnValueVariable;
 	Variable* m_finallyRouteIdxVariable;
 	RegexCondStmt* m_regexCondStmt;
-	ReactorBody* m_reactorBody;
+	std::unique_ptr<ReactorBody> m_reactorBody;
 	size_t m_emissionLockCount;
 	size_t m_finallyRouteIdx;
 	size_t m_sjljFrameCount;
@@ -194,11 +194,13 @@ public:
 
 	bool
 	isReactor() {
-		return m_reactorBody != NULL;
+		return (bool)m_reactorBody;
 	}
 
-	ReactorBody*
-	setCurrentReactor(ReactorBody* reactorBody); // for switching parse context
+	std::unique_ptr<ReactorBody>
+	setCurrentReactor(std::unique_ptr<ReactorBody>&& reactorBody) { // for switching parse context
+		return std::exchange(m_reactorBody, std::move(reactorBody));
+	}
 
 	ReactorClassType*
 	getReactorType() {
@@ -671,14 +673,6 @@ protected:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-ReactorBody*
-ControlFlowMgr::setCurrentReactor(ReactorBody* reactorBody) {
-	ReactorBody* prevReactorBody = m_reactorBody;
-	m_reactorBody = reactorBody;
-	return prevReactorBody;
-}
 
 inline
 void

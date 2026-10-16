@@ -21,9 +21,16 @@ namespace ct {
 class PropertyPtrType;
 class ClassType;
 
-struct PropertyPtrTypeTuple;
-
 //..............................................................................
+
+struct PropertyPtrTypeTuple {
+	PropertyPtrType* m_ptrTypeArray[2][PropertyPtrKind__Count][2]; // ref x ptrkind x safe
+
+	PropertyPtrTypeTuple():
+		m_ptrTypeArray() {}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class PropertyType: public Type {
 	friend class TypeMgr;
@@ -35,7 +42,7 @@ protected:
 	PropertyType* m_stdObjectMemberPropertyType;
 	PropertyType* m_shortType;
 	StructType* m_vtableStructType;
-	PropertyPtrTypeTuple* m_propertyPtrTypeTuple;
+	std::unique_ptr<PropertyPtrTypeTuple> m_propertyPtrTypeTuple;
 
 	sl::String m_bindableEventName;
 
@@ -188,17 +195,7 @@ PropertyType::PropertyType() {
 	m_stdObjectMemberPropertyType = NULL;
 	m_shortType = NULL;
 	m_vtableStructType = NULL;
-	m_propertyPtrTypeTuple = NULL;
 }
-
-//..............................................................................
-
-struct SimplePropertyTypeTuple: sl::ListLink {
-	PropertyType* m_propertyTypeArray[3][2][2]; // call-conv-family x const x bindable
-
-	SimplePropertyTypeTuple():
-		m_propertyTypeArray() {}
-};
 
 //..............................................................................
 

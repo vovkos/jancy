@@ -69,7 +69,6 @@ SshChannel::SshChannel() {
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
 
-	m_connectParams = NULL;
 	m_ptyWidth = 0;
 	m_ptyHeight = 0;
 }
@@ -126,8 +125,7 @@ SshChannel::close() {
 
 	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
 
-	delete m_connectParams;
-	m_connectParams = NULL;
+	m_connectParams.reset();
 	SocketBase::close();
 }
 
@@ -215,7 +213,7 @@ SshChannel::connectImpl(
 	}
 
 	ASSERT(!m_connectParams);
-	m_connectParams = new ConnectParams;
+	m_connectParams = std::make_unique<ConnectParams>();
 	m_connectParams->m_userName = !userName.isEmpty() ? userName : "anonymous";
 	m_connectParams->m_privateKeyFileName = privateKeyFileName;
 
@@ -582,8 +580,7 @@ SshChannel::sshConnectLoop() {
 
 	setEvents(SshEvent_SshConnectCompleted);
 
-	delete m_connectParams;
-	m_connectParams = NULL;
+	m_connectParams.reset();
 	return true;
 }
 

@@ -47,10 +47,6 @@ DeviceMonitor::DeviceMonitor() {
 	m_pendingNotifySizeLimit = Def_PendingNotifySizeLimit;
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
-
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
 }
 
 bool
@@ -116,7 +112,7 @@ DeviceMonitor::open() {
 
 #if (_AXL_OS_WIN)
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = std::make_unique<OverlappedIo>();
 #endif
 
 	AsyncIoDevice::open();
@@ -149,8 +145,7 @@ DeviceMonitor::close() {
 	m_fileNameFilter = g_nullString;
 
 #if (_AXL_OS_WIN)
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 #endif
 }
 

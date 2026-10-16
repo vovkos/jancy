@@ -34,9 +34,6 @@ class ImportType;
 class FunctionArg;
 class Value;
 
-struct DataPtrTypeTuple;
-struct SimplePropertyTypeTuple;
-struct FunctionArgTuple;
 struct TemplateInstance;
 
 //..............................................................................
@@ -119,7 +116,35 @@ getLlvmTypeString(llvm::Type* llvmType);
 
 //..............................................................................
 
-struct DualTypeTuple: sl::ListLink {
+struct DataPtrTypeTuple {
+	DataPtrType* m_ptrTypeArray[2][DataPtrKind__Count][ConstKind__Count][2][2]; // ref x ptrkind x constkind x volatile x safe
+	std::unique_ptr<DataPtrTypeTuple> m_bigEndianTuple; // same for PtrTypeFlag_BigEndian
+
+	DataPtrTypeTuple() :
+		m_ptrTypeArray() {}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct FunctionArgTuple {
+	FunctionArg* m_argArray[2][2][2]; // this x const x volatile
+
+	FunctionArgTuple():
+		m_argArray() {}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SimplePropertyTypeTuple {
+	PropertyType* m_propertyTypeArray[3][2][2]; // call-conv-family x const x bindable
+
+	SimplePropertyTypeTuple():
+		m_propertyTypeArray() {}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DualTypeTuple {
 	Type* m_typeArray[2][ConstKind__Count]; // alien-friend x container-const/const?/autoconst
 
 	DualTypeTuple():
@@ -140,10 +165,10 @@ protected:
 	sl::StringRef m_signature; // not part of StringCache for performance
 
 	Variable* m_typeVariable;
-	SimplePropertyTypeTuple* m_simplePropertyTypeTuple;
-	FunctionArgTuple* m_functionArgTuple;
-	DataPtrTypeTuple* m_dataPtrTypeTuple;
-	DualTypeTuple* m_dualTypeTuple;
+	std::unique_ptr<SimplePropertyTypeTuple> m_simplePropertyTypeTuple;
+	std::unique_ptr<FunctionArgTuple> m_functionArgTuple;
+	std::unique_ptr<DataPtrTypeTuple> m_dataPtrTypeTuple;
+	std::unique_ptr<DualTypeTuple> m_dualTypeTuple;
 
 	// codegen-only
 
@@ -432,10 +457,6 @@ Type::Type() {
 	m_alignment = 1;
 	m_llvmType = NULL;
 	m_typeVariable = NULL;
-	m_simplePropertyTypeTuple = NULL;
-	m_functionArgTuple = NULL;
-	m_dataPtrTypeTuple = NULL;
-	m_dualTypeTuple = NULL;
 }
 
 

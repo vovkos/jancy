@@ -433,7 +433,7 @@ DerivableType::calcDualConstType(
 		resultType->getTypeKind() == m_typeKind
 	);
 
-	resultType->m_dualConstTuple = new DualConstTuple;
+	resultType->m_dualConstTuple = std::make_unique<DualConstTuple>();
 	resultType->m_dualConstTuple->m_mtype = this;
 	resultType->m_dualConstTuple->m_ctype = ctype;
 	resultType->m_dualConstTuple->m_constKind = constKind;

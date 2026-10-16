@@ -19,23 +19,13 @@ namespace io {
 
 //..............................................................................
 
-WebSocketStateMachine::WebSocketStateMachine() {
-	m_state = WebSocketState_Idle;
-	m_handshakeParser = NULL;
-	m_frameParser = NULL;
-}
-
 void
 WebSocketStateMachine::setHandshake(
 	WebSocketHandshake* handshake,
 	const sl::StringRef& handshakeKey
 ) {
-	delete m_handshakeParser;
-	delete m_frameParser;
-
-	m_handshakeParser = NULL;
-	m_frameParser = NULL;
-
+	m_handshakeParser.reset();
+	m_frameParser.reset();
 	m_handshake = handshake;
 	m_frame.clear();
 	m_message.clear();
@@ -73,7 +63,7 @@ WebSocketStateMachine::parse(
 	if (m_state == WebSocketState_WaitingHandshake ||
 		m_state == WebSocketState_WaitingHandshakeResponse) {
 		if (!m_handshakeParser)
-			m_handshakeParser = new WebSocketHandshakeParser(m_handshake, m_handshakeKey);
+			m_handshakeParser = ::std::make_unique<WebSocketHandshakeParser>(m_handshake, m_handshakeKey);
 
 		result = m_handshakeParser->parse(p0, size);
 		if (result == -1)
@@ -81,8 +71,7 @@ WebSocketStateMachine::parse(
 
 		if (m_handshakeParser->isCompleted()) {
 			m_state = (WebSocketState)(m_state + 2); // WebSocketState_HandshakeReady/ResponseReady
-			delete m_handshakeParser;
-			m_handshakeParser = NULL;
+			m_handshakeParser.reset();
 		}
 
 		return result;
@@ -91,7 +80,7 @@ WebSocketStateMachine::parse(
 	ASSERT(m_state == WebSocketState_Connected); // wrong use otherwise -- missing setConnectedState()
 
 	if (!m_frameParser)
-		m_frameParser = new WebSocketFrameParser(&m_frame);
+		m_frameParser = ::std::make_unique<WebSocketFrameParser>(&m_frame);
 
 	const char* p = (char*)p0;
 	const char* end = p + size;

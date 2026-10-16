@@ -77,10 +77,6 @@ WebSocket::WebSocket() {
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
 
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
-
 	// need to prime opaque class fields
 
 	Module* module = m_box->m_type->getModule();
@@ -129,7 +125,7 @@ WebSocket::openImpl(
 
 #if (_AXL_OS_WIN)
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = ::std::make_unique<OverlappedIo>();
 #endif
 
 	m_ioThreadFlags |= IoThreadFlag_Datagram;
@@ -166,8 +162,7 @@ WebSocket::close() {
 	SocketBase::close();
 
 #if (_AXL_OS_WIN)
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 #endif
 }
 
@@ -240,7 +235,7 @@ WebSocket::accept(
 		connectionSocket->m_ioThreadFlags |= IoThreadFlag_Suspended;
 
 #if (_AXL_OS_WIN)
-	connectionSocket->m_overlappedIo = new OverlappedIo;
+	connectionSocket->m_overlappedIo = ::std::make_unique<OverlappedIo>();
 #endif
 
 	if (address)

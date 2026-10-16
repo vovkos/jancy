@@ -63,7 +63,7 @@ protected:
 	axl::io::File m_file;
 
 	IoThread m_ioThread;
-	OverlappedIo* m_overlappedIo;
+	std::unique_ptr<OverlappedIo> m_overlappedIo;
 
 public:
 	Mailslot();

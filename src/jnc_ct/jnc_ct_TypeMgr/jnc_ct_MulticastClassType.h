@@ -34,7 +34,7 @@ protected:
 protected:
 	FunctionPtrType* m_targetType;
 	McSnapshotClassType* m_snapshotType;
-	ClassPtrTypeTuple* m_eventClassPtrTypeTuple;
+	std::unique_ptr<ClassPtrTypeTuple> m_eventClassPtrTypeTuple;
 
 public:
 	MulticastClassType();
@@ -75,7 +75,6 @@ MulticastClassType::MulticastClassType() {
 	m_namespaceStatus = NamespaceStatus_Ready;
 	m_targetType = NULL;
 	m_snapshotType = NULL;
-	m_eventClassPtrTypeTuple = NULL;
 }
 
 //..............................................................................

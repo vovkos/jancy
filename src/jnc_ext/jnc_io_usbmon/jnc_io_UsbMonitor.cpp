@@ -42,13 +42,7 @@ UsbMonitor::UsbMonitor() {
 	m_readBufferSize = Def_ReadBufferSize;
 	m_kernelBufferSize = Def_KernelBufferSize;
 	m_addressFilter = 0;
-
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
-
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
-	m_transferTracker = NULL;
 }
 
 bool
@@ -101,7 +95,7 @@ UsbMonitor::open(
 		return false;
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = std::make_unique<OverlappedIo>();
 #elif (_AXL_OS_LINUX)
 	result =
 		m_monitor.open(captureDeviceName >> toAxl, O_RDWR | O_NONBLOCK) &&
@@ -113,7 +107,7 @@ UsbMonitor::open(
 
 	ASSERT(!m_transferTracker);
 	if (m_options & UsbMonOption_CompletedTransfersOnly)
-		m_transferTracker = new TransferTracker;
+		m_transferTracker = std::make_unique<TransferTracker>();
 
 	AsyncIoDevice::open();
 	m_ioThread.start();
@@ -140,12 +134,10 @@ UsbMonitor::close() {
 	AsyncIoDevice::close();
 
 #if (_AXL_OS_WIN)
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 #endif
 
-	delete m_transferTracker;
-	m_transferTracker = NULL;
+	m_transferTracker.reset();
 }
 
 bool

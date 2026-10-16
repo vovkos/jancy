@@ -59,7 +59,6 @@ JNC_END_TYPE_FUNCTION_MAP()
 UsbDevice::UsbDevice() {
 	m_isOpen = false;
 	m_isAutoDetachKernelDriverEnabled = false;
-	m_asyncControlEndpoint = NULL;
 	m_deviceDescriptorPtr = g_nullDataPtr;
 	m_langIdTablePtr = g_nullDataPtr;
 }
@@ -104,8 +103,7 @@ UsbDevice::close() {
 	}
 	m_lock.unlock();
 
-	delete m_asyncControlEndpoint;
-	m_asyncControlEndpoint = NULL;
+	m_asyncControlEndpoint.reset();
 	m_device.close();
 	m_isOpen = false;
 }
@@ -277,14 +275,12 @@ UsbDevice::controlTransfer_1(
 	}
 
 	if (!m_asyncControlEndpoint) {
-		UsbAsyncControlEndpoint* endpoint = new UsbAsyncControlEndpoint(&m_device);
+		std::unique_ptr<UsbAsyncControlEndpoint> endpoint = std::make_unique<UsbAsyncControlEndpoint>(&m_device);
 		bool result = endpoint->start();
-		if (!result) {
-			delete endpoint;
+		if (!result)
 			return false;
-		}
 
-		m_asyncControlEndpoint = endpoint;
+		m_asyncControlEndpoint = std::move(endpoint);
 	}
 
 	return m_asyncControlEndpoint->transfer(

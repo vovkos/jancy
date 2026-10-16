@@ -32,7 +32,7 @@ class ParseContext {
 protected:
 	Module* m_module;
 	Unit* m_prevUnit;
-	ReactorBody* m_prevReactorBody;
+	std::unique_ptr<ReactorBody> m_prevReactorBody;
 	bool m_isNamespaceOpened;
 
 public:

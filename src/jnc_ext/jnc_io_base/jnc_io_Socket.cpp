@@ -74,10 +74,6 @@ Socket::Socket() {
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
-
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
 }
 
 bool
@@ -97,7 +93,7 @@ Socket::openImpl(
 
 #if (_AXL_OS_WIN)
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = std::make_unique<OverlappedIo>();
 #endif
 
 	m_ioThread.start();
@@ -123,8 +119,7 @@ Socket::close() {
 	SocketBase::close();
 
 #if (_AXL_OS_WIN)
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 #endif
 }
 
@@ -190,7 +185,7 @@ Socket::accept(
 		connectionSocket->m_ioThreadFlags |= IoThreadFlag_Suspended;
 
 #if (_AXL_OS_WIN)
-	connectionSocket->m_overlappedIo = new OverlappedIo;
+	connectionSocket->m_overlappedIo = std::make_unique<OverlappedIo>();
 #endif
 
 	if (address)

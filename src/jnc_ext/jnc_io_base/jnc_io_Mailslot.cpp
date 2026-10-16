@@ -55,10 +55,6 @@ Mailslot::Mailslot() {
 	m_options = Def_Options;
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
-
-#if (_AXL_OS_WIN)
-	m_overlappedIo = NULL;
-#endif
 }
 
 bool
@@ -88,7 +84,7 @@ Mailslot::open(String name0) {
 	m_file.m_file.attach(h);
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = new OverlappedIo;
+	m_overlappedIo = std::make_unique<OverlappedIo>();
 
 	AsyncIoDevice::open();
 	m_ioThread.start();
@@ -115,8 +111,7 @@ Mailslot::close() {
 	AsyncIoDevice::close();
 
 #if (_AXL_OS_WIN)
-	delete m_overlappedIo;
-	m_overlappedIo = NULL;
+	m_overlappedIo.reset();
 #endif
 }
 

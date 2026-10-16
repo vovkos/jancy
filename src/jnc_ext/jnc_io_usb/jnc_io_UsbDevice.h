@@ -13,11 +13,10 @@
 
 #include "jnc_io_UsbInterface.h"
 #include "jnc_io_UsbDeviceFilter.h"
+#include "jnc_io_UsbAsyncControlEndpoint.h"
 
 namespace jnc {
 namespace io {
-
-class UsbAsyncControlEndpoint;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbDevice)
 
@@ -35,7 +34,7 @@ protected:
 
 protected:
 	axl::io::UsbDevice m_device;
-	UsbAsyncControlEndpoint* m_asyncControlEndpoint;
+	std::unique_ptr<UsbAsyncControlEndpoint> m_asyncControlEndpoint;
 
 	sys::Lock m_lock;
 	sl::List<UsbInterface, UsbInterface::GetParentLink> m_interfaceList;

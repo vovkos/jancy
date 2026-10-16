@@ -100,11 +100,11 @@ protected:
 protected:
 #if (_AXL_OS_WIN)
 	axl::io::win::UsbPcap m_monitor;
-	OverlappedIo* m_overlappedIo;
+	std::unique_ptr<OverlappedIo> m_overlappedIo;
 #elif (_AXL_OS_LINUX)
 	axl::io::lnx::UsbMon m_monitor;
 #endif
-	TransferTracker* m_transferTracker;
+	std::unique_ptr<TransferTracker> m_transferTracker;
 	IoThread m_ioThread;
 
 public:

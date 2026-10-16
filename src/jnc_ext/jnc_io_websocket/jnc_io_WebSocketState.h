@@ -35,8 +35,8 @@ enum WebSocketState {
 class WebSocketStateMachine {
 protected:
 	WebSocketState m_state;
-	WebSocketHandshakeParser* m_handshakeParser;
-	WebSocketFrameParser* m_frameParser;
+	::std::unique_ptr<WebSocketHandshakeParser> m_handshakeParser;
+	::std::unique_ptr<WebSocketFrameParser> m_frameParser;
 	WebSocketHandshake* m_handshake;
 	WebSocketFrame m_frame;
 	WebSocketMessage m_message;
@@ -44,11 +44,8 @@ protected:
 	sl::String m_handshakeKey;
 
 public:
-	WebSocketStateMachine();
-
-	~WebSocketStateMachine() {
-		delete m_handshakeParser;
-		delete m_frameParser;
+	WebSocketStateMachine() {
+		m_state = WebSocketState_Idle;
 	}
 
 	WebSocketState

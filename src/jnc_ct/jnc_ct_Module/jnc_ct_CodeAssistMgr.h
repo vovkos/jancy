@@ -137,7 +137,7 @@ protected:
 protected:
 	Module* m_module;
 	CodeAssistKind m_codeAssistKind;
-	CodeAssist* m_codeAssist;
+	std::unique_ptr<CodeAssist> m_codeAssist;
 	size_t m_offset;
 	ModuleItem* m_containerItem;
 	sl::List<ArgumentTip> m_argumentTipStack;
@@ -151,10 +151,6 @@ protected:
 public:
 	CodeAssistMgr();
 
-	~CodeAssistMgr() {
-		freeCodeAssist();
-	}
-
 	CodeAssistKind
 	getCodeAssistKind() {
 		return m_codeAssistKind;
@@ -162,7 +158,7 @@ public:
 
 	CodeAssist*
 	getCodeAssist() {
-		return m_codeAssist;
+		return m_codeAssist.get();
 	}
 
 	size_t
@@ -303,12 +299,6 @@ public:
 	}
 
 protected:
-	void
-	freeCodeAssist() {
-		delete m_codeAssist;
-		m_codeAssist = NULL;
-	}
-
 	CodeAssist*
 	generateCodeAssistImpl(ModuleItem* item);
 
