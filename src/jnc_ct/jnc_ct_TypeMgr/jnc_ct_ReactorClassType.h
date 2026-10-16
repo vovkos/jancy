@@ -136,18 +136,6 @@ ReactorClassType::ReactorClassType() {
 	m_userDataType = NULL;
 }
 
-inline
-void
-ReactorClassType::addOnEventHandler(
-	size_t reactionIdx,
-	Function* function
-) {
-	if (m_onEventHandlerMap.getCount() <= reactionIdx)
-		m_onEventHandlerMap.setCountZeroConstruct(reactionIdx + 1);
-
-	m_onEventHandlerMap.rwi()[reactionIdx] = function;
-}
-
 //.............................................................................
 
 } // namespace ct

@@ -67,21 +67,26 @@ ReactorClassType::Reactor::compile() {
 		return false;
 
 	m_module->m_functionMgr.internalEpilogue();
-
-	// explicitly mark all event handlers for compilation as we don't call those directly
-	// they are called from RTL in rtl::ReactorImpl::reactionLoop
-
-	size_t count = reactorType->m_onEventHandlerMap.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Function* handler = reactorType->m_onEventHandlerMap[i];
-		if (handler)
-			m_module->markForCompile(handler);
-	}
-
 	return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void
+ReactorClassType::addOnEventHandler(
+	size_t reactionIdx,
+	Function* function
+) {
+	if (m_onEventHandlerMap.getCount() <= reactionIdx)
+		m_onEventHandlerMap.setCountZeroConstruct(reactionIdx + 1);
+
+	m_onEventHandlerMap.rwi()[reactionIdx] = function;
+
+	// explicitly mark event handlers for compilation as we don't call those directly
+	// they are called from RTL in rtl::ReactorImpl::reactionLoop
+
+	m_module->markForCompile(function);
+}
 
 sl::StringRef
 ReactorClassType::createItemString(size_t index) {
