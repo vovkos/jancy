@@ -1,0 +1,68 @@
+// a 'switch' condition is evaluated exactly once -- deciding between a regular
+// and a regex 'switch' must not generate code for the condition
+
+//..............................................................................
+
+int g_intCount;
+int g_textCount;
+
+int nextInt() {
+	return g_intCount++;
+}
+
+string_t nextText() {
+	g_textCount++;
+	return "abc";
+}
+
+//..............................................................................
+
+int main() {
+	int i = 0;
+	int result = -1;
+
+	switch (i++) {
+	case 0:
+		result = 0;
+		break;
+
+	default:
+		result = 1;
+	}
+
+	assert(i == 1);
+	assert(result == 0);
+
+	result = -1;
+
+	switch (nextInt()) {
+	case 0:
+		result = 0;
+		break;
+
+	default:
+		result = 1;
+	}
+
+	assert(g_intCount == 1);
+	assert(result == 0);
+
+	result = -1;
+
+	switch (nextText()) { // regex 'switch'
+	case "a.c":
+		result = 0;
+		break;
+
+	default:
+		result = 1;
+	}
+
+	assert(g_textCount == 1);
+	assert(result == 0);
+
+	printf("switch ok\n");
+	return 0;
+}
+
+//..............................................................................

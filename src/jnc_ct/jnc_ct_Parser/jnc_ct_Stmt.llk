@@ -193,7 +193,7 @@ switch_block_stmt<SwitchStmt* $stmt>
 // when there are multiple arguments, it's a `regex switch` (the first argument is `jnc.RegexState*`)
 
 regex_switch_stmt_rslv
-	:	TokenKind_Switch '(' expression $e (',' $c)?
+	:	TokenKind_Switch '(' expression_0 $e (',' $c)?
 			{
 				return &$c || isRegexSwitchExpr($e.m_value);
 			}
