@@ -49,6 +49,7 @@ namespace ct {
 
 class Module;
 class DynamicLibNamespace;
+struct FunctionCompileContext;
 
 //..............................................................................
 
@@ -232,6 +233,12 @@ public:
 	isUnsafeRgn() {
 		return m_unsafeEnterCount > 0;
 	}
+
+	void
+	captureFunctionCompileContext(FunctionCompileContext* context);
+
+	void
+	restoreFunctionCompileContext(FunctionCompileContext* context);
 
 #if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	size_t

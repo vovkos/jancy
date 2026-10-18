@@ -2951,7 +2951,7 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_Variable:
-		result = value->trySetVariable((Variable*)item);
+		result = m_module->m_variableMgr.getVariableValue((Variable*)item, value); // handles lambda captures
 		if (!result)
 			return false;
 
@@ -3846,6 +3846,80 @@ Parser::finalizeOnEventStmt(
 		handler->ensureSrcPosError();
 
 	return result;
+}
+
+bool
+Parser::createLambda(
+	const lex::LineCol& pos,
+	sl::List<Token>* captureTokenList,
+	Declarator* declarator,
+	sl::List<Token>* bodyTokenList,
+	Value* resultValue
+) {
+	// same as declarations: apply all prefixes/suffixes, then check the resulting type
+
+	uint_t declFlags = 0;
+	Type* type = declarator->calcType(&declFlags);
+	if (!type)
+		return false;
+
+	if (type->getTypeKind() != TypeKind_Function)
+		return err::fail("lambda type must be a function type, not '%s'", type->getTypeString().sz());
+
+	if (declFlags) // this-arg modifiers; the lambda's 'this' arg is the closure
+		return err::fail("unused modifier(s) '%s'", getPtrTypeFlagString(declFlags).sz());
+
+	FunctionType* functionType = (FunctionType*)type;
+	if (!m_module->hasCodeGen()) {
+		resultValue->setType(functionType->getFunctionPtrType());
+		return true;
+	}
+
+	// the closure is passed as an abstract class pointer; whether we need an actual
+	// closure class is only known after the body is compiled (see FunctionMgr::compileLambda)
+
+	LambdaFunction* function = m_module->m_functionMgr.createFunction<LambdaFunction>(sl::StringRef(), functionType);
+	function->m_storageKind = StorageKind_Member;
+	function->convertToMemberMethod((ClassType*)m_module->m_typeMgr.getStdType(StdType_AbstractClass));
+	assignDeclarationAttributes(function, function, pos, declarator->m_attributeBlock, declarator->m_doxyBlock);
+
+	if (captureTokenList) {
+		sl::ConstIterator<Token> it = captureTokenList->getHead();
+		for (; it; it++) {
+			MemberCoord coord;
+			ModuleItem* item = lookupIdentifier(**it, &coord);
+			if (!item)
+				return false;
+
+			Variable* variable = (Variable*)item;
+			StorageKind storageKind = variable->getStorageKind();
+			if (item->getItemKind() != ModuleItemKind_Variable ||
+				storageKind != StorageKind_Stack &&
+				storageKind != StorageKind_Heap &&
+				!(storageKind == StorageKind_Member && (variable->getFlags() & VariableFlag_Arg)) // async arg
+			) {
+				err::fail("'%s' is not a local variable", it->m_data.m_string.sz());
+				pushSrcPosError(it->m_pos);
+				return false;
+			}
+
+			LambdaCapture* capture = &function->m_captureMap.visit(variable)->m_value;
+			if (capture->m_flags) {
+				err::fail("'%s' is already captured", it->m_data.m_string.sz());
+				pushSrcPosError(it->m_pos);
+				return false;
+			}
+
+			capture->m_pos = it->m_pos;
+			capture->m_flags = LambdaCaptureFlag_ByValue;
+		}
+	}
+
+	bool result = setBody(function, bodyTokenList);
+	if (!result)
+		return false;
+
+	return m_module->m_functionMgr.compileLambda(function, resultValue);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

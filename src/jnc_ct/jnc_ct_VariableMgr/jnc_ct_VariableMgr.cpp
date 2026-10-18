@@ -605,6 +605,173 @@ VariableMgr::finalizeFunction() {
 	m_extraStackPtrFlags = 0;
 }
 
+void
+VariableMgr::captureFunctionCompileContext(FunctionCompileContext* context) {
+	ASSERT(!m_currentLiftedStackVariable);
+
+	context->m_liftedStackVariableArray = std::move(m_liftedStackVariableArray);
+	context->m_argVariableArray = std::move(m_argVariableArray);
+	context->m_reactorVariableArray = std::move(m_reactorVariableArray);
+	context->m_extraStackPtrFlags = m_extraStackPtrFlags;
+	m_extraStackPtrFlags = 0;
+
+	// TLS/reactor variables cache prologue allocas of the current function
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction();
+	if (function) {
+		resetFieldVariableLlvmValues(function->getTlsVariableArray());
+		resetFieldVariableLlvmValues(function->getReactorVariableArray());
+	}
+}
+
+void
+VariableMgr::restoreFunctionCompileContext(FunctionCompileContext* context) {
+	m_liftedStackVariableArray = std::move(context->m_liftedStackVariableArray);
+	m_argVariableArray = std::move(context->m_argVariableArray);
+	m_reactorVariableArray = std::move(context->m_reactorVariableArray);
+	m_extraStackPtrFlags = context->m_extraStackPtrFlags;
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction(); // already restored by FunctionMgr
+	if (function) {
+		restoreFieldVariableLlvmValues(function->getTlsVariableArray());
+		restoreFieldVariableLlvmValues(function->getReactorVariableArray());
+	}
+}
+
+void
+VariableMgr::resetFieldVariableLlvmValues(const sl::ArrayRef<FieldVariable>& array) {
+	size_t count = array.getCount();
+	for (size_t i = 0; i < count; i++)
+		array[i].m_variable->m_llvmValue = NULL;
+}
+
+void
+VariableMgr::restoreFieldVariableLlvmValues(const sl::ArrayRef<FieldVariable>& array) {
+	size_t count = array.getCount();
+	for (size_t i = 0; i < count; i++) {
+		const FieldVariable* fieldVariable = &array[i];
+		fieldVariable->m_variable->m_llvmValue = fieldVariable->m_llvmAlloca;
+	}
+}
+
+bool
+VariableMgr::getVariableValue(
+	Variable* variable,
+	Value* resultValue
+) {
+	if (!m_module->hasCodeGen())
+		return resultValue->trySetVariable(variable);
+
+	// async args are promise fields
+
+	bool isAsyncArg = variable->m_storageKind == StorageKind_Member && (variable->m_flags & VariableFlag_Arg);
+
+	Function* function = m_module->m_functionMgr.getCurrentFunction();
+	if (function && function->getFunctionKind() == FunctionKind_Lambda) {
+		bool isLocal;
+
+		switch (variable->m_storageKind) {
+		case StorageKind_Stack:
+		case StorageKind_Heap:
+			isLocal = true;
+			break;
+
+		case StorageKind_Member:
+			isLocal = isAsyncArg;
+			break;
+
+		case StorageKind_Reactor:
+			return err::fail("lambdas cannot capture reactor variables");
+
+		default:
+			isLocal = false; // static & TLS variables are accessed directly
+		}
+
+		if (isLocal && variable->m_scope && variable->m_scope->getFunction() != function)
+			return getCaptureValue((LambdaFunction*)function, variable, resultValue);
+	}
+
+	if (!isAsyncArg)
+		return resultValue->trySetVariable(variable);
+
+	// access async args just like class fields (validators are created on demand, per-use)
+
+	bool result = variable->m_type->ensureLayout();
+	if (!result)
+		return false;
+
+	Value promiseValue = m_module->m_functionMgr.getPromiseValue();
+	ASSERT(promiseValue);
+
+	Value fieldPtrValue(variable->m_llvmValue, variable->m_type->getDataPtrType(DataPtrKind_Thin));
+	resultValue->setLeanDataPtr(
+		variable->m_llvmValue,
+		(DataPtrType*)getDirectRefType(variable->m_type, variable->m_ptrTypeFlags | PtrTypeFlag_Safe),
+		promiseValue,
+		fieldPtrValue,
+		variable->m_type->getSize()
+	);
+
+	return true;
+}
+
+bool
+VariableMgr::getCaptureValue(
+	LambdaFunction* function,
+	Variable* variable,
+	Value* resultValue
+) {
+	LambdaCapture* capture = &function->m_captureMap.visit(variable)->m_value;
+	if (!(capture->m_flags & LambdaCaptureFlag_Used))
+		prepareCapture(capture, variable);
+
+	// the closure is not laid out yet -- access the field via its placeholder (just like a class field)
+
+	Type* type = variable->m_type;
+	Value fieldPtrValue(capture->m_llvmFieldAlloca, capture->m_fieldType->getDataPtrType(DataPtrKind_Thin));
+
+	if (capture->m_flags & LambdaCaptureFlag_Ptr) {
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createLoad(fieldPtrValue, capture->m_fieldType, &ptrValue);
+		return m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, ptrValue, resultValue);
+	}
+
+	Value closureValue = function->getType()->getCallConv()->getThisArgValue(function);
+	resultValue->setLeanDataPtr(
+		capture->m_llvmFieldAlloca,
+		(DataPtrType*)getDirectRefType(type, variable->m_ptrTypeFlags | PtrTypeFlag_Safe),
+		closureValue,
+		fieldPtrValue,
+		type->getSize()
+	);
+
+	return true;
+}
+
+void
+VariableMgr::prepareCapture(
+	LambdaCapture* capture,
+	Variable* variable
+) {
+	Type* type = variable->m_type;
+	uint_t ptrTypeFlags = PtrTypeFlag_Safe | (variable->m_ptrTypeFlags & PtrTypeFlag_ConstKindMask);
+
+	if (type->getTypeKind() == TypeKind_Class) { // a class variable is the object itself -- always store a pointer
+		capture->m_fieldType = ((ClassType*)type)->getClassPtrType(ptrTypeFlags);
+		capture->m_flags |= LambdaCaptureFlag_Ptr;
+	} else if (capture->m_flags & LambdaCaptureFlag_ByValue)
+		capture->m_fieldType = type;
+	else {
+		capture->m_fieldType = type->getDataPtrType(ptrTypeFlags);
+		capture->m_flags |= LambdaCaptureFlag_Ptr;
+	}
+
+	Value fieldPtrValue;
+	m_module->m_llvmIrBuilder.createAlloca(capture->m_fieldType, NULL, &fieldPtrValue);
+	capture->m_llvmFieldAlloca = (llvm::AllocaInst*)fieldPtrValue.getLlvmValue();
+	capture->m_flags |= LambdaCaptureFlag_Used;
+}
+
 Variable*
 VariableMgr::createArgVariable(
 	FunctionArg* arg,

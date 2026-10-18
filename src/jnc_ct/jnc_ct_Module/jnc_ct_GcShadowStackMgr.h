@@ -21,6 +21,7 @@ namespace ct {
 class Module;
 class BasicBlock;
 class GcShadowStackMgr;
+struct FunctionCompileContext;
 
 //..............................................................................
 
@@ -124,6 +125,12 @@ public:
 
 	void
 	finalizeFunction();
+
+	void
+	captureFunctionCompileContext(FunctionCompileContext* context);
+
+	void
+	restoreFunctionCompileContext(FunctionCompileContext* context);
 
 	void
 	finalizeScope(Scope* scope);

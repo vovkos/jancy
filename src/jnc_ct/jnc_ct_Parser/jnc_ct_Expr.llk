@@ -914,6 +914,53 @@ primary_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.offsetofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
+	|	lambda_expr<$value>
+	;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+lambda_expr<Value* $value>
+	local {
+		Declarator $declarator;
+	}
+	enter {
+		preDeclarator(&$declarator, NULL);
+	}
+	leave {
+		postDeclarator(&$declarator);
+	}
+	:	'[' (identifier_list $c)? ']'
+		(	type_name_declarator $t // full type name, e.g.: int (int a)[10]
+		|	function_suffix<&$declarator> // void shorthand
+		)
+		declaration_body_pass1 $b
+			{
+				return createLambda(
+					$1.m_pos,
+					&$c ? &$c.m_tokenList : NULL,
+					&$t ? &$t.m_declarator : &$declarator,
+					&$b.m_tokenList,
+					$value
+				);
+			}
+	;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct {
+	sl::List<Token> m_tokenList;
+}
+identifier_list
+	:	TokenKind_Identifier
+			{
+				$.m_tokenList.insertTail(m_tokenPool->get($1));
+			}
+		(
+			',' TokenKind_Identifier $i
+				{
+					$.m_tokenList.insertTail(m_tokenPool->get($i));
+				}
+		)*
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

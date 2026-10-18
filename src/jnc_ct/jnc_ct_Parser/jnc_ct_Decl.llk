@@ -84,7 +84,8 @@ local_declaration
 	leave {
 		return postDeclaration();
 	}
-	:	common_declaration
+	:	resolver ('[') // attribute block vs lambda; lambda cannot start a statement
+		common_declaration
 	|	local_item_declaration
 	|	statement
 	|	catch_label

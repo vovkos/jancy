@@ -223,6 +223,12 @@ FunctionMgr::prologue(
 	if (m_module->getCompileFlags() & ModuleCompileFlag_GcSafePointInPrologue)
 		m_module->m_operatorMgr.gcSafePoint();
 
+	// lambda's 'this' arg is the closure; 'this' inside the body is the captured outer 'this'
+	// (see OperatorMgr::getThisValue)
+
+	if (function->m_functionKind == FunctionKind_Lambda && m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.saveInsertPoint(&((LambdaFunction*)function)->m_captureInsertPoint);
+
 	// 'this' arg
 
 	if (function->isMember())
@@ -346,6 +352,39 @@ FunctionMgr::finalizeFunction(
 	m_thisValue.clear();
 	m_promiseValue.clear();
 	m_currentFunction = NULL;
+}
+
+void
+FunctionMgr::captureFunctionCompileContext(FunctionCompileContext* context) {
+	m_module->m_operatorMgr.captureFunctionCompileContext(context);
+	m_module->m_variableMgr.captureFunctionCompileContext(context);
+	m_module->m_gcShadowStackMgr.captureFunctionCompileContext(context);
+	m_module->m_controlFlowMgr.captureFunctionCompileContext(context);
+
+	context->m_currentFunction = m_currentFunction;
+	context->m_thisValue = m_thisValue;
+	context->m_promiseValue = m_promiseValue;
+
+	m_currentFunction = NULL;
+	m_thisValue.clear();
+	m_promiseValue.clear();
+}
+
+void
+FunctionMgr::restoreFunctionCompileContext(FunctionCompileContext* context) {
+	ASSERT(!m_currentFunction);
+
+	m_currentFunction = context->m_currentFunction;
+	m_thisValue = context->m_thisValue;
+	m_promiseValue = context->m_promiseValue;
+
+	if (m_currentFunction && m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.setAllocaBlock(m_currentFunction->m_allocaBlock);
+
+	m_module->m_operatorMgr.restoreFunctionCompileContext(context);
+	m_module->m_variableMgr.restoreFunctionCompileContext(context);
+	m_module->m_gcShadowStackMgr.restoreFunctionCompileContext(context);
+	m_module->m_controlFlowMgr.restoreFunctionCompileContext(context); // last -- re-enters the current block
 }
 
 void

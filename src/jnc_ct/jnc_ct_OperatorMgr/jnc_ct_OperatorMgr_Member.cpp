@@ -219,7 +219,11 @@ OperatorMgr::createMemberClosure(Value* value) {
 
 bool
 OperatorMgr::getThisValue(Value* value) {
-	Value thisValue = m_module->m_functionMgr.getThisValue();
+	Function* function = m_module->m_functionMgr.getCurrentFunction();
+	Value thisValue = function->getFunctionKind() == FunctionKind_Lambda ?
+		m_module->m_functionMgr.getLambdaThisValue((LambdaFunction*)function) :
+		m_module->m_functionMgr.getThisValue();
+
 	if (!thisValue)
 		return err::fail(
 			"function '%s' has no 'this' pointer",
@@ -252,7 +256,11 @@ OperatorMgr::getThisValue(Value* value) {
 Type*
 OperatorMgr::getThisValueType() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	if (!function->isMember()) {
+	Type* thisType = function->getFunctionKind() == FunctionKind_Lambda ?
+		((LambdaFunction*)function)->m_outerThisType :
+		function->getThisType();
+
+	if (!thisType) {
 		err::setError(
 			"function '%s' has no 'this' pointer",
 			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
@@ -261,7 +269,6 @@ OperatorMgr::getThisValueType() {
 		return NULL;
 	}
 
-	Type* thisType = function->getThisType();
 	if (isClassPtrType(thisType, ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisType)->getTargetType();
 		ReactorClassType* reactorType = (ReactorClassType*)classType;

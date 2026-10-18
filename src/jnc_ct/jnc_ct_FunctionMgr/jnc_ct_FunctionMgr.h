@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Function.h"
+#include "jnc_ct_LambdaFunction.h"
 #include "jnc_ct_FunctionOverload.h"
 #include "jnc_ct_Property.h"
 #include "jnc_ct_PropertyTemplate.h"
@@ -22,6 +23,7 @@ namespace ct {
 
 class DerivableType;
 class AsyncSequencerFunction;
+class ClassType;
 struct RegexCondStmt;
 struct ReactorBody;
 
@@ -37,12 +39,16 @@ enum GlobalCtorDtorKind {
 
 //..............................................................................
 
-struct FunctionComplileContext {
+struct FunctionCompileContext {
 	// FunctionMgr
 
 	Function* m_currentFunction;
 	Value m_thisValue;
 	Value m_promiseValue;
+
+	// OperatorMgr
+
+	intptr_t m_unsafeEnterCount;
 
 	// VariableMgr
 
@@ -72,13 +78,14 @@ struct FunctionComplileContext {
 	Variable* m_returnValueVariable;
 	Variable* m_finallyRouteIdxVariable;
 	RegexCondStmt* m_regexCondStmt;
-	ReactorBody* m_reactorBody;
+	std::unique_ptr<ReactorBody> m_reactorBody;
 	size_t m_emissionLockCount;
 	size_t m_finallyRouteIdx;
 	size_t m_sjljFrameCount;
 	Value m_sjljFrameArrayValue;
 	Value m_prevSjljFrameValue;
 };
+
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -136,9 +143,12 @@ public:
 	}
 
 	Value
-	getThisValue() {
+	getThisValue() { // the actual 'this' arg (for lambdas, the closure)
 		return m_thisValue;
 	}
+
+	Value
+	getLambdaThisValue(LambdaFunction* function); // the outer 'this' (captured on demand)
 
 	Value
 	getPromiseValue() {
@@ -276,6 +286,12 @@ public:
 	void
 	internalEpilogue();
 
+	bool
+	compileLambda(
+		LambdaFunction* function,
+		Value* resultValue
+	);
+
 	void
 	replaceFieldVariableAllocas();
 
@@ -344,6 +360,13 @@ protected:
 		Function* function,
 		bool wasNamespaceOpened
 	);
+
+	void
+	captureFunctionCompileContext(FunctionCompileContext* context);
+
+	void
+	restoreFunctionCompileContext(FunctionCompileContext* context);
+
 
 	Function*
 	parseStdFunction(StdFunc func);

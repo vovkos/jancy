@@ -1,0 +1,249 @@
+// lambdas: [snapshots] ret (args) { body }
+//
+// - outer locals are captured by reference (outer stack variables get lifted
+//   to the heap, so a lambda can outlive the frame it was created in)
+// - names listed in [] are captured by value (snapshots taken when the lambda
+//   is created; writes go to the closure's own copy and persist across calls)
+// - the outer 'this' is captured on first use
+
+//..............................................................................
+
+int g_x;
+
+void testNoCapture() {
+	function* f() = [] () {
+		g_x = 10;
+	};
+
+	f();
+	assert(g_x == 10);
+
+	int function* sq(int) = [] int (int a) {
+		return a * a;
+	};
+
+	assert(sq(7) == 49);
+
+	// immediately invoked
+	assert(([] int (int a, int b) { return a - b; })(10, 3) == 7);
+}
+
+void testByRef() {
+	int a = 1;
+	int b = 2;
+
+	function* inc() = [] () {
+		a++;
+		b += 10;
+	};
+
+	inc();
+	inc();
+	assert(a == 3 && b == 22);
+
+	a = 100; // outer writes are visible inside
+	int function* getA() = [] int () {
+		return a;
+	};
+
+	assert(getA() == 100);
+}
+
+void testByValue() {
+	int a = 1;
+	int b = 2;
+
+	int function* f() = [a] int () {
+		return a * 100 + b; // a is a snapshot, b is a reference
+	};
+
+	a = 5;
+	b = 7;
+	assert(f() == 107);
+
+	int n = 0;
+	int function* next() = [n] int () {
+		return n++; // the closure's own state
+	};
+
+	assert(next() == 0);
+	assert(next() == 1);
+	assert(next() == 2);
+	assert(n == 0);
+}
+
+typedef int function* Counter();
+
+Counter createCounter(int start) {
+	int counter = start; // outlives the frame via the closure
+	return [] int () {
+		return counter++;
+	};
+}
+
+void testOutliveFrame() {
+	Counter c1 = createCounter(10);
+	Counter c2 = createCounter(100);
+
+	jnc.collectGarbage();
+
+	assert(c1() == 10);
+	assert(c1() == 11);
+	assert(c2() == 100);
+	assert(c1() == 12);
+	assert(c2() == 101);
+}
+
+void testArg(int x) {
+	function* f() = [] () {
+		x *= 2;
+	};
+
+	f();
+	f();
+	assert(x == 12);
+}
+
+int sum(
+	int function* f(int),
+	int count
+) {
+	int result = 0;
+	for (int i = 0; i < count; i++)
+		result += f(i);
+
+	return result;
+}
+
+void testPassAsArg() {
+	int k = 3;
+	assert(sum([] int (int i) { return i * k; }, 4) == 18); // 0 + 3 + 6 + 9
+}
+
+void testPtrToCapture() {
+	int a = 5;
+	int b = 6;
+
+	function* f() = [b] () {
+		int* p = &a; // by-ref: pointer to the (lifted) outer variable
+		*p = 50;
+
+		int* q = &b; // by-value: pointer into the closure
+		g_x = *q;
+	};
+
+	f();
+	assert(a == 50);
+	assert(g_x == 6);
+}
+
+class C {
+	int m_value;
+
+	typedef int function* Adder(int);
+
+	Adder getAdder() {
+		return [] int (int delta) {
+			m_value += delta; // implicit 'this'
+			return this.m_value;
+		};
+	}
+}
+
+void testThis() {
+	C c;
+	c.m_value = 1;
+
+	C.Adder add = c.getAdder();
+	assert(add(10) == 11);
+	assert(add(5) == 16);
+	assert(c.m_value == 16);
+}
+
+void testString() {
+	string_t s = "abc";
+	string_t function* f() = [s] string_t () {
+		return s + "def";
+	};
+
+	s = "xyz";
+	assert(f() == "abcdef");
+}
+
+typedef int IntArray[3];
+
+void testTypeName() {
+	// the lambda type is a full type name, e.g. a function returning an array
+
+	IntArray function* f(int) = [] int (int a)[3] {
+		int result[3] = { a, a * 2, a * 3 };
+		return result;
+	};
+
+	IntArray arr = f(5);
+	assert(arr[0] == 5 && arr[1] == 10 && arr[2] == 15);
+
+	int* function* g() = [] int* () {
+		return &g_x;
+	};
+
+	*g() = 42;
+	assert(g_x == 42);
+}
+
+class D {
+	int m_x;
+}
+
+Counter createObjCounter(int start) {
+	D d; // class objects are always on the GC heap; the closure keeps it alive
+	d.m_x = start;
+	return [] int () {
+		return d.m_x++;
+	};
+}
+
+void testClassVar() {
+	D d;
+	d.m_x = 1;
+
+	function* f() = [] () {
+		d.m_x += 10;
+	};
+
+	f();
+	assert(d.m_x == 11);
+
+	int function* g() = [d] int () { // a class variable is the object itself
+		return d.m_x;
+	};
+
+	d.m_x = 20;
+	assert(g() == 20);
+
+	Counter c = createObjCounter(5);
+	jnc.collectGarbage();
+	assert(c() == 5);
+	assert(c() == 6);
+}
+
+//..............................................................................
+
+int main() {
+	testNoCapture();
+	testByRef();
+	testByValue();
+	testOutliveFrame();
+	testArg(3);
+	testPassAsArg();
+	testPtrToCapture();
+	testThis();
+	testString();
+	testTypeName();
+	testClassVar();
+
+	printf("lambdas ok\n");
+	return 0;
+}
+
+//..............................................................................

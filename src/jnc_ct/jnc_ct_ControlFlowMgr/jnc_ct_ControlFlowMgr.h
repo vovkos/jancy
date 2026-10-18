@@ -21,6 +21,7 @@ namespace ct {
 
 class FunctionType;
 struct TryExpr;
+struct FunctionCompileContext;
 
 //..............................................................................
 
@@ -311,6 +312,12 @@ public:
 
 	void
 	finalizeFunction();
+
+	void
+	captureFunctionCompileContext(FunctionCompileContext* context);
+
+	void
+	restoreFunctionCompileContext(FunctionCompileContext* context);
 
 	// jumps
 

@@ -67,6 +67,26 @@ GcShadowStackMgr::finalizeFunction() {
 }
 
 void
+GcShadowStackMgr::captureFunctionCompileContext(FunctionCompileContext* context) {
+	context->m_frameVariable = m_frameVariable;
+	context->m_gcRootArrayValue = m_gcRootArrayValue;
+	context->m_functionFrameMapArray = std::move(m_functionFrameMapArray);
+	context->m_gcRootCount = m_gcRootCount;
+
+	m_gcRootArrayValue.clear();
+	m_frameVariable = NULL;
+	m_gcRootCount = 0;
+}
+
+void
+GcShadowStackMgr::restoreFunctionCompileContext(FunctionCompileContext* context) {
+	m_frameVariable = context->m_frameVariable;
+	m_gcRootArrayValue = context->m_gcRootArrayValue;
+	m_functionFrameMapArray = std::move(context->m_functionFrameMapArray);
+	m_gcRootCount = context->m_gcRootCount;
+}
+
+void
 GcShadowStackMgr::finalizeScope(Scope* scope) {
 	if (!scope->m_gcShadowStackFrameMap ||
 		!(m_module->m_controlFlowMgr.getCurrentBlock()->getFlags() & BasicBlockFlag_Reachable))

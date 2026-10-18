@@ -768,6 +768,15 @@ protected:
 	);
 
 	bool
+	createLambda(
+		const lex::LineCol& pos,
+		sl::List<Token>* captureTokenList,
+		Declarator* declarator,
+		sl::List<Token>* bodyTokenList,
+		Value* resultValue
+	);
+
+	bool
 	assertStmt(
 		sl::List<Token>* conditionTokenList,
 		const sl::StringRef& message

@@ -103,6 +103,64 @@ ControlFlowMgr::finalizeFunction() {
 	m_prevSjljFrameValue.clear();
 }
 
+void
+ControlFlowMgr::captureFunctionCompileContext(FunctionCompileContext* context) {
+	context->m_currentBlock = setCurrentBlock(NULL); // saves the debug location, too
+	context->m_asyncBlockArray = std::move(m_asyncBlockArray);
+	context->m_returnBlockArray = std::move(m_returnBlockArray);
+	context->m_landingPadBlockArray = std::move(m_landingPadBlockArray);
+	context->m_unreachableBlock = m_unreachableBlock;
+	context->m_catchFinallyFollowBlock = m_catchFinallyFollowBlock;
+	context->m_returnBlock = m_returnBlock;
+	context->m_dynamicThrowBlock = m_dynamicThrowBlock;
+	context->m_emissionLockBlock = m_emissionLockBlock;
+	context->m_returnValueVariable = m_returnValueVariable;
+	context->m_finallyRouteIdxVariable = m_finallyRouteIdxVariable;
+	context->m_regexCondStmt = m_regexCondStmt;
+	context->m_reactorBody = std::move(m_reactorBody);
+	context->m_emissionLockCount = m_emissionLockCount;
+	context->m_finallyRouteIdx = m_finallyRouteIdx;
+	context->m_sjljFrameCount = m_sjljFrameCount;
+	context->m_sjljFrameArrayValue = m_sjljFrameArrayValue;
+	context->m_prevSjljFrameValue = m_prevSjljFrameValue;
+
+	m_unreachableBlock = NULL;
+	m_catchFinallyFollowBlock = NULL;
+	m_returnBlock = NULL;
+	m_dynamicThrowBlock = NULL;
+	m_emissionLockBlock = NULL;
+	m_returnValueVariable = NULL;
+	m_finallyRouteIdxVariable = NULL;
+	m_regexCondStmt = NULL;
+	m_emissionLockCount = 0;
+	m_finallyRouteIdx = -1;
+	m_sjljFrameCount = 0;
+	m_sjljFrameArrayValue.clear();
+	m_prevSjljFrameValue.clear();
+}
+
+void
+ControlFlowMgr::restoreFunctionCompileContext(FunctionCompileContext* context) {
+	m_asyncBlockArray = std::move(context->m_asyncBlockArray);
+	m_returnBlockArray = std::move(context->m_returnBlockArray);
+	m_landingPadBlockArray = std::move(context->m_landingPadBlockArray);
+	m_unreachableBlock = context->m_unreachableBlock;
+	m_catchFinallyFollowBlock = context->m_catchFinallyFollowBlock;
+	m_returnBlock = context->m_returnBlock;
+	m_dynamicThrowBlock = context->m_dynamicThrowBlock;
+	m_emissionLockBlock = context->m_emissionLockBlock;
+	m_returnValueVariable = context->m_returnValueVariable;
+	m_finallyRouteIdxVariable = context->m_finallyRouteIdxVariable;
+	m_regexCondStmt = context->m_regexCondStmt;
+	m_reactorBody = std::move(context->m_reactorBody);
+	m_emissionLockCount = context->m_emissionLockCount;
+	m_finallyRouteIdx = context->m_finallyRouteIdx;
+	m_sjljFrameCount = context->m_sjljFrameCount;
+	m_sjljFrameArrayValue = context->m_sjljFrameArrayValue;
+	m_prevSjljFrameValue = context->m_prevSjljFrameValue;
+	setCurrentBlock(context->m_currentBlock); // restores the insert point and the debug location
+}
+
 BasicBlock*
 ControlFlowMgr::createBlock(
 	const sl::StringRef& name,

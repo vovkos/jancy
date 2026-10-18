@@ -1,0 +1,99 @@
+// lambdas in special contexts: async functions (captures across 'await'),
+// struct methods (struct 'this'), and reactor 'onevent' handlers
+
+//..............................................................................
+
+import "sys_Timer.jnc"
+
+int g_x;
+int* g_p;
+
+int async asyncAddrOfArg(int a) {
+	g_p = &a; // async args are promise fields
+	*g_p = 10;
+	return a;
+}
+
+int async asyncFunc(int a) {
+	int b = 2;
+	function* f() = [] () { g_x = a + b; b++; }; // captures across an await
+
+	sys.Timer timer;
+	jnc.Promisifier promise;
+	timer.startSingleShotTimer(promise.complete, 10);
+	await promise.asyncWait();
+
+	f();
+	assert(b == 3);
+
+	int function* snap() = [a] int () { return a; }; // by-value async arg
+	a = 100;
+	assert(snap() == 5);
+	return g_x;
+}
+
+struct S {
+	int m_x;
+
+	void foo() {
+		function* f() = [] () { g_x = m_x; };
+		f();
+	}
+}
+
+event g_onEvent(int);
+int g_handled;
+
+reactor g_reactor {
+	onevent g_onEvent(int d) {
+		function* f() = [] () { g_handled += d; }; // handler arg
+		f();
+	}
+}
+
+class R {
+	int m_sum;
+
+	reactor m_reactor {
+		onevent g_onEvent(int d) {
+			function* f() = [] () { m_sum += d; }; // 'this' -> reactor -> parent class
+			f();
+		}
+	}
+}
+
+int main() {
+	jnc.Promise* p = asyncFunc(5);
+	assert(p.blockingWait() == 7);
+
+	p = asyncAddrOfArg(5);
+	assert(p.blockingWait() == 10);
+
+	g_reactor.start();
+	g_onEvent(1);
+	g_onEvent(2);
+	g_reactor.stop();
+	assert(g_handled == 3);
+
+	R r;
+	r.m_reactor.start();
+	g_onEvent(3);
+	g_onEvent(4);
+	r.m_reactor.stop();
+	assert(r.m_sum == 7);
+
+	S s;
+	s.m_x = 77;
+	s.foo();
+	assert(g_x == 77);
+
+	S* hs = new S;
+	hs.m_x = 88;
+	hs.foo();
+	assert(g_x == 88);
+
+	printf("lambda contexts ok\n");
+	return 0;
+}
+
+//..............................................................................

@@ -244,23 +244,6 @@ public:
 
 	template <typename T>
 	T*
-	createUnnamedClassType(
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-	) {
-		return createClassType<T>(sl::StringRef(), fieldAlignment, flags);
-	}
-
-	ClassType*
-	createUnnamedClassType(
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-	) {
-		return createUnnamedClassType<ClassType>(fieldAlignment, flags);
-	}
-
-	template <typename T>
-	T*
 	createInternalClassType(
 		const sl::StringRef& name,
 		size_t fieldAlignment = 8,

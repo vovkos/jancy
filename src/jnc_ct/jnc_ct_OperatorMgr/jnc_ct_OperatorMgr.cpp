@@ -166,6 +166,17 @@ OperatorMgr::clear() {
 #endif
 }
 
+void
+OperatorMgr::captureFunctionCompileContext(FunctionCompileContext* context) {
+	context->m_unsafeEnterCount = m_unsafeEnterCount;
+	m_unsafeEnterCount = 0;
+}
+
+void
+OperatorMgr::restoreFunctionCompileContext(FunctionCompileContext* context) {
+	m_unsafeEnterCount = context->m_unsafeEnterCount;
+}
+
 DerivableType*
 OperatorMgr::getOverloadedOperatorCandidateType(const Value& opValue) {
 	Value opTypeValue;

@@ -188,6 +188,17 @@ public:
 	void
 	closeAllNamespaces();
 
+	size_t
+	getNamespaceStackDepth() {
+		return m_namespaceStack.getCount();
+	}
+
+	void
+	closeNamespaces(size_t depth) { // close namespaces down to the specified stack depth
+		while (m_namespaceStack.getCount() > depth)
+			closeNamespace();
+	}
+
 	Scope*
 	openInternalScope();
 

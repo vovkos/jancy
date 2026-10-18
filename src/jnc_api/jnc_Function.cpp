@@ -45,6 +45,8 @@ jnc_getFunctionKindString(jnc_FunctionKind functionKind) {
 		"sched-launcher",           // jnc_FunctionKind_SchedLauncher,
 		"async-sched-launcher",     // jnc_FunctionKind_AsyncSchedLauncher,
 		"async-sequencer",          // jnc_FunctionKind_AsyncSequencer,
+		"reactor",                  // jnc_FunctionKind_Reactor,
+		"lambda",                   // jnc_FunctionKind_Lambda,
 	};
 
 	return (size_t)functionKind < jnc_FunctionKind__Count ?
@@ -87,6 +89,8 @@ jnc_getFunctionKindFlags(jnc_FunctionKind functionKind) {
 		0,                                  // jnc_FunctionKind_SchedLauncher,
 		0,                                  // jnc_FunctionKind_AsyncSchedLauncher,
 		0,                                  // jnc_FunctionKind_AsyncSequencer,
+		0,                                  // jnc_FunctionKind_Reactor,
+		0,                                  // jnc_FunctionKind_Lambda,
 	};
 
 	return (size_t)functionKind < jnc_FunctionKind__Count ? flagTable[functionKind] : 0;

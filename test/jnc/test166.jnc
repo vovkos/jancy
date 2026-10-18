@@ -1,0 +1,117 @@
+// nested lambdas: captures propagate through the enclosing lambdas
+
+//..............................................................................
+
+typedef int function* IntFunc();
+typedef IntFunc function* MakerFunc();
+
+int g_x;
+
+void testNestedByRef() {
+	int a = 1;
+
+	function* outer() = [] () {
+		int b = 10;
+
+		function* inner() = [] () {
+			a += 100; // outer-outer local
+			b += 1000; // middle local
+		};
+
+		inner();
+		inner();
+		g_x = b;
+	};
+
+	outer();
+	assert(a == 201);
+	assert(g_x == 2010);
+}
+
+void testNestedByValue() {
+	int a = 1;
+	int b = 2;
+
+	IntFunc function* outer() = [b] IntFunc () {
+		return [a, b] int () {
+			return a * 10 + b; // a: snapshot of the outer-outer local; b: snapshot of a snapshot
+		};
+	};
+
+	b = 5;
+	IntFunc f = outer();
+	a = 7;
+	assert(f() == 12);
+}
+
+void testNestedRefToSnapshot() {
+	int n = 0;
+
+	function* outer() = [n] () {
+		function* inner() = [] () {
+			n++; // by-ref to the middle closure's snapshot
+		};
+
+		inner();
+		inner();
+		g_x = n;
+	};
+
+	outer();
+	assert(g_x == 2);
+	outer();
+	assert(g_x == 4); // middle closure's snapshot persists
+	assert(n == 0);
+}
+
+IntFunc createNested(int start) {
+	int counter = start;
+	IntFunc function* make() = [] IntFunc () {
+		return [] int () {
+			return counter++;
+		};
+	};
+
+	return make();
+}
+
+void testNestedOutlive() {
+	IntFunc f = createNested(5);
+	jnc.collectGarbage();
+	assert(f() == 5);
+	assert(f() == 6);
+}
+
+class C {
+	int m_value;
+
+	MakerFunc getMaker() {
+		return [] IntFunc () {
+			return [] int () {
+				return ++m_value; // 'this' through two levels
+			};
+		};
+	}
+}
+
+void testNestedThis() {
+	C c;
+	c.m_value = 40;
+	IntFunc f = c.getMaker()();
+	assert(f() == 41);
+	assert(f() == 42);
+	assert(c.m_value == 42);
+}
+
+int main() {
+	testNestedByRef();
+	testNestedByValue();
+	testNestedRefToSnapshot();
+	testNestedOutlive();
+	testNestedThis();
+
+	printf("nested ok\n");
+	return 0;
+}
+
+//..............................................................................

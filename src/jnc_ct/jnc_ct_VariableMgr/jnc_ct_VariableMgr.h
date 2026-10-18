@@ -19,6 +19,9 @@ namespace ct {
 
 class ClassType;
 class Function;
+struct FunctionCompileContext;
+class LambdaFunction;
+struct LambdaCapture;
 
 //..............................................................................
 
@@ -66,6 +69,18 @@ public:
 
 	void
 	finalizeFunction();
+
+	bool
+	getVariableValue( // handles lambda captures & async args
+		Variable* variable,
+		Value* resultValue
+	);
+
+	void
+	captureFunctionCompileContext(FunctionCompileContext* context);
+
+	void
+	restoreFunctionCompileContext(FunctionCompileContext* context);
 
 	bool
 	isStdVariableUsed(StdVariable variable) {
@@ -241,6 +256,27 @@ protected:
 
 	bool
 	allocateHeapVariable(Variable* variable);
+
+	bool
+	getCaptureValue(
+		LambdaFunction* function,
+		Variable* variable,
+		Value* resultValue
+	);
+
+	void
+	prepareCapture(
+		LambdaCapture* capture,
+		Variable* variable
+	);
+
+	static
+	void
+	resetFieldVariableLlvmValues(const sl::ArrayRef<FieldVariable>& array);
+
+	static
+	void
+	restoreFieldVariableLlvmValues(const sl::ArrayRef<FieldVariable>& array);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

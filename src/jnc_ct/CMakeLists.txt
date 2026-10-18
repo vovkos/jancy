@@ -20,6 +20,7 @@ set(
 	include/jnc_ct_AsyncLauncherFunction.h
 	include/jnc_ct_AsyncSchedLauncherFunction.h
 	include/jnc_ct_AsyncSequencerFunction.h
+	include/jnc_ct_LambdaFunction.h
 	include/jnc_ct_AttributeBlock.h
 	include/jnc_ct_AttributeMgr.h
 	include/jnc_ct_BasicBlock.h
@@ -223,6 +224,7 @@ set(
 	jnc_ct_FunctionMgr/jnc_ct_FunctionMgr.h
 	jnc_ct_FunctionMgr/jnc_ct_FunctionName.h
 	jnc_ct_FunctionMgr/jnc_ct_FunctionOverload.h
+	jnc_ct_FunctionMgr/jnc_ct_LambdaFunction.h
 	jnc_ct_FunctionMgr/jnc_ct_Property.h
 	jnc_ct_FunctionMgr/jnc_ct_PropertyTemplate.h
 	jnc_ct_FunctionMgr/jnc_ct_PropertyVerifier.h
@@ -240,6 +242,7 @@ set(
 	jnc_ct_FunctionMgr/jnc_ct_AsyncSequencerFunction.cpp
 	jnc_ct_FunctionMgr/jnc_ct_Function.cpp
 	jnc_ct_FunctionMgr/jnc_ct_FunctionMgr.cpp
+	jnc_ct_FunctionMgr/jnc_ct_FunctionMgr_Lambda.cpp
 	jnc_ct_FunctionMgr/jnc_ct_FunctionOverload.cpp
 	jnc_ct_FunctionMgr/jnc_ct_Property.cpp
 	jnc_ct_FunctionMgr/jnc_ct_PropertyTemplate.cpp
