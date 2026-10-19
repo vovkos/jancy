@@ -768,7 +768,7 @@ protected:
 	);
 
 	bool
-	createLambda(
+	lambdaExpression(
 		const lex::LineCol& pos,
 		sl::List<Token>* captureTokenList,
 		Declarator* declarator,

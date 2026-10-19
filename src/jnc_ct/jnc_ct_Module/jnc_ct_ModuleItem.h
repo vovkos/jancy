@@ -144,6 +144,12 @@ public:
 
 	sl::StringRef
 	createQualifiedName(const sl::StringRef& name) const;
+
+	void
+	copySrcPos(const ModuleItemPos* itemPos) {
+		setupContext(itemPos->m_parentUnit, itemPos->m_parentNamespace);
+		m_pos = itemPos->m_pos;
+	}
 };
 
 //..............................................................................

@@ -97,6 +97,7 @@ class FunctionMgr {
 	friend class Parser;
 	friend class AsyncLauncherFunction;
 	friend class AsyncSequencerFunction;
+	friend class LambdaFunction;
 
 protected:
 	Module* m_module;
@@ -146,9 +147,6 @@ public:
 	getThisValue() { // the actual 'this' arg (for lambdas, the closure)
 		return m_thisValue;
 	}
-
-	Value
-	getLambdaThisValue(LambdaFunction* function); // the outer 'this' (captured on demand)
 
 	Value
 	getPromiseValue() {
@@ -285,12 +283,6 @@ public:
 
 	void
 	internalEpilogue();
-
-	bool
-	compileLambda(
-		LambdaFunction* function,
-		Value* resultValue
-	);
 
 	void
 	replaceFieldVariableAllocas();

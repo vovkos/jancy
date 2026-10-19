@@ -441,6 +441,38 @@ Value::integerCast64() const {
 
 bool
 Value::trySetVariable(Variable* variable) {
+	// async args are promise fields; lambda captures are closure fields
+
+	enum {
+		FrameFieldFlags = VariableFlag_Arg | VariableFlag_LambdaByValCapture | VariableFlag_LambdaByRefCapture
+	};
+
+	Module* module = variable->getModule();
+	Function* function = module->m_functionMgr.getCurrentFunction();
+	if (module->hasCodeGen() && function && function->getFunctionKind() == FunctionKind_Lambda) {
+		bool isLocal;
+
+		switch (variable->getStorageKind()) {
+		case StorageKind_Stack:
+		case StorageKind_Heap:
+			isLocal = true;
+			break;
+
+		case StorageKind_Member:
+			isLocal = (variable->getFlags() & FrameFieldFlags) != 0;
+			break;
+
+		case StorageKind_Reactor:
+			return err::fail("lambdas cannot capture reactor variables");
+
+		default:
+			isLocal = false; // static & TLS variables are accessed directly
+		}
+
+		if (isLocal && variable->getScope() && variable->getScope()->getFunction() != function)
+			variable = ((LambdaFunction*)function)->createByRefCaptureVariable(variable); // replace
+	}
+
 	bool result = variable->getType()->ensureLayout();
 	if (!result)
 		return false;
@@ -450,10 +482,33 @@ Value::trySetVariable(Variable* variable) {
 		variable->getPtrTypeFlags() | PtrTypeFlag_Safe
 	);
 
-	if (!variable->getModule()->hasCodeGen()) {
+	if (!module->hasCodeGen()) {
 		setType(resultType);
 		m_item = variable;
 		return true;
+	}
+
+	if (variable->getStorageKind() == StorageKind_Member && (variable->getFlags() & FrameFieldFlags)) { // accessed like class fields (validators are created per-use)
+		Value parentValue = (variable->getFlags() & VariableFlag_Arg) ?
+			module->m_functionMgr.getPromiseValue() :
+			function->getType()->getCallConv()->getThisArgValue(function);
+
+		ASSERT(parentValue);
+
+		llvm::Value* llvmValue = variable->getLlvmValue();
+		Value fieldPtrValue(llvmValue, variable->getType()->getDataPtrType(DataPtrKind_Thin));
+
+		setLeanDataPtr(
+			llvmValue,
+			(DataPtrType*)resultType,
+			parentValue,
+			fieldPtrValue,
+			variable->getType()->getSize()
+		);
+
+		return
+			!(variable->getFlags() & VariableFlag_LambdaByRefCapture)  ||
+			module->m_operatorMgr.unaryOperator(UnOpKind_Indir, this);
 	}
 
 	clear();

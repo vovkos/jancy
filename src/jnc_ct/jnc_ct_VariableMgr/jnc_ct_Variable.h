@@ -46,6 +46,7 @@ class Variable:
 	friend class Parser;
 	friend class Module;
 	friend class Jit;
+	friend class LambdaFunction;
 
 protected:
 	Type* m_type;
@@ -121,6 +122,11 @@ public:
 	getLlvmGlobalVariable() {
 		ASSERT(m_llvmGlobalVariable);
 		return m_llvmGlobalVariable;
+	}
+
+	bool
+	hasLlvmValue() {
+		return m_llvmValue != NULL;
 	}
 
 	llvm::Value*

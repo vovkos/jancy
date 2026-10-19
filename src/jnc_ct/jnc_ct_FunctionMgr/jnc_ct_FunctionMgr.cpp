@@ -223,16 +223,15 @@ FunctionMgr::prologue(
 	if (m_module->getCompileFlags() & ModuleCompileFlag_GcSafePointInPrologue)
 		m_module->m_operatorMgr.gcSafePoint();
 
-	// lambda's 'this' arg is the closure; 'this' inside the body is the captured outer 'this'
-	// (see OperatorMgr::getThisValue)
-
-	if (function->m_functionKind == FunctionKind_Lambda && m_module->hasCodeGen())
-		m_module->m_llvmIrBuilder.saveInsertPoint(&((LambdaFunction*)function)->m_captureInsertPoint);
-
 	// 'this' arg
 
 	if (function->isMember())
 		createThisValue();
+
+	// lambda's 'this' arg is the closure; 'this' inside the body is the captured outer 'this'
+
+	if (function->m_functionKind == FunctionKind_Lambda)
+		((LambdaFunction*)function)->addByValCapturesToScope();
 }
 
 void
@@ -372,8 +371,6 @@ FunctionMgr::captureFunctionCompileContext(FunctionCompileContext* context) {
 
 void
 FunctionMgr::restoreFunctionCompileContext(FunctionCompileContext* context) {
-	ASSERT(!m_currentFunction);
-
 	m_currentFunction = context->m_currentFunction;
 	m_thisValue = context->m_thisValue;
 	m_promiseValue = context->m_promiseValue;

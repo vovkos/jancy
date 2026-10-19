@@ -1280,6 +1280,7 @@ Parser::declareTypedef(
 			!((Typedef*)prevItem)->getType()->isEqual(type)
 		) {
 			setRedefinitionError(name);
+			pushSrcPosError(declarator->getPos());
 			return false;
 		}
 
@@ -2951,7 +2952,7 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_Variable:
-		result = m_module->m_variableMgr.getVariableValue((Variable*)item, value); // handles lambda captures
+		result = value->trySetVariable((Variable*)item);
 		if (!result)
 			return false;
 
@@ -3849,7 +3850,7 @@ Parser::finalizeOnEventStmt(
 }
 
 bool
-Parser::createLambda(
+Parser::lambdaExpression(
 	const lex::LineCol& pos,
 	sl::List<Token>* captureTokenList,
 	Declarator* declarator,
@@ -3876,50 +3877,90 @@ Parser::createLambda(
 	}
 
 	// the closure is passed as an abstract class pointer; whether we need an actual
-	// closure class is only known after the body is compiled (see FunctionMgr::compileLambda)
+	// closure class is only known after the body is compiled (see LambdaFunction::compile)
 
 	LambdaFunction* function = m_module->m_functionMgr.createFunction<LambdaFunction>(sl::StringRef(), functionType);
 	function->m_storageKind = StorageKind_Member;
 	function->convertToMemberMethod((ClassType*)m_module->m_typeMgr.getStdType(StdType_AbstractClass));
-	assignDeclarationAttributes(function, function, pos, declarator->m_attributeBlock, declarator->m_doxyBlock);
+
+	// the outer 'this' is captured by-value (a struct 'this' -- as a safe fat pointer);
+	// check first, as getThisValueType() fails if there is no 'this'
+
+	Function* outerFunction = m_module->m_functionMgr.getCurrentFunction();
+	bool hasOuterThis = outerFunction->getFunctionKind() == FunctionKind_Lambda ?
+		((LambdaFunction*)outerFunction)->m_outerThisType != NULL :
+		outerFunction->getThisType() != NULL;
+
+	if (hasOuterThis) {
+		Type* outerThisType = m_module->m_operatorMgr.getThisValueType();
+		if (outerThisType->getTypeKind() == TypeKind_DataPtr) {
+			DataPtrType* ptrType = (DataPtrType*)outerThisType;
+			outerThisType = ptrType->getTargetType()->getDataPtrType(
+				TypeKind_DataPtr,
+				(ptrType->getFlags() & PtrTypeFlag_ConstKindMask) | PtrTypeFlag_Safe
+			);
+		}
+
+		function->m_outerThisType = outerThisType;
+	}
+
+	assignDeclarationAttributes(function, function, declarator);
+
+	bool result;
 
 	if (captureTokenList) {
+		// [] entries are snapshots evaluated right here, in the outer function;
+		// the body sees them as variables declared next to the args
+
 		sl::ConstIterator<Token> it = captureTokenList->getHead();
 		for (; it; it++) {
-			MemberCoord coord;
-			ModuleItem* item = lookupIdentifier(**it, &coord);
-			if (!item)
-				return false;
-
-			Variable* variable = (Variable*)item;
-			StorageKind storageKind = variable->getStorageKind();
-			if (item->getItemKind() != ModuleItemKind_Variable ||
-				storageKind != StorageKind_Stack &&
-				storageKind != StorageKind_Heap &&
-				!(storageKind == StorageKind_Member && (variable->getFlags() & VariableFlag_Arg)) // async arg
-			) {
-				err::fail("'%s' is not a local variable", it->m_data.m_string.sz());
+			LambdaByValCapture* capture = &function->m_byValCaptureMap[it->m_data.m_string];
+			if (capture->m_variable) {
+				setRedefinitionError(it->m_data.m_string);
 				pushSrcPosError(it->m_pos);
 				return false;
 			}
 
-			LambdaCapture* capture = &function->m_captureMap.visit(variable)->m_value;
-			if (capture->m_flags) {
-				err::fail("'%s' is already captured", it->m_data.m_string.sz());
-				pushSrcPosError(it->m_pos);
+			result = lookupIdentifier(**it, &capture->m_value);
+			if (!result)
+				return false;
+
+			Type* type = capture->m_value.getType();
+			uint_t ptrTypeFlags = (type->getTypeKindFlags() & TypeKindFlag_DataPtr) ? // keep the const-ness of the source
+				(((DataPtrType*)type)->getFlags() & PtrTypeFlag_ConstKindMask) :
+				0;
+
+			result = m_module->m_operatorMgr.prepareOperand(&capture->m_value);
+			if (!result)
+				return false;
+
+			capture->m_variable = m_module->m_variableMgr.createLambdaCaptureVariable<VariableFlag_LambdaByValCapture>(
+				it->m_data.m_string,
+				capture->m_value.getType(),
+				ptrTypeFlags
+			);
+
+			assignDeclarationAttributes(capture->m_variable, capture->m_variable, it->m_pos);
+		}
+
+		// captures are declared next to the args (see LambdaFunction::addByValCapturesToScope)
+
+		sl::Array<FunctionArg*> argArray = functionType->getArgArray();
+		size_t argCount = argArray.getCount();
+		for (size_t i = 0; i < argCount; i++) {
+			sl::StringHashTableIterator<LambdaByValCapture> captureIt = function->m_byValCaptureMap.find(argArray[i]->getName());
+			if (captureIt) {
+				setRedefinitionError(captureIt->getKey());
+				pushSrcPosError(captureIt->m_value.m_variable->getPos());
 				return false;
 			}
-
-			capture->m_pos = it->m_pos;
-			capture->m_flags = LambdaCaptureFlag_ByValue;
 		}
 	}
 
-	bool result = setBody(function, bodyTokenList);
-	if (!result)
-		return false;
-
-	return m_module->m_functionMgr.compileLambda(function, resultValue);
+	return
+		setBody(function, bodyTokenList) &&
+		function->compile() &&
+		function->createFunctionPtrValue(resultValue);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

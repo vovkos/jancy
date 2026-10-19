@@ -935,7 +935,7 @@ lambda_expr<Value* $value>
 		)
 		declaration_body_pass1 $b
 			{
-				return createLambda(
+				return lambdaExpression(
 					$1.m_pos,
 					&$c ? &$c.m_tokenList : NULL,
 					&$t ? &$t.m_declarator : &$declarator,

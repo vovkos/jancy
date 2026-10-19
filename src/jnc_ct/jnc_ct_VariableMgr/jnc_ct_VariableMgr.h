@@ -20,8 +20,6 @@ namespace ct {
 class ClassType;
 class Function;
 struct FunctionCompileContext;
-class LambdaFunction;
-struct LambdaCapture;
 
 //..............................................................................
 
@@ -69,12 +67,6 @@ public:
 
 	void
 	finalizeFunction();
-
-	bool
-	getVariableValue( // handles lambda captures & async args
-		Variable* variable,
-		Value* resultValue
-	);
 
 	void
 	captureFunctionCompileContext(FunctionCompileContext* context);
@@ -195,6 +187,14 @@ public:
 		const Value& value
 	);
 
+	template <VariableFlag variableFlag>
+	Variable*
+	createLambdaCaptureVariable(
+		const sl::StringRef& name,
+		Type* type,
+		uint_t ptrTypeFlags = 0
+	);
+
 	Variable*
 	createStaticRegexVariable(const re2::Regex& regex);
 
@@ -256,19 +256,6 @@ protected:
 
 	bool
 	allocateHeapVariable(Variable* variable);
-
-	bool
-	getCaptureValue(
-		LambdaFunction* function,
-		Variable* variable,
-		Value* resultValue
-	);
-
-	void
-	prepareCapture(
-		LambdaCapture* capture,
-		Variable* variable
-	);
 
 	static
 	void
@@ -353,6 +340,32 @@ VariableMgr::createSimpleStaticVariable(
 	if (type->getFlags() & TypeFlag_GcRoot)
 		m_staticGcRootArray.append(variable);
 
+	return variable;
+}
+
+inline
+Variable*
+VariableMgr::createAsyncArgVariable(
+	const sl::StringRef& name,
+	Type* type,
+	const Value& value
+) {
+	ASSERT(value.getLlvmValue());
+	Variable* variable = createVariable(StorageKind_Member, name, type);
+	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
+	variable->m_llvmValue = value.getLlvmValue();
+	return variable;
+}
+
+template <VariableFlag variableFlag>
+Variable*
+VariableMgr::createLambdaCaptureVariable(
+	const sl::StringRef& name,
+	Type* type,
+	uint_t ptrTypeFlags
+) {
+	Variable* variable = createVariable(StorageKind_Member, name, type, ptrTypeFlags);
+	variable->m_flags |= ModuleItemFlag_User | variableFlag;
 	return variable;
 }
 

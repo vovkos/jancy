@@ -22,19 +22,23 @@ namespace ct {
 
 void
 Variable::prepareLlvmValue() {
-	ASSERT(!m_llvmValue && (m_storageKind == StorageKind_Tls || m_storageKind == StorageKind_Reactor));
+	ASSERT(
+		!m_llvmValue && (
+			m_storageKind == StorageKind_Tls ||
+			m_storageKind == StorageKind_Reactor ||
+			m_storageKind == StorageKind_Member && (m_flags & (VariableFlag_LambdaByValCapture | VariableFlag_LambdaByRefCapture))
+		)
+	);
+
+	// a placeholder for the field address (replaced with a GEP once the closure/TLS/reactor layout is ready)
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	BasicBlock* prologueBlock = function->getPrologueBlock();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(prologueBlock);
-
 	Type* allocaType = m_type->getTypeKind() == TypeKind_Class ?
 		((ClassType*)m_type)->getIfaceStructType() :
 		m_type;
 
 	Value ptrValue;
 	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(allocaType, NULL, &ptrValue);
-	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
 
 	switch (m_storageKind) {
 	case StorageKind_Tls:

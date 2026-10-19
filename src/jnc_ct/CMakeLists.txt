@@ -242,8 +242,8 @@ set(
 	jnc_ct_FunctionMgr/jnc_ct_AsyncSequencerFunction.cpp
 	jnc_ct_FunctionMgr/jnc_ct_Function.cpp
 	jnc_ct_FunctionMgr/jnc_ct_FunctionMgr.cpp
-	jnc_ct_FunctionMgr/jnc_ct_FunctionMgr_Lambda.cpp
 	jnc_ct_FunctionMgr/jnc_ct_FunctionOverload.cpp
+	jnc_ct_FunctionMgr/jnc_ct_LambdaFunction.cpp
 	jnc_ct_FunctionMgr/jnc_ct_Property.cpp
 	jnc_ct_FunctionMgr/jnc_ct_PropertyTemplate.cpp
 	jnc_ct_FunctionMgr/jnc_ct_PropertyVerifier.cpp

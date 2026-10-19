@@ -220,15 +220,16 @@ OperatorMgr::createMemberClosure(Value* value) {
 bool
 OperatorMgr::getThisValue(Value* value) {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	Value thisValue = function->getFunctionKind() == FunctionKind_Lambda ?
-		m_module->m_functionMgr.getLambdaThisValue((LambdaFunction*)function) :
-		m_module->m_functionMgr.getThisValue();
+	if (function->getFunctionKind() == FunctionKind_Lambda) {
+		return ((LambdaFunction*)function)->getOuterThisType() ?
+			value->trySetVariable(((LambdaFunction*)function)->getOuterThisVariable()) &&
+			prepareOperand(value) : // load the captured pointer
+			err::fail("function '%s' has no 'this' pointer", function->getItemName().sz());
+	}
 
+	Value thisValue = m_module->m_functionMgr.getThisValue();
 	if (!thisValue)
-		return err::fail(
-			"function '%s' has no 'this' pointer",
-			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
-		);
+		return err::fail("function '%s' has no 'this' pointer", function->getItemName().sz());
 
 	if (isClassPtrType(thisValue.getType(), ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisValue.getType())->getTargetType();
@@ -257,17 +258,11 @@ Type*
 OperatorMgr::getThisValueType() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	Type* thisType = function->getFunctionKind() == FunctionKind_Lambda ?
-		((LambdaFunction*)function)->m_outerThisType :
+		((LambdaFunction*)function)->getOuterThisType() :
 		function->getThisType();
 
-	if (!thisType) {
-		err::setError(
-			"function '%s' has no 'this' pointer",
-			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
-		);
-
-		return NULL;
-	}
+	if (!thisType)
+		return err::fail<Type*>(NULL, "function '%s' has no 'this' pointer", function->getItemName().sz());
 
 	if (isClassPtrType(thisType, ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisType)->getTargetType();

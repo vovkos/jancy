@@ -72,6 +72,37 @@ void testByValue() {
 	assert(n == 0);
 }
 
+threadlocal int g_t;
+
+class F {
+	int m_x;
+
+	Counter snapField() {
+		return [m_x] int () {
+			return m_x * 100 + this.m_x; // bare m_x is the snapshot, this.m_x is live
+		};
+	}
+}
+
+void testByValueNonLocal() {
+	g_x = 1;
+	g_t = 2;
+
+	int function* f() = [g_x, g_t] int () {
+		return g_x * 10 + g_t;
+	};
+
+	g_x = 5;
+	g_t = 6;
+	assert(f() == 12);
+
+	F obj;
+	obj.m_x = 3;
+	Counter c = obj.snapField();
+	obj.m_x = 4;
+	assert(c() == 304);
+}
+
 typedef int function* Counter();
 
 Counter createCounter(int start) {
@@ -233,6 +264,7 @@ int main() {
 	testNoCapture();
 	testByRef();
 	testByValue();
+	testByValueNonLocal();
 	testOutliveFrame();
 	testArg(3);
 	testPassAsArg();

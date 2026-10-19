@@ -38,9 +38,11 @@
 //..............................................................................
 
 enum jnc_VariableFlag {
-	jnc_VariableFlag_Allocated = 0x0100, // for TLS values we can't rely on m_llvmValue being NULL
-	jnc_VariableFlag_Arg       = 0x0200,
-	jnc_VariableFlag_Type      = 0x0400, // static introspection type variable
+	jnc_VariableFlag_Allocated          = 0x0100, // for TLS values we can't rely on m_llvmValue being NULL
+	jnc_VariableFlag_Arg                = 0x0200,
+	jnc_VariableFlag_Type               = 0x0400, // static introspection type variable
+	jnc_VariableFlag_LambdaByValCapture = 0x0800, // [...] capture (turned into a closure field)
+	jnc_VariableFlag_LambdaByRefCapture = 0x1000, // outer var capture (turned into a closure field)
 };
 
 typedef enum jnc_VariableFlag jnc_VariableFlag;
@@ -93,9 +95,11 @@ namespace jnc {
 typedef enum jnc_VariableFlag VariableFlag;
 
 const VariableFlag
-	VariableFlag_Allocated = jnc_VariableFlag_Allocated,
-	VariableFlag_Arg       = jnc_VariableFlag_Arg,
-	VariableFlag_Type      = jnc_VariableFlag_Type;
+	VariableFlag_Allocated          = jnc_VariableFlag_Allocated,
+	VariableFlag_Arg                = jnc_VariableFlag_Arg,
+	VariableFlag_Type               = jnc_VariableFlag_Type,
+	VariableFlag_LambdaByValCapture = jnc_VariableFlag_LambdaByValCapture,
+	VariableFlag_LambdaByRefCapture = jnc_VariableFlag_LambdaByRefCapture;
 
 //..............................................................................
 
