@@ -67,9 +67,8 @@ enum ScopeFlag {
 	ScopeFlag_Finalizable    = 0x00100000, // scope or one of its parents has finally
 	ScopeFlag_Disposable     = 0x00200000, // this scope contains disposable variables
 	ScopeFlag_HasCatch       = 0x00400000, // this scope or some of its parents have catch
-	ScopeFlag_FrameMapCached = 0x00800000, // this scope or some of its parents have catch
-	ScopeFlag_HasLandingPads = 0x10000000, // this function has landing pads
-	ScopeFlag_DynamicGroup   = 0x20000000, // this scope is a dynamic layout group (close on escape)
+	ScopeFlag_FrameMapReady  = 0x00800000, // gc shadow stack frame map for this scope is ready (can be NULL)
+	ScopeFlag_DynamicGroup   = 0x01000000, // this scope is a dynamic layout group (close on escape)
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

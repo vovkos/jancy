@@ -126,6 +126,7 @@ ControlFlowMgr::setJmp(
 #endif
 
 	m_module->m_llvmIrBuilder.createCall(setJmpFunc, setJmpFunc->getType(), sjljFrameValue, &returnValue);
+	m_module->m_functionMgr.getCurrentFunction()->m_setJmpBlockArray.append(m_currentBlock); // setjmp is the last call in its block
 
 	BasicBlock* followBlock = createBlock("follow_block");
 

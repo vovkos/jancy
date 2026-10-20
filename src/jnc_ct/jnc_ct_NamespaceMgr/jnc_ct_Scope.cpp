@@ -20,7 +20,7 @@ namespace ct {
 
 GcShadowStackFrameMap*
 Scope::findGcShadowStackFrameMap() {
-	if (m_flags & ScopeFlag_FrameMapCached)
+	if (m_flags & ScopeFlag_FrameMapReady)
 		return m_gcShadowStackFrameMap;
 
 	if (!m_gcShadowStackFrameMap) {
@@ -32,7 +32,7 @@ Scope::findGcShadowStackFrameMap() {
 			}
 	}
 
-	m_flags |= ScopeFlag_FrameMapCached;
+	m_flags |= ScopeFlag_FrameMapReady;
 	return m_gcShadowStackFrameMap;
 }
 

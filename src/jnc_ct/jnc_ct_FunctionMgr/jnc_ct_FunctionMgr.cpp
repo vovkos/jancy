@@ -721,6 +721,16 @@ FunctionMgr::replaceAsyncAllocas() {
 		m_asyncSequencerFunctionArray[i]->replaceAllocas();
 }
 
+void
+FunctionMgr::makeSjljAllocasVolatile() {
+	sl::Iterator<Function> it = m_functionList.getHead();
+	for (; it; it++) {
+		Function* function = *it;
+		if (!function->m_setJmpBlockArray.isEmpty())
+			m_module->m_llvmIrBuilder.makeAllocasVolatile(function->m_allocaBlock, function->m_setJmpBlockArray);
+	}
+}
+
 #if (LLVM_VERSION_MAJOR < 14)
 void
 llvmFatalErrorHandler(

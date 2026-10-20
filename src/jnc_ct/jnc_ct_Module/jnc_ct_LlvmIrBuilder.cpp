@@ -426,6 +426,126 @@ LlvmIrBuilder::createClosurePropertyPtr(
 	createInsertValue(functionPtrValue, closureValue, 1, resultType, resultValue);
 }
 
+inline
+bool
+isTransitivePointerLlvmInst(llvm::Value* llvmValue) {
+	return
+		llvm::isa<llvm::GetElementPtrInst>(llvmValue) ||
+		llvm::isa<llvm::BitCastInst>(llvmValue) ||
+		llvm::isa<llvm::PHINode>(llvmValue) ||
+		llvm::isa<llvm::SelectInst>(llvmValue);
+}
+
+void
+LlvmIrBuilder::makeAllocasVolatile(
+	BasicBlock* allocaBlock,
+	const sl::ArrayRef<BasicBlock*>& setJmpBlockArray
+) {
+	// for each alloca, walk all addresses derived from it (GEPs, casts, phis, selects) and collect
+	// loads/stores and memset/memcpy/memmove through them; an address used in any other way (stored,
+	// passed to a call, etc.) escapes -- LLVM keeps such allocas in memory anyway;
+	// allocas only written in blocks dominating all setjmp blocks can't change while a setjmp is
+	// armed (even in loops -- such writes are re-executed before setjmp), so leave those alone;
+	// setjmp is the last call in its block, so writes in a setjmp block precede it
+
+	llvm::BasicBlock* llvmAllocaBlock = allocaBlock->getLlvmBlock();
+	llvm::Function* llvmFunction = llvmAllocaBlock->getParent();
+	llvm::LLVMContext& llvmContext = llvmFunction->getContext();
+
+#if (LLVM_VERSION < 0x030500)
+	llvm::DominatorTree dominatorTree;
+	dominatorTree.runOnFunction(*llvmFunction);
+#else
+	llvm::DominatorTree dominatorTree(*llvmFunction);
+#endif
+
+	// blocks dominating all setjmp blocks = the dominator chain of their nearest common dominator
+
+	llvm::BasicBlock* llvmCommonDominator = NULL;
+	size_t count = setJmpBlockArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		llvm::BasicBlock* llvmSetJmpBlock = setJmpBlockArray[i]->getLlvmBlock();
+		if (!dominatorTree.isReachableFromEntry(llvmSetJmpBlock))
+			continue;
+
+		llvmCommonDominator = llvmCommonDominator ?
+			dominatorTree.findNearestCommonDominator(llvmCommonDominator, llvmSetJmpBlock) :
+			llvmSetJmpBlock;
+	}
+
+	if (!llvmCommonDominator) // no reachable setjmp (setjmps in dead code)
+		return;
+
+	sl::SimpleHashTable<llvm::BasicBlock*, bool> dominatorSet;
+	llvm::DomTreeNode* node = dominatorTree.getNode(llvmCommonDominator);
+	for (; node; node = node->getIDom())
+		dominatorSet.visit(node->getBlock())->m_value = true;
+
+	char buffer1[256];
+	char buffer2[256];
+	sl::Array<llvm::Value*> stack(rc::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::Array<llvm::Instruction*> accessArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
+	sl::SimpleHashTable<llvm::Value*, bool> transitiveSet;
+
+	llvm::BasicBlock::iterator it = llvmAllocaBlock->begin();
+	for (; it != llvmAllocaBlock->end(); it++) {
+		if (!llvm::isa<llvm::AllocaInst>(&*it))
+			continue;
+
+		ASSERT(stack.isEmpty());
+		stack.append(&*it);
+		accessArray.clear();
+		transitiveSet.clear();
+		bool isVolatileNeeded = false;
+
+		while (!stack.isEmpty()) {
+			llvm::Value* llvmValue = stack.getBackAndPop();
+
+#if (LLVM_VERSION < 0x030500)
+			llvm::Value::use_iterator userIt = llvmValue->use_begin();
+			llvm::Value::use_iterator userEnd = llvmValue->use_end();
+#else
+			llvm::Value::user_iterator userIt = llvmValue->user_begin();
+			llvm::Value::user_iterator userEnd = llvmValue->user_end();
+#endif
+			for (; userIt != userEnd; userIt++) {
+				llvm::User* llvmUser = *userIt;
+				if (llvm::isa<llvm::LoadInst>(llvmUser))
+					accessArray.append((llvm::Instruction*)llvmUser);
+				else if (llvm::StoreInst* llvmStore = llvm::dyn_cast<llvm::StoreInst>(llvmUser)) {
+					if (llvmStore->getPointerOperand() == llvmValue) { // otherwise, the address itself is stored (escapes)
+						accessArray.append(llvmStore);
+						if (!dominatorSet.find(llvmStore->getParent()))
+							isVolatileNeeded = true;
+					}
+				} else if (llvm::MemIntrinsic* llvmMemIntrinsic = llvm::dyn_cast<llvm::MemIntrinsic>(llvmUser)) { // zero-init & copies
+					accessArray.append(llvmMemIntrinsic);
+					if (llvmMemIntrinsic->getRawDest() == llvmValue && !dominatorSet.find(llvmMemIntrinsic->getParent()))
+						isVolatileNeeded = true;
+				} else if (
+					isTransitivePointerLlvmInst(llvmUser) &&
+					transitiveSet.addIfNotExists(llvmUser, true)
+				)
+					stack.append(llvmUser);
+			}
+		}
+
+		if (!isVolatileNeeded)
+			continue;
+
+		size_t accessCount = accessArray.getCount();
+		for (size_t i = 0; i < accessCount; i++) {
+			llvm::Instruction* llvmInst = accessArray[i];
+			if (llvm::LoadInst* llvmLoad = llvm::dyn_cast<llvm::LoadInst>(llvmInst))
+				llvmLoad->setVolatile(true);
+			else if (llvm::StoreInst* llvmStore = llvm::dyn_cast<llvm::StoreInst>(llvmInst))
+				llvmStore->setVolatile(true);
+			else
+				((llvm::MemIntrinsic*)llvmInst)->setVolatile(llvm::ConstantInt::getTrue(llvmContext));
+		}
+	}
+}
+
 //..............................................................................
 
 sl::String

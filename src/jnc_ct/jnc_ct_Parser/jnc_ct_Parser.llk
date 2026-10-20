@@ -100,11 +100,7 @@ public:
 
 	struct StmtPass1 {
 		sl::List<Token> m_tokenList;
-		Token* m_scopeAnchorToken;
-
-		StmtPass1() {
-			m_scopeAnchorToken = NULL;
-		}
+		sl::Array<Token*> m_scopeAnchorTokenStack;
 	};
 
 protected:
@@ -811,10 +807,23 @@ protected:
 	bool
 	closeDynamicGroup();
 
-	void
+	Token*
 	addScopeAnchorToken(
 		StmtPass1* stmt,
 		const Token& token
+	);
+
+	void
+	resetScopeAnchorToken(
+		StmtPass1* stmt,
+		const Token& token
+	);
+
+	void
+	updateScopeAnchorToken(
+		StmtPass1* stmt,
+		const Token& token,
+		uint_t scopeFlags
 	);
 
 	void

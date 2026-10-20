@@ -1366,6 +1366,15 @@ public:
 		llvm::Attribute::AttrKind attrKind,
 		Type* type
 	);
+
+	// in the presence of sjlj we must prevent mem2reg for stack vars
+	// (call after all placeholder allocas are replaced with GEPs)
+
+	void
+	makeAllocasVolatile(
+		BasicBlock* allocaBlock,
+		const sl::ArrayRef<BasicBlock*>& setJmpBlockArray
+	);
 };
 
 //..............................................................................

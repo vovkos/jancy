@@ -149,24 +149,14 @@ Function::compile() {
 			}
 		}
 
-		if (!m_bodyTokenList.isEmpty())
-			return
-				parser.parseTokenList(symbolKind, &m_bodyTokenList) &&
-				m_module->m_functionMgr.epilogue();
-
-		sl::List<Token> tokenList;
-		bool result = parser.tokenizeBody(&tokenList, m_bodyPos, m_body);
-		if (!result)
-			return false;
-
-		Token* firstToken = tokenList.getHead().p();
-		if (firstToken->m_token == '{' && firstToken->m_data.m_integer & ScopeFlag_HasLandingPads) {
-			m_flags |= FunctionFlag_HasLandingPads;
-			m_module->m_variableMgr.prepareForLandingPads();
+		if (m_bodyTokenList.isEmpty()) {
+			bool result = parser.tokenizeBody(&m_bodyTokenList, m_bodyPos, m_body);
+			if (!result)
+				return false;
 		}
 
 		return
-			parser.parseTokenList(symbolKind, &tokenList) &&
+			parser.parseTokenList(symbolKind, &m_bodyTokenList) &&
 			m_module->m_functionMgr.epilogue();
 	}
 

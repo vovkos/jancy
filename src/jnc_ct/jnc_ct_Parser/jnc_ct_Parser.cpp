@@ -107,17 +107,11 @@ Parser::tokenizeBody(
 	char buffer[256];
 	sl::Array<Token*> scopeAnchorTokenStack(rc::BufKind_Stack, buffer, sizeof(buffer));
 	bool isScopeFlagMarkupRequired = m_mode != Mode_Parse;
-	bool hasLandingPadFlags = false;
 
 	for (;;) {
 		const Token* token0 = lexer.getToken();
 		switch (token0->m_token) {
 		case TokenKind_Eof: // don't add EOF token (parseTokenList adds one automatically)
-			if (hasLandingPadFlags) {
-				Token* token = tokenList->getHead().p();
-				if (token->m_token == '{')
-					token->m_data.m_integer |= ScopeFlag_HasLandingPads;
-			}
 			return true;
 
 		case TokenKind_Error:
@@ -157,18 +151,12 @@ Parser::tokenizeBody(
 				if (!scopeAnchorTokenStack.isEmpty())
 					scopeAnchorTokenStack.getBack()->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_HasCatch;
 
-				hasLandingPadFlags = true;
 				break;
 
 			case TokenKind_Finally:
 				if (!scopeAnchorTokenStack.isEmpty())
 					scopeAnchorTokenStack.getBack()->m_data.m_integer |= ScopeFlag_FinallyAhead | ScopeFlag_Finalizable;
 
-				hasLandingPadFlags = true;
-				break;
-
-			case TokenKind_Try:
-				hasLandingPadFlags = true;
 				break;
 			}
 	}
@@ -3820,7 +3808,7 @@ Parser::closeDynamicGroup() {
 	return result;
 }
 
-void
+Token*
 Parser::addScopeAnchorToken(
 	StmtPass1* stmt,
 	const Token& srcToken
@@ -3828,7 +3816,28 @@ Parser::addScopeAnchorToken(
 	Token* token = m_tokenPool->get(srcToken);
 	token->m_data.m_integer = 0; // tokens can be reused, ensure 0
 	stmt->m_tokenList.insertTail(token);
-	stmt->m_scopeAnchorToken = token;
+	return token;
+}
+
+void
+Parser::resetScopeAnchorToken(
+	StmtPass1* stmt,
+	const Token& srcToken
+) {
+	Token* token = addScopeAnchorToken(stmt, srcToken);
+	ASSERT(!stmt->m_scopeAnchorTokenStack.isEmpty());
+	stmt->m_scopeAnchorTokenStack.getBack() = token;
+}
+
+void
+Parser::updateScopeAnchorToken(
+	StmtPass1* stmt,
+	const Token& srcToken,
+	uint_t scopeFlags
+) {
+	stmt->m_tokenList.insertTail(m_tokenPool->get(srcToken));
+	ASSERT(!stmt->m_scopeAnchorTokenStack.isEmpty());
+	stmt->m_scopeAnchorTokenStack.getBack()->m_data.m_integer |= scopeFlags;
 }
 
 bool

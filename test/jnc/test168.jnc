@@ -1,0 +1,344 @@
+// landing pads (try/catch/finally, the 'try' operator) must not lose stack values modified
+// after the landing pad is set up -- in every kind of function (in functions with sjlj, all
+// accesses to allocas are volatile, including GEPs into them and memset/memcpy);
+// only a dynamic throw shows it -- a static throw is a plain branch; run with -O2
+
+//..............................................................................
+
+int g;
+
+void oob(int* p) {
+	p[10] = 0; // throws at runtime
+}
+
+void throwWith(int value) {
+	oob(&g);
+}
+
+class C {
+	int m_x;
+}
+
+struct Point {
+	int m_x;
+	int m_y;
+}
+
+struct Big {
+	int m_a[64]; // > TypeSizeLimit_StoreSize: zero-initialized via memset
+	int m_x;
+}
+
+//..............................................................................
+
+// plain functions
+
+int localInFunction() {
+	int x = 1;
+	g = x;
+	{
+		x = 2;
+		oob(&g);
+	catch:
+		return x;
+	}
+
+	return 0;
+}
+
+int argInFunction(int x) { // args are allocas, too
+	g = x;
+	{
+		x = 2;
+		oob(&g);
+	catch:
+		return x;
+	}
+
+	return 0;
+}
+
+int fieldsAndElements() { // GEPs into allocas
+	Point pt;
+	pt.m_x = 1;
+	int a[4];
+	a[2] = 1;
+	{
+		pt.m_x = 2;
+		a[2] = 3;
+		oob(&g);
+	catch:
+		return pt.m_x * 10 + a[2];
+	}
+
+	return 0;
+}
+
+int memsetAndCopy() {
+	Big big;
+	big.m_a[6] = 9;
+	{
+		Big tmp;   // memset after setjmp
+		big = tmp; // copy after setjmp
+		big.m_a[5] = 7;
+		oob(&g);
+	catch:
+		return big.m_a[5] * 10 + big.m_a[6];
+	}
+
+	return -1;
+}
+
+int finallyThenCatch() {
+	int x = 1;
+	int result = 0;
+	{
+		{
+			x = 2;
+			oob(&g);
+		finally:
+			result = x; // runs on the exception path, then the exception propagates
+		}
+	catch:
+		return result * 10 + x;
+	}
+
+	return 0;
+}
+
+int nestedTry() {
+	int x = 1;
+	{
+		x = 2;
+		{
+			x = 3;
+			oob(&g);
+		catch:
+			x += 10;
+		}
+
+		x += 100;
+		oob(&g);
+	catch:
+		return x;
+	}
+
+	return 0;
+}
+
+int tryOperator() {
+	int x = 1;
+	try throwWith(x = 2);
+	return x;
+}
+
+int initBeforeTry(int n) { // written only before setjmp (dominates it) -- needn't be volatile
+	int a = n;
+	int b = a * 2;
+	{
+		oob(&g);
+	catch:
+		return a + b;
+	}
+
+	return 0;
+}
+
+int writeBeforeSetJmpInLoop() { // dominates setjmp; re-executed before setjmp is re-armed
+	int sum = 0;
+	for (int i = 0; i < 3; i++) {
+		int x = i * 10;
+		{
+			oob(&g);
+		catch:
+			sum += x;
+		}
+	}
+
+	return sum;
+}
+
+int writeInsideTryInLoop() { // the loop is inside the try region -- writes follow setjmp
+	int x = 0;
+	{
+		for (int i = 0; i < 5; i++) {
+			x = i;
+			if (i == 3)
+				oob(&g);
+		}
+	catch:
+		return x;
+	}
+
+	return -1;
+}
+
+int nullAccess() { // the throw is a hardware fault, not a call
+	int x = 1;
+	C* c = null;
+	{
+		x = 2;
+		c.m_x = 1;
+	catch:
+		return x;
+	}
+
+	return 0;
+}
+
+//..............................................................................
+
+// lambdas
+
+int lambdaLocal() {
+	int function* f() = [] int () {
+		int x = 1;
+		g = x;
+		{
+			x = 2;
+			oob(&g);
+		catch:
+			return x;
+		}
+
+		return 0;
+	};
+
+	return f();
+}
+
+int lambdaCaptures() {
+	int byRef = 1;
+	int byVal = 1;
+
+	int function* f() = [byVal] int () {
+		{
+			byRef = 2;
+			byVal = 3;
+			oob(&g);
+		catch:
+			return byRef * 10 + byVal;
+		}
+
+		return 0;
+	};
+
+	int result = f();
+	assert(byRef == 2);
+	return result;
+}
+
+int outerOfLambdaWithTry(int n) { // the lambda's landing pads don't concern the outer function
+	int a = n;
+	int function* f() = [] int () {
+		int x = 1;
+		{
+			x = 2;
+			oob(&g);
+		catch:
+			return x;
+		}
+
+		return 0;
+	};
+
+	a += f();
+	return a;
+}
+
+int lambdaAnchors() { // catch/finally after a nested block; case re-anchors
+	int function* f() = [] int () {
+		int x = 1;
+		int y = 0;
+		{
+			{ y++; }
+			x = 2;
+			oob(&g);
+		catch:
+			return x * 10 + y;
+		}
+
+		return 0;
+	};
+
+	int finallyCount = 0;
+	function* h() = [] () {
+		{
+			{ finallyCount += 1; }
+		finally:
+			finallyCount += 10;
+		}
+	};
+
+	int function* s(int) = [] int (int v) {
+		switch (v) {
+		case 1:
+			{ v += 1; }
+			return v;
+
+		default:
+			return -1;
+		}
+	};
+
+	h();
+	assert(finallyCount == 11);
+	assert(s(1) == 2);
+	assert(s(5) == -1);
+	return f();
+}
+
+//..............................................................................
+
+// onevent handlers
+
+int g_onEventResult;
+event g_onEvent();
+
+reactor g_reactor {
+	onevent g_onEvent() {
+		int x = 1;
+		g = x;
+		{
+			x = 2;
+			oob(&g);
+		catch:
+			g_onEventResult = x;
+		}
+	}
+}
+
+int onEventHandler() {
+	g_reactor.start();
+	g_onEvent();
+	g_reactor.stop();
+	return g_onEventResult;
+}
+
+//..............................................................................
+
+int main() {
+	assert(localInFunction() == 2);
+	assert(argInFunction(1) == 2);
+	assert(fieldsAndElements() == 23);
+	assert(memsetAndCopy() == 70);
+	assert(finallyThenCatch() == 22);
+	assert(nestedTry() == 113);
+	assert(tryOperator() == 2);
+	assert(initBeforeTry(5) == 15);
+	assert(writeBeforeSetJmpInLoop() == 30);
+	assert(writeInsideTryInLoop() == 3);
+	assert(nullAccess() == 2);
+
+	assert(lambdaLocal() == 2);
+	assert(lambdaCaptures() == 23);
+	assert(outerOfLambdaWithTry(3) == 5);
+	assert(lambdaAnchors() == 21);
+
+	assert(onEventHandler() == 2);
+
+	printf("landing pads ok\n");
+	return 0;
+}
+
+//..............................................................................

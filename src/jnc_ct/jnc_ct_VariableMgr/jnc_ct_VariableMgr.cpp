@@ -27,7 +27,6 @@ VariableMgr::VariableMgr() {
 
 	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
-	m_extraStackPtrFlags = 0;
 
 	memset(m_stdVariableArray, 0, sizeof(m_stdVariableArray));
 }
@@ -46,7 +45,6 @@ VariableMgr::clear() {
 	m_tlsVariableArray.clear();
 	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
-	m_extraStackPtrFlags = 0;
 
 	memset(m_stdVariableArray, 0, sizeof(m_stdVariableArray));
 }
@@ -124,9 +122,6 @@ VariableMgr::createVariable(
 	sl::List<Token>* constructor,
 	sl::List<Token>* initializer
 ) {
-	if (storageKind == StorageKind_Stack)
-		ptrTypeFlags |= m_extraStackPtrFlags;
-
 	Variable* variable = new Variable;
 	variable->m_module = m_module;
 	variable->m_name = name;
@@ -602,7 +597,6 @@ VariableMgr::finalizeFunction() {
 	m_liftedStackVariableArray.clear();
 	m_argVariableArray.clear();
 	m_reactorVariableArray.clear(); // we already should have used it in createReactorUserDataType()
-	m_extraStackPtrFlags = 0;
 }
 
 void
@@ -612,8 +606,6 @@ VariableMgr::captureFunctionCompileContext(FunctionCompileContext* context) {
 	context->m_liftedStackVariableArray = std::move(m_liftedStackVariableArray);
 	context->m_argVariableArray = std::move(m_argVariableArray);
 	context->m_reactorVariableArray = std::move(m_reactorVariableArray);
-	context->m_extraStackPtrFlags = m_extraStackPtrFlags;
-	m_extraStackPtrFlags = 0;
 
 	// TLS/reactor variables cache prologue allocas of the current function
 
@@ -629,7 +621,6 @@ VariableMgr::restoreFunctionCompileContext(FunctionCompileContext* context) {
 	m_liftedStackVariableArray = std::move(context->m_liftedStackVariableArray);
 	m_argVariableArray = std::move(context->m_argVariableArray);
 	m_reactorVariableArray = std::move(context->m_reactorVariableArray);
-	m_extraStackPtrFlags = context->m_extraStackPtrFlags;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction(); // already restored by FunctionMgr
 	if (function) {

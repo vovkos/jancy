@@ -540,52 +540,58 @@ struct {
 	sl::List<Token> m_tokenList;
 }
 declaration_body_pass1
+	local {
+		StmtPass1 $stmt;
+	}
 	:	TokenKind_Body
 			{
 				$.m_tokenList.insertTail(m_tokenPool->get($1));
 			}
-	|	catch (eof) compound_stmt_pass1<&$.m_tokenList>
+	|	catch (eof) compound_stmt_pass1<&$stmt>
+			{
+				$.m_tokenList.insertListTail(&$stmt.m_tokenList);
+			}
 	;
 
-compound_stmt_pass1<sl::List<Token>* $tokenList>
-	local {
-		StmtPass1 $stmt;
-	}
+compound_stmt_pass1<StmtPass1* $stmt>
 	:	'{'
 			{
-				addScopeAnchorToken(&$stmt, $1);
+				Token* token = addScopeAnchorToken($stmt, $1);
+				$stmt->m_scopeAnchorTokenStack.append(token);
 			}
-		statement_pass1 <&$stmt>*
+		statement_pass1 <$stmt>*
 		'}' $r
 			{
-				$tokenList->insertListTail(&$stmt.m_tokenList);
-				$tokenList->insertTail(m_tokenPool->get($r));
+				$stmt->m_tokenList.insertTail(m_tokenPool->get($r));
+				$stmt->m_scopeAnchorTokenStack.pop();
 			}
 	;
 
 statement_pass1<StmtPass1* $stmt>
-	:	compound_stmt_pass1<&(*$stmt).m_tokenList>
-	|	TokenKind_Catch
+	:	compound_stmt_pass1<$stmt>
+	|	TokenKind_Try
 			{
 				$stmt->m_tokenList.insertTail(m_tokenPool->get($1));
-				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_HasCatch;
+			}
+	|	TokenKind_Catch
+			{
+				updateScopeAnchorToken($stmt, $1, ScopeFlag_CatchAhead | ScopeFlag_HasCatch);
 			}
 	|	TokenKind_Finally
 			{
-				$stmt->m_tokenList.insertTail(m_tokenPool->get($1));
-				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_FinallyAhead | ScopeFlag_Finalizable;
+				updateScopeAnchorToken($stmt, $1, ScopeFlag_FinallyAhead | ScopeFlag_Finalizable);
 			}
 	|	TokenKind_NestedScope
 			{
-				addScopeAnchorToken($stmt, $1);
+				resetScopeAnchorToken($stmt, $1);
 			}
 	|	TokenKind_Case
 			{
-				addScopeAnchorToken($stmt, $1);
+				resetScopeAnchorToken($stmt, $1);
 			}
 	|	TokenKind_Default
 			{
-				addScopeAnchorToken($stmt, $1);
+				resetScopeAnchorToken($stmt, $1);
 			}
 	|	any
 			{

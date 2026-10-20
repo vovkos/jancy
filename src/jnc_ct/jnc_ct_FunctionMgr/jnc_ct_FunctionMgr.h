@@ -55,7 +55,6 @@ struct FunctionCompileContext {
 	sl::Array<Variable*> m_liftedStackVariableArray;
 	sl::Array<Variable*> m_argVariableArray;
 	sl::Array<Variable*> m_reactorVariableArray;
-	uint_t m_extraStackPtrFlags;
 
 	// GcShadowStackMgr
 
@@ -289,6 +288,9 @@ public:
 
 	void
 	replaceAsyncAllocas();
+
+	void
+	makeSjljAllocasVolatile(); // after replacing all placeholder allocas!
 
 	bool
 	jitFunctions();

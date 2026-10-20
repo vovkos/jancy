@@ -92,7 +92,6 @@ jnc_getFunctionKindFlags(jnc_FunctionKind functionKind);
 enum jnc_FunctionFlag {
 	jnc_FunctionFlag_Compilable     = 0x0100,
 	jnc_FunctionFlag_CompilePending = 0x0200,
-	jnc_FunctionFlag_HasLandingPads = 0x0400,
 };
 
 typedef enum jnc_FunctionFlag jnc_FunctionFlag;
@@ -275,8 +274,7 @@ typedef jnc_FunctionFlag FunctionFlag;
 
 const FunctionFlag
 	FunctionFlag_Compilable     = jnc_FunctionFlag_Compilable,
-	FunctionFlag_CompilePending = jnc_FunctionFlag_CompilePending,
-	FunctionFlag_HasLandingPads = jnc_FunctionFlag_HasLandingPads;
+	FunctionFlag_CompilePending = jnc_FunctionFlag_CompilePending;
 
 //..............................................................................
 

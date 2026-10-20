@@ -477,6 +477,7 @@ Module::compileImpl() {
 
 		m_functionMgr.replaceFieldVariableAllocas();
 		m_functionMgr.replaceAsyncAllocas(); // after replacing field-variable allocas!
+		m_functionMgr.makeSjljAllocasVolatile(); // after replacing all placeholder allocas!
 		m_controlFlowMgr.deleteUnreachableBlocks();
 	}
 

@@ -42,7 +42,6 @@ protected:
 	sl::StringHashTable<Variable*> m_staticLiteralMap;
 	Variable* m_currentLiftedStackVariable;
 	StructType* m_tlsStructType;
-	uint_t m_extraStackPtrFlags;
 
 	Variable* m_stdVariableArray[StdVariable__Count];
 
@@ -59,11 +58,6 @@ public:
 
 	void
 	createStdVariables();
-
-	void
-	prepareForLandingPads() {
-		m_extraStackPtrFlags |= PtrTypeFlag_Volatile;
-	}
 
 	void
 	finalizeFunction();

@@ -86,6 +86,7 @@ protected:
 
 	sl::Array<FieldVariable> m_tlsVariableArray;
 	sl::Array<FieldVariable> m_reactorVariableArray;
+	sl::Array<BasicBlock*> m_setJmpBlockArray; // see FunctionMgr::makeSjljAllocasVolatile()
 
 	sl::String m_llvmFunctionName;
 	llvm::Function* m_llvmFunction;
