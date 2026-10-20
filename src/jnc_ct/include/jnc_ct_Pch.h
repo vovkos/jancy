@@ -284,6 +284,7 @@ getLlvmIntrinsicDeclaration(
 #include "axl_dox_Host.h"
 #include "axl_sys_Time.h"
 #include "axl_sys_Event.h"
+#include "axl_sys_Process.h"
 #include "axl_sys_Thread.h"
 #include "axl_sys_TlsMgr.h"
 #include "axl_sys_TlsSlot.h"

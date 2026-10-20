@@ -172,7 +172,15 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& filePath) {
 	}
 
 	if (dynamicLibFilePath.isEmpty() && dynamicLibFileIdx != -1) { // use zipped bin
-		dynamicLibFilePath.format("%s/%llx-%s", m_dynamicLibraryDir.sz(), sys::getTimestamp (), dynamicLibFileName.sz());
+		static volatile int32_t seqId = (int32_t)sys::getPreciseTimestamp(); // pid + seq = unique across & within processes
+
+		dynamicLibFilePath.format(
+			"%s/%x-%x-%s",
+			m_dynamicLibraryDir.sz(),
+			sys::getCurrentProcessId(),
+			(uint32_t)sys::atomicInc(&seqId),
+			dynamicLibFileName.sz()
+		);
 
 		result = entry->m_zipReader.extractFileToFile(dynamicLibFileIdx, dynamicLibFilePath);
 		if (!result)
