@@ -32,6 +32,7 @@ jobs:
                     OS:         windows-2022
                 -   TARGET_CPU: arm64
                     OS:         windows-11-arm
+                    TOOLCHAIN:  msvc18 v143
 
                 exclude:
                 -   { LLVM_VERSION: llvm-3.4.2, TARGET_CPU: arm64 }
@@ -51,7 +52,7 @@ jobs:
             run: |
                 set CONFIGURATION=${{matrix.CONFIGURATION}}
                 set LLVM_VERSION=${{matrix.LLVM_VERSION}}
-                call ci\github-actions\set-env.bat ${{matrix.TARGET_CPU}}
+                call ci\github-actions\set-env.bat ${{matrix.TARGET_CPU}} ${{matrix.TOOLCHAIN}}
                 call ci\github-actions\install-windows.bat
                 git clone --branch re2s-no-abseil --depth 1 https://github.com/vovkos/re2s
                 git clone --depth 1 https://github.com/vovkos/axl
@@ -68,7 +69,7 @@ jobs:
                 set THIS_DIR=%CD%
                 set THIS_DIR_CMAKE=%THIS_DIR:\=/%
 
-                call ci\github-actions\set-env.bat ${{matrix.TARGET_CPU}}
+                call ci\github-actions\set-env.bat ${{matrix.TARGET_CPU}} ${{matrix.TOOLCHAIN}}
                 call axl\ci\github-actions\build-re2s.bat
                 call axl\ci\github-actions\build-lua.bat
 
