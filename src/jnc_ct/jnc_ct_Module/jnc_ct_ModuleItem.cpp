@@ -187,7 +187,7 @@ ModuleItem::prepareItemString(size_t index) {
 	memset(cache + 1, 0, extra);
 
 	if (m_stringCache)
-		cache->copy(m_stringCache.get());
+		cache->move(m_stringCache.get());
 
 	cache->set(index, string);
 	m_stringCache = std::unique_ptr<ModuleItemStringCache>(cache);

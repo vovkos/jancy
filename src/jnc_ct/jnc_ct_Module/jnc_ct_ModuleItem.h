@@ -424,7 +424,7 @@ struct ModuleItemStringCache {
 	);
 
 	void
-	copy(const ModuleItemStringCache* cache);
+	move(ModuleItemStringCache* cache);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -454,10 +454,11 @@ ModuleItemStringCache::set(
 
 inline
 void
-ModuleItemStringCache::copy(const ModuleItemStringCache* cache) {
+ModuleItemStringCache::move(ModuleItemStringCache* cache) {
 	ASSERT(cache->m_count <= m_count);
 	memcpy(this + 1, cache + 1, cache->m_count * sizeof(sl::StringRef));
 	m_mask = cache->m_mask;
+	cache->m_mask = 0; // so its destructor won't release the strings
 }
 
 //..............................................................................
