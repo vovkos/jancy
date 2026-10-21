@@ -115,15 +115,15 @@ struct {
 	sl::List<Token> m_tokenList;
 }
 curly_initializer_pass1
-	:	TokenKind_Body
-			{
-				$.m_tokenList.insertTail(m_tokenPool->get($1));
-			}
-	|	catch (eof) curly_initializer_pass1_impl<&$.m_tokenList>
+	:	catch (eof) curly_initializer_pass1_impl<&$.m_tokenList>
 	;
 
 curly_initializer_pass1_impl<sl::List<Token>* $tokenList>
-	:	'{'
+	:	TokenKind_Body // parse mode
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+	|	'{'
 			{
 				$tokenList->insertTail(m_tokenPool->get($1));
 			}
@@ -140,6 +140,28 @@ curly_initializer_pass1_item<sl::List<Token>* $tokenList>
 			{
 				$tokenList->insertTail(m_tokenPool->get($1));
 			}
+	;
+
+struct {
+	sl::List<Token> m_tokenList;
+}
+lambda_initializer_pass1
+	:	catch (eof) lambda_initializer_pass1_impl<&$.m_tokenList>
+			{
+				prepareExpressionCodeAssistFallbackIf($.m_tokenList);
+			}
+	;
+
+// '[' captures ']' type_name '{' ... '}' -- so we eat everything up to the body
+
+lambda_initializer_pass1_impl<sl::List<Token>* $tokenList>
+	:	(
+			any
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+		)*
+		curly_initializer_pass1_impl<$tokenList>
 	;
 
 //..............................................................................
@@ -170,7 +192,7 @@ expression
 	enter {
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 	}
-	:	conditional_expr<&$.m_value>
+	:	assignment_expr<&$.m_value>
 	;
 
 struct {
@@ -181,7 +203,7 @@ reactive_expression
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 		m_module->m_controlFlowMgr.enterReactiveExpression();
 	}
-	:	conditional_expr<&$.m_value>
+	:	assignment_expr<&$.m_value>
 	;
 
 struct {
@@ -194,7 +216,7 @@ expression_0
 	leave {
 		m_module->m_controlFlowMgr.unlockEmission();
 	}
-	:	conditional_expr<&$.m_value>
+	:	assignment_expr<&$.m_value>
 	;
 
 
@@ -203,7 +225,7 @@ struct {
 }
 nullable
 expression_or_empty
-	:	conditional_expr<&$.m_value>
+	:	assignment_expr<&$.m_value>
 	|	epsilon
 	;
 
@@ -290,38 +312,116 @@ constant_integer_expr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct {
-	Value m_trueValue;
-	Value m_falseValue;
-	BasicBlock* m_thenBlock;
-	BasicBlock* m_elseBlock;
-	BasicBlock* m_phiBlock;
-}
-conditional_expr<Value* $value>
-	:	logical_or_expr<$value> (
-				{
-					$.m_thenBlock = m_module->m_controlFlowMgr.createBlock("cond_then");
-					$.m_elseBlock = m_module->m_controlFlowMgr.createBlock("cond_else");
-					$.m_phiBlock = m_module->m_controlFlowMgr.createBlock("cond_phi");
-					return m_module->m_controlFlowMgr.conditionalJump(*$value, $.m_thenBlock, $.m_elseBlock);
-				}
-			'?'
-			conditional_expr<&$.m_trueValue>
-				{
-					$.m_thenBlock = m_module->m_controlFlowMgr.setCurrentBlock($.m_elseBlock); // might have changed
-				}
-			':'
-			conditional_expr<&$.m_falseValue>
-				{
-					return m_module->m_operatorMgr.conditionalOperator(
-						$.m_trueValue,
-						$.m_falseValue,
-						$.m_thenBlock,
-						$.m_phiBlock,
-						$value
-					);
-				}
+assignment_expr<Value* $value>
+	:	logical_or_expr<$value>
+		(
+			conditional_operator_expr<$value>
+		|	assignment_operator_expr<$value>
 		)?
+	|	lambda_expr<$value>
+	;
+
+assignment_operator_expr<Value* $value>
+	local {
+		Value $opValue2;
+	}
+	:	assignment_operator $o assignment_expr<&$opValue2>
+			{
+				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
+			}
+	|	'='
+			{
+				m_curlyInitializerTargetValue = *$value;
+			}
+		curly_initializer
+	;
+
+struct {
+	BinOpKind m_opKind;
+}
+assignment_operator
+	:	'='
+			{
+				$.m_opKind = BinOpKind_Assign;
+			}
+	|	TokenKind_RefAssign
+			{
+				$.m_opKind = BinOpKind_RefAssign;
+			}
+	|	TokenKind_AddAssign
+			{
+				$.m_opKind = BinOpKind_AddAssign;
+			}
+	|	TokenKind_SubAssign
+			{
+				$.m_opKind = BinOpKind_SubAssign;
+			}
+	|	TokenKind_MulAssign
+			{
+				$.m_opKind = BinOpKind_MulAssign;
+			}
+	|	TokenKind_DivAssign
+			{
+				$.m_opKind = BinOpKind_DivAssign;
+			}
+	|	TokenKind_ModAssign
+			{
+				$.m_opKind = BinOpKind_ModAssign;
+			}
+	|	TokenKind_ShlAssign
+			{
+				$.m_opKind = BinOpKind_ShlAssign;
+			}
+	|	TokenKind_ShrAssign
+			{
+				$.m_opKind = BinOpKind_ShrAssign;
+			}
+	|	TokenKind_AndAssign
+			{
+				$.m_opKind = BinOpKind_AndAssign;
+			}
+	|	TokenKind_XorAssign
+			{
+				$.m_opKind = BinOpKind_XorAssign;
+			}
+	|	TokenKind_OrAssign
+			{
+				$.m_opKind = BinOpKind_OrAssign;
+			}
+	;
+
+conditional_expr<Value* $value>
+	:	logical_or_expr<$value> conditional_operator_expr<$value>?
+	;
+
+conditional_operator_expr<Value* $value>
+	local {
+		Value $trueValue;
+		Value $falseValue;
+		BasicBlock* $thenBlock;
+		BasicBlock* $elseBlock;
+		BasicBlock* $phiBlock;
+	}
+	enter {
+		$thenBlock = m_module->m_controlFlowMgr.createBlock("cond_then");
+		$elseBlock = m_module->m_controlFlowMgr.createBlock("cond_else");
+		$phiBlock = m_module->m_controlFlowMgr.createBlock("cond_phi");
+		return m_module->m_controlFlowMgr.conditionalJump(*$value, $thenBlock, $elseBlock);
+	}
+	:	'?' assignment_expr<&$trueValue>
+			{
+				$thenBlock = m_module->m_controlFlowMgr.setCurrentBlock($elseBlock); // might have changed
+			}
+		':' assignment_expr<&$falseValue>
+			{
+				return m_module->m_operatorMgr.conditionalOperator(
+					$trueValue,
+					$falseValue,
+					$thenBlock,
+					$phiBlock,
+					$value
+				);
+			}
 	;
 
 logical_or_expr<Value* $value>
@@ -558,85 +658,12 @@ at_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	assignment_expr<$value> (
-			'@' assignment_expr<&$opValue2>
+	:	unary_expr<$value> (
+			'@' unary_expr<&$opValue2>
 				{
 					return m_module->m_operatorMgr.binaryOperator(BinOpKind_At, $value, $opValue2);
 				}
 		)*
-	;
-
-assignment_expr<Value* $value>
-	: unary_expr<$value> assignment_operator_expr<$value>?
-	;
-
-assignment_operator_expr<Value* $value>
-	local {
-		Value $opValue2;
-	}
-	:	assignment_operator $o conditional_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
-			}
-	|	'='
-			{
-				m_curlyInitializerTargetValue = *$value;
-			}
-		curly_initializer
-	;
-
-struct {
-	BinOpKind m_opKind;
-}
-assignment_operator
-	:	'='
-			{
-				$.m_opKind = BinOpKind_Assign;
-			}
-	|	TokenKind_RefAssign
-			{
-				$.m_opKind = BinOpKind_RefAssign;
-			}
-	|	TokenKind_AddAssign
-			{
-				$.m_opKind = BinOpKind_AddAssign;
-			}
-	|	TokenKind_SubAssign
-			{
-				$.m_opKind = BinOpKind_SubAssign;
-			}
-	|	TokenKind_MulAssign
-			{
-				$.m_opKind = BinOpKind_MulAssign;
-			}
-	|	TokenKind_DivAssign
-			{
-				$.m_opKind = BinOpKind_DivAssign;
-			}
-	|	TokenKind_ModAssign
-			{
-				$.m_opKind = BinOpKind_ModAssign;
-			}
-	|	TokenKind_ShlAssign
-			{
-				$.m_opKind = BinOpKind_ShlAssign;
-			}
-	|	TokenKind_ShrAssign
-			{
-				$.m_opKind = BinOpKind_ShrAssign;
-			}
-	|	TokenKind_AndAssign
-			{
-				$.m_opKind = BinOpKind_AndAssign;
-			}
-	|	TokenKind_XorAssign
-			{
-				$.m_opKind = BinOpKind_XorAssign;
-			}
-	|	TokenKind_OrAssign
-			{
-				$.m_opKind = BinOpKind_OrAssign;
-			}
 	;
 
 unary_expr<Value* $value>
@@ -836,7 +863,7 @@ member_operator<Value* $value>
 // otherwise member operators could not be applied (typeof(int).m_size)
 
 primary_expr<Value* $value>
-	:	'(' conditional_expr<$value> ')'
+	:	'(' assignment_expr<$value> ')'
 	|	literal<$value>
 	|	TokenKind_BaseType
 			{
@@ -914,7 +941,6 @@ primary_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.offsetofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
-	|	lambda_expr<$value>
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

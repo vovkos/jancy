@@ -113,6 +113,11 @@ local_declaration_sync
 	|	TokenKind_NestedScope
 	;
 
+nullable
+optional_semicolon
+	:	';'?
+	;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 start
@@ -157,7 +162,7 @@ extension_declaration
 	;
 
 using_declaration
-	:	TokenKind_Using using_namespace_kind? qualified_name_list ';'
+	:	TokenKind_Using using_namespace_kind? qualified_name_list
 			{
 				return useNamespaces(
 					&$2 ? $2.m_namespaceKind : NamespaceKind_Undefined,
@@ -181,7 +186,7 @@ using_namespace_kind
 	;
 
 friend_declaration
-	:	TokenKind_Friend qualified_name_list ';'
+	:	TokenKind_Friend qualified_name_list
 			{
 				return addFriends(&$2.m_nameList);
 			}

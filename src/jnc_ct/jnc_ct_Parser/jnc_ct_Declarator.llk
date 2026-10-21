@@ -72,6 +72,11 @@ declarator_list_terminator<
 			{
 				return bodylessDeclaration();
 			}
+	|	resolver ('=' '[') // only lambdas start with '[' in expressions
+		declarator_w_lambda_initializer<$typeSpecifier, $declarator>
+			{
+				return bodylessDeclaration();
+			}
 	|	declarator_wo_curly_initializer<$typeSpecifier, $declarator>
 			{
 				return bodylessDeclaration();
@@ -89,6 +94,23 @@ declarator_w_curly_initializer<
 	Declarator* $declarator
 >
 	:	'=' curly_initializer_pass1
+			{
+				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
+				return declare($declarator);
+			}
+		(
+			',' declarator_list<$typeSpecifier>
+		)?
+	;
+
+// same for lambda-initializers -- the lambda body ends the initializer
+// (so an immediately invoked lambda must be parenthesized)
+
+declarator_w_lambda_initializer<
+	TypeSpecifier* $typeSpecifier,
+	Declarator* $declarator
+>
+	:	'=' lambda_initializer_pass1
 			{
 				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
 				return declare($declarator);

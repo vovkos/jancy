@@ -97,7 +97,7 @@ statement
 	|	resolver (TokenKind_DynamicField TokenKind_Identifier? '{') // vs storage_specifier:TokenKind_DynamicField
 		dynamic_group_stmt
 	|	onevent_stmt
-	|	reactive_expression ';'
+	|	reactive_expression optional_semicolon
 			{
 				m_module->m_controlFlowMgr.finalizeReactiveExpressionStmt();
 			}
@@ -337,16 +337,15 @@ for_stmt_condition<ForStmt* $stmt>
 			}
 	;
 
-
 break_stmt
-	:	TokenKind_Break ';'
+	:	TokenKind_Break optional_semicolon
 			{
 				return m_module->m_controlFlowMgr.breakJump($1.m_data.m_integer);
 			}
 	;
 
 continue_stmt
-	:	TokenKind_Continue ';'
+	:	TokenKind_Continue optional_semicolon
 			{
 				return m_module->m_controlFlowMgr.continueJump($1.m_data.m_integer);
 			}
@@ -419,7 +418,7 @@ unsafe_stmt
 	;
 
 assert_stmt
-	:	TokenKind_Assert '(' expression_pass1 (',' TokenKind_Literal $m)? ')' ';'
+	:	TokenKind_Assert '(' expression_pass1 (',' TokenKind_Literal $m)? ')' optional_semicolon
 			{
 				return assertStmt(&$3.m_tokenList, &$m ? $m.m_data.m_string : sl::StringRef());
 			}
