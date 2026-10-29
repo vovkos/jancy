@@ -524,6 +524,25 @@ Cast_FunctionPtr::Cast_FunctionPtr() {
 }
 
 bool
+Cast_FunctionPtr::cast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	if (opValue.getValueKind() == ValueKind_Const) { // e.g. from variants
+		if (constCastImpl(opValue, type, resultValue))
+			return true;
+
+		if (m_module->getCompileState() >= ModuleCompileState_Compiled) { // no code generation at runtime
+			setCastError(opValue, type);
+			return false;
+		}
+	}
+
+	return Cast_Master::cast(opValue, type, resultValue);
+}
+
+bool
 Cast_FunctionPtr::constCast(
 	const Value& opValue,
 	Type* type,
