@@ -173,6 +173,31 @@ public:
 		return SocketBase::setTcpKeepAliveRetryInterval(interval);
 	}
 
+	uint_t
+	JNC_CDECL
+	getMulticastHopLimit() {
+		return SocketBase::getMulticastHopLimit();
+	}
+
+	bool
+	JNC_CDECL
+	setMulticastHopLimit(uint_t limit) {
+		return SocketBase::setMulticastHopLimit(limit);
+	}
+
+	static
+	SocketAddress
+	JNC_CDECL
+	getMulticastInterfaceAddress(Socket* self) {
+		return self->m_multicastInterfaceAddress;
+	}
+
+	bool
+	JNC_CDECL
+	setMulticastInterfaceAddress(SocketAddress address) {
+		return SocketBase::setMulticastInterfaceAddress(address);
+	}
+
 	bool
 	JNC_CDECL
 	open_0(

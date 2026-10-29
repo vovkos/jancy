@@ -44,6 +44,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Socket)
 	JNC_MAP_AUTOGET_PROPERTY("m_options", &Socket::setOptions)
 	JNC_MAP_PROPERTY("m_tcpKeepAliveIdleTimeout", &Socket::getTcpKeepAliveIdleTimeout, &Socket::setTcpKeepAliveIdleTimeout)
 	JNC_MAP_PROPERTY("m_tcpKeepAliveRetryInterval", &Socket::getTcpKeepAliveRetryInterval, &Socket::setTcpKeepAliveRetryInterval)
+	JNC_MAP_PROPERTY("m_multicastHopLimit", &Socket::getMulticastHopLimit, &Socket::setMulticastHopLimit)
+	JNC_MAP_PROPERTY("m_multicastInterfaceAddress", &Socket::getMulticastInterfaceAddress, &Socket::setMulticastInterfaceAddress)
 	JNC_MAP_CONST_PROPERTY("m_osHandle", &Socket::getOsHandle)
 
 	JNC_MAP_FUNCTION("open", &Socket::open_0)

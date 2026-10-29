@@ -152,6 +152,25 @@ opaque class Socket {
     uint_t errorcode property m_tcpKeepAliveIdleTimeout;
     uint_t errorcode property m_tcpKeepAliveRetryInterval;
 
+	/**
+		Holds the hop limit (``TTL`` for ``IP4``) of outgoing multicast
+		datagrams. Internally maps to ``IP_MULTICAST_TTL`` or
+		``IPV6_MULTICAST_HOPS`` socket option. ``0`` means the system default
+		(``1``).
+	*/
+
+	uint_t errorcode property m_multicastHopLimit;
+
+	/**
+		Holds the address of the network interface for outgoing multicast
+		datagrams. Internally maps to ``IP_MULTICAST_IF`` or
+		``IPV6_MULTICAST_IF`` socket option. For ``IP6``, only the scope ID
+		(i.e., the interface index) is used -- pass a link-local address of the
+		adapter. An empty address means the system default.
+	*/
+
+	SocketAddress errorcode property m_multicastInterfaceAddress;
+
 	SocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 

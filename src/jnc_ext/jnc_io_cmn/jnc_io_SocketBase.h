@@ -64,6 +64,8 @@ protected:
 	uint16_t m_family;
 	uint_t m_tcpKeepAliveIdleTimeout;
 	uint_t m_tcpKeepAliveRetryInterval;
+	uint_t m_multicastHopLimit;
+	SocketAddress m_multicastInterfaceAddress;
 
 	mem::Pool<IncomingConnection> m_incomingConnectionPool;
 	sl::List<IncomingConnection> m_pendingIncomingConnectionList;
@@ -100,6 +102,35 @@ protected:
 
 	bool
 	setTcpKeepAliveRetryIntervalImpl(uint_t interval);
+
+	bool
+	setMulticastLoopbackImpl(
+		uint16_t family,
+		bool isEnabled
+	);
+
+	uint_t
+	getMulticastHopLimit() {
+		return m_multicastHopLimit;
+	}
+
+	bool
+	setMulticastHopLimit(uint_t limit);
+
+	bool
+	setMulticastHopLimitImpl(
+		uint16_t family,
+		uint_t limit
+	);
+
+	bool
+	setMulticastInterfaceAddress(const SocketAddress& address);
+
+	bool
+	setMulticastInterfaceAddressImpl(
+		uint16_t family,
+		const SocketAddress& address
+	);
 
 	bool
 	checkAccess(

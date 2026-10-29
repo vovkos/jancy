@@ -219,6 +219,70 @@ SocketBase::setTcpKeepAliveRetryIntervalImpl(uint_t interval) {
 }
 
 bool
+SocketBase::setMulticastLoopbackImpl(
+	uint16_t family,
+	bool isEnabled
+) {
+	int value = isEnabled;
+	return family == AddressFamily_Ip6 ?
+		m_socket.setOption(IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &value, sizeof(value)) :
+		m_socket.setOption(IPPROTO_IP, IP_MULTICAST_LOOP, &value, sizeof(value));
+}
+
+bool
+SocketBase::setMulticastHopLimit(uint_t limit) {
+	if (m_isOpen && !setMulticastHopLimitImpl(m_family, limit))
+		return false;
+
+	m_multicastHopLimit = limit;
+	return true;
+}
+
+bool
+SocketBase::setMulticastHopLimitImpl(
+	uint16_t family,
+	uint_t limit
+) {
+	int value = limit ? limit : 1; // 0 -- system default
+	return family == AddressFamily_Ip6 ?
+		m_socket.setOption(IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &value, sizeof(value)) :
+		m_socket.setOption(IPPROTO_IP, IP_MULTICAST_TTL, &value, sizeof(value));
+}
+
+bool
+SocketBase::setMulticastInterfaceAddress(const SocketAddress& address) {
+	if (m_isOpen && !setMulticastInterfaceAddressImpl(m_family, address))
+		return false;
+
+	m_multicastInterfaceAddress = address;
+	return true;
+}
+
+bool
+SocketBase::setMulticastInterfaceAddressImpl(
+	uint16_t family,
+	const SocketAddress& address
+) {
+	if (address.m_family && address.m_family != family) {
+		jnc::setError(err::Error(err::SystemErrorCode_InvalidParameter));
+		return false;
+	}
+
+	axl::io::SockAddr sockAddr = address.getSockAddr(); // all-zero for an empty address
+
+	if (family != AddressFamily_Ip6)
+		return m_socket.setOption(IPPROTO_IP, IP_MULTICAST_IF, &sockAddr.m_addr_ip4.sin_addr, sizeof(in_addr));
+
+	// IPV6_MULTICAST_IF takes the interface index, i.e. the scope of a link-local address
+
+	uint_t index = sockAddr.m_addr_ip6.sin6_scope_id;
+	if (!index && !IN6_IS_ADDR_UNSPECIFIED(&sockAddr.m_addr_ip6.sin6_addr))
+		return err::fail("IPv6 multicast interface address must have a scope ID");
+
+	return m_socket.setOption(IPPROTO_IPV6, IPV6_MULTICAST_IF, &index, sizeof(index));
+}
+
+bool
 SocketBase::checkAccess(
 	uint16_t family,
 	int protocol
@@ -315,15 +379,20 @@ SocketBase::openSocket(
 
 	case IPPROTO_UDP: {
 		int udpBroadcastValue = (m_options & SocketOption_UdpBroadcast) != 0;
-		result = m_socket.setOption(SOL_SOCKET, SO_BROADCAST, &udpBroadcastValue, sizeof(udpBroadcastValue));
+		result =
+			m_socket.setOption(SOL_SOCKET, SO_BROADCAST, &udpBroadcastValue, sizeof(udpBroadcastValue)) &&
+			(!(m_options & SocketOption_DisableMulticastLoopback) || setMulticastLoopbackImpl(family_jnc, false)) &&
+			(!m_multicastHopLimit || setMulticastHopLimitImpl(family_jnc, m_multicastHopLimit)) &&
+			(!m_multicastInterfaceAddress.m_family || setMulticastInterfaceAddressImpl(family_jnc, m_multicastInterfaceAddress));
+
 		break;
 		}
 
 	case IPPROTO_RAW: {
-		int rawHdrInclValue = (m_options & SocketOption_RawHdrIncl) != 0;
+		int rawHeaderValue = (m_options & SocketOption_RawHeader) != 0;
 		result = family_s == AF_INET6 ?
-			m_socket.setOption(IPPROTO_IPV6, IPV6_HDRINCL, &rawHdrInclValue, sizeof(rawHdrInclValue)) :
-			m_socket.setOption(IPPROTO_IP, IP_HDRINCL, &rawHdrInclValue, sizeof(rawHdrInclValue));
+			m_socket.setOption(IPPROTO_IPV6, IPV6_HDRINCL, &rawHeaderValue, sizeof(rawHeaderValue)) :
+			m_socket.setOption(IPPROTO_IP, IP_HDRINCL, &rawHeaderValue, sizeof(rawHeaderValue));
 		break;
 		}
 	}
@@ -332,11 +401,22 @@ SocketBase::openSocket(
 		return false;
 
 	if (address) {
-		int reuseAddrValue = (m_options & SocketOption_ReuseAddr) != 0;
-		result =
-			m_socket.setOption(SOL_SOCKET, SO_REUSEADDR, &reuseAddrValue, sizeof(reuseAddrValue)) &&
-			m_socket.bind(address->getSockAddr());
+		int reustValue = 1;
+		if (m_options & SocketOption_ReuseAddress) {
+			result = m_socket.setOption(SOL_SOCKET, SO_REUSEADDR, &reustValue, sizeof(reustValue));
+			if (!result)
+				return false;
+		}
 
+#ifdef SO_REUSEPORT
+		if (m_options & SocketOption_ReusePort) {
+			result = m_socket.setOption(SOL_SOCKET, SO_REUSEPORT, &reustValue, sizeof(reustValue));
+			if (!result)
+				return false;
+		}
+#endif
+
+		result = m_socket.bind(address->getSockAddr());
 		if (!result)
 			return false;
 	}
