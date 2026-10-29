@@ -29,12 +29,16 @@ namespace io {
 
 bitflag enum SocketOptions: StreamOptions {
 	/**
-		Allow forcibly binding multiple sockets to the same local address
-		(unless there's an active listening a socket  already bound to the same
-		address). Internally maps to ``SO_REUSEADDR`` socket option.
+		This option is used for setting the ``IP_HDRINCL`` flag for ``RAW``
+		sockets. When this property is set to ``true``, the application must
+		provide ``IP`` header together with the rest of the packet(however,
+		the kernel may still overwrite certain fields, such as ``checksum``).
+
+		For detailed description of raw sockets refer to:
+		http://man7.org/linux/man-pages/man7/raw.7.html
 	*/
 
-	ReuseAddress,
+	RawHeader,
 
 	/**
 		Translates to SO_KEEPALIVE socket option.
@@ -71,16 +75,27 @@ bitflag enum SocketOptions: StreamOptions {
 	UdpBroadcast,
 
 	/**
-		This option is used for setting the ``IP_HDRINCL`` flag for ``RAW``
-		sockets. When this property is set to ``true``, the application must
-		provide ``IP`` header together with the rest of the packet(however,
-		the kernel may still overwrite certain fields, such as ``checksum``).
-
-		For detailed description of raw sockets refer to:
-		http://man7.org/linux/man-pages/man7/raw.7.html
+		Allow forcibly binding multiple sockets to the same local address
+		(unless there's an active listening a socket  already bound to the same
+		address). Internally maps to ``SO_REUSEADDR`` socket option.
 	*/
 
-	RawHdrIncluded,
+	ReuseAddress,
+
+	/**
+		Allow multiple sockets to bind to the same local address and port.
+		Internally maps to ``SO_REUSEPORT`` socket option; ignored on platforms
+		without ``SO_REUSEPORT`` (e.g., Windows).
+	*/
+
+	ReusePort,
+
+	/**
+		Loop outgoing multicast datagrams back to local listeners. Internally
+		maps to ``IP_MULTICAST_LOOP`` or ``IPV6_MULTICAST_LOOP`` socket option.
+	*/
+
+	MulticastLoopback,
 }
 
 //..............................................................................

@@ -109,8 +109,14 @@ SocketBase::setOptions(uint_t options) {
 	}
 
 	if ((options & SocketOption_UdpBroadcast) != (m_options & SocketOption_UdpBroadcast)) {
-		int value = (m_options & SocketOption_UdpBroadcast) != 0;
+		int value = (options & SocketOption_UdpBroadcast) != 0;
 		result = m_socket.setOption(SOL_SOCKET, SO_BROADCAST, &value, sizeof(value));
+		if (!result)
+			return false;
+	}
+
+	if ((options & SocketOption_MulticastLoopback) != (m_options & SocketOption_MulticastLoopback)) {
+		result = setMulticastLoopbackImpl(m_family, (options & SocketOption_MulticastLoopback) != 0);
 		if (!result)
 			return false;
 	}

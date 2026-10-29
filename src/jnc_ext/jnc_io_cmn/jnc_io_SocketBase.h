@@ -23,12 +23,14 @@ struct SslStateBase;
 //..............................................................................
 
 enum SocketOption {
-	SocketOption_ReuseAddr    = 0x04,
-	SocketOption_TcpKeepAlive = 0x08,
-	SocketOption_TcpNagle     = 0x10,
-	SocketOption_TcpReset     = 0x20,
-	SocketOption_UdpBroadcast = 0x40,
-	SocketOption_RawHdrIncl   = 0x80,
+	SocketOption_RawHeader         = 0x0004,
+	SocketOption_TcpKeepAlive      = 0x0008,
+	SocketOption_TcpNagle          = 0x0010,
+	SocketOption_TcpReset          = 0x0020,
+	SocketOption_UdpBroadcast      = 0x0040,
+	SocketOption_ReuseAddress      = 0x0080,
+	SocketOption_ReusePort         = 0x0100,
+	SocketOption_MulticastLoopback = 0x0200,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
