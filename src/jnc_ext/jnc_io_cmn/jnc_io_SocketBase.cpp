@@ -115,8 +115,8 @@ SocketBase::setOptions(uint_t options) {
 			return false;
 	}
 
-	if ((options & SocketOption_MulticastLoopback) != (m_options & SocketOption_MulticastLoopback)) {
-		result = setMulticastLoopbackImpl(m_family, (options & SocketOption_MulticastLoopback) != 0);
+	if ((options & SocketOption_DisableMulticastLoopback) != (m_options & SocketOption_DisableMulticastLoopback)) {
+		result = setMulticastLoopbackImpl(m_family, !(options & SocketOption_DisableMulticastLoopback));
 		if (!result)
 			return false;
 	}

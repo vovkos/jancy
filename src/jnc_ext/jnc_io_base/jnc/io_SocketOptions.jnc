@@ -91,11 +91,12 @@ bitflag enum SocketOptions: StreamOptions {
 	ReusePort,
 
 	/**
-		Loop outgoing multicast datagrams back to local listeners. Internally
-		maps to ``IP_MULTICAST_LOOP`` or ``IPV6_MULTICAST_LOOP`` socket option.
+		Stop looping outgoing multicast datagrams back to local listeners
+		(loopback is on by default). Internally maps to ``IP_MULTICAST_LOOP``
+		or ``IPV6_MULTICAST_LOOP`` socket option.
 	*/
 
-	MulticastLoopback,
+	DisableMulticastLoopback,
 }
 
 //..............................................................................
