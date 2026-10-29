@@ -74,8 +74,19 @@ Cast_Variant::llvmCast(
 	Value opValue;
 
 	Type* opType = rawOpValue.getType();
-	if ((opType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
-		((DataPtrType*)opType)->getPtrKind() == DataPtrKind_Lean) {
+	Closure* closure = rawOpValue.getClosure();
+	if (closure) {
+		opType = closure->getClosureType(opType);
+		if (!opType)
+			return false;
+
+		result = m_module->m_operatorMgr.castOperator(rawOpValue, opType, &opValue);
+		if (!result)
+			return false;
+	} else if (
+		(opType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
+		((DataPtrType*)opType)->getPtrKind() == DataPtrKind_Lean
+	) {
 		opType = ((DataPtrType*)opType)->getTargetType()->getDataPtrType(
 			opType->getTypeKind(),
 			opType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask
