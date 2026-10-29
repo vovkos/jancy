@@ -23,10 +23,10 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocket)
 //..............................................................................
 
 enum WebSocketOption {
-	WebSocketOption_IncludeControlFrames           = 0x0100,
-	WebSocketOption_DisableServerHandshakeResponse = 0x0200,
-	WebSocketOption_DisableCloseResponse           = 0x0400,
-	WebSocketOption_DisablePongResponse            = 0x0800,
+	WebSocketOption_IncludeControlFrames           = 0x0400,
+	WebSocketOption_DisableServerHandshakeResponse = 0x0800,
+	WebSocketOption_DisableCloseResponse           = 0x1000,
+	WebSocketOption_DisablePongResponse            = 0x2000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
