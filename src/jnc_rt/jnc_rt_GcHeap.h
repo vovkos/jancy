@@ -12,9 +12,9 @@
 #pragma once
 
 #include "jnc_GcHeap.h"
-#include "jnc_rt_DestructGraph.h"
 #include "jnc_Type.h"
 #include "jnc_Variant.h"
+#include "jnc_rt_DestructGraph.h"
 
 namespace jnc {
 namespace rt {

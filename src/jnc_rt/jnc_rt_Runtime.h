@@ -116,3 +116,5 @@ getCurrentThreadRuntime() {
 
 } // namespace rt
 } // namespace jnc
+
+#include "jnc_Runtime.h" // after rt::Runtime is defined

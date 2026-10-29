@@ -213,6 +213,14 @@ public:
 		const Value& opValue,
 		Type* type
 	);
+
+protected:
+	bool
+	constCastThin2Fat(
+		const Value& opValue,
+		FunctionPtrType* type,
+		void* dst
+	);
 };
 
 //..............................................................................

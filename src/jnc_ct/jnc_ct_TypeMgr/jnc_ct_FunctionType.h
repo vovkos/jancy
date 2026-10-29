@@ -24,6 +24,7 @@ class NamedType;
 class ClassType;
 class ClassPtrType;
 class ReactorClassType;
+class FunctionClosureClassType;
 class CallConv;
 class Function;
 
@@ -57,6 +58,7 @@ protected:
 	sl::StringRef m_argSignature;
 	FunctionType* m_shortType;
 	FunctionType* m_stdObjectMemberMethodType;
+	FunctionClosureClassType* m_thin2FatClosureType; // for thin-to-fat const-casts at runtime
 	std::unique_ptr<FunctionPtrTypeTuple> m_functionPtrTypeTuple;
 
 public:
@@ -125,6 +127,16 @@ public:
 
 	FunctionType*
 	getStdObjectMemberMethodType();
+
+	FunctionClosureClassType*
+	getThin2FatClosureType() const { // null unless prepared at compile-time
+		return m_thin2FatClosureType;
+	}
+
+	bool
+	ensureThin2FatClosureType() {
+		return m_thin2FatClosureType || createThin2FatClosureType();
+	}
 
 	FunctionPtrType*
 	getFunctionPtrType(
@@ -241,6 +253,9 @@ protected:
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray
 	);
+
+	bool
+	createThin2FatClosureType();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -253,6 +268,7 @@ FunctionType::FunctionType() {
 	m_asyncReturnType = NULL;
 	m_shortType = this;
 	m_stdObjectMemberMethodType = NULL;
+	m_thin2FatClosureType = NULL;
 }
 
 inline

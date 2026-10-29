@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_FunctionType.h"
+#include "jnc_ct_ClosureClassType.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -346,6 +347,22 @@ FunctionType::deduceTemplateArgs(
 	}
 
 	return result;
+}
+
+bool
+FunctionType::createThin2FatClosureType() {
+	FunctionClosureClassType* closureType = m_module->m_typeMgr.getFunctionClosureClassType(this, this, NULL, NULL, 0, -1);
+
+	bool result =
+		closureType->ensureLayout() &&
+		closureType->require() &&
+		closureType->getThunkFunction()->require();
+
+	if (!result)
+		return false;
+
+	m_thin2FatClosureType = closureType;
+	return true;
 }
 
 //..............................................................................

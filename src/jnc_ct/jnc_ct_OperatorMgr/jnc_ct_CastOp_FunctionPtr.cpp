@@ -14,6 +14,7 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_ClosureClassType.h"
+#include "jnc_rt_Runtime.h"
 
 namespace jnc {
 namespace ct {
@@ -558,6 +559,12 @@ Cast_FunctionPtr::constCast(
 	FunctionPtrType* dstType = (FunctionPtrType*)type;
 	FunctionPtrType* srcType = (FunctionPtrType*)opValue.getType();
 
+	if (srcType->getPtrKind() == FunctionPtrKind_Thin &&
+		dstType->getPtrKind() == FunctionPtrKind_Normal &&
+		m_module->getCompileState() >= ModuleCompileState_Compiled // e.g. from variants
+	)
+		return constCastThin2Fat(opValue, dstType, dst);
+
 	if (dstType->getPtrKind() != srcType->getPtrKind() ||
 		!areCompatibleFunctionTypes(srcType->getTargetType(), dstType->getTargetType()) ||
 		(dstType->getFlags() & PtrTypeFlag_Safe) && !(srcType->getFlags() & PtrTypeFlag_Safe))
@@ -565,6 +572,35 @@ Cast_FunctionPtr::constCast(
 
 	ASSERT(dstType->getSize() == srcType->getSize());
 	memcpy(dst, opValue.getConstData(), dstType->getSize());
+	return true;
+}
+
+bool
+Cast_FunctionPtr::constCastThin2Fat(
+	const Value& opValue,
+	FunctionPtrType* type,
+	void* dst
+) {
+	FunctionPtrType* srcType = (FunctionPtrType*)opValue.getType();
+	FunctionType* functionType = type->getTargetType();
+	FunctionClosureClassType* closureType = functionType->getThin2FatClosureType(); // prepared at compile-time
+	if (!closureType ||
+		!srcType->getTargetType()->isEqual(functionType) ||
+		(type->getFlags() & PtrTypeFlag_Safe) && !(srcType->getFlags() & PtrTypeFlag_Safe)
+	)
+		return false;
+
+	FunctionPtr* ptr = (FunctionPtr*)dst;
+	void* pfn = *(void**)opValue.getConstData();
+	if (!pfn) {
+		*ptr = g_nullFunctionPtr;
+		return true;
+	}
+
+	IfaceHdr* closure = getCurrentThreadGcHeap()->allocateClass(closureType);
+	*(void**)((char*)closure + closureType->getFieldArray()[0]->getOffset()) = pfn; // m_target
+	ptr->m_p = closureType->getThunkFunction()->getMachineCode();
+	ptr->m_closure = closure;
 	return true;
 }
 

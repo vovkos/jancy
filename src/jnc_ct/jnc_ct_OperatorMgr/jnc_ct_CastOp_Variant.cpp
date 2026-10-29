@@ -182,6 +182,14 @@ Cast_FromVariant::llvmCast(
 ) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Variant);
 
+	if (type->getTypeKind() == TypeKind_FunctionPtr &&
+		((FunctionPtrType*)type)->getPtrKind() == FunctionPtrKind_Normal
+	) {
+		bool result = ((FunctionPtrType*)type)->getTargetType()->ensureThin2FatClosureType(); // prepare for thin->fat at runtime
+		if (!result)
+			return false;
+	}
+
 	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 	Value tmpValue;
 
