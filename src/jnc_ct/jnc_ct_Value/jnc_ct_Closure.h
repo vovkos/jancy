@@ -92,16 +92,25 @@ public:
 	apply(sl::BoxList<Value>* argValueList);
 
 	Type*
-	getClosureType(Type* type);
+	getClosureType(
+		Type* type,
+		uint_t ptrTypeFlagMask = PtrTypeFlag_All // PtrKind is always masked out -- closures are fat
+	);
 
 	FunctionPtrType*
 	getFunctionClosureType(Function* function); // choose the best overload
 
 	FunctionPtrType*
-	getFunctionClosureType(FunctionPtrType* ptrType);
+	getFunctionClosureType(
+		FunctionPtrType* ptrType,
+		uint_t ptrTypeFlagMask = PtrTypeFlag_All
+	);
 
 	PropertyPtrType*
-	getPropertyClosureType(PropertyPtrType* ptrType);
+	getPropertyClosureType(
+		PropertyPtrType* ptrType,
+		uint_t ptrTypeFlagMask = PtrTypeFlag_All
+	);
 
 	bool
 	getArgTypeArray(

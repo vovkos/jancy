@@ -166,17 +166,20 @@ Closure::apply(sl::BoxList<Value>* argValueList) {
 }
 
 Type*
-Closure::getClosureType(Type* type) {
+Closure::getClosureType(
+	Type* type,
+	uint_t ptrTypeFlagMask
+) {
 	TypeKind typeKind = type->getTypeKind();
 
 	switch (typeKind) {
 	case TypeKind_FunctionPtr:
 	case TypeKind_FunctionRef:
-		return getFunctionClosureType((FunctionPtrType*)type);
+		return getFunctionClosureType((FunctionPtrType*)type, ptrTypeFlagMask);
 
 	case TypeKind_PropertyPtr:
 	case TypeKind_PropertyRef:
-		return getPropertyClosureType((PropertyPtrType*)type);
+		return getPropertyClosureType((PropertyPtrType*)type, ptrTypeFlagMask);
 
 	default:
 		return type;
@@ -220,7 +223,10 @@ Closure::getArgTypeArray(
 }
 
 FunctionPtrType*
-Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
+Closure::getFunctionClosureType(
+	FunctionPtrType* ptrType,
+	uint_t ptrTypeFlagMask
+) {
 	bool result;
 
 	Module* module = ptrType->getModule();
@@ -242,12 +248,15 @@ Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
 
 	return closureType->getFunctionPtrType(
 		ptrType->getTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask // closures are always fat
+		ptrType->getFlags() & ptrTypeFlagMask & ~PtrTypeFlag_PtrKindMask // closures are always fat
 	);
 }
 
 PropertyPtrType*
-Closure::getPropertyClosureType(PropertyPtrType* ptrType) {
+Closure::getPropertyClosureType(
+	PropertyPtrType* ptrType,
+	uint_t ptrTypeFlagMask
+) {
 	bool result;
 
 	Module* module = ptrType->getModule();
@@ -302,7 +311,7 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType) {
 
 	return closureType->getPropertyPtrType(
 		ptrType->getTypeKind(),
-		ptrType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask // closures are always fat
+		ptrType->getFlags() & ptrTypeFlagMask & ~PtrTypeFlag_PtrKindMask // closures are always fat
 	);
 }
 

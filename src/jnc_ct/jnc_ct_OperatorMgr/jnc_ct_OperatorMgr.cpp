@@ -318,21 +318,9 @@ Type*
 getConditionalOperandType(const Value& value) {
 	Type* type = value.getType();
 	Closure* closure = value.getClosure();
-	if (closure) {
-		type = closure->getClosureType(type);
-		if (type->getTypeKindFlags() & TypeKindFlag_FunctionPtr)
-			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(
-				type->getTypeKind(),
-				FunctionPtrKind_Normal
-			);
-		else {
-			ASSERT(type->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-			type = ((PropertyPtrType*)type)->getTargetType()->getPropertyPtrType(
-				type->getTypeKind(),
-				PropertyPtrKind_Normal
-			);
-		}
-	} else {
+	if (closure)
+		type = closure->getClosureType(type, PtrTypeFlag_All & ~PtrTypeFlag_Safe);
+	else {
 		switch (type->getTypeKind()) {
 		case TypeKind_Array:
 			type = ((ArrayType*)type)->getElementType()->getDataPtrType(value.getValueKind() == ValueKind_Const ? ConstKind_Const : 0);
