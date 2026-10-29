@@ -240,7 +240,10 @@ Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
 		argArray
 	);
 
-	return closureType->getFunctionPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag_All);
+	return closureType->getFunctionPtrType(
+		ptrType->getTypeKind(),
+		ptrType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask // closures are always fat
+	);
 }
 
 PropertyPtrType*
@@ -297,7 +300,10 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType) {
 		type->getFlags() & PropertyTypeFlag_All
 	);
 
-	return closureType->getPropertyPtrType(ptrType->getTypeKind(), ptrType->getFlags() & PtrTypeFlag_All);
+	return closureType->getPropertyPtrType(
+		ptrType->getTypeKind(),
+		ptrType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask // closures are always fat
+	);
 }
 
 //..............................................................................
