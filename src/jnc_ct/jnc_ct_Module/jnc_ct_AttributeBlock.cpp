@@ -66,6 +66,17 @@ Attribute::prepareValue(bool isDynamic) {
 		break;
 
 	case ValueKind_Function:
+		if (m_value.getClosure()) { // closures need code to be created
+			if (!isDynamic)
+				return err::fail(
+					"closure of '%s' used as a static attribute value",
+					m_value.getFunction()->getItemName().sz()
+				);
+
+			m_flags |= AttributeFlag_DynamicValue | AttributeFlag_VariantReady; // this attribute will be shadowed by a dynamic one
+			break;
+		}
+
 		if (m_value.getFunction()->getStorageKind() != StorageKind_Static)
 			return err::fail(
 				"non-static function '%s' used as an attribute value",
