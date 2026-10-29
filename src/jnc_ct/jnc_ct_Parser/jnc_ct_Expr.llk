@@ -96,15 +96,19 @@ struct {
 	sl::List<Token> m_tokenList;
 }
 arg_list_pass1
-	:	catch (eof) arg_list_pass1_impl<&$.m_tokenList>
-	;
-
-arg_list_pass1_impl<sl::List<Token>* $tokenList>
-	:	'(' arg_list_pass1_item<$tokenList>* ')'
+	:	catch (eof) '(' arg_list_pass1_item<&$.m_tokenList>* ')'
 	;
 
 arg_list_pass1_item<sl::List<Token>* $tokenList>
-	:	arg_list_pass1_impl<$tokenList>
+	:	'('
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+		arg_list_pass1_item<$tokenList>*
+		')'
+			{
+				$tokenList->insertTail(m_tokenPool->get($3));
+			}
 	|	any
 			{
 				$tokenList->insertTail(m_tokenPool->get($1));
