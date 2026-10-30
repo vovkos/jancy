@@ -113,6 +113,16 @@ DynamicSection::markOpaqueGcRoots(GcHeap* gcHeap) {
 
 	if (m_decl_rtl)
 		gcHeap->markClassPtr(m_decl_rtl);
+
+	if (m_dynamicAttributeBlock) {
+		const sl::Array<ct::Attribute*>& attributeArray = m_dynamicAttributeBlock->getAttributeArray();
+		size_t count = attributeArray.getCount();
+		for (size_t i = 0; i < count; i++) {
+			ct::Attribute* attribute = attributeArray[i];
+			if (attribute->getFlags() & ct::AttributeFlag_Dynamic)
+				gcHeap->markVariant(attribute->getVariant());
+		}
+	}
 }
 
 IfaceHdr*
