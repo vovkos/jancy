@@ -1767,19 +1767,25 @@ OperatorMgr::prepareArrayRef(
 }
 
 bool
-OperatorMgr::awaitOperator(const Value& value) {
-	bool result;
+OperatorMgr::awaitOperator(
+	const Value& value,
+	Value* resultValue
+) {
+	if (!m_module->hasCodeGen()) {
+		if (resultValue)
+			resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant));
 
-	Value opPromiseValue;
-	result = castOperator(value, m_module->m_typeMgr.getStdType(StdType_PromisePtr), &opPromiseValue);
-	if (!result)
-		return false;
-
-	if (!m_module->hasCodeGen())
 		return true;
+	}
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	ASSERT(function->getFunctionKind() == FunctionKind_AsyncSequencer);
+	if (function->getFunctionKind() != FunctionKind_AsyncSequencer)
+		return err::fail("await can only be used in async functions");
+
+	Value opPromiseValue;
+	bool result = castOperator(value, m_module->m_typeMgr.getStdType(StdType_PromisePtr), &opPromiseValue);
+	if (!result)
+		return false;
 
 	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue();
 	ASSERT(thisPromiseValue);
@@ -1835,33 +1841,8 @@ OperatorMgr::awaitOperator(const Value& value) {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	BasicBlock* block = m_module->m_controlFlowMgr.createAsyncBlock(scope);
 	m_module->m_controlFlowMgr.asyncRet(block);
-	return true;
-}
 
-bool
-OperatorMgr::awaitOperator(
-	const Value& value,
-	Value* resultValue
-) {
-	if (!m_module->hasCodeGen()) {
-		resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant));
-		return true;
-	}
-
-	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	if (function->getFunctionKind() != FunctionKind_AsyncSequencer)
-		return err::fail("await can only be used in async functions");
-
-	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue();
-	ASSERT(thisPromiseValue);
-
-	Value pendingPromiseFieldValue;
-	Value opPromiseValue;
-	Value waitValue;
-
-	bool result = awaitOperator(value);
-	if (!result)
-		return false;
+	// resumed -- fetch the result (re-throws the error, if any)
 
 	return
 		getPromiseField(thisPromiseValue, "m_pendingPromise", &pendingPromiseFieldValue) &&
@@ -1876,7 +1857,6 @@ OperatorMgr::awaitDynamicLayout(const Value& opValue) {
 
 	Value shouldAwaitValue;
 	Value promiseValue;
-	Value resultValue;
 
 	BasicBlock* awaitBlock = m_module->m_controlFlowMgr.createBlock("await_block");
 	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock("follow_block");
@@ -1885,7 +1865,7 @@ OperatorMgr::awaitDynamicLayout(const Value& opValue) {
 		memberOperator(opValue, "m_shouldAwait", &shouldAwaitValue) &&
 		m_module->m_controlFlowMgr.conditionalJump(shouldAwaitValue, awaitBlock, followBlock) &&
 		memberOperator(opValue, "m_promise", &promiseValue) &&
-		awaitOperator(promiseValue, &resultValue); // the result variant re-throws errors (e.g., from the sink)
+		awaitOperator(promiseValue);
 
 	if (!result)
 		return false;
