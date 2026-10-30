@@ -478,7 +478,7 @@ OperatorMgr::castOperator(
 	if (!result)
 		return false;
 
-	if (rawOpValue.getValueKind() == ValueKind_Null) {
+	if (rawOpValue.isNull()) {
 		if ((type->getTypeKindFlags() & TypeKindFlag_Ptr) && (type->getFlags() & PtrTypeFlag_Safe)) {
 			setCastError(rawOpValue, type);
 			return false;
@@ -724,7 +724,7 @@ OperatorMgr::getCastKind(
 	const Value& rawOpValue,
 	Type* type
 ) {
-	if (rawOpValue.getValueKind() == ValueKind_Null)
+	if (rawOpValue.isNull())
 		return (type->getTypeKindFlags() & TypeKindFlag_Nullable) ? CastKind_Identity : CastKind_None;
 
 	CastKind castKind;

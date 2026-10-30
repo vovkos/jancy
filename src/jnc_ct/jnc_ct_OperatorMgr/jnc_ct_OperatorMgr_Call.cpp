@@ -494,7 +494,7 @@ OperatorMgr::castArgValueList(
 			}
 		}
 
-		Type* formalArgType = argValue.getValueKind() == ValueKind_Null ?
+		Type* formalArgType = argValue.isNull() ?
 			m_module->m_typeMgr.getStdType(StdType_ByteThinPtr) :
 			getCdeclVarArgType(argValue.getType());
 

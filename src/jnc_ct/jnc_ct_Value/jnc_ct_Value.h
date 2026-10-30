@@ -180,6 +180,11 @@ public:
 		return m_valueKind == ValueKind_Void;
 	}
 
+	bool
+	isNull() const {
+		return m_valueKind == ValueKind_Null;
+	}
+
 	Type*
 	getType() const {
 		return m_type;
