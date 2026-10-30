@@ -41,7 +41,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	sl::g_nullGuid,
 	-1,
 	AttributeBlock,
-	NULL
+	&AttributeBlock::markOpaqueGcRoots
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(AttributeBlock)
@@ -59,6 +59,25 @@ JNC_CDECL
 Attribute::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	if (m_item->getFlags() & ct::AttributeFlag_Dynamic)
 		gcHeap->markVariant(m_item->getVariant());
+}
+
+//..............................................................................
+
+void
+JNC_CDECL
+AttributeBlock::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
+	if (!(m_item->getFlags() & ct::AttributeBlockFlag_Dynamic))
+		return;
+
+	// dynamic values must be marked even if no rtl::Attribute wrapper is created yet
+
+	const sl::Array<ct::Attribute*>& attributeArray = m_item->getAttributeArray();
+	size_t count = attributeArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		ct::Attribute* attribute = attributeArray[i];
+		if (attribute->getFlags() & ct::AttributeFlag_Dynamic)
+			gcHeap->markVariant(attribute->getVariant());
+	}
 }
 
 //..............................................................................

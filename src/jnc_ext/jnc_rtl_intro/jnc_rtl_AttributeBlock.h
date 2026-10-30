@@ -61,6 +61,10 @@ public:
 			delete m_item;
 	}
 
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
+
 	size_t
 	JNC_CDECL
 	getAttributeCount() {
