@@ -38,7 +38,6 @@ protected:
 
 public:
 	WebSocketHandshake();
-	~WebSocketHandshake();
 
 	void
 	JNC_CDECL

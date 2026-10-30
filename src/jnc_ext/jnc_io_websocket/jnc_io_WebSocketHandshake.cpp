@@ -47,10 +47,6 @@ WebSocketHandshake::WebSocketHandshake() {
 	sl::construct(m_headers.p()); // already primed (non-opaque class field)
 }
 
-WebSocketHandshake::~WebSocketHandshake() {
-	sl::destruct(m_headers.p());
-}
-
 void
 JNC_CDECL
 WebSocketHandshake::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
