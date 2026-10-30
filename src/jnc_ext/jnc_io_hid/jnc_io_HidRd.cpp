@@ -50,7 +50,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	HidStandaloneReport,
 	"io.HidStandaloneReport",
 	g_hidLibGuid,
@@ -58,6 +58,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	HidStandaloneReport,
 	&HidStandaloneReport::markOpaqueGcRoots
 )
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(HidStandaloneReport)
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(jnc::TypeKind_Class, "io.HidReportField")
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(HidStandaloneReport)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<HidStandaloneReport>)
@@ -85,7 +89,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	HidRd,
 	"io.HidRd",
 	g_hidLibGuid,
@@ -93,6 +97,12 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	HidRd,
 	&HidRd::markOpaqueGcRoots
 )
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(HidRd)
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(jnc::TypeKind_Class, "io.HidReport")
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(jnc::TypeKind_Class, "io.HidReportField")
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(jnc::TypeKind_Class, "io.HidRdCollection")
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(HidRd)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<HidRd>)

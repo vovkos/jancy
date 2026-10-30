@@ -39,7 +39,7 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	ChildProcess,
 	"io.ChildProcess",
 	g_ioLibGuid,
@@ -47,6 +47,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	ChildProcess,
 	&ChildProcess::markOpaqueGcRoots
 )
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(ChildProcess)
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(jnc::TypeKind_Class, "io.FileStream")
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<ChildProcess>)

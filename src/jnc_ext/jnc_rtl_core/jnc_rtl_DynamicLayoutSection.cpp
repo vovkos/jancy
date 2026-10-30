@@ -56,7 +56,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	DynamicLayoutSectionBuilder,
 	"jnc.DynamicLayoutSectionBuilder",
 	sl::g_nullGuid,
@@ -64,6 +64,11 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	DynamicLayoutSectionBuilder,
 	NULL
 )
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(DynamicLayoutSectionBuilder)
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(TypeKind_Class, "jnc.DynamicLayoutSectionGroup")
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(TypeKind_Class, "jnc.DynamicLayoutSection")
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayoutSectionBuilder)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<DynamicLayoutSectionBuilder>)
