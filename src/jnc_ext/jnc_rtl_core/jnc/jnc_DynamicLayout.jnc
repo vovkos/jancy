@@ -163,6 +163,8 @@ protected:
 
 	size_t errorcode addArray(
 		void thin* decl,
+		variant_t const thin* dynamicAttrArray,
+		size_t dynamicAttrCount,
 		void thin* type,
 		size_t elementCount,
 		uint_t ptrTypeFlags,
@@ -171,30 +173,35 @@ protected:
 
 	size_t errorcode addField(
 		void thin* decl,
+		variant_t const thin* dynamicAttrArray,
+		size_t dynamicAttrCount,
 		void thin* type,
 		uint_t ptrTypeFlags,
 		bool isAsync
 	);
 
-	// higher 56-bits - byte offset
-	// lower 8-bits - bit offset
+	// addBitField -> uint64_t:
+	//     higher 56-bits - byte offset
+	//     lower 8-bits - bit offset
 
 	uint64_t errorcode addBitField(
 		void thin* decl,
+		variant_t const thin* dynamicAttrArray,
+		size_t dynamicAttrCount,
 		void thin* type,
 		uint_t bitCount,
 		uint_t ptrTypeFlags,
 		bool isAsync
 	);
 
-	size_t openGroup(void thin* decl);
+	size_t openGroup(
+		void thin* decl,
+		variant_t const thin* dynamicAttrArray,
+		size_t dynamicAttrCount
+	);
+
 	void closeGroup();
 	void closeGroups(size_t count);
-
-	void cdecl setDynamicAttributes( // applies to the last decl
-		variant_t const thin* p,
-		size_t count
-	);
 }
 
 //..............................................................................

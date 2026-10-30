@@ -369,12 +369,6 @@ protected:
 	void
 	processUnusedAttributes();
 
-	size_t
-	packDynamicAttributes(
-		Variable** arrayVar,
-		AttributeBlock* attributeBlock
-	);
-
 	void
 	preDeclaration();
 
@@ -796,6 +790,13 @@ protected:
 
 	bool
 	finalizeDynamicLayoutStmt(DynamicLayoutStmt* stmt);
+
+	bool
+	prepareDynamicLayoutAttributes(
+		AttributeBlock* attributeBlock,
+		Value* dynamicAttrArrayValue,
+		Value* dynamicAttrCountValue
+	);
 
 	bool
 	openDynamicGroup(

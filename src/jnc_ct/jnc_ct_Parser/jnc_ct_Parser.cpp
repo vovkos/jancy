@@ -571,11 +571,28 @@ Parser::postDeclaration() {
 	return false;
 }
 
-size_t
-Parser::packDynamicAttributes(
-	Variable** resultVar,
-	AttributeBlock* attributeBlock
+bool
+Parser::prepareDynamicLayoutAttributes(
+	AttributeBlock* attributeBlock,
+	Value* dynamicAttrArrayValue,
+	Value* dynamicAttrCountValue
 ) {
+	if (!attributeBlock) {
+		dynamicAttrArrayValue->setNull(m_module);
+		dynamicAttrCountValue->setConstSizeT(0, m_module);
+		return true;
+	}
+
+	bool result = attributeBlock->prepareAttributeValues(true);
+	if (!result)
+		return false;
+
+	if (!(attributeBlock->m_flags & AttributeBlockFlag_DynamicValues)) {
+		dynamicAttrArrayValue->setNull(m_module);
+		dynamicAttrCountValue->setConstSizeT(0, m_module);
+		return true;
+	}
+
 	char buffer[256];
 	sl::Array<Attribute*> dynamicAttrArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
@@ -591,29 +608,31 @@ Parser::packDynamicAttributes(
 	Type* variantType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 	ArrayType* arrayType = variantType->getArrayType(dynamicCount);
 	Variable* arrayVar = m_module->m_variableMgr.createVariable(StorageKind_Stack, "dynamicAttrArray", arrayType);
-	bool result = m_module->m_variableMgr.allocateVariable(arrayVar);
+	result = m_module->m_variableMgr.allocateVariable(arrayVar);
 	if (!result)
-		return -1;
+		return false;
 
-	*resultVar = arrayVar;
+	dynamicAttrArrayValue->setVariable(arrayVar);
+	dynamicAttrCountValue->setConstSizeT(dynamicCount, m_module);
+
 	if (!m_module->hasCodeGen())
-		return dynamicCount;
+		return true;
 
 	m_module->m_variableMgr.preInitializeStackVariable(arrayVar);
 
 	Value arrayValue(arrayVar);
 	for (size_t i = 0; i < dynamicCount; i++) {
 		Value attrValue;
-		bool result = m_module->m_operatorMgr.castOperator(dynamicAttrArray[i]->getValue(), variantType, &attrValue);
+		result = m_module->m_operatorMgr.castOperator(dynamicAttrArray[i]->getValue(), variantType, &attrValue);
 		if (!result)
-			return -1;
+			return false;
 
 		Value ptrValue;
 		m_module->m_llvmIrBuilder.createGep2(arrayValue, arrayType, i, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createStore(attrValue, ptrValue);
 	}
 
-	return dynamicCount;
+	return true;
 }
 
 void
@@ -1989,19 +2008,20 @@ Parser::declareData(
 		if (!constructor->isEmpty() || !initializer->isEmpty())
 			return err::fail("dynamic fields can't have initializers");
 
-		Variable* dynamicAttrArrayVar = NULL;
-		size_t dynamicAttrCount = 0;
-		if (declarator->m_attributeBlock || (declarator->m_attributeBlock = popAttributeBlock())) {
-			result = declarator->m_attributeBlock->prepareAttributeValues(true);
-			if (!result)
-				return false;
+		if (!declarator->m_attributeBlock)
+			declarator->m_attributeBlock = popAttributeBlock();
 
-			if (declarator->m_attributeBlock->m_flags & AttributeBlockFlag_DynamicValues) {
-				dynamicAttrCount = packDynamicAttributes(&dynamicAttrArrayVar, declarator->m_attributeBlock);
-				if (dynamicAttrCount == -1)
-					return false;
-			}
-		}
+		Value dynamicAttrArrayValue;
+		Value dynamicAttrCountValue;
+
+		result = prepareDynamicLayoutAttributes(
+			declarator->m_attributeBlock,
+			&dynamicAttrArrayValue,
+			&dynamicAttrCountValue
+		);
+
+		if (!result)
+			return false;
 
 		bool isAsync = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind() == FunctionKind_AsyncSequencer;
 
@@ -2057,6 +2077,8 @@ Parser::declareData(
 
 				sl::BoxList<Value> argValueList;
 				argValueList.insertTail(declValue);
+				argValueList.insertTail(dynamicAttrArrayValue);
+				argValueList.insertTail(dynamicAttrCountValue);
 				argValueList.insertTail(typeValue);
 				argValueList.insertTail(countValue);
 				argValueList.insertTail(ptrTypeFlagsValue);
@@ -2065,15 +2087,7 @@ Parser::declareData(
 				result =
 					nspace->addItem(field) &&
 					m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addArray", &funcValue) &&
-					m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) &&	(
-						dynamicAttrCount == 0 ||
-						m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
-						m_module->m_operatorMgr.callOperator(
-							funcValue,
-							dynamicAttrArrayVar,
-							Value(dynamicAttrCount, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT))
-						)
-					) && (
+					m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) && (
 						!isAsync ||
 						m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue)
 					);
@@ -2090,7 +2104,7 @@ Parser::declareData(
 		if (!(type->getFlags() & TypeFlag_Pod))
 			return err::fail("non-POD '%s' cannot be used in a dynamic layout", type->getTypeString().sz());
 
-		if (bitCount || dynamicAttrCount) {
+		if (bitCount || !dynamicAttrArrayValue.isNull()) {
 			result = finalizeDynamicStructSection(stmt);
 			if (!result)
 				return false;
@@ -2114,6 +2128,8 @@ Parser::declareData(
 
 			sl::BoxList<Value> argValueList;
 			argValueList.insertTail(declValue);
+			argValueList.insertTail(dynamicAttrArrayValue);
+			argValueList.insertTail(dynamicAttrCountValue);
 			argValueList.insertTail(typeValue);
 
 			sl::StringRef addMethodName;
@@ -2135,14 +2151,6 @@ Parser::declareData(
 				nspace->addItem(field) &&
 				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, addMethodName, &funcValue) &&
 				m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) && (
-					dynamicAttrCount == 0 ||
-					m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
-					m_module->m_operatorMgr.callOperator(
-						funcValue,
-						dynamicAttrArrayVar,
-						Value(dynamicAttrCount, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT))
-					)
-				) && (
 					!isAsync ||
 					m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue)
 				);
@@ -3748,20 +3756,19 @@ Parser::openDynamicGroup(
 	if (!result)
 		return false;
 
-	Variable* dynamicAttrArrayVar = NULL;
-	size_t dynamicAttrCount = 0;
 	AttributeBlock* attributeBlock = popAttributeBlock();
-	if (attributeBlock) {
-		result = attributeBlock->prepareAttributeValues(true);
-		if (!result)
-			return false;
 
-		if (attributeBlock->m_flags & AttributeBlockFlag_DynamicValues) {
-			dynamicAttrCount = packDynamicAttributes(&dynamicAttrArrayVar, attributeBlock);
-			if (dynamicAttrCount == -1)
-				return false;
-		}
-	}
+	Value dynamicAttrArrayValue;
+	Value dynamicAttrCountValue;
+
+	result = prepareDynamicLayoutAttributes(
+		attributeBlock,
+		&dynamicAttrArrayValue,
+		&dynamicAttrCountValue
+	);
+
+	if (!result)
+		return false;
 
 	m_module->m_namespaceMgr.openScope(pos, scopeFlags | ScopeFlag_DynamicGroup);
 
@@ -3777,14 +3784,11 @@ Parser::openDynamicGroup(
 	result =
 		group->ensureAttributeValuesReady() &&
 		m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "openGroup", &funcValue) &&
-		m_module->m_operatorMgr.callOperator(funcValue, declValue) && (
-			dynamicAttrCount == 0 ||
-			m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
-			m_module->m_operatorMgr.callOperator(
-				funcValue,
-				dynamicAttrArrayVar,
-				Value(dynamicAttrCount, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT))
-			)
+		m_module->m_operatorMgr.callOperator(
+			funcValue,
+			declValue,
+			dynamicAttrArrayValue,
+			dynamicAttrCountValue
 		);
 
 	m_module->enableAccessChecks();

@@ -112,7 +112,10 @@ public:
 
 protected:
 	void
-	createDynamicDecl();
+	setDynamicAttributes(
+		const Variant* p,
+		size_t count
+	);
 };
 
 //..............................................................................
@@ -201,6 +204,8 @@ public:
 	JNC_CDECL
 	addArray(
 		ct::ModuleItemDecl* decl,
+		const Variant* dynamicAttrArray,
+		size_t dynamicAttrCount,
 		ct::Type* type,
 		size_t elementCount,
 		uint_t ptrTypeFlags,
@@ -211,6 +216,8 @@ public:
 	JNC_CDECL
 	addField(
 		ct::ModuleItemDecl* decl,
+		const Variant* dynamicAttrArray,
+		size_t dynamicAttrCount,
 		ct::Type* type,
 		uint_t ptrTypeFlags,
 		bool isAsync
@@ -220,6 +227,8 @@ public:
 	JNC_CDECL
 	addBitField(
 		ct::ModuleItemDecl* decl,
+		const Variant* dynamicAttrArray,
+		size_t dynamicAttrCount,
 		ct::Type* type,
 		uint_t bitCount,
 		uint_t ptrTypeFlags,
@@ -228,7 +237,11 @@ public:
 
 	size_t
 	JNC_CDECL
-	openGroup(ct::ModuleItemDecl* decl);
+	openGroup(
+		ct::ModuleItemDecl* decl,
+		const Variant* dynamicAttrArray,
+		size_t dynamicAttrCount
+	);
 
 	void
 	JNC_CDECL
@@ -237,13 +250,6 @@ public:
 	void
 	JNC_CDECL
 	closeGroups(size_t count);
-
-	void
-	JNC_CDECL
-	setDynamicAttributes(
-		const Variant* p,
-		size_t count
-	);
 
 protected:
 	bool
@@ -261,6 +267,8 @@ protected:
 		size_t offset,
 		size_t size,
 		ct::ModuleItemDecl* decl,
+		const Variant* dynamicAttrArray,
+		size_t dynamicAttrCount,
 		ct::Type* type
 	);
 };
