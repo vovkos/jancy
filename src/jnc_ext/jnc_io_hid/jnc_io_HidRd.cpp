@@ -258,7 +258,6 @@ HidRd::HidRd() {
 
 HidRd::~HidRd() {
 	clear();
-	sl::destruct(m_rootCollection.p());
 }
 
 void
