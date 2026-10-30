@@ -84,6 +84,11 @@ public:
 		delete m_dynamicDecl;
 	}
 
+	ct::ModuleItemDecl*
+	getDecl() {
+		return m_decl;
+	}
+
 	void
 	JNC_CDECL
 	initializeDynamicDecl(AttributeBlock* attributeBlock);

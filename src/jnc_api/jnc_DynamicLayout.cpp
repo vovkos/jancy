@@ -30,100 +30,17 @@
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-size_t
-jnc_DynamicSectionGroup_getSectionCount(jnc_DynamicSectionGroup* sectionGroup) {
-	return ((jnc::rtl::DynamicSectionGroup*)sectionGroup)->m_sectionCount;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_DynamicSection*
-jnc_DynamicSectionGroup_getSection(
-	jnc_DynamicSectionGroup* sectionGroup,
-	size_t i
-) {
-	return (jnc_DynamicSection*)((jnc::rtl::DynamicSectionGroup*)sectionGroup)->getSection(i);
-}
-
-//..............................................................................
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_DynamicSectionKind
-jnc_DynamicSection_getSectionKind(jnc_DynamicSection* section) {
-	return (jnc_DynamicSectionKind)((jnc::rtl::DynamicSection*)section)->m_sectionKind;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-size_t
-jnc_DynamicSection_getOffset(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->m_offset;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-size_t
-jnc_DynamicSection_getSize(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->m_size;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-size_t
-jnc_DynamicSection_getElementCount(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->m_elementCount;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-uint_t
-jnc_DynamicSection_getBitOffset(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->m_bitOffset;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-uint_t
-jnc_DynamicSection_getBitCount(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->m_bitCount;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-uint_t
-jnc_DynamicSection_getPtrTypeFlags(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->m_ptrTypeFlags;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Type*
-jnc_DynamicSection_getType(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->getType_ct();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_ModuleItemDecl*
-jnc_DynamicSection_getDecl(jnc_DynamicSection* section) {
-	return ((jnc::rtl::DynamicSection*)section)->getDecl_ct();
-}
-
-//..............................................................................
-
-JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DynamicLayout*
 jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
 	uint_t mode,
+	jnc_DynamicLayoutSink* sink,
 	jnc_DataPtr ptr,
 	size_t size
 ) {
-	jnc_DynamicLayout* layout = (jnc_DynamicLayout*)jnc::createClass<jnc::rtl::DynamicLayout>(runtime);
-	layout->reset(mode, ptr, size);
-	return layout;
+	jnc::rtl::DynamicLayout* layout = jnc::createClass<jnc::rtl::DynamicLayout>(runtime);
+	layout->reset(mode, (jnc::rtl::DynamicLayoutSink*)sink, ptr, size);
+	return (jnc_DynamicLayout*)layout;
 }
 
 JNC_EXTERN_C
@@ -166,21 +83,29 @@ jnc_DynamicLayout_getMode(jnc_DynamicLayout* layout) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-void
-jnc_DynamicLayout_reset(
-	jnc_DynamicLayout* layout,
-	uint_t mode,
-	jnc_DataPtr ptr,
-	size_t size
-) {
-	((jnc::rtl::DynamicLayout*)layout)->reset(mode, ptr, size);
+jnc_DynamicLayoutSink*
+jnc_DynamicLayout_getSink(jnc_DynamicLayout* layout) {
+	return (jnc_DynamicLayoutSink*)((jnc::rtl::DynamicLayout*)layout)->m_sink;
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_DynamicLayout_updateGroupSizes(jnc_DynamicLayout* layout) {
-	((jnc::rtl::DynamicLayout*)layout)->updateGroupSizes();
+jnc_DynamicLayout_reset(
+	jnc_DynamicLayout* layout,
+	uint_t mode,
+	jnc_DynamicLayoutSink* sink,
+	jnc_DataPtr ptr,
+	size_t size
+) {
+	((jnc::rtl::DynamicLayout*)layout)->reset(mode, (jnc::rtl::DynamicLayoutSink*)sink, ptr, size);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_DynamicLayout_closeAllGroups(jnc_DynamicLayout* layout) {
+	return ((jnc::rtl::DynamicLayout*)layout)->closeAllGroups();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

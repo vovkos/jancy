@@ -16,145 +16,21 @@
 #include "jnc_RuntimeStructs.h"
 #include "jnc_ModuleItem.h"
 
-typedef struct jnc_DynamicSection      jnc_DynamicSection;
-typedef struct jnc_DynamicSectionGroup jnc_DynamicSectionGroup;
-typedef struct jnc_DynamicLayout       jnc_DynamicLayout;
+typedef struct jnc_DynamicLayout     jnc_DynamicLayout;
+typedef struct jnc_DynamicLayoutSink jnc_DynamicLayoutSink;
 
 //..............................................................................
 
-enum jnc_DynamicSectionKind {
-	jnc_DynamicSectionKind_Undefined = 0,
-	jnc_DynamicSectionKind_Struct,
-	jnc_DynamicSectionKind_Array,
-	jnc_DynamicSectionKind_Field,
-	jnc_DynamicSectionKind_Group,
-};
-
-typedef enum jnc_DynamicSectionKind jnc_DynamicSectionKind;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-size_t
-jnc_DynamicSectionGroup_getSectionCount(jnc_DynamicSectionGroup* sectionGroup);
-
-JNC_EXTERN_C
-jnc_DynamicSection*
-jnc_DynamicSectionGroup_getSection(
-	jnc_DynamicSectionGroup* sectionGroup,
-	size_t i
-);
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 #ifdef __cplusplus
-struct jnc_DynamicSectionGroup: jnc_IfaceHdr {
-	size_t
-	getSectionCount() {
-		return jnc_DynamicSectionGroup_getSectionCount(this);
-	}
-
-	jnc_DynamicSection*
-	getSection(size_t i) {
-		return jnc_DynamicSectionGroup_getSection(this, i);
-	}
-};
-#endif
-
-//..............................................................................
-
-JNC_EXTERN_C
-jnc_DynamicSectionKind
-jnc_DynamicSection_getSectionKind(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-size_t
-jnc_DynamicSection_getOffset(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-size_t
-jnc_DynamicSection_getSize(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-size_t
-jnc_DynamicSection_getElementCount(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-uint_t
-jnc_DynamicSection_getBitOffset(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-uint_t
-jnc_DynamicSection_getBitCount(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-uint_t
-jnc_DynamicSection_getPtrTypeFlags(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-jnc_Type*
-jnc_DynamicSection_getType(jnc_DynamicSection* section);
-
-JNC_EXTERN_C
-jnc_ModuleItemDecl*
-jnc_DynamicSection_getDecl(jnc_DynamicSection* section);
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-#ifdef __cplusplus
-struct jnc_DynamicSection: jnc_DynamicSectionGroup {
-	jnc_DynamicSectionKind
-	getSectionKind() {
-		return jnc_DynamicSection_getSectionKind(this);
-	}
-
-	size_t
-	getOffset() {
-		return jnc_DynamicSection_getOffset(this);
-	}
-
-	size_t
-	getSize() {
-		return jnc_DynamicSection_getSize(this);
-	}
-
-	size_t
-	getElementCount() {
-		return jnc_DynamicSection_getElementCount(this);
-	}
-
-	uint_t
-	getBitOffset() {
-		return jnc_DynamicSection_getBitOffset(this);
-	}
-
-	uint_t
-	getBitCount() {
-		return jnc_DynamicSection_getBitCount(this);
-	}
-
-	uint_t
-	getPtrTypeFlags() {
-		return jnc_DynamicSection_getPtrTypeFlags(this);
-	}
-
-	jnc_Type*
-	getType() {
-		return jnc_DynamicSection_getType(this);
-	}
-
-	jnc_ModuleItemDecl*
-	getDecl() {
-		return jnc_DynamicSection_getDecl(this);
-	}
+struct jnc_DynamicLayoutSink: jnc_IfaceHdr {
 };
 #endif
 
 //..............................................................................
 
 enum jnc_DynamicLayoutMode {
-	jnc_DynamicLayoutMode_Save   = 0x01,
-	jnc_DynamicLayoutMode_Stream = 0x02,
+	jnc_DynamicLayoutMode_Block = 0,
+	jnc_DynamicLayoutMode_Stream,
 };
 
 typedef enum jnc_DynamicLayoutMode jnc_DynamicLayoutMode;
@@ -166,6 +42,7 @@ jnc_DynamicLayout*
 jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
 	uint_t mode,
+	jnc_DynamicLayoutSink* sink,
 	jnc_DataPtr ptr,
 	size_t size
 );
@@ -194,10 +71,15 @@ uint_t
 jnc_DynamicLayout_getMode(jnc_DynamicLayout* layout);
 
 JNC_EXTERN_C
+jnc_DynamicLayoutSink*
+jnc_DynamicLayout_getSink(jnc_DynamicLayout* layout);
+
+JNC_EXTERN_C
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
 	uint_t mode,
+	jnc_DynamicLayoutSink* sink,
 	jnc_DataPtr ptr,
 	size_t size
 );
@@ -205,17 +87,17 @@ jnc_DynamicLayout_reset(
 JNC_INLINE
 void
 jnc_DynamicLayout_clear(jnc_DynamicLayout* layout) {
-	jnc_DynamicLayout_reset(layout, 0, jnc_g_nullDataPtr, 0);
+	jnc_DynamicLayout_reset(layout, jnc_DynamicLayoutMode_Block, NULL, jnc_g_nullDataPtr, 0);
 }
 
 JNC_EXTERN_C
-void
-jnc_DynamicLayout_updateGroupSizes(jnc_DynamicLayout* layout);
+bool_t
+jnc_DynamicLayout_closeAllGroups(jnc_DynamicLayout* layout);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #ifdef __cplusplus
-struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
+struct jnc_DynamicLayout: jnc_IfaceHdr {
 	size_t
 	getSize() {
 		return jnc_DynamicLayout_getSize(this);
@@ -241,6 +123,11 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 		return jnc_DynamicLayout_getMode(this);
 	}
 
+	jnc_DynamicLayoutSink*
+	getSink() {
+		return jnc_DynamicLayout_getSink(this);
+	}
+
 	void
 	clear() {
 		jnc_DynamicLayout_clear(this);
@@ -249,15 +136,16 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 	void
 	reset(
 		uint_t mode,
+		jnc_DynamicLayoutSink* sink,
 		jnc_DataPtr ptr,
 		size_t size
 	) {
-		jnc_DynamicLayout_reset(this, mode, ptr, size);
+		jnc_DynamicLayout_reset(this, mode, sink, ptr, size);
 	}
 
-	void
-	updateGroupSizes() {
-		jnc_DynamicLayout_updateGroupSizes(this);
+	bool
+	closeAllGroups() {
+		return jnc_DynamicLayout_closeAllGroups(this) != 0;
 	}
 };
 #endif
@@ -268,40 +156,31 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 
 namespace jnc {
 
-typedef jnc_DynamicSectionKind  DynamicSectionKind;
-typedef jnc_DynamicSection      DynamicSection;
-typedef jnc_DynamicSectionGroup DynamicSectionGroup;
-typedef jnc_DynamicLayoutMode   DynamicLayoutMode;
-typedef jnc_DynamicLayout       DynamicLayout;
-
-const DynamicSectionKind
-	DynamicSectionKind_Undefined = jnc_DynamicSectionKind_Undefined,
-	DynamicSectionKind_Struct    = jnc_DynamicSectionKind_Struct,
-	DynamicSectionKind_Array     = jnc_DynamicSectionKind_Array,
-	DynamicSectionKind_Field     = jnc_DynamicSectionKind_Field,
-	DynamicSectionKind_Group     = jnc_DynamicSectionKind_Group;
+typedef jnc_DynamicLayout     DynamicLayout;
+typedef jnc_DynamicLayoutSink DynamicLayoutSink;
+typedef jnc_DynamicLayoutMode DynamicLayoutMode;
 
 const DynamicLayoutMode
-	DynamicLayoutMode_Save   = jnc_DynamicLayoutMode_Save,
+	DynamicLayoutMode_Block  = jnc_DynamicLayoutMode_Block,
 	DynamicLayoutMode_Stream = jnc_DynamicLayoutMode_Stream;
-
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 DynamicLayout*
 createDynamicLayout(Runtime* runtime) {
-	return jnc_createDynamicLayout(runtime, 0, g_nullDataPtr, 0);
+	return jnc_createDynamicLayout(runtime, DynamicLayoutMode_Block, NULL, g_nullDataPtr, 0);
 }
 
 inline
 DynamicLayout*
 createDynamicLayout(
 	Runtime* runtime,
+	DynamicLayoutSink* sink,
 	DataPtr ptr,
 	size_t size
 ) {
-	return jnc_createDynamicLayout(runtime, 0, ptr, size);
+	return jnc_createDynamicLayout(runtime, DynamicLayoutMode_Block, sink, ptr, size);
 }
 
 inline
@@ -309,10 +188,11 @@ DynamicLayout*
 createDynamicLayout(
 	Runtime* runtime,
 	uint_t mode,
+	DynamicLayoutSink* sink,
 	DataPtr ptr,
 	size_t size
 ) {
-	return jnc_createDynamicLayout(runtime, mode, ptr, size);
+	return jnc_createDynamicLayout(runtime, mode, sink, ptr, size);
 }
 
 //..............................................................................

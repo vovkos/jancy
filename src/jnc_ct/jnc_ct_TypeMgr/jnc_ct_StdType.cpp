@@ -72,7 +72,7 @@ getStdTypeName(StdType stdType) {
 		NULL,                     // StdType_PromisePtr,
 		"Promisifier",            // StdType_Promisifier,
 		"DynamicLayout",          // StdType_DynamicLayout,
-		"DynamicSection",         // StdType_DynamicSection,
+		"DynamicLayoutSection",   // StdType_DynamicLayoutSection,
 		"DynamicLib",             // StdType_DynamicLib,
 
 		// jnc_rtl_intro lazy types
@@ -197,7 +197,7 @@ getStdTypeSource(StdType stdType) {
 		{ NULL },  // StdType_PromisePtr,
 		{ NULL },  // StdType_Promisifier,
 		{ NULL },  // StdType_DynamicLayout,
-		{ NULL },  // StdType_DynamicSection,
+		{ NULL },  // StdType_DynamicLayoutSection,
 		{ NULL },  // StdType_DynamicLib,
 
 		// jnc_rtl_intro lazy types

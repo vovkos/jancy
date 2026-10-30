@@ -786,7 +786,7 @@ protected:
 	);
 
 	bool
-	finalizeDynamicStructSection(DynamicLayoutStmt* stmt);
+	finalizeDynamicLayoutStructSection(DynamicLayoutStmt* stmt);
 
 	bool
 	finalizeDynamicLayoutStmt(DynamicLayoutStmt* stmt);

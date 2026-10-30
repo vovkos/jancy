@@ -12,7 +12,7 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
-#include "jnc_DynamicLayout.h"
+#include "jnc_DynamicLayoutSection.h"
 #include "jnc_StdBuffer.h"
 #include "jnc_rtl_Promise.h"
 
@@ -20,114 +20,107 @@ namespace jnc {
 namespace rtl {
 
 class ModuleItemDecl;
-class DynamicSection;
-class DynamicLayout;
+class Type;
+class DynamicLayoutSink;
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSectionGroup)
-JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSection)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicLayout)
 
 //..............................................................................
 
-class DynamicSectionGroup: public IfaceHdr {
-	friend class DynamicLayout;
+typedef
+bool
+DynamicLayoutSink_OnStructFunc(
+	DynamicLayoutSink* sink,
+	Type* type,
+	size_t offset,
+	DataPtr ptr
+);
 
-public:
-	size_t m_sectionCount;
+typedef
+bool
+DynamicLayoutSink_OnArrayFunc(
+	DynamicLayoutSink* sink,
+	ModuleItemDecl* decl,
+	Type* type,
+	size_t elementCount,
+	uint_t ptrTypeFlags,
+	size_t offset,
+	DataPtr ptr
+);
 
-protected:
-	sl::Array<DynamicSection*> m_sectionArray;
+typedef
+bool
+DynamicLayoutSink_OnFieldFunc(
+	DynamicLayoutSink* sink,
+	ModuleItemDecl* decl,
+	Type* type,
+	uint_t ptrTypeFlags,
+	size_t offset,
+	DataPtr ptr
+);
 
-public:
-	void
-	JNC_CDECL
-	markOpaqueGcRoots(GcHeap* gcHeap);
+typedef
+bool
+DynamicLayoutSink_OnBitFieldFunc(
+	DynamicLayoutSink* sink,
+	ModuleItemDecl* decl,
+	Type* type,
+	uint_t bitOffset,
+	uint_t bitCount,
+	uint_t ptrTypeFlags,
+	size_t offset,
+	DataPtr ptr
+);
 
-	DynamicSection*
-	JNC_CDECL
-	getSection(size_t i) {
-		return m_sectionArray[i];
-	}
+typedef
+bool
+DynamicLayoutSink_OnGroupOpenedFunc(
+	DynamicLayoutSink* sink,
+	ModuleItemDecl* decl,
+	size_t offset
+);
+
+typedef
+bool
+DynamicLayoutSink_OnGroupClosedFunc(
+	DynamicLayoutSink* sink,
+	ModuleItemDecl* decl,
+	size_t offset,
+	DataPtr ptr,
+	size_t size
+);
+
+// mirrors the vtable of jnc.DynamicLayoutSink
+
+struct DynamicLayoutSinkVtable {
+	DynamicLayoutSink_OnStructFunc* m_onStructFunc;
+	DynamicLayoutSink_OnArrayFunc* m_onArrayFunc;
+	DynamicLayoutSink_OnFieldFunc* m_onFieldFunc;
+	DynamicLayoutSink_OnBitFieldFunc* m_onBitFieldFunc;
+	DynamicLayoutSink_OnGroupOpenedFunc* m_onGroupOpenedFunc;
+	DynamicLayoutSink_OnGroupClosedFunc* m_onGroupClosedFunc;
 };
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DynamicSection: public DynamicSectionGroup {
-	friend class DynamicLayout;
-
+class DynamicLayoutSink: public IfaceHdr {
 public:
-	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicSection)
-
-public:
-	uint_t m_sectionKind;
-	size_t m_offset;
-	size_t m_size;
-
-	union {
-		size_t m_elementCount;
-		struct {
-			uint_t m_bitOffset;
-			uint_t m_bitCount;
-		};
-	};
-
-	uint_t m_ptrTypeFlags;
-
-protected:
-	ct::Module* m_module;
-
-	ct::ModuleItemDecl* m_decl_ct;
-	ct::ModuleItemDecl* m_dynamicDecl;
-	ct::AttributeBlock* m_dynamicAttributeBlock;
-
-	ct::Type* m_type_ct;
-	IfaceHdr* m_type_rtl;
-	rtl::ModuleItemDecl* m_decl_rtl;
-
-public:
-	~DynamicSection();
-
-	void
-	JNC_CDECL
-	markOpaqueGcRoots(GcHeap* gcHeap);
-
-	IfaceHdr*
-	JNC_CDECL
-	getType_rtl(); // disambiguate vs JNC_DECLARE_CLASS_TYPE_STATIC_METHODS()
-
-	ct::Type*
-	getType_ct() {
-		return m_type_ct;
+	const DynamicLayoutSinkVtable*
+	getVtable() {
+		return (const DynamicLayoutSinkVtable*)m_vtable;
 	}
-
-	rtl::ModuleItemDecl*
-	JNC_CDECL
-	getDecl_rtl();
-
-	ct::ModuleItemDecl*
-	JNC_CDECL
-	getDecl_ct() {
-		return m_decl_ct;
-	}
-
-protected:
-	void
-	setDynamicAttributes(
-		const Variant* p,
-		size_t count
-	);
 };
 
 //..............................................................................
 
 enum DynamicLayoutMode {
-	DynamicLayoutMode_Save   = 0x01,
-	DynamicLayoutMode_Stream = 0x02,
+	DynamicLayoutMode_Block,
+	DynamicLayoutMode_Stream,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DynamicLayout: public DynamicSectionGroup {
+class DynamicLayout: public IfaceHdr {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicLayout)
 
@@ -138,9 +131,32 @@ protected:
 		AwaitKind_Char,
 	};
 
+	struct Section { // a data section waiting to be reported to the sink
+		DynamicLayoutSectionKind m_sectionKind; // DynamicLayoutSectionKind_Undefined if none
+		ModuleItemDecl* m_decl;
+		Type* m_type;
+		size_t m_offset;
+
+		union {
+			size_t m_elementCount;
+			struct {
+				uint_t m_bitOffset;
+				uint_t m_bitCount;
+			};
+		};
+
+		uint_t m_ptrTypeFlags;
+	};
+
+	struct Group {
+		ModuleItemDecl* m_decl;
+		size_t m_offset;
+	};
+
 public:
 	ClassBox<StdBuffer> m_buffer;
 	PromiseImpl* m_auxPromise;
+	DynamicLayoutSink* m_sink;
 	PromiseImpl* m_promise;
 	DataPtr m_ptr;
 	size_t m_size;
@@ -149,8 +165,8 @@ public:
 	uint_t m_mode;
 
 protected:
-	// sections are already added -- no need to extra mark
-	sl::Array<DynamicSection*> m_groupStack;
+	Section m_section;
+	sl::Array<Group> m_groupStack;
 	ct::Type* m_lastBitFieldType;
 	size_t m_lastBitOffset;
 	size_t m_lastBitCount;
@@ -166,21 +182,28 @@ public:
 
 	void
 	JNC_CDECL
+	markOpaqueGcRoots(GcHeap* gcHeap);
+
+	void
+	JNC_CDECL
 	clear() {
-		reset(0, g_nullDataPtr, 0);
+		reset(DynamicLayoutMode_Block, NULL, g_nullDataPtr, 0);
 	}
 
 	void
 	JNC_CDECL
 	reset(
 		uint_t mode,
+		DynamicLayoutSink* sink,
 		DataPtr ptr,
 		size_t size
 	);
 
-	void
+	bool
 	JNC_CDECL
-	updateGroupSizes();
+	closeAllGroups() {
+		return closeGroups(m_groupStack.getCount());
+	}
 
 	size_t
 	JNC_CDECL
@@ -243,11 +266,13 @@ public:
 		size_t dynamicAttrCount
 	);
 
-	void
+	bool
 	JNC_CDECL
-	closeGroup();
+	closeGroup() {
+		return closeGroups(1);
+	}
 
-	void
+	bool
 	JNC_CDECL
 	closeGroups(size_t count);
 
@@ -261,16 +286,32 @@ protected:
 	void
 	preparePromise();
 
-	DynamicSection*
-	addSection(
-		DynamicSectionKind sectionKind,
-		size_t offset,
-		size_t size,
+	ModuleItemDecl*
+	getDecl(
+		ct::ModuleItemDecl* decl,
+		const Variant* dynamicAttrArray,
+		size_t dynamicAttrCount
+	);
+
+	void
+	setSection(
+		DynamicLayoutSectionKind sectionKind,
 		ct::ModuleItemDecl* decl,
 		const Variant* dynamicAttrArray,
 		size_t dynamicAttrCount,
-		ct::Type* type
+		ct::Type* type,
+		size_t offset,
+		uint_t ptrTypeFlags
 	);
+
+	bool
+	finalizeSection(bool isAsync);
+
+	bool
+	reportSection();
+
+	DataPtr
+	getPtr(size_t offset);
 };
 
 //..............................................................................

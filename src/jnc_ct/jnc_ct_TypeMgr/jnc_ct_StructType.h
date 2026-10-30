@@ -50,7 +50,7 @@ protected:
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	Field* m_lastBitField;
 	DerivableType* m_adapterOriginType;
-	size_t m_dynamicStructSectionId;
+	size_t m_dynamicLayoutStructSectionId;
 
 public:
 	StructType();
@@ -159,7 +159,7 @@ StructType::StructType() {
 	m_laidOutFieldCount = 0;
 	m_lastBitField = NULL;
 	m_adapterOriginType = NULL;
-	m_dynamicStructSectionId = -1;
+	m_dynamicLayoutStructSectionId = -1;
 }
 
 //..............................................................................

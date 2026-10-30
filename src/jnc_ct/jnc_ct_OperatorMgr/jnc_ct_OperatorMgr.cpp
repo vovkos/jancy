@@ -1876,6 +1876,7 @@ OperatorMgr::awaitDynamicLayout(const Value& opValue) {
 
 	Value shouldAwaitValue;
 	Value promiseValue;
+	Value resultValue;
 
 	BasicBlock* awaitBlock = m_module->m_controlFlowMgr.createBlock("await_block");
 	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock("follow_block");
@@ -1884,7 +1885,7 @@ OperatorMgr::awaitDynamicLayout(const Value& opValue) {
 		memberOperator(opValue, "m_shouldAwait", &shouldAwaitValue) &&
 		m_module->m_controlFlowMgr.conditionalJump(shouldAwaitValue, awaitBlock, followBlock) &&
 		memberOperator(opValue, "m_promise", &promiseValue) &&
-		awaitOperator(promiseValue);
+		awaitOperator(promiseValue, &resultValue); // the result variant re-throws errors (e.g., from the sink)
 
 	if (!result)
 		return false;

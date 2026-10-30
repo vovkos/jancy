@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "jnc_DynamicLayout.h"
+#include "jnc_DynamicLayoutSection.h"
 #include "jnc_ct_Value.h"
 
 namespace jnc {
@@ -19,19 +19,19 @@ namespace ct {
 
 //..............................................................................
 
-class DynamicSection: public ModuleItemWithDecl<> {
+class DynamicLayoutSection: public ModuleItemWithDecl<> {
 	friend class DynamicLayoutMgr;
 
 protected:
-	DynamicSectionKind m_sectionKind;
+	DynamicLayoutSectionKind m_sectionKind;
 
 public:
-	DynamicSection() {
-		m_itemKind = ModuleItemKind_DynamicSection;
-		m_sectionKind = DynamicSectionKind_Undefined;
+	DynamicLayoutSection() {
+		m_itemKind = ModuleItemKind_DynamicLayoutSection;
+		m_sectionKind = DynamicLayoutSectionKind_Undefined;
 	}
 
-	DynamicSectionKind
+	DynamicLayoutSectionKind
 	getSectionKind() const {
 		return m_sectionKind;
 	}
@@ -39,7 +39,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DynamicDataSection: public DynamicSection {
+class DynamicLayoutDataSection: public DynamicLayoutSection {
 	friend class DynamicLayoutMgr;
 	friend class Parser;
 
@@ -51,7 +51,7 @@ protected:
 	uint_t m_ptrTypeFlags;
 
 public:
-	DynamicDataSection();
+	DynamicLayoutDataSection();
 
 	Type*
 	getType() const {
@@ -93,7 +93,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-DynamicDataSection::DynamicDataSection() {
+DynamicLayoutDataSection::DynamicLayoutDataSection() {
 	m_type = NULL;
 	m_bitCount = 0;
 	m_ptrTypeFlags = 0;
@@ -106,7 +106,7 @@ class DynamicLayoutMgr {
 
 protected:
 	Module* m_module;
-	sl::List<DynamicSection> m_sectionList;
+	sl::List<DynamicLayoutSection> m_sectionList;
 
 public:
 	DynamicLayoutMgr();
@@ -119,15 +119,15 @@ public:
 	void
 	clear();
 
-	DynamicDataSection*
+	DynamicLayoutDataSection*
 	createDataSection(
-		DynamicSectionKind sectionKind,
+		DynamicLayoutSectionKind sectionKind,
 		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0
 	);
 
-	DynamicSection*
+	DynamicLayoutSection*
 	createGroup(const sl::StringRef& name);
 };
 

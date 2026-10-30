@@ -25,6 +25,8 @@
 #include "jnc_DataPtr.jnc.cpp"
 ;static char g_jnc_dynamicLayoutSrc[] =
 #include "jnc_DynamicLayout.jnc.cpp"
+;static char g_jnc_dynamicLayoutSectionSrc[] =
+#include "jnc_DynamicLayoutSection.jnc.cpp"
 ;static char g_jnc_dynamicLibSrc[] =
 #include "jnc_DynamicLib.jnc.cpp"
 ;static char g_jnc_promiseSrc[] =
@@ -112,6 +114,7 @@ NamespaceMgr::addStdItems() {
 	LazyImport* gcImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_gc.jnc", g_jnc_gcSrc);
 	LazyImport* dataPtrImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_DataPtr.jnc", g_jnc_dataPtrSrc);
 	LazyImport* dynamicLayoutImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_DynamicLayout.jnc", g_jnc_dynamicLayoutSrc);
+	LazyImport* dynamicLayoutSectionImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_DynamicLayoutSection.jnc", g_jnc_dynamicLayoutSectionSrc);
 	LazyImport* dynamicLibImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_DynamicLib.jnc", g_jnc_dynamicLibSrc);
 	LazyImport* promiseImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_Promise.jnc", g_jnc_promiseSrc);
 	LazyImport* schedulerImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_Scheduler.jnc", g_jnc_schedulerSrc);
@@ -167,9 +170,11 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("Regex", regexImport) &&
 		jncNspace->addItem("Promise", promiseImport) &&
 		jncNspace->addItem("Promisifier", promiseImport) &&
-		jncNspace->addItem("DynamicSectionGroup", dynamicLayoutImport) &&
-		jncNspace->addItem("DynamicSection", dynamicLayoutImport) &&
 		jncNspace->addItem("DynamicLayout", dynamicLayoutImport) &&
+		jncNspace->addItem("DynamicLayoutSink", dynamicLayoutImport) &&
+		jncNspace->addItem("DynamicLayoutSectionGroup", dynamicLayoutSectionImport) &&
+		jncNspace->addItem("DynamicLayoutSection", dynamicLayoutSectionImport) &&
+		jncNspace->addItem("DynamicLayoutSectionBuilder", dynamicLayoutSectionImport) &&
 		jncNspace->addItem("DynamicLib", dynamicLibImport) &&
 		jncNspace->addItem("ModuleItemKind", introImport) &&
 		jncNspace->addItem("ModuleItemFlags", introImport) &&

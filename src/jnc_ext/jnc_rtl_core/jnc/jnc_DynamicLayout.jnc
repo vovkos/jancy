@@ -18,57 +18,79 @@ namespace jnc {
 
 //..............................................................................
 
-opaque class DynamicSectionGroup {
-	size_t readonly m_sectionCount;
-	DynamicSection* const property m_sectionArray(size_t index);
+// data sections are reported once their bytes are available; groups are reported
+// on open and on close. p is only valid during the call (stream buffer may move)
 
-	construct();
-	destruct();
-}
-
-//..............................................................................
-
-enum DynamicSectionKind {
-	Undefined,
-	Struct,    // all regular fields are packed into structs
-	Array,     // a non-const-sized array can't be part of a struct
-	Field,     // a bitfield or a field with dynamic attributes
-	Group,     // for grouping
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-opaque class DynamicSection: DynamicSectionGroup {
-	DynamicSectionKind readonly m_sectionKind;
-	size_t readonly m_offset;
-	size_t readonly m_size;
-
-	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
-	Type* const property m_type;           // null for DynamicSectionKind.Group
-
-	union {
-		size_t readonly m_elementCount;    // for DynamicSectionKind.Array
-		struct {                           // for DynamicSectionKind.Field
-			uint_t readonly m_bitOffset;
-			uint_t readonly m_bitCount;
-		}
+class DynamicLayoutSink {
+	virtual bool errorcode onStruct(
+		StructType* structType,
+		size_t offset,
+		void const* p
+	) {
+		return true;
 	}
 
-	PtrTypeFlags readonly m_ptrTypeFlags;  // for DynamicSectionKind.Array & Field
+	virtual bool errorcode onArray(
+		ModuleItemDecl* decl,
+		Type* type,
+		size_t elementCount,
+		PtrTypeFlags ptrTypeFlags,
+		size_t offset,
+		void const* p
+	) {
+		return true;
+	}
 
-	destruct();
+	virtual bool errorcode onField(
+		ModuleItemDecl* decl,
+		Type* type,
+		PtrTypeFlags ptrTypeFlags,
+		size_t offset,
+		void const* p
+	) {
+		return true;
+	}
+
+	virtual bool errorcode onBitField(
+		ModuleItemDecl* decl,
+		Type* type,
+		uint_t bitOffset,
+		uint_t bitCount,
+		PtrTypeFlags ptrTypeFlags,
+		size_t offset,
+		void const* p
+	) {
+		return true;
+	}
+
+	virtual bool errorcode onGroupOpened(
+		ModuleItemDecl* decl,
+		size_t offset // we don't know the group size at this point
+	) {
+		return true;
+	}
+
+	virtual bool errorcode onGroupClosed(
+		ModuleItemDecl* decl, // same as onGroupOpened's decl
+		size_t offset,        // same as onGroupOpened's offset
+		void const* p,
+		size_t size
+	) {
+		return true;
+	}
 }
 
 //..............................................................................
 
-bitflag enum DynamicLayoutMode {
-	Save,   // otherwise, just parse (don't populate sections)
-	Stream, // support incremental parsing (when dylayout is in a coroutine)
+enum DynamicLayoutMode {
+	Block,  // data block is available in one piece (default)
+	Stream, // incremental parsing (dylayout must be in an async function)
+	Default = Block
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class DynamicLayout: DynamicSectionGroup {
+opaque class DynamicLayout {
 protected:
 	// only for DynamicLayoutMode.Stream
 
@@ -76,6 +98,7 @@ protected:
 	Promise* m_auxPromise; // to avoid extra allocations
 
 public:
+	DynamicLayoutSink* readonly m_sink;
 	Promise const* readonly m_promise;  // when async-waiting for resume()
 	void const* readonly m_p;
 	size_t readonly m_size;       // layout size (can be larger than buffer size)
@@ -98,41 +121,47 @@ public:
 
 	construct(
 		DynamicLayoutMode mode,
+		DynamicLayoutSink* sink,
 		void const* p,
 		size_t size
 	) {
 		init();
-		reset(mode, p, size);
+		reset(mode, sink, p, size);
 	}
 
 	construct(
+		DynamicLayoutSink* sink,
 		void const* p,
 		size_t size
 	) {
 		init();
-		reset(0, p, size);
+		reset(DynamicLayoutMode.Default, sink, p, size);
 	}
 
 	destruct();
 
 	void clear() {
-		reset(0, null, 0);
+		reset(DynamicLayoutMode.Default, null, null, 0);
 	}
 
 	void reset(
 		DynamicLayoutMode mode,
+		DynamicLayoutSink* sink,
 		void const* p,
 		size_t size
 	);
 
 	void reset(
+		DynamicLayoutSink* sink,
 		void const* p,
 		size_t size
 	) {
-		reset(0, p, size);
+		reset(DynamicLayoutMode.Default, sink, p, size);
 	}
 
-	void updateGroupSizes(); // when accessing an incomplete layout (e.g. after an exception)
+	// notify the sink about all groups which are still open (e.g. after an exception)
+
+	bool errorcode closeAllGroups();
 
 	// only for DynamicLayoutMode.Stream
 
@@ -153,7 +182,7 @@ protected:
 	void init();
 
 	bool const property m_shouldAwait {
-		return (m_mode & DynamicLayoutMode.Stream) && m_isIncomplete;
+		return m_mode == DynamicLayoutMode.Stream && m_isIncomplete;
 	}
 
 	size_t errorcode addStruct(
@@ -194,17 +223,15 @@ protected:
 		bool isAsync
 	);
 
-	size_t openGroup(
+	size_t errorcode openGroup(
 		void thin* decl,
 		variant_t const thin* dynamicAttrArray,
 		size_t dynamicAttrCount
 	);
 
-	void closeGroup();
-	void closeGroups(size_t count);
+	bool errorcode closeGroup();
+	bool errorcode closeGroups(size_t count);
 }
-
-//..............................................................................
 
 //! @}
 

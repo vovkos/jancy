@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_rtl_DynamicLib.h"
 #include "jnc_rtl_DynamicLayout.h"
+#include "jnc_rtl_DynamicLayoutSection.h"
 #include "jnc_rtl_Multicast.h"
 #include "jnc_rtl_Reactor.h"
 #include "jnc_rtl_Regex.h"
@@ -39,6 +40,8 @@
 #include "jnc_Regex.jnc.cpp"
 ;static char g_jnc_dynamicLayoutSrc[] =
 #include "jnc_DynamicLayout.jnc.cpp"
+;static char g_jnc_dynamicLayoutSectionSrc[] =
+#include "jnc_DynamicLayoutSection.jnc.cpp"
 ;static char g_jnc_schedulerSrc[] =
 #include "jnc_Scheduler.jnc.cpp"
 ;
@@ -61,7 +64,7 @@ dynamicSizeOf(DataPtr ptr) {
 size_t
 dynamicCountOf(
 	DataPtr ptr,
-	Type* type
+	jnc::Type* type
 ) {
 	size_t maxSize = dynamicSizeOf(ptr);
 	size_t typeSize = type->getSize();
@@ -81,7 +84,7 @@ dynamicOffsetOf(DataPtr ptr) {
 DataPtr
 dynamicCastDataPtr(
 	DataPtr ptr,
-	Type* type
+	jnc::Type* type
 ) {
 	if (!ptr.m_validator)
 		return g_nullDataPtr;
@@ -95,7 +98,7 @@ dynamicCastDataPtr(
 	if (ptr.m_p < p)
 		return g_nullDataPtr;
 
-	Type* srcType = box->m_type;
+	jnc::Type* srcType = box->m_type;
 	while (srcType->getTypeKind() == TypeKind_Array) {
 		ArrayType* arrayType = (ArrayType*)srcType;
 		srcType = arrayType->getElementType();
@@ -151,7 +154,7 @@ dynamicCastClassPtr(
 bool
 dynamicCastVariant(
 	Variant variant,
-	Type* type,
+	jnc::Type* type,
 	void* buffer
 ) {
 	return variant.cast(type, buffer);
@@ -190,7 +193,7 @@ allocateClass(ClassType* type) {
 }
 
 DataPtr
-tryAllocateData(Type* type) {
+tryAllocateData(jnc::Type* type) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
@@ -198,7 +201,7 @@ tryAllocateData(Type* type) {
 }
 
 DataPtr
-allocateData(Type* type) {
+allocateData(jnc::Type* type) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
@@ -207,7 +210,7 @@ allocateData(Type* type) {
 
 DataPtr
 tryAllocateArray(
-	Type* type,
+	jnc::Type* type,
 	size_t elementCount
 ) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
@@ -218,7 +221,7 @@ tryAllocateArray(
 
 DataPtr
 allocateArray(
-	Type* type,
+	jnc::Type* type,
 	size_t elementCount
 ) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
@@ -1048,6 +1051,7 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_CoreLib)
 	JNC_LIB_SOURCE_FILE("jnc_DataPtr.jnc",       g_jnc_dataPtrSrc)
 	JNC_LIB_SOURCE_FILE("jnc_DynamicLib.jnc",    g_jnc_dynamicLibSrc)
 	JNC_LIB_SOURCE_FILE("jnc_DynamicLayout.jnc", g_jnc_dynamicLayoutSrc)
+	JNC_LIB_SOURCE_FILE("jnc_DynamicLayoutSection.jnc", g_jnc_dynamicLayoutSectionSrc)
 	JNC_LIB_SOURCE_FILE("jnc_Promise.jnc",       g_jnc_promiseSrc)
 	JNC_LIB_SOURCE_FILE("jnc_Regex.jnc",         g_jnc_regexSrc)
 	JNC_LIB_SOURCE_FILE("jnc_Scheduler.jnc",     g_jnc_schedulerSrc)
@@ -1060,9 +1064,10 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_CoreLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Regex)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ReactorImpl)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Promise)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DynamicSectionGroup)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DynamicSection)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DynamicLayout)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DynamicLayoutSectionGroup)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DynamicLayoutSection)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DynamicLayoutSectionBuilder)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
@@ -1173,16 +1178,17 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	// std types
 
 	JNC_ASSERT_NO_REUSABLE_TAIL_PADDING(RegexCapture);
-	JNC_ASSERT_NO_REUSABLE_TAIL_PADDING(DynamicSectionGroup);
+	JNC_ASSERT_NO_REUSABLE_TAIL_PADDING(DynamicLayoutSectionGroup);
 	JNC_ASSERT_NO_REUSABLE_TAIL_PADDING(ReactorImpl);
 
 	JNC_MAP_TYPE(RegexCapture)
 	JNC_MAP_TYPE(RegexMatch)
 	JNC_MAP_TYPE(RegexState)
 	JNC_MAP_TYPE(Regex)
-	JNC_MAP_TYPE(DynamicSectionGroup)
-	JNC_MAP_TYPE(DynamicSection)
 	JNC_MAP_TYPE(DynamicLayout)
+	JNC_MAP_TYPE(DynamicLayoutSectionGroup)
+	JNC_MAP_TYPE(DynamicLayoutSection)
+	JNC_MAP_TYPE(DynamicLayoutSectionBuilder)
 	JNC_MAP_TYPE(DynamicLib)
 	JNC_MAP_TYPE(Promise)
 	JNC_MAP_TYPE(Promisifier)

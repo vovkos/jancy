@@ -2046,7 +2046,7 @@ Parser::declareData(
 			} else {
 				Type* elementType = arrayType->getElementType();
 				result =
-					finalizeDynamicStructSection(stmt) &&
+					finalizeDynamicLayoutStructSection(stmt) &&
 					elementType->ensureLayout();
 
 				if (!result)
@@ -2057,8 +2057,8 @@ Parser::declareData(
 
 				m_storageKind = StorageKind_Undefined;
 
-				DynamicDataSection* field = m_module->m_dynamicLayoutMgr.createDataSection(
-					DynamicSectionKind_Array,
+				DynamicLayoutDataSection* field = m_module->m_dynamicLayoutMgr.createDataSection(
+					DynamicLayoutSectionKind_Array,
 					name,
 					elementType,
 					ptrTypeFlags
@@ -2105,12 +2105,12 @@ Parser::declareData(
 			return err::fail("non-POD '%s' cannot be used in a dynamic layout", type->getTypeString().sz());
 
 		if (bitCount || !dynamicAttrArrayValue.isNull()) {
-			result = finalizeDynamicStructSection(stmt);
+			result = finalizeDynamicLayoutStructSection(stmt);
 			if (!result)
 				return false;
 
-			DynamicDataSection* field = m_module->m_dynamicLayoutMgr.createDataSection(
-				DynamicSectionKind_Field,
+			DynamicLayoutDataSection* field = m_module->m_dynamicLayoutMgr.createDataSection(
+				DynamicLayoutSectionKind_Field,
 				name,
 				type,
 				ptrTypeFlags
@@ -2184,7 +2184,7 @@ Parser::declareData(
 			stmt->m_structBlock != m_module->m_controlFlowMgr.getCurrentBlock()
 #endif
 		) {
-			result = finalizeDynamicStructSection(stmt);
+			result = finalizeDynamicLayoutStructSection(stmt);
 			if (!result)
 				return false;
 		}
@@ -2211,7 +2211,7 @@ Parser::declareData(
 			if (!result)
 				return false;
 
-			structType->m_dynamicStructSectionId = stmt->m_offsetValueArray.getCount();
+			structType->m_dynamicLayoutStructSectionId = stmt->m_offsetValueArray.getCount();
 			stmt->m_offsetValueArray.append(offsetValue);
 			stmt->m_structType = structType;
 			stmt->m_structBlock = m_module->m_controlFlowMgr.getCurrentBlock();
@@ -3074,8 +3074,8 @@ Parser::lookupIdentifier(
 		if (!result)
 			return false;
 
-		ASSERT(structType->m_dynamicStructSectionId != -1);
-		Value offsetValue = stmt->m_offsetValueArray[structType->m_dynamicStructSectionId];
+		ASSERT(structType->m_dynamicLayoutStructSectionId != -1);
+		Value offsetValue = stmt->m_offsetValueArray[structType->m_dynamicLayoutStructSectionId];
 		Value fieldOffsetValue(field->getOffset(), m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 		Value ptrValue;
 
@@ -3096,19 +3096,19 @@ Parser::lookupIdentifier(
 		break;
 		}
 
-	case ModuleItemKind_DynamicSection: {
-		DynamicSectionKind sectionKind = ((DynamicSection*)item)->getSectionKind();
+	case ModuleItemKind_DynamicLayoutSection: {
+		DynamicLayoutSectionKind sectionKind = ((DynamicLayoutSection*)item)->getSectionKind();
 		switch (sectionKind) {
-		case DynamicSectionKind_Array:
-		case DynamicSectionKind_Field:
+		case DynamicLayoutSectionKind_Array:
+		case DynamicLayoutSectionKind_Field:
 			break;
 
 		default:
-			ASSERT(sectionKind == DynamicSectionKind_Group); // dylayout structs have no names
+			ASSERT(sectionKind == DynamicLayoutSectionKind_Group); // dylayout structs have no names
 			return err::fail("dyfield '%s' cannot be used as expression", token.m_data.m_string.sz());
 		}
 
-		DynamicDataSection* section = (DynamicDataSection*)item;
+		DynamicLayoutDataSection* section = (DynamicLayoutDataSection*)item;
 		DynamicLayoutStmt* stmt = findDynamicLayoutStmt();
 		ASSERT(stmt);
 
@@ -3120,7 +3120,7 @@ Parser::lookupIdentifier(
 			m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "m_p", &ptrValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, section->getOffsetValue()) &&
 			m_module->m_operatorMgr.castOperator(ptrValue, ptrType, value) && (
-				sectionKind == DynamicSectionKind_Array ||
+				sectionKind == DynamicLayoutSectionKind_Array ||
 				m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, value)
 			) && (
 				bitCount == 0 ||
@@ -3714,7 +3714,7 @@ Parser::initializeDynamicLayoutStmt(
 }
 
 bool
-Parser::finalizeDynamicStructSection(DynamicLayoutStmt* stmt) {
+Parser::finalizeDynamicLayoutStructSection(DynamicLayoutStmt* stmt) {
 	if (stmt->m_structType) {
 		bool result = stmt->m_structType->ensureLayout();
 		if (!result)
@@ -3737,7 +3737,7 @@ Parser::finalizeDynamicLayoutStmt(DynamicLayoutStmt* stmt) {
 	if (scope->m_dynamicLayoutStmt != stmt)
 		return err::fail("invalid scope structure due to previous errors");
 
-	bool result = finalizeDynamicStructSection(stmt); // finalize inside the scope
+	bool result = finalizeDynamicLayoutStructSection(stmt); // finalize inside the scope
 	m_module->m_namespaceMgr.closeScope();
 	return result;
 }
@@ -3752,7 +3752,7 @@ Parser::openDynamicGroup(
 	if (!stmt)
 		return err::fail("dynamic groups are only allowed inside dynamic layouts");
 
-	bool result = finalizeDynamicStructSection(stmt);
+	bool result = finalizeDynamicLayoutStructSection(stmt);
 	if (!result)
 		return false;
 
@@ -3773,7 +3773,7 @@ Parser::openDynamicGroup(
 	m_module->m_namespaceMgr.openScope(pos, scopeFlags | ScopeFlag_DynamicGroup);
 
 	m_storageKind = StorageKind_Undefined;
-	DynamicSection* group = m_module->m_dynamicLayoutMgr.createGroup(name);
+	DynamicLayoutSection* group = m_module->m_dynamicLayoutMgr.createGroup(name);
 	assignDeclarationAttributes(group, group, pos, attributeBlock);
 
 	Value funcValue;
@@ -3805,7 +3805,7 @@ Parser::closeDynamicGroup() {
 	ASSERT(stmt);
 
 	bool result =
-		finalizeDynamicStructSection(stmt) && // finalize inside the scope
+		finalizeDynamicLayoutStructSection(stmt) && // finalize inside the scope
 		m_module->m_operatorMgr.closeDynamicGroup(stmt->m_layoutValue);
 
 	m_module->m_namespaceMgr.closeScope();

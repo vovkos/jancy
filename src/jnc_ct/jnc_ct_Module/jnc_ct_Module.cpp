@@ -709,7 +709,6 @@ Module::requireDynamicLayout() {
 	bool result =
 		ensureIntrospectionLibRequired() &&
 		m_typeMgr.getStdType(StdType_DynamicLayout)->require() &&
-		m_typeMgr.getStdType(StdType_DynamicSection)->require() &&
 		m_typeMgr.getStdType(StdType_Promise)->require();
 
 	if (!result)

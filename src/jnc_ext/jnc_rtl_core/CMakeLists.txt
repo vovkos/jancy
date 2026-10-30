@@ -16,6 +16,7 @@
 set(
 	LIB_H_LIST
 	jnc_rtl_DynamicLayout.h
+	jnc_rtl_DynamicLayoutSection.h
 	jnc_rtl_DynamicLib.h
 	jnc_rtl_Multicast.h
 	jnc_rtl_Promise.h
@@ -27,6 +28,7 @@ set(
 	LIB_CPP_LIST
 	jnc_rtl_CoreLib.cpp
 	jnc_rtl_DynamicLayout.cpp
+	jnc_rtl_DynamicLayoutSection.cpp
 	jnc_rtl_DynamicLib.cpp
 	jnc_rtl_Multicast.cpp
 	jnc_rtl_Promise.cpp
@@ -52,6 +54,7 @@ set(
 	jnc/jnc_gc.jnc
 	jnc/jnc_DataPtr.jnc
 	jnc/jnc_DynamicLayout.jnc
+	jnc/jnc_DynamicLayoutSection.jnc
 	jnc/jnc_DynamicLib.jnc
 	jnc/jnc_Promise.jnc
 	jnc/jnc_Regex.jnc

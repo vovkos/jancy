@@ -142,7 +142,7 @@ Namespace::resolveOrphans() {
 		addOrphanFail,               // ModuleItemKind_BaseTypeSlot,
 		addOrphanFail,               // ModuleItemKind_Orphan,
 		addOrphanFail,               // ModuleItemKind_LazyImport,
-		addOrphanFail,               // ModuleItemKind_DynamicSection,
+		addOrphanFail,               // ModuleItemKind_DynamicLayoutSection,
 		addOrphanToTemplate,         // ModuleItemKind_Template,
 	};
 
