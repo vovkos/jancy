@@ -86,7 +86,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	Regex,
 	"jnc.Regex",
 	sl::g_nullGuid,
@@ -94,6 +94,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	Regex,
 	NULL
 )
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(Regex)
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(TypeKind_Class, "jnc.RegexCapture") // captureSubmatches creates RegexCapture
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Regex)
 	JNC_MAP_FUNCTION("init", &Regex::init)

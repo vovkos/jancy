@@ -153,6 +153,7 @@ JNC_DEFINE_LIB_EX(
 )
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(IoLib)
+	JNC_LIB_REQUIRE_TYPE_EX(TypeKind_Struct, "io.NetworkAdapterAddress", 0) // enumerateNetworkAdapters creates NetworkAdapterAddress (if io_NetworkAdapter.jnc is imported)
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(IoLib)
