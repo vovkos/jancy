@@ -215,13 +215,13 @@ opaque class Regex {
 	size_t errorcode captureSubmatches(
 		uint64_t matchOffset,
 		string_t matchText,
-		RegexCapture* submatchArray,
+		RegexCapture const** submatchArray,
 		size_t count
 	) const;
 
 	size_t errorcode captureSubmatches(
 		RegexCapture const* match,
-		RegexCapture* submatchArray,
+		RegexCapture const** submatchArray,
 		size_t count
 	) const {
 		return captureSubmatches(
@@ -236,14 +236,14 @@ opaque class Regex {
 		uint_t switchCaseId,
 		uint64_t matchOffset,
 		string_t matchText,
-		RegexCapture* submatchArray,
+		RegexCapture const** submatchArray,
 		size_t count
 	) const;
 
 	size_t errorcode captureSwitchCaseSubmatches(
 		uint_t switchCaseId,
 		RegexCapture const* match,
-		RegexCapture* submatchArray,
+		RegexCapture const** submatchArray,
 		size_t count
 	) const {
 		return captureSwitchCaseSubmatches(
