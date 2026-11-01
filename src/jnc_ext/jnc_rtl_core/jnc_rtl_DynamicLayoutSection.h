@@ -122,7 +122,7 @@ public:
 	JNC_CDECL
 	reset();
 
-	bool
+	void
 	JNC_CDECL
 	onStruct(
 		Type* type,
@@ -130,7 +130,7 @@ public:
 		DataPtr ptr
 	);
 
-	bool
+	void
 	JNC_CDECL
 	onArray(
 		ModuleItemDecl* decl,
@@ -141,7 +141,7 @@ public:
 		DataPtr ptr
 	);
 
-	bool
+	void
 	JNC_CDECL
 	onField(
 		ModuleItemDecl* decl,
@@ -151,7 +151,7 @@ public:
 		DataPtr ptr
 	);
 
-	bool
+	void
 	JNC_CDECL
 	onBitField(
 		ModuleItemDecl* decl,
@@ -163,14 +163,14 @@ public:
 		DataPtr ptr
 	);
 
-	bool
+	void
 	JNC_CDECL
 	onGroupOpened(
 		ModuleItemDecl* decl,
 		size_t offset
 	);
 
-	bool
+	void
 	JNC_CDECL
 	onGroupClosed(
 		ModuleItemDecl* decl,

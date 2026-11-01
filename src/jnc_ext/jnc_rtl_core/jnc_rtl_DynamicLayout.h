@@ -28,7 +28,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicLayout)
 //..............................................................................
 
 typedef
-bool
+void
 DynamicLayoutSink_OnStructFunc(
 	DynamicLayoutSink* sink,
 	Type* type,
@@ -37,7 +37,7 @@ DynamicLayoutSink_OnStructFunc(
 );
 
 typedef
-bool
+void
 DynamicLayoutSink_OnArrayFunc(
 	DynamicLayoutSink* sink,
 	ModuleItemDecl* decl,
@@ -49,7 +49,7 @@ DynamicLayoutSink_OnArrayFunc(
 );
 
 typedef
-bool
+void
 DynamicLayoutSink_OnFieldFunc(
 	DynamicLayoutSink* sink,
 	ModuleItemDecl* decl,
@@ -60,7 +60,7 @@ DynamicLayoutSink_OnFieldFunc(
 );
 
 typedef
-bool
+void
 DynamicLayoutSink_OnBitFieldFunc(
 	DynamicLayoutSink* sink,
 	ModuleItemDecl* decl,
@@ -73,7 +73,7 @@ DynamicLayoutSink_OnBitFieldFunc(
 );
 
 typedef
-bool
+void
 DynamicLayoutSink_OnGroupOpenedFunc(
 	DynamicLayoutSink* sink,
 	ModuleItemDecl* decl,
@@ -81,7 +81,7 @@ DynamicLayoutSink_OnGroupOpenedFunc(
 );
 
 typedef
-bool
+void
 DynamicLayoutSink_OnGroupClosedFunc(
 	DynamicLayoutSink* sink,
 	ModuleItemDecl* decl,
@@ -105,9 +105,67 @@ struct DynamicLayoutSinkVtable {
 
 class DynamicLayoutSink: public IfaceHdr {
 public:
-	const DynamicLayoutSinkVtable*
-	getVtable() {
-		return (const DynamicLayoutSinkVtable*)m_vtable;
+	void
+	onStruct(
+		Type* type,
+		size_t offset,
+		DataPtr ptr
+	) {
+		((DynamicLayoutSinkVtable*)m_vtable)->m_onStructFunc(this, type, offset, ptr);
+	}
+
+	void
+	onArray(
+		ModuleItemDecl* decl,
+		Type* type,
+		size_t elementCount,
+		uint_t ptrTypeFlags,
+		size_t offset,
+		DataPtr ptr
+	) {
+		((DynamicLayoutSinkVtable*)m_vtable)->m_onArrayFunc(this, decl, type, elementCount, ptrTypeFlags, offset, ptr);
+	}
+
+	void
+	onField(
+		ModuleItemDecl* decl,
+		Type* type,
+		uint_t ptrTypeFlags,
+		size_t offset,
+		DataPtr ptr
+	) {
+		((DynamicLayoutSinkVtable*)m_vtable)->m_onFieldFunc(this, decl, type, ptrTypeFlags, offset, ptr);
+	}
+
+	void
+	onBitField(
+		ModuleItemDecl* decl,
+		Type* type,
+		uint_t bitOffset,
+		uint_t bitCount,
+		uint_t ptrTypeFlags,
+		size_t offset,
+		DataPtr ptr
+	) {
+		((DynamicLayoutSinkVtable*)m_vtable)->m_onBitFieldFunc(this, decl, type, bitOffset, bitCount, ptrTypeFlags, offset, ptr);
+	}
+
+	void
+	onGroupOpened(
+		ModuleItemDecl* decl,
+		size_t offset
+	) {
+		((DynamicLayoutSinkVtable*)m_vtable)->m_onGroupOpenedFunc(this, decl, offset);
+	}
+
+	void
+	onGroupClosed(
+		ModuleItemDecl* decl,
+		size_t offset,
+		DataPtr ptr,
+		size_t size
+	) {
+		((DynamicLayoutSinkVtable*)m_vtable)->m_onGroupClosedFunc(this, decl, offset, ptr, size);
 	}
 };
 
@@ -131,21 +189,100 @@ protected:
 		AwaitKind_Char,
 	};
 
-	struct Section { // a data section waiting to be reported to the sink
-		DynamicLayoutSectionKind m_sectionKind; // DynamicLayoutSectionKind_Undefined if none
+	enum SizeStatus {
+		SizeStatus_Error = -1,
+		SizeStatus_Complete,
+		SizeStatus_Incomplete,
+	};
+
+	struct SinkNotification { // a pending data section notification (stream mode)
+		DynamicLayoutSectionKind m_sectionKind;
 		ModuleItemDecl* m_decl;
 		Type* m_type;
 		size_t m_offset;
 
 		union {
-			size_t m_elementCount;
-			struct {
+			size_t m_elementCount; // arrays
+			struct {               // bitfields
 				uint_t m_bitOffset;
 				uint_t m_bitCount;
 			};
 		};
 
 		uint_t m_ptrTypeFlags;
+
+		SinkNotification() {
+			reset();
+		}
+
+		operator bool() const {
+			return m_sectionKind != DynamicLayoutSectionKind_Undefined;
+		}
+
+		void
+		reset() {
+			memset(this, 0, sizeof(SinkNotification));
+		}
+
+		void
+		setupStruct(
+			Type* type,
+			size_t offset
+		) {
+			setup(DynamicLayoutSectionKind_Struct, NULL, type, 0, offset);
+		}
+
+		void
+		setupArray(
+			ModuleItemDecl* decl,
+			Type* type,
+			size_t elementCount,
+			uint_t ptrTypeFlags,
+			size_t offset
+		) {
+			setup(DynamicLayoutSectionKind_Array, decl, type, ptrTypeFlags, offset);
+			m_elementCount = elementCount;
+		}
+
+		void
+		setupField(
+			ModuleItemDecl* decl,
+			Type* type,
+			uint_t ptrTypeFlags,
+			size_t offset
+		) {
+			setup(DynamicLayoutSectionKind_Field, decl, type, ptrTypeFlags, offset);
+		}
+
+		void
+		setupBitField(
+			ModuleItemDecl* decl,
+			Type* type,
+			uint_t bitOffset,
+			uint_t bitCount,
+			uint_t ptrTypeFlags,
+			size_t offset
+		) {
+			setup(DynamicLayoutSectionKind_Field, decl, type, ptrTypeFlags, offset);
+			m_bitOffset = bitOffset;
+			m_bitCount = bitCount;
+		}
+
+		void
+		notify(
+			DynamicLayoutSink* sink,
+			DataPtr basePtr
+		);
+
+	protected:
+		void
+		setup(
+			DynamicLayoutSectionKind sectionKind,
+			ModuleItemDecl* decl,
+			Type* type,
+			uint_t ptrTypeFlags,
+			size_t offset
+		);
 	};
 
 	struct Group {
@@ -165,7 +302,7 @@ public:
 	uint_t m_mode;
 
 protected:
-	Section m_section;
+	SinkNotification m_pendingNotification;
 	sl::Array<Group> m_groupStack;
 	ct::Type* m_lastBitFieldType;
 	size_t m_lastBitOffset;
@@ -199,10 +336,10 @@ public:
 		size_t size
 	);
 
-	bool
+	void
 	JNC_CDECL
 	closeAllGroups() {
-		return closeGroups(m_groupStack.getCount());
+		closeGroups(m_groupStack.getCount());
 	}
 
 	size_t
@@ -266,53 +403,48 @@ public:
 		size_t dynamicAttrCount
 	);
 
-	bool
+	void
 	JNC_CDECL
 	closeGroup() {
-		return closeGroups(1);
+		closeGroups(1);
 	}
 
-	bool
+	void
 	JNC_CDECL
 	closeGroups(size_t count);
 
 protected:
-	bool
-	addSize(size_t size);
+	SizeStatus
+	addSize(
+		size_t size,
+		bool isAsync
+	);
 
 	void
 	prepareForAwait();
 
 	void
 	preparePromise();
-
-	ModuleItemDecl*
-	getDecl(
-		ct::ModuleItemDecl* decl,
-		const Variant* dynamicAttrArray,
-		size_t dynamicAttrCount
-	);
-
-	void
-	setSection(
-		DynamicLayoutSectionKind sectionKind,
-		ct::ModuleItemDecl* decl,
-		const Variant* dynamicAttrArray,
-		size_t dynamicAttrCount,
-		ct::Type* type,
-		size_t offset,
-		uint_t ptrTypeFlags
-	);
-
-	bool
-	finalizeSection(bool isAsync);
-
-	bool
-	reportSection();
-
-	DataPtr
-	getPtr(size_t offset);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+DynamicLayout::SinkNotification::setup(
+	DynamicLayoutSectionKind sectionKind,
+	ModuleItemDecl* decl,
+	Type* type,
+	uint_t ptrTypeFlags,
+	size_t offset
+) {
+	m_sectionKind = sectionKind;
+	m_decl = decl;
+	m_type = type;
+	m_offset = offset;
+	m_elementCount = 0;
+	m_ptrTypeFlags = ptrTypeFlags;
+}
 
 //..............................................................................
 

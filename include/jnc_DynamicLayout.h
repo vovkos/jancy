@@ -91,7 +91,7 @@ jnc_DynamicLayout_clear(jnc_DynamicLayout* layout) {
 }
 
 JNC_EXTERN_C
-bool_t
+void
 jnc_DynamicLayout_closeAllGroups(jnc_DynamicLayout* layout);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -143,9 +143,9 @@ struct jnc_DynamicLayout: jnc_IfaceHdr {
 		jnc_DynamicLayout_reset(this, mode, sink, ptr, size);
 	}
 
-	bool
+	void
 	closeAllGroups() {
-		return jnc_DynamicLayout_closeAllGroups(this) != 0;
+		jnc_DynamicLayout_closeAllGroups(this);
 	}
 };
 #endif

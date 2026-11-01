@@ -18,40 +18,34 @@ namespace jnc {
 
 //..............................................................................
 
-// data sections are reported once their bytes are available; groups are reported
-// on open and on close. p is only valid during the call (stream buffer may move)
+// the sink is notified of data sections once their bytes are available, and of
+// groups on open and on close. p is only valid during the call (stream buffer may move)
 
 class DynamicLayoutSink {
-	virtual bool errorcode onStruct(
+	virtual void onStruct(
 		StructType* structType,
 		size_t offset,
 		void const* p
-	) {
-		return true;
-	}
+	) {}
 
-	virtual bool errorcode onArray(
+	virtual void onArray(
 		ModuleItemDecl* decl,
 		Type* type,
 		size_t elementCount,
 		PtrTypeFlags ptrTypeFlags,
 		size_t offset,
 		void const* p
-	) {
-		return true;
-	}
+	) {}
 
-	virtual bool errorcode onField(
+	virtual void onField(
 		ModuleItemDecl* decl,
 		Type* type,
 		PtrTypeFlags ptrTypeFlags,
 		size_t offset,
 		void const* p
-	) {
-		return true;
-	}
+	) {}
 
-	virtual bool errorcode onBitField(
+	virtual void onBitField(
 		ModuleItemDecl* decl,
 		Type* type,
 		uint_t bitOffset,
@@ -59,25 +53,19 @@ class DynamicLayoutSink {
 		PtrTypeFlags ptrTypeFlags,
 		size_t offset,
 		void const* p
-	) {
-		return true;
-	}
+	) {}
 
-	virtual bool errorcode onGroupOpened(
+	virtual void onGroupOpened(
 		ModuleItemDecl* decl,
 		size_t offset // we don't know the group size at this point
-	) {
-		return true;
-	}
+	) {}
 
-	virtual bool errorcode onGroupClosed(
+	virtual void onGroupClosed(
 		ModuleItemDecl* decl, // same as onGroupOpened's decl
 		size_t offset,        // same as onGroupOpened's offset
 		void const* p,
 		size_t size
-	) {
-		return true;
-	}
+	) {}
 }
 
 //..............................................................................
@@ -161,7 +149,7 @@ public:
 
 	// notify the sink about all groups which are still open (e.g. after an exception)
 
-	bool errorcode closeAllGroups();
+	void closeAllGroups();
 
 	// only for DynamicLayoutMode.Stream
 
@@ -223,14 +211,14 @@ protected:
 		bool isAsync
 	);
 
-	size_t errorcode openGroup(
+	size_t openGroup(
 		void thin* decl,
 		variant_t const thin* dynamicAttrArray,
 		size_t dynamicAttrCount
 	);
 
-	bool errorcode closeGroup();
-	bool errorcode closeGroups(size_t count);
+	void closeGroup();
+	void closeGroups(size_t count);
 }
 
 //! @}

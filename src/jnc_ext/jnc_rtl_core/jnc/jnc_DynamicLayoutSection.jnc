@@ -69,13 +69,13 @@ opaque class DynamicLayoutSectionBuilder: DynamicLayoutSink {
 
 	void reset();
 
-	override bool errorcode onStruct(
+	override void onStruct(
 		StructType* structType,
 		size_t offset,
 		void const* p
 	);
 
-	override bool errorcode onArray(
+	override void onArray(
 		ModuleItemDecl* decl,
 		Type* type,
 		size_t elementCount,
@@ -84,7 +84,7 @@ opaque class DynamicLayoutSectionBuilder: DynamicLayoutSink {
 		void const* p
 	);
 
-	override bool errorcode onField(
+	override void onField(
 		ModuleItemDecl* decl,
 		Type* type,
 		PtrTypeFlags ptrTypeFlags,
@@ -92,7 +92,7 @@ opaque class DynamicLayoutSectionBuilder: DynamicLayoutSink {
 		void const* p
 	);
 
-	override bool errorcode onBitField(
+	override void onBitField(
 		ModuleItemDecl* decl,
 		Type* type,
 		uint_t bitOffset,
@@ -102,12 +102,12 @@ opaque class DynamicLayoutSectionBuilder: DynamicLayoutSink {
 		void const* p
 	);
 
-	override bool errorcode onGroupOpened(
+	override void onGroupOpened(
 		ModuleItemDecl* decl,
 		size_t offset
 	);
 
-	override bool errorcode onGroupClosed(
+	override void onGroupClosed(
 		ModuleItemDecl* decl,
 		size_t offset,
 		void const* p,

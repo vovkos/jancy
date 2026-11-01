@@ -61,13 +61,116 @@ public:
 	}
 };
 
+static
+ModuleItemDecl*
+getRtlDecl(
+	ct::ModuleItemDecl* decl,
+	const Variant* dynamicAttrArray,
+	size_t dynamicAttrCount
+) {
+	if (!decl)
+		return NULL;
+
+	if (!dynamicAttrCount)
+		return rtl::getModuleItemDecl(decl);
+
+	Runtime* runtime = getCurrentThreadRuntime();
+	ct::Module* module = runtime->getModule();
+	NoCollectRegion noCollectRegion(runtime);
+
+	ct::AttributeBlock* attributeBlock = module->m_attributeMgr.createDynamicAttributeBlock(decl);
+	DynamicDecl* dynamicDecl = new DynamicDecl;
+	dynamicDecl->copyDecl(decl, attributeBlock);
+
+	const sl::Array<ct::Attribute*>& attributeArray = attributeBlock->getAttributeArray();
+	size_t totalCount = attributeArray.getCount();
+	const Variant* p = dynamicAttrArray;
+	const Variant* end = p + dynamicAttrCount;
+
+	for (size_t i = 0; i < totalCount; i++)
+		if (attributeArray[i]->getFlags() & ct::AttributeFlag_DynamicValue) {
+			ASSERT(p < end);
+			attributeBlock->setDynamicAttributeValue(i, *p++);
+		}
+
+	ASSERT(p == end);
+
+	// rtl::AttributeBlock & rtl::ModuleItemDecl take ownership
+
+	AttributeBlock* attributeBlock_rtl = (AttributeBlock*)runtime->getGcHeap()->createIntrospectionClass(
+		attributeBlock,
+		jnc_StdType_AttributeBlock
+	);
+
+	ModuleItemDecl* decl_rtl = (ModuleItemDecl*)runtime->getGcHeap()->createIntrospectionClass(
+		dynamicDecl,
+		jnc_StdType_ModuleItemDecl
+	);
+
+	decl_rtl->initializeDynamicDecl(attributeBlock_rtl);
+	return decl_rtl;
+}
+
 //..............................................................................
+
+void
+DynamicLayout::SinkNotification::notify(
+	DynamicLayoutSink* sink,
+	DataPtr basePtr
+) {
+	ASSERT(m_sectionKind);
+
+	DataPtr ptr = basePtr.getOffsetPtr(m_offset);
+	switch (m_sectionKind) {
+	case DynamicLayoutSectionKind_Struct:
+		sink->onStruct(m_type, m_offset, ptr);
+		break;
+
+	case DynamicLayoutSectionKind_Array:
+		sink->onArray(
+			m_decl,
+			m_type,
+			m_elementCount,
+			m_ptrTypeFlags,
+			m_offset,
+			ptr
+		);
+		break;
+
+	case DynamicLayoutSectionKind_Field:
+		if (m_ptrTypeFlags & PtrTypeFlag_BitField)
+			sink->onBitField(
+				m_decl,
+				m_type,
+				m_bitOffset,
+				m_bitCount,
+				m_ptrTypeFlags,
+				m_offset,
+				ptr
+			);
+		else
+			sink->onField(
+				m_decl,
+				m_type,
+				m_ptrTypeFlags,
+				m_offset,
+				ptr
+			);
+
+		break;
+
+	default:
+		ASSERT(false);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 JNC_CDECL
 DynamicLayout::markOpaqueGcRoots(GcHeap* gcHeap) {
-	gcHeap->markClassPtr(m_section.m_decl);
-	gcHeap->markClassPtr(m_section.m_type);
+	gcHeap->markClassPtr(m_pendingNotification.m_decl);
+	gcHeap->markClassPtr(m_pendingNotification.m_type);
 
 	size_t count = m_groupStack.getCount();
 	for (size_t i = 0; i < count; i++)
@@ -89,9 +192,7 @@ DynamicLayout::reset(
 	m_ptr = limitDataPtr(ptr, size); // prevent data access beyond the end-of-buffer
 	m_size = 0;
 	m_bufferSize = size;
-	m_section.m_sectionKind = DynamicLayoutSectionKind_Undefined;
-	m_section.m_decl = NULL;
-	m_section.m_type = NULL;
+	m_pendingNotification.reset();
 	m_groupStack.clear();
 	m_lastBitFieldType = NULL;
 	m_awaitKind = AwaitKind_None;
@@ -153,15 +254,12 @@ DynamicLayout::resume(
 
 		m_ptr = m_buffer->m_ptr;
 
-		DataPtr errorPtr = g_nullDataPtr;
-		bool result = reportSection(); // the pending section is ready now
-		if (!result) {
-			err::Error error = err::getLastError();
-			errorPtr = getCurrentThreadGcHeap()->allocateBuffer(error->m_size);
-			memcpy(errorPtr.m_p, error, error->m_size);
+		if (m_pendingNotification) {
+			m_pendingNotification.notify(m_sink, m_ptr);
+			m_pendingNotification.reset();
 		}
 
-		m_promise->complete(awaitResult, errorPtr); // this will resume the layout coroutine
+		m_promise->complete(awaitResult, g_nullDataPtr); // this will resume the layout coroutine
 	}
 
 	return p - p0;
@@ -214,13 +312,23 @@ getArraySize(
 }
 
 inline
-bool
-DynamicLayout::addSize(size_t size) {
+DynamicLayout::SizeStatus
+DynamicLayout::addSize(
+	size_t size,
+	bool isAsync
+) {
 	if (size > m_sizeLimit || m_size > m_sizeLimit - size)
-		return err::fail("dynamic layout size overflow");
+		return err::fail<SizeStatus>(SizeStatus_Error, "dynamic layout size overflow");
 
 	m_size += size;
-	return true;
+	if (m_size <= m_bufferSize)
+		return SizeStatus_Complete;
+	else if (!isAsync || m_mode != DynamicLayoutMode_Stream)
+		return err::fail<SizeStatus>(SizeStatus_Error, "dynamic layout buffer underflow");
+
+	prepareForAwait();
+	m_awaitKind = AwaitKind_Size; // the sink will be notified in resume()
+	return SizeStatus_Incomplete;
 }
 
 size_t
@@ -231,14 +339,17 @@ DynamicLayout::addStruct(
 ) {
 	size_t offset = m_size;
 	size_t size = type->getSize();
-	if (!addSize(size))
+	SizeStatus status = addSize(size, isAsync);
+	if (status == SizeStatus_Error)
 		return -1;
 
-	if (m_sink)
-		setSection(DynamicLayoutSectionKind_Struct, NULL, NULL, 0, type, offset, 0);
-
-	if (!finalizeSection(isAsync))
-		return -1;
+	if (m_sink) {
+		Type* rtlType = rtl::getType(type);
+		if (status == SizeStatus_Complete)
+			m_sink->onStruct(rtlType, offset, m_ptr.getOffsetPtr(offset));
+		else
+			m_pendingNotification.setupStruct(rtlType, offset);
+	}
 
 	m_lastBitFieldType = NULL;
 	return offset;
@@ -257,16 +368,27 @@ DynamicLayout::addArray(
 ) {
 	size_t offset = m_size;
 	size_t size = getArraySize(type, elementCount);
-	if (size == -1 || !addSize(size))
+	if (size == -1)
+		return -1;
+
+	SizeStatus status = addSize(size, isAsync);
+	if (status == SizeStatus_Error)
 		return -1;
 
 	if (m_sink) {
-		setSection(DynamicLayoutSectionKind_Array, decl, dynamicAttrArray, dynamicAttrCount, type, offset, ptrTypeFlags);
-		m_section.m_elementCount = elementCount;
+		Type* rtlType = rtl::getType(type);
+		ModuleItemDecl* rtlDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
+		if (status == SizeStatus_Complete)
+			m_sink->onArray(rtlDecl, rtlType, elementCount, ptrTypeFlags, offset, m_ptr.getOffsetPtr(offset));
+		else
+			m_pendingNotification.setupArray(
+				rtlDecl,
+				rtlType,
+				elementCount,
+				ptrTypeFlags,
+				offset
+			);
 	}
-
-	if (!finalizeSection(isAsync))
-		return -1;
 
 	m_lastBitFieldType = NULL;
 	return offset;
@@ -284,14 +406,23 @@ DynamicLayout::addField(
 ) {
 	size_t offset = m_size;
 	size_t size = type->getSize();
-	if (!addSize(size))
+	SizeStatus status = addSize(size, isAsync);
+	if (status == SizeStatus_Error)
 		return -1;
 
-	if (m_sink)
-		setSection(DynamicLayoutSectionKind_Field, decl, dynamicAttrArray, dynamicAttrCount, type, offset, ptrTypeFlags);
-
-	if (!finalizeSection(isAsync))
-		return -1;
+	if (m_sink) {
+		Type* rtlType = rtl::getType(type);
+		ModuleItemDecl* rtlDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
+		if (status == SizeStatus_Complete)
+			m_sink->onField(rtlDecl, rtlType, ptrTypeFlags, offset, m_ptr.getOffsetPtr(offset));
+		else
+			m_pendingNotification.setupField(
+				rtlDecl,
+				rtlType,
+				ptrTypeFlags,
+				offset
+			);
+	}
 
 	m_lastBitFieldType = NULL;
 	return offset;
@@ -333,29 +464,41 @@ DynamicLayout::addBitField(
 		}
 	}
 
+	SizeStatus status;
 	size_t offset = m_size;
-	if (isMerged)
+	if (isMerged) { // shares bytes with the previous bit field, which is complete by now
 		offset -= size;
-	else if (!addSize(size))
-		return -1;
-
-	if (m_sink) {
-		setSection(
-			DynamicLayoutSectionKind_Field,
-			decl,
-			dynamicAttrArray,
-			dynamicAttrCount,
-			type,
-			offset,
-			ptrTypeFlags | PtrTypeFlag_BitField
-		);
-
-		m_section.m_bitOffset = bitOffset;
-		m_section.m_bitCount = bitCount;
+		status = SizeStatus_Complete;
+	} else {
+		status = addSize(size, isAsync);
+		if (status == SizeStatus_Error)
+			return -1;
 	}
 
-	if (!finalizeSection(isAsync))
-		return -1;
+	if (m_sink) {
+		Type* rtlType = rtl::getType(type);
+		ModuleItemDecl* rtlDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
+
+		if (status == SizeStatus_Complete)
+			m_sink->onBitField(
+				rtlDecl,
+				rtlType,
+				bitOffset,
+				bitCount,
+				ptrTypeFlags,
+				offset,
+				m_ptr.getOffsetPtr(offset)
+			);
+		else
+			m_pendingNotification.setupBitField(
+				rtlDecl,
+				rtlType,
+				bitOffset,
+				bitCount,
+				ptrTypeFlags | PtrTypeFlag_BitField,
+				offset
+			);
+	}
 
 	m_lastBitFieldType = type;
 	m_lastBitOffset = bitOffset;
@@ -372,31 +515,16 @@ DynamicLayout::openGroup(
 ) {
 	Group group;
 	group.m_offset = m_size;
-	group.m_decl = m_sink ? getDecl(decl, dynamicAttrArray, dynamicAttrCount) : NULL;
+	group.m_decl = m_sink ? getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount) : NULL;
 	m_groupStack.append(group); // gc-marked from now on
 
-	if (!m_sink)
-		return group.m_offset;
-
-	bool retVal = false;
-	bool result = callFunctionImpl_s(
-		getCurrentThreadRuntime(),
-		m_sink->getVtable()->m_onGroupOpenedFunc,
-		&retVal,
-		m_sink,
-		group.m_decl,
-		group.m_offset
-	);
-
-	if (!result || !retVal) {
-		m_groupStack.pop();
-		return -1;
-	}
+	if (m_sink)
+		m_sink->onGroupOpened(group.m_decl, group.m_offset);
 
 	return group.m_offset;
 }
 
-bool
+void
 JNC_CDECL
 DynamicLayout::closeGroups(size_t count) {
 	if (count > m_groupStack.getCount())
@@ -404,35 +532,17 @@ DynamicLayout::closeGroups(size_t count) {
 
 	if (!m_sink) {
 		m_groupStack.pop(count);
-		return true;
+		return;
 	}
 
-	Runtime* runtime = getCurrentThreadRuntime();
-	size_t end = m_size < m_bufferSize ? m_size : m_bufferSize; // don't report bytes beyond the end-of-buffer
+	size_t end = m_size < m_bufferSize ? m_size : m_bufferSize; // don't pass bytes beyond the end-of-buffer
 
 	for (size_t i = 0; i < count; i++) {
 		Group group = m_groupStack.getBack(); // keep it on the stack (gc-marked) during the call
 		size_t offset = group.m_offset < end ? group.m_offset : end;
-
-		bool retVal = false;
-		bool result = callFunctionImpl_s(
-			runtime,
-			m_sink->getVtable()->m_onGroupClosedFunc,
-			&retVal,
-			m_sink,
-			group.m_decl,
-			group.m_offset,
-			getPtr(offset),
-			end - offset
-		);
-
+		m_sink->onGroupClosed(group.m_decl, group.m_offset, m_ptr.getOffsetPtr(offset), end - offset);
 		m_groupStack.pop();
-
-		if (!result || !retVal)
-			return false;
 	}
-
-	return true;
 }
 
 void
@@ -456,183 +566,6 @@ DynamicLayout::preparePromise() {
 		m_promise = promise;
 		promise->reset();
 	}
-}
-
-ModuleItemDecl*
-DynamicLayout::getDecl(
-	ct::ModuleItemDecl* decl,
-	const Variant* dynamicAttrArray,
-	size_t dynamicAttrCount
-) {
-	if (!decl)
-		return NULL;
-
-	if (!dynamicAttrCount)
-		return rtl::getModuleItemDecl(decl);
-
-	Runtime* runtime = getCurrentThreadRuntime();
-	ct::Module* module = runtime->getModule();
-	NoCollectRegion noCollectRegion(runtime);
-
-	ct::AttributeBlock* attributeBlock = module->m_attributeMgr.createDynamicAttributeBlock(decl);
-	DynamicDecl* dynamicDecl = new DynamicDecl;
-	dynamicDecl->copyDecl(decl, attributeBlock);
-
-	const sl::Array<ct::Attribute*>& attributeArray = attributeBlock->getAttributeArray();
-	size_t totalCount = attributeArray.getCount();
-	const Variant* p = dynamicAttrArray;
-	const Variant* end = p + dynamicAttrCount;
-
-	for (size_t i = 0; i < totalCount; i++)
-		if (attributeArray[i]->getFlags() & ct::AttributeFlag_DynamicValue) {
-			ASSERT(p < end);
-			attributeBlock->setDynamicAttributeValue(i, *p++);
-		}
-
-	ASSERT(p == end);
-
-	// rtl::AttributeBlock & rtl::ModuleItemDecl take ownership
-
-	AttributeBlock* attributeBlock_rtl = (AttributeBlock*)runtime->getGcHeap()->createIntrospectionClass(
-		attributeBlock,
-		jnc_StdType_AttributeBlock
-	);
-
-	ModuleItemDecl* decl_rtl = (ModuleItemDecl*)runtime->getGcHeap()->createIntrospectionClass(
-		dynamicDecl,
-		jnc_StdType_ModuleItemDecl
-	);
-
-	decl_rtl->initializeDynamicDecl(attributeBlock_rtl);
-	return decl_rtl;
-}
-
-void
-DynamicLayout::setSection(
-	DynamicLayoutSectionKind sectionKind,
-	ct::ModuleItemDecl* decl,
-	const Variant* dynamicAttrArray,
-	size_t dynamicAttrCount,
-	ct::Type* type,
-	size_t offset,
-	uint_t ptrTypeFlags
-) {
-	ASSERT(m_sink && m_section.m_sectionKind == DynamicLayoutSectionKind_Undefined);
-
-	m_section.m_sectionKind = sectionKind;
-	m_section.m_offset = offset;
-	m_section.m_ptrTypeFlags = ptrTypeFlags;
-	m_section.m_decl = getDecl(decl, dynamicAttrArray, dynamicAttrCount);
-	m_section.m_type = rtl::getType(type);
-}
-
-bool
-DynamicLayout::finalizeSection(bool isAsync) {
-	if (m_size <= m_bufferSize)
-		return reportSection();
-
-	if (isAsync && m_mode == DynamicLayoutMode_Stream) {
-		prepareForAwait();
-		m_awaitKind = AwaitKind_Size; // the section will be reported in resume()
-		return true;
-	}
-
-	// beyond the end-of-buffer -- never ready
-
-	m_section.m_sectionKind = DynamicLayoutSectionKind_Undefined;
-	m_section.m_decl = NULL;
-	m_section.m_type = NULL;
-	return true;
-}
-
-bool
-DynamicLayout::reportSection() {
-	if (m_section.m_sectionKind == DynamicLayoutSectionKind_Undefined)
-		return true;
-
-	ASSERT(m_sink);
-
-	Runtime* runtime = getCurrentThreadRuntime();
-	const DynamicLayoutSinkVtable* vtable = m_sink->getVtable();
-	DataPtr ptr = getPtr(m_section.m_offset);
-	bool retVal = false;
-	bool result;
-
-	switch (m_section.m_sectionKind) {
-	case DynamicLayoutSectionKind_Struct:
-		result = callFunctionImpl_s(
-			runtime,
-			vtable->m_onStructFunc,
-			&retVal,
-			m_sink,
-			m_section.m_type,
-			m_section.m_offset,
-			ptr
-		);
-		break;
-
-	case DynamicLayoutSectionKind_Array:
-		result = callFunctionImpl_s(
-			runtime,
-			vtable->m_onArrayFunc,
-			&retVal,
-			m_sink,
-			m_section.m_decl,
-			m_section.m_type,
-			m_section.m_elementCount,
-			m_section.m_ptrTypeFlags,
-			m_section.m_offset,
-			ptr
-		);
-		break;
-
-	case DynamicLayoutSectionKind_Field:
-		if (m_section.m_ptrTypeFlags & PtrTypeFlag_BitField)
-			result = callFunctionImpl_s(
-				runtime,
-				vtable->m_onBitFieldFunc,
-				&retVal,
-				m_sink,
-				m_section.m_decl,
-				m_section.m_type,
-				m_section.m_bitOffset,
-				m_section.m_bitCount,
-				m_section.m_ptrTypeFlags,
-				m_section.m_offset,
-				ptr
-			);
-		else
-			result = callFunctionImpl_s(
-				runtime,
-				vtable->m_onFieldFunc,
-				&retVal,
-				m_sink,
-				m_section.m_decl,
-				m_section.m_type,
-				m_section.m_ptrTypeFlags,
-				m_section.m_offset,
-				ptr
-			);
-
-		break;
-
-	default:
-		ASSERT(false);
-		result = true;
-		retVal = true;
-	}
-
-	m_section.m_sectionKind = DynamicLayoutSectionKind_Undefined;
-	m_section.m_decl = NULL;
-	m_section.m_type = NULL;
-	return result && retVal;
-}
-
-DataPtr
-DynamicLayout::getPtr(size_t offset) {
-	DataPtr ptr = m_ptr;
-	ptr.m_p = (char*)ptr.m_p + offset;
-	return ptr;
 }
 
 //..............................................................................

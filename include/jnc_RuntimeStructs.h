@@ -100,6 +100,13 @@ enum {
 struct jnc_DataPtr {
 	void* m_p;
 	jnc_DataPtrValidator* m_validator;
+
+#ifdef __cplusplus
+	jnc_DataPtr
+	getOffsetPtr(intptr_t offset) {
+		return jnc_DataPtr { (char*)m_p + offset, m_validator };
+	}
+#endif
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

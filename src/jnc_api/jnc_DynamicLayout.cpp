@@ -103,9 +103,9 @@ jnc_DynamicLayout_reset(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-bool_t
+void
 jnc_DynamicLayout_closeAllGroups(jnc_DynamicLayout* layout) {
-	return ((jnc::rtl::DynamicLayout*)layout)->closeAllGroups();
+	((jnc::rtl::DynamicLayout*)layout)->closeAllGroups();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

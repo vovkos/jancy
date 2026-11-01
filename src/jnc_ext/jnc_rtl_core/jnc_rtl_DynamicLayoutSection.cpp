@@ -82,6 +82,15 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayoutSectionBuilder)
 	JNC_MAP_FUNCTION("onGroupClosed", &DynamicLayoutSectionBuilder::onGroupClosed)
 JNC_END_TYPE_FUNCTION_MAP()
 
+JNC_BEGIN_CLASS_TYPE_VTABLE(DynamicLayoutSectionBuilder)
+	JNC_CLASS_TYPE_VTABLE_ENTRY(&DynamicLayoutSectionBuilder::onStruct)
+	JNC_CLASS_TYPE_VTABLE_ENTRY(&DynamicLayoutSectionBuilder::onArray)
+	JNC_CLASS_TYPE_VTABLE_ENTRY(&DynamicLayoutSectionBuilder::onField)
+	JNC_CLASS_TYPE_VTABLE_ENTRY(&DynamicLayoutSectionBuilder::onBitField)
+	JNC_CLASS_TYPE_VTABLE_ENTRY(&DynamicLayoutSectionBuilder::onGroupOpened)
+	JNC_CLASS_TYPE_VTABLE_ENTRY(&DynamicLayoutSectionBuilder::onGroupClosed)
+JNC_END_CLASS_TYPE_VTABLE()
+
 //..............................................................................
 
 void
@@ -127,7 +136,7 @@ DynamicLayoutSectionBuilder::reset() {
 	m_sectionGroup = createClass<DynamicLayoutSectionGroup>(getCurrentThreadRuntime());
 }
 
-bool
+void
 JNC_CDECL
 DynamicLayoutSectionBuilder::onStruct(
 	Type* type,
@@ -135,10 +144,9 @@ DynamicLayoutSectionBuilder::onStruct(
 	DataPtr ptr
 ) {
 	addSection(DynamicLayoutSectionKind_Struct, NULL, type, offset, type->getItem()->getSize());
-	return true;
 }
 
-bool
+void
 JNC_CDECL
 DynamicLayoutSectionBuilder::onArray(
 	ModuleItemDecl* decl,
@@ -158,10 +166,9 @@ DynamicLayoutSectionBuilder::onArray(
 
 	section->m_elementCount = elementCount;
 	section->m_ptrTypeFlags = ptrTypeFlags;
-	return true;
 }
 
-bool
+void
 JNC_CDECL
 DynamicLayoutSectionBuilder::onField(
 	ModuleItemDecl* decl,
@@ -172,10 +179,9 @@ DynamicLayoutSectionBuilder::onField(
 ) {
 	DynamicLayoutSection* section = addSection(DynamicLayoutSectionKind_Field, decl, type, offset, type->getItem()->getSize());
 	section->m_ptrTypeFlags = ptrTypeFlags;
-	return true;
 }
 
-bool
+void
 JNC_CDECL
 DynamicLayoutSectionBuilder::onBitField(
 	ModuleItemDecl* decl,
@@ -190,10 +196,9 @@ DynamicLayoutSectionBuilder::onBitField(
 	section->m_bitOffset = bitOffset;
 	section->m_bitCount = bitCount;
 	section->m_ptrTypeFlags = ptrTypeFlags;
-	return true;
 }
 
-bool
+void
 JNC_CDECL
 DynamicLayoutSectionBuilder::onGroupOpened(
 	ModuleItemDecl* decl,
@@ -201,10 +206,9 @@ DynamicLayoutSectionBuilder::onGroupOpened(
 ) {
 	DynamicLayoutSection* group = addSection(DynamicLayoutSectionKind_Group, decl, NULL, offset, 0);
 	m_groupStack.append(group);
-	return true;
 }
 
-bool
+void
 JNC_CDECL
 DynamicLayoutSectionBuilder::onGroupClosed(
 	ModuleItemDecl* decl,
@@ -215,7 +219,6 @@ DynamicLayoutSectionBuilder::onGroupClosed(
 	ASSERT(!m_groupStack.isEmpty() && m_groupStack.getBack()->m_decl == decl);
 	DynamicLayoutSection* group = m_groupStack.getBackAndPop();
 	group->m_size = size;
-	return true;
 }
 
 DynamicLayoutSection*
