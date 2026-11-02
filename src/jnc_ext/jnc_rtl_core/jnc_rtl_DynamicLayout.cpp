@@ -114,63 +114,10 @@ getRtlDecl(
 //..............................................................................
 
 void
-DynamicLayout::SinkNotification::notify(
-	DynamicLayoutSink* sink,
-	DataPtr basePtr
-) {
-	ASSERT(m_sectionKind);
-
-	DataPtr ptr = basePtr.getOffsetPtr(m_offset);
-	switch (m_sectionKind) {
-	case DynamicLayoutSectionKind_Struct:
-		sink->onStruct(m_type, m_offset, ptr);
-		break;
-
-	case DynamicLayoutSectionKind_Array:
-		sink->onArray(
-			m_decl,
-			m_type,
-			m_elementCount,
-			m_ptrTypeFlags,
-			m_offset,
-			ptr
-		);
-		break;
-
-	case DynamicLayoutSectionKind_Field:
-		if (m_ptrTypeFlags & PtrTypeFlag_BitField)
-			sink->onBitField(
-				m_decl,
-				m_type,
-				m_bitOffset,
-				m_bitCount,
-				m_ptrTypeFlags,
-				m_offset,
-				ptr
-			);
-		else
-			sink->onField(
-				m_decl,
-				m_type,
-				m_ptrTypeFlags,
-				m_offset,
-				ptr
-			);
-
-		break;
-
-	default:
-		ASSERT(false);
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-void
 JNC_CDECL
 DynamicLayout::markOpaqueGcRoots(GcHeap* gcHeap) {
-	gcHeap->markClassPtr(m_pendingNotification.m_decl);
-	gcHeap->markClassPtr(m_pendingNotification.m_type);
+	gcHeap->markClassPtr(m_currentDecl);
+	gcHeap->markClassPtr(m_currentType);
 
 	size_t count = m_groupStack.getCount();
 	for (size_t i = 0; i < count; i++)
@@ -192,6 +139,8 @@ DynamicLayout::reset(
 	m_ptr = limitDataPtr(ptr, size); // prevent data access beyond the end-of-buffer
 	m_size = 0;
 	m_bufferSize = size;
+	m_currentDecl = NULL;
+	m_currentType = NULL;
 	m_pendingNotification.reset();
 	m_groupStack.clear();
 	m_lastBitFieldType = NULL;
@@ -254,10 +203,8 @@ DynamicLayout::resume(
 
 		m_ptr = m_buffer->m_ptr;
 
-		if (m_pendingNotification) {
-			m_pendingNotification.notify(m_sink, m_ptr);
-			m_pendingNotification.reset();
-		}
+		if (m_pendingNotification)
+			sendPendingNotification();
 
 		m_promise->complete(awaitResult, g_nullDataPtr); // this will resume the layout coroutine
 	}
@@ -344,11 +291,13 @@ DynamicLayout::addStruct(
 		return -1;
 
 	if (m_sink) {
-		Type* rtlType = rtl::getType(type);
-		if (status == SizeStatus_Complete)
-			m_sink->onStruct(rtlType, offset, m_ptr.getOffsetPtr(offset));
-		else
-			m_pendingNotification.setupStruct(rtlType, offset);
+		m_currentType = rtl::getType(type);
+		if (status != SizeStatus_Complete)
+			m_pendingNotification.setupStruct(offset);
+		else {
+			m_sink->onStruct(m_currentType, offset, m_ptr.getOffsetPtr(offset));
+			m_currentType = NULL;
+		}
 	}
 
 	m_lastBitFieldType = NULL;
@@ -376,18 +325,24 @@ DynamicLayout::addArray(
 		return -1;
 
 	if (m_sink) {
-		Type* rtlType = rtl::getType(type);
-		ModuleItemDecl* rtlDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
-		if (status == SizeStatus_Complete)
-			m_sink->onArray(rtlDecl, rtlType, elementCount, ptrTypeFlags, offset, m_ptr.getOffsetPtr(offset));
-		else
-			m_pendingNotification.setupArray(
-				rtlDecl,
-				rtlType,
+		m_currentDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
+		m_currentType = rtl::getType(type);
+
+		if (status != SizeStatus_Complete)
+			m_pendingNotification.setupArray(elementCount, ptrTypeFlags, offset);
+		else {
+			m_sink->onArray(
+				m_currentDecl,
+				m_currentType,
 				elementCount,
 				ptrTypeFlags,
-				offset
+				offset,
+				m_ptr.getOffsetPtr(offset)
 			);
+
+			m_currentDecl = NULL;
+			m_currentType = NULL;
+		}
 	}
 
 	m_lastBitFieldType = NULL;
@@ -411,17 +366,23 @@ DynamicLayout::addField(
 		return -1;
 
 	if (m_sink) {
-		Type* rtlType = rtl::getType(type);
-		ModuleItemDecl* rtlDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
-		if (status == SizeStatus_Complete)
-			m_sink->onField(rtlDecl, rtlType, ptrTypeFlags, offset, m_ptr.getOffsetPtr(offset));
-		else
-			m_pendingNotification.setupField(
-				rtlDecl,
-				rtlType,
+		m_currentDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
+		m_currentType = rtl::getType(type);
+
+		if (status != SizeStatus_Complete)
+			m_pendingNotification.setupField(ptrTypeFlags, offset);
+		else {
+			m_sink->onField(
+				m_currentDecl,
+				m_currentType,
 				ptrTypeFlags,
-				offset
+				offset,
+				m_ptr.getOffsetPtr(offset)
 			);
+
+			m_currentDecl = NULL;
+			m_currentType = NULL;
+		}
 	}
 
 	m_lastBitFieldType = NULL;
@@ -439,6 +400,8 @@ DynamicLayout::addBitField(
 	uint_t ptrTypeFlags,
 	bool isAsync
 ) {
+	ASSERT(ptrTypeFlags & PtrTypeFlag_BitField);
+
 	size_t size = type->getSize();
 	size_t baseBitCount = size * 8;
 	if (bitCount > baseBitCount)
@@ -476,28 +439,30 @@ DynamicLayout::addBitField(
 	}
 
 	if (m_sink) {
-		Type* rtlType = rtl::getType(type);
-		ModuleItemDecl* rtlDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
+		m_currentDecl = getRtlDecl(decl, dynamicAttrArray, dynamicAttrCount);
+		m_currentType = rtl::getType(type);
 
-		if (status == SizeStatus_Complete)
+		if (status != SizeStatus_Complete)
+			m_pendingNotification.setupBitField(
+				bitOffset,
+				bitCount,
+				ptrTypeFlags,
+				offset
+			);
+		else {
 			m_sink->onBitField(
-				rtlDecl,
-				rtlType,
+				m_currentDecl,
+				m_currentType,
 				bitOffset,
 				bitCount,
 				ptrTypeFlags,
 				offset,
 				m_ptr.getOffsetPtr(offset)
 			);
-		else
-			m_pendingNotification.setupBitField(
-				rtlDecl,
-				rtlType,
-				bitOffset,
-				bitCount,
-				ptrTypeFlags | PtrTypeFlag_BitField,
-				offset
-			);
+
+			m_currentDecl = NULL;
+			m_currentType = NULL;
+		}
 	}
 
 	m_lastBitFieldType = type;
@@ -566,6 +531,58 @@ DynamicLayout::preparePromise() {
 		m_promise = promise;
 		promise->reset();
 	}
+}
+
+void
+DynamicLayout::sendPendingNotification() {
+	ASSERT(m_pendingNotification.m_sectionKind && m_sink);
+
+	DataPtr ptr = m_ptr.getOffsetPtr(m_pendingNotification.m_offset);
+	switch (m_pendingNotification.m_sectionKind) {
+	case DynamicLayoutSectionKind_Struct:
+		m_sink->onStruct(m_currentType, m_pendingNotification.m_offset, ptr);
+		break;
+
+	case DynamicLayoutSectionKind_Array:
+		m_sink->onArray(
+			m_currentDecl,
+			m_currentType,
+			m_pendingNotification.m_elementCount,
+			m_pendingNotification.m_ptrTypeFlags,
+			m_pendingNotification.m_offset,
+			ptr
+		);
+		break;
+
+	case DynamicLayoutSectionKind_Field:
+		if (m_pendingNotification.m_ptrTypeFlags & PtrTypeFlag_BitField)
+			m_sink->onBitField(
+				m_currentDecl,
+				m_currentType,
+				m_pendingNotification.m_bitOffset,
+				m_pendingNotification.m_bitCount,
+				m_pendingNotification.m_ptrTypeFlags,
+				m_pendingNotification.m_offset,
+				ptr
+			);
+		else
+			m_sink->onField(
+				m_currentDecl,
+				m_currentType,
+				m_pendingNotification.m_ptrTypeFlags,
+				m_pendingNotification.m_offset,
+				ptr
+			);
+
+		break;
+
+	default:
+		ASSERT(false);
+	}
+
+	m_pendingNotification.reset();
+	m_currentDecl = NULL;
+	m_currentType = NULL;
 }
 
 //..............................................................................

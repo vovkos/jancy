@@ -195,10 +195,8 @@ protected:
 		SizeStatus_Incomplete,
 	};
 
-	struct SinkNotification { // a pending data section notification (stream mode)
+	struct NotificationParams { // a pending data section notification (stream mode)
 		DynamicLayoutSectionKind m_sectionKind;
-		ModuleItemDecl* m_decl;
-		Type* m_type;
 		size_t m_offset;
 
 		union {
@@ -211,7 +209,7 @@ protected:
 
 		uint_t m_ptrTypeFlags;
 
-		SinkNotification() {
+		NotificationParams() {
 			reset();
 		}
 
@@ -221,65 +219,48 @@ protected:
 
 		void
 		reset() {
-			memset(this, 0, sizeof(SinkNotification));
+			memset(this, 0, sizeof(NotificationParams));
 		}
 
 		void
-		setupStruct(
-			Type* type,
-			size_t offset
-		) {
-			setup(DynamicLayoutSectionKind_Struct, NULL, type, 0, offset);
+		setupStruct(size_t offset) {
+			setup(DynamicLayoutSectionKind_Struct, 0, offset);
 		}
 
 		void
 		setupArray(
-			ModuleItemDecl* decl,
-			Type* type,
 			size_t elementCount,
 			uint_t ptrTypeFlags,
 			size_t offset
 		) {
-			setup(DynamicLayoutSectionKind_Array, decl, type, ptrTypeFlags, offset);
+			setup(DynamicLayoutSectionKind_Array, ptrTypeFlags, offset);
 			m_elementCount = elementCount;
 		}
 
 		void
 		setupField(
-			ModuleItemDecl* decl,
-			Type* type,
 			uint_t ptrTypeFlags,
 			size_t offset
 		) {
-			setup(DynamicLayoutSectionKind_Field, decl, type, ptrTypeFlags, offset);
+			setup(DynamicLayoutSectionKind_Field, ptrTypeFlags, offset);
 		}
 
 		void
 		setupBitField(
-			ModuleItemDecl* decl,
-			Type* type,
 			uint_t bitOffset,
 			uint_t bitCount,
 			uint_t ptrTypeFlags,
 			size_t offset
 		) {
-			setup(DynamicLayoutSectionKind_Field, decl, type, ptrTypeFlags, offset);
+			setup(DynamicLayoutSectionKind_Field, ptrTypeFlags, offset);
 			m_bitOffset = bitOffset;
 			m_bitCount = bitCount;
 		}
-
-		void
-		notify(
-			DynamicLayoutSink* sink,
-			DataPtr basePtr
-		);
 
 	protected:
 		void
 		setup(
 			DynamicLayoutSectionKind sectionKind,
-			ModuleItemDecl* decl,
-			Type* type,
 			uint_t ptrTypeFlags,
 			size_t offset
 		);
@@ -302,7 +283,9 @@ public:
 	uint_t m_mode;
 
 protected:
-	SinkNotification m_pendingNotification;
+	ModuleItemDecl* m_currentDecl;
+	Type* m_currentType;
+	NotificationParams m_pendingNotification;
 	sl::Array<Group> m_groupStack;
 	ct::Type* m_lastBitFieldType;
 	size_t m_lastBitOffset;
@@ -425,22 +408,21 @@ protected:
 
 	void
 	preparePromise();
+
+	void
+	sendPendingNotification();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 void
-DynamicLayout::SinkNotification::setup(
+DynamicLayout::NotificationParams::setup(
 	DynamicLayoutSectionKind sectionKind,
-	ModuleItemDecl* decl,
-	Type* type,
 	uint_t ptrTypeFlags,
 	size_t offset
 ) {
 	m_sectionKind = sectionKind;
-	m_decl = decl;
-	m_type = type;
 	m_offset = offset;
 	m_elementCount = 0;
 	m_ptrTypeFlags = ptrTypeFlags;

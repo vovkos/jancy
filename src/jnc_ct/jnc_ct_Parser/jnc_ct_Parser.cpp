@@ -2109,6 +2109,9 @@ Parser::declareData(
 			if (!result)
 				return false;
 
+			if (bitCount)
+				ptrTypeFlags |= PtrTypeFlag_BitField;
+
 			DynamicLayoutDataSection* field = m_module->m_dynamicLayoutMgr.createDataSection(
 				DynamicLayoutSectionKind_Field,
 				name,
