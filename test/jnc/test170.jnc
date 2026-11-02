@@ -1,0 +1,350 @@
+//..............................................................................
+// dynamic layouts
+//
+// - sink notifications (order, offsets, data pointers, group sizes)
+// - section builder tree; dynamic attributes survive GC
+// - stream mode: pending notifications delivered from resume()
+// - bit field merging (and no merging across a regular field)
+// - groups inside async/errorcode functions (compile-time recursion regression)
+// - groups closed on return; on exceptions, closeAllGroups closes the rest
+// - buffer underflow in block mode throws, m_size still tells the needed size
+
+//..............................................................................
+
+class RecordingSink: jnc.DynamicLayoutSink {
+	string_t m_log;
+
+	override void onStruct(
+		jnc.StructType* structType,
+		size_t offset,
+		void const* p
+	) {
+		m_log = $"$(m_log)struct@$offset;";
+	}
+
+	override void onArray(
+		jnc.ModuleItemDecl* decl,
+		jnc.Type* type,
+		size_t elementCount,
+		jnc.PtrTypeFlags ptrTypeFlags,
+		size_t offset,
+		void const* p
+	) {
+		m_log = $"$(m_log)$(decl.m_name)[$elementCount]=$(*(uint8_t const*)p)@$offset;";
+	}
+
+	override void onField(
+		jnc.ModuleItemDecl* decl,
+		jnc.Type* type,
+		jnc.PtrTypeFlags ptrTypeFlags,
+		size_t offset,
+		void const* p
+	) {
+		m_log = $"$(m_log)$(decl.m_name)=$(*(uint8_t const*)p)@$offset;";
+	}
+
+	override void onBitField(
+		jnc.ModuleItemDecl* decl,
+		jnc.Type* type,
+		uint_t bitOffset,
+		uint_t bitCount,
+		jnc.PtrTypeFlags ptrTypeFlags,
+		size_t offset,
+		void const* p
+	) {
+		m_log = $"$(m_log)$(decl.m_name):$bitOffset:$bitCount@$offset;";
+	}
+
+	override void onGroupOpened(
+		jnc.ModuleItemDecl* decl,
+		size_t offset
+	) {
+		m_log = $"$(m_log)<$(decl.m_name)@$offset;";
+	}
+
+	override void onGroupClosed(
+		jnc.ModuleItemDecl* decl,
+		size_t offset,
+		void const* p,
+		size_t size
+	) {
+		m_log = $"$(m_log)>$(decl.m_name):$size;";
+	}
+}
+
+//..............................................................................
+
+// a: struct@0; grp@1 { n: struct@1; data[n]@2; inner@4 { f@4 (dynamic attr) } }; z: struct@5
+
+async void layoutBasic(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		dyfield uint8_t a;
+		dyfield grp {
+			dyfield uint8_t n;
+			dyfield uint8_t data[n];
+			dyfield inner {
+				[ tag = $"tag $n" ]
+				dyfield uint8_t f;
+			}
+		}
+		dyfield uint8_t z;
+	}
+}
+
+char const g_basicData[] = { 0x10, 2, 0x21, 0x22, 0x30, 0x40 };
+string_t const g_basicLog = "struct@0;<grp@1;struct@1;data[2]=33@2;<inner@4;f=48@4;>inner:1;>grp:4;struct@5;";
+
+void testBlock() {
+	RecordingSink sink;
+	jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Block, sink, g_basicData, sizeof(g_basicData));
+	layoutBasic(layout).blockingWait();
+
+	assert(layout.m_size == sizeof(g_basicData));
+	assert(sink.m_log == g_basicLog);
+}
+
+void testNoSink() {
+	jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Block, null, g_basicData, sizeof(g_basicData));
+	layoutBasic(layout).blockingWait();
+
+	assert(layout.m_size == sizeof(g_basicData));
+}
+
+void testStream() {
+	// one byte at a time
+
+	RecordingSink sink;
+	jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Stream, sink, g_basicData, 1);
+	jnc.Promise* promise = layoutBasic(layout);
+	for (size_t i = 1; i < sizeof(g_basicData); i++)
+		layout.resume(&g_basicData[i], 1);
+
+	promise.blockingWait();
+	assert(layout.m_size == sizeof(g_basicData));
+	assert(sink.m_log == g_basicLog);
+
+	// the rest in one go
+
+	RecordingSink sink2;
+	layout.reset(jnc.DynamicLayoutMode.Stream, sink2, g_basicData, 2);
+	promise = layoutBasic(layout);
+	layout.resume(&g_basicData[2], sizeof(g_basicData) - 2);
+
+	promise.blockingWait();
+	assert(sink2.m_log == g_basicLog);
+}
+
+void testBuilder() {
+	jnc.DynamicLayoutSectionBuilder builder;
+	jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Block, builder, g_basicData, sizeof(g_basicData));
+	layoutBasic(layout).blockingWait();
+
+	// the dynamic attribute must survive GC + heap churn
+
+	jnc.collectGarbage();
+	for (size_t i = 0; i < 1000; i++) {
+		char* p = new char[64];
+		p[0] = 0xcc;
+	}
+
+	jnc.collectGarbage();
+
+	jnc.DynamicLayoutSectionGroup const* root = builder.m_sectionGroup;
+	assert(root.m_sectionCount == 3);
+	assert(root.m_sectionArray[0].m_sectionKind == jnc.DynamicLayoutSectionKind.Struct);
+	assert(root.m_sectionArray[2].m_sectionKind == jnc.DynamicLayoutSectionKind.Struct);
+	assert(root.m_sectionArray[2].m_offset == 5);
+
+	jnc.DynamicLayoutSection const* grp = root.m_sectionArray[1];
+	assert(grp.m_sectionKind == jnc.DynamicLayoutSectionKind.Group);
+	assert(grp.m_decl.m_name == "grp");
+	assert(grp.m_offset == 1 && grp.m_size == 4);
+	assert(grp.m_sectionCount == 3);
+
+	jnc.DynamicLayoutSection const* data = grp.m_sectionArray[1];
+	assert(data.m_sectionKind == jnc.DynamicLayoutSectionKind.Array);
+	assert(data.m_offset == 2 && data.m_size == 2 && data.m_elementCount == 2);
+
+	jnc.DynamicLayoutSection const* inner = grp.m_sectionArray[2];
+	assert(inner.m_sectionKind == jnc.DynamicLayoutSectionKind.Group);
+	assert(inner.m_offset == 4 && inner.m_size == 1 && inner.m_sectionCount == 1);
+
+	jnc.DynamicLayoutSection const* f = inner.m_sectionArray[0];
+	assert(f.m_sectionKind == jnc.DynamicLayoutSectionKind.Field);
+	assert(f.m_offset == 4 && f.m_size == 1);
+
+	string_t tag = f.m_decl.findAttributeValue("tag");
+	assert(tag == "tag 2");
+}
+
+//..............................................................................
+
+// b3 would merge into byte 0 (3 + 4 + 1 bits) if the regular field x didn't break the run
+
+void layoutBitFields(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		dyfield uint8_t b1 : 3;
+		dyfield uint8_t b2 : 4;
+		dyfield uint8_t x;
+		dyfield uint8_t b3 : 1;
+
+		assert(b1 == 5 && b2 == 11 && x == 7 && b3 == 1);
+	}
+}
+
+void testBitFields() {
+	static char const data[] = { 0x5d, 0x07, 0x03 };
+
+	RecordingSink sink;
+	jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Block, sink, data, sizeof(data));
+	layoutBitFields(layout);
+
+	assert(layout.m_size == 3);
+	assert(sink.m_log == "b1:0:3@0;b2:3:4@0;struct@1;b3:0:1@2;");
+}
+
+//..............................................................................
+
+// return from nested groups closes them
+
+async void layoutReturn(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		dyfield grp {
+			size_t n = 1;
+			dyfield uint8_t a[n];
+			dyfield inner {
+				dyfield uint8_t b[n];
+				return;
+			}
+		}
+	}
+}
+
+void testReturn() {
+	static char const data[] = { 1, 2 };
+
+	RecordingSink sink;
+	jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Block, sink, data, sizeof(data));
+	layoutReturn(layout).blockingWait();
+
+	assert(sink.m_log == "<grp@0;a[1]=1@0;<inner@1;b[1]=2@1;>inner:1;>grp:2;");
+}
+
+//..............................................................................
+
+// exceptions: async/errorcode functions throw statically (groups are closed on
+// the way out); void functions throw dynamically (groups stay open)
+
+async void layoutThrowAsync(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		dyfield grp {
+			size_t n = 2;
+			dyfield inner {
+				dyfield uint8_t data[n];
+			}
+		}
+	}
+}
+
+bool errorcode layoutThrowErrorCode(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		dyfield grp {
+			size_t n = 2;
+			dyfield inner {
+				dyfield uint8_t data[n];
+			}
+		}
+	}
+
+	return true;
+}
+
+void layoutThrowVoid(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		dyfield grp {
+			size_t n = 2;
+			dyfield inner {
+				dyfield uint8_t data[n];
+			}
+		}
+	}
+}
+
+bool errorcode runThrow(
+	jnc.DynamicLayout* layout,
+	int kind
+) {
+	switch (kind) {
+	case 0:
+		layoutThrowAsync(layout).blockingWait();
+		break;
+
+	case 1:
+		layoutThrowErrorCode(layout);
+		break;
+
+	case 2:
+		layoutThrowVoid(layout);
+		break;
+	}
+
+	return true;
+}
+
+void testThrow(
+	int kind,
+	bool isClosedOnThrow
+) {
+	static char const data[] = { 1, 2, 3, 4 };
+
+	// size limit -- m_size is not advanced
+
+	RecordingSink sink;
+	jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Block, sink, data, sizeof(data));
+	layout.m_sizeLimit = 1;
+
+	bool result = try runThrow(layout, kind);
+	assert(!result);
+	assert(std.getLastError().m_description == "dynamic layout size overflow");
+	assert(layout.m_size == 0);
+
+	string_t openLog = "<grp@0;<inner@0;";
+	string_t closeLog = ">inner:0;>grp:0;";
+	assert(sink.m_log == (isClosedOnThrow ? openLog + closeLog : openLog));
+
+	layout.closeAllGroups();
+	assert(sink.m_log == openLog + closeLog);
+
+	// buffer underflow -- m_size tells the needed size
+
+	RecordingSink sink2;
+	layout.reset(jnc.DynamicLayoutMode.Block, sink2, data, 1);
+
+	result = try runThrow(layout, kind);
+	assert(!result);
+	assert(std.getLastError().m_description == "dynamic layout buffer underflow");
+	assert(layout.m_size == 2 && layout.m_isIncomplete);
+
+	closeLog = ">inner:1;>grp:1;"; // clamped to the buffer
+	assert(sink2.m_log == (isClosedOnThrow ? openLog + closeLog : openLog));
+
+	layout.closeAllGroups();
+	assert(sink2.m_log == openLog + closeLog);
+}
+
+//..............................................................................
+
+int main() {
+	testBlock();
+	testNoSink();
+	testStream();
+	testBuilder();
+	testBitFields();
+	testReturn();
+	testThrow(0, true);
+	testThrow(1, true);
+	testThrow(2, false);
+	return 0;
+}
+
+//..............................................................................
