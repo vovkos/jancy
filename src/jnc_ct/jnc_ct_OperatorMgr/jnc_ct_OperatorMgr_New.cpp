@@ -194,6 +194,19 @@ OperatorMgr::zeroInitialize(const Value& value) {
 		memSet(value, 0, type->getSize());
 }
 
+static
+bool
+isStringConstructPtrType(Type* type) {
+	if (type->getTypeKind() != TypeKind_DataPtr)
+		return false;
+
+	TypeKind targetTypeKind = ((DataPtrType*)type)->getTargetType()->getTypeKind();
+	return
+		targetTypeKind == TypeKind_Char ||
+		targetTypeKind == TypeKind_Int8_u ||
+		targetTypeKind == TypeKind_Void;
+}
+
 bool
 OperatorMgr::construct(
 	const Value& opValue,
@@ -221,6 +234,17 @@ OperatorMgr::construct(
 	if (type->getTypeKind() == TypeKind_String) {
 		if (!argList || argList->isEmpty())
 			return true;
+
+		if (argList->getCount() == 1) {
+			const Value& argValue = *argList->getHead();
+			Value argTypeValue;
+			bool result = prepareOperandType(argValue, &argTypeValue, OpFlag_ArrayRefToPtr);
+			if (!result)
+				return false;
+
+			if (argValue.getValueKind() == ValueKind_Const || !isStringConstructPtrType(argTypeValue.getType()))
+				return binaryOperator(BinOpKind_Assign, opValue, argValue);
+		}
 
 		constructor = m_module->m_functionMgr.getStdFunction(StdFunc_StringConstruct);
 		bool result = unaryOperator(UnOpKind_Addr, opValue, &thisValue);
