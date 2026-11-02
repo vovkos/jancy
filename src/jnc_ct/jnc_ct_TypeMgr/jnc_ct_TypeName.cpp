@@ -28,7 +28,7 @@ TypeName::createSignature(
 	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
 	signature += parentSignature;
 	if (!parentSignature.isEmpty())
-		signature += '.';
+		signature += ':'; // distinguish between types anchored at differen parent namespaces
 
 	name.appendFullName(&signature);
 	signature += '$';
