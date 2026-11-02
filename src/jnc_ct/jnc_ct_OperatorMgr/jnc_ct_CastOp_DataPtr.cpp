@@ -186,12 +186,17 @@ Cast_DataPtr_FromString::constCast(
 
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_String);
 	String* string = (String*)opValue.getConstData();
-	ASSERT(string->m_ptr.m_p == string->m_ptr_sz.m_p); // constants are always null-terminated
+	DataPtr ptr = string->m_ptr_sz;
+	if (!ptr.m_p && string->m_length) {
+		ptr = m_module->m_operatorMgr.createDataPtrToLiteral(sl::StringRef((char*)string->m_ptr.m_p, string->m_length));
+		if (!ptr.m_p)
+			return false;
+	}
 
 	if (dstType->getPtrKind() == DataPtrKind_Normal)
-		*(DataPtr*)dst = string->m_ptr;
+		*(DataPtr*)dst = ptr;
 	else
-		*(void**)dst = string->m_ptr.m_p;
+		*(void**)dst = ptr.m_p;
 
 	return true;
 }
