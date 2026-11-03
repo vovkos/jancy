@@ -78,6 +78,14 @@ enum DynamicLayoutMode {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum DynamicLayoutAwaitKind {
+	None, // not awaiting
+	Size, // awaiting (m_size - m_bufferSize) more bytes
+	Char, // awaiting m_awaitChar (scanning since m_size)
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class DynamicLayout {
 protected:
 	// only for DynamicLayoutMode.Stream
@@ -94,6 +102,11 @@ public:
 	size_t m_sizeLimit;           // freely adjustible (affects addStruct and addArray)
 
 	DynamicLayoutMode readonly m_mode;
+
+	// only for DynamicLayoutMode.Stream
+
+	DynamicLayoutAwaitKind readonly m_awaitKind;
+	char readonly m_awaitChar;
 
 	bool const property m_isIncomplete {
 		return m_size > m_bufferSize;

@@ -90,6 +90,20 @@ jnc_DynamicLayout_getSink(jnc_DynamicLayout* layout) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_DynamicLayoutAwaitKind
+jnc_DynamicLayout_getAwaitKind(jnc_DynamicLayout* layout) {
+	return ((jnc::rtl::DynamicLayout*)layout)->m_awaitKind;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+char
+jnc_DynamicLayout_getAwaitChar(jnc_DynamicLayout* layout) {
+	return ((jnc::rtl::DynamicLayout*)layout)->m_awaitChar;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
@@ -106,6 +120,17 @@ JNC_EXPORT_O
 void
 jnc_DynamicLayout_closeAllGroups(jnc_DynamicLayout* layout) {
 	((jnc::rtl::DynamicLayout*)layout)->closeAllGroups();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
+jnc_DynamicLayout_resume(
+	jnc_DynamicLayout* layout,
+	jnc_DataPtr ptr,
+	size_t size
+) {
+	return ((jnc::rtl::DynamicLayout*)layout)->resume(ptr, size);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

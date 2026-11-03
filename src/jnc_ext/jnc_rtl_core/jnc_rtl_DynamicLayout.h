@@ -183,12 +183,6 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicLayout)
 
 protected:
-	enum AwaitKind {
-		AwaitKind_None,
-		AwaitKind_Size,
-		AwaitKind_Char,
-	};
-
 	enum SizeStatus {
 		SizeStatus_Error = -1,
 		SizeStatus_Complete,
@@ -281,6 +275,8 @@ public:
 	size_t m_bufferSize;
 	size_t m_sizeLimit;
 	uint_t m_mode;
+	DynamicLayoutAwaitKind m_awaitKind;
+	char m_awaitChar;
 
 protected:
 	ModuleItemDecl* m_currentDecl;
@@ -290,10 +286,6 @@ protected:
 	ct::Type* m_lastBitFieldType;
 	size_t m_lastBitOffset;
 	size_t m_lastBitCount;
-
-	AwaitKind m_awaitKind;
-	size_t m_awaitCharOffset;
-	char m_awaitChar;
 
 public:
 	DynamicLayout() {

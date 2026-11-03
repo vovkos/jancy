@@ -328,8 +328,11 @@ EXPORTS
 	jnc_DynamicLayout_setSizeLimit
 	jnc_DynamicLayout_getMode
 	jnc_DynamicLayout_getSink
+	jnc_DynamicLayout_getAwaitKind
+	jnc_DynamicLayout_getAwaitChar
 	jnc_DynamicLayout_reset
 	jnc_DynamicLayout_closeAllGroups
+	jnc_DynamicLayout_resume
 	jnc_DynamicLayoutSectionGroup_getSectionCount
 	jnc_DynamicLayoutSectionGroup_getSection
 	jnc_DynamicLayoutSection_getSectionKind

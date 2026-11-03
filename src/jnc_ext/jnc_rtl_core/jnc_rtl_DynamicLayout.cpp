@@ -144,7 +144,7 @@ DynamicLayout::reset(
 	m_pendingNotification.reset();
 	m_groupStack.clear();
 	m_lastBitFieldType = NULL;
-	m_awaitKind = AwaitKind_None;
+	m_awaitKind = DynamicLayoutAwaitKind_None;
 }
 
 size_t
@@ -168,7 +168,7 @@ DynamicLayout::resume(
 		Variant awaitResult = g_nullVariant;
 
 		switch (m_awaitKind) {
-		case AwaitKind_Size:
+		case DynamicLayoutAwaitKind_Size:
 			ASSERT(m_size > m_bufferSize);
 			packetLeftover = m_size - m_bufferSize;
 			if (bufferLeftover < packetLeftover) { // not yet
@@ -178,7 +178,7 @@ DynamicLayout::resume(
 
 			break;
 
-		case AwaitKind_Char: {
+		case DynamicLayoutAwaitKind_Char: {
 			char* p2 = (char*)memchr(p, m_awaitChar, bufferLeftover);
 			if (!p2) { // not yet
 				m_bufferSize = m_buffer->append(p, bufferLeftover);
@@ -186,7 +186,7 @@ DynamicLayout::resume(
 			}
 
 			packetLeftover = p2 - p; // not including the char!
-			size_t distance = m_bufferSize + packetLeftover - m_awaitCharOffset;
+			size_t distance = m_bufferSize + packetLeftover - m_size;
 
 			ct::Module* module = m_promise->m_ifaceHdr.m_box->m_type->getModule();
 			awaitResult.create(&distance, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
@@ -198,7 +198,7 @@ DynamicLayout::resume(
 		}
 
 		m_bufferSize = m_buffer->append(p, packetLeftover);
-		m_awaitKind = AwaitKind_None; // this await is satisified
+		m_awaitKind = DynamicLayoutAwaitKind_None; // this await is satisified
 		p += packetLeftover;
 
 		m_ptr = m_buffer->m_ptr;
@@ -228,8 +228,7 @@ DynamicLayout::asyncScanTo(char c) {
 	if (!p2) {
 		if (m_mode == DynamicLayoutMode_Stream) {
 			prepareForAwait();
-			m_awaitKind = AwaitKind_Char;
-			m_awaitCharOffset = m_size;
+			m_awaitKind = DynamicLayoutAwaitKind_Char;
 			m_awaitChar = c;
 			return m_promise;
 		}
@@ -274,7 +273,7 @@ DynamicLayout::addSize(
 		return err::fail<SizeStatus>(SizeStatus_Error, "dynamic layout buffer underflow");
 
 	prepareForAwait();
-	m_awaitKind = AwaitKind_Size; // the sink will be notified in resume()
+	m_awaitKind = DynamicLayoutAwaitKind_Size; // the sink will be notified in resume()
 	return SizeStatus_Incomplete;
 }
 
