@@ -319,6 +319,7 @@ void testThrow(
 
 	RecordingSink sink2;
 	layout.reset(jnc.DynamicLayoutMode.Block, sink2, data, 1);
+	layout.m_sizeLimit = -1; // reset() keeps the size limit
 
 	result = try runThrow(layout, kind);
 	assert(!result);
