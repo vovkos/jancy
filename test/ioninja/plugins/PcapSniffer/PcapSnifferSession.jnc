@@ -124,22 +124,6 @@ public:
 	);
 
 protected:
-	void onRefresh() {
-		ui.enumeratePcapDevices(m_deviceCombo, m_deviceProp);
-	}
-
-	void onCapture() {
-		try(m_state ? stopCapture() : capture());
-	}
-
-	void onOpenPcap();
-
-	void onDeviceComboEnter() {
-		try capture();
-	}
-
-	void onFileDlgCompleted(ui.StdDlgButton button);
-
 	void onPcapEvent(
 		uint_t syncId,
 		io.PcapEvents triggeredEvents
@@ -177,15 +161,31 @@ void PcapSnifferSession.createUi() {
 
 	m_pluginHost.m_toolBar.addLabel("Device:");
 	m_deviceCombo = ui.createPcapDeviceComboBox(m_pluginHost.m_toolBar);
-	m_deviceCombo.m_onReturnPressed += onDeviceComboEnter;
+	m_deviceCombo.m_onReturnPressed += []() {
+		try capture();
+	}
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.enumeratePcapDevices(m_deviceCombo, m_deviceProp);
+		if (count > 1)
+			m_deviceCombo.showPopup();
+	}
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? stopCapture() : try capture();
+	}
+
 	m_actionTable[ActionId.OpenPcap] = createAction("Open Pcap file (*.pcap)", "images/open-pcap.png");
-	m_actionTable[ActionId.OpenPcap].m_onTriggered += onOpenPcap;
+	m_actionTable[ActionId.OpenPcap].m_onTriggered += []() {
+		ensureFileDlg();
+
+		m_fileDlg.m_kind = ui.FileDlgKind.Open;
+		m_fileDlg.m_title = "Open Pcap File...";
+		m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
+		m_fileDlg.show();
+	}
 
 	// status bar
 
@@ -287,24 +287,13 @@ void PcapSnifferSession.createUi() {
 	m_uiReactor.start();
 }
 
-void PcapSnifferSession.onOpenPcap() {
-	ensureFileDlg();
-
-	m_fileDlg.m_kind = ui.FileDlgKind.Open;
-	m_fileDlg.m_title = "Open Pcap File...";
-	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
-	m_fileDlg.show();
-}
-
-void PcapSnifferSession.onFileDlgCompleted(ui.StdDlgButton button) {
-	if (button == ui.StdDlgButton.Ok)
-		try openPcapFile(m_fileDlg.m_filePath, m_captureFilterProp.m_value);
-}
-
 void PcapSnifferSession.ensureFileDlg() {
 	if (!m_fileDlg) {
 		m_fileDlg = new ui.FileDlg;
-		m_fileDlg.m_onCompleted += onFileDlgCompleted;
+		m_fileDlg.m_onCompleted += [](ui.StdDlgButton button) {
+			if (button == ui.StdDlgButton.Ok)
+				try openPcapFile(m_fileDlg.m_filePath, m_captureFilterProp.m_value);
+		}
 	}
 }
 
@@ -418,7 +407,7 @@ void PcapSnifferSession.load(doc.Storage* storage) {
 
 void PcapSnifferSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
-	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
+	storage.writeInt("deviceIdx", (int)m_deviceCombo.m_currentIndex);
 	storage.writeString("captureFilter", m_captureFilterProp.m_value);
 	storage.writeBool("promiscious", m_promisciousProp.m_value);
 	storage.writeInt("ipFragmentLimit", m_ipFragmentLimitProp.m_value);

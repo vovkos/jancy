@@ -1,0 +1,205 @@
+//..............................................................................
+//
+// mDNS log representer (visually consistent with NetSnifferLog)
+//
+
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+import "io_Mdns.jnc"
+import "log_Representation.jnc"
+import "log_RepresentDynamicLayout.jnc"
+import "log_Writer.jnc"
+import "std_Array.jnc"
+import "MdnsLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representMdnsLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+) {
+	switch (recordCode) {
+	case MdnsLogRecordCode.ScanStarted:
+		MdnsScanParams const* params = (MdnsScanParams const*)p;
+		string_t queryName((char const*)(params + 1), size - sizeof(MdnsScanParams));
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Play;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Scanning for \e[34m%1 %2"(
+			typeof(io.DnsType).getValueName(params.m_queryType),
+			queryName
+		));
+		break;
+
+	case MdnsLogRecordCode.TxPacket:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representMdnsPacketDigest(representation, p, size);
+		break;
+
+	case MdnsLogRecordCode.RxPacket:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representMdnsPacketDigest(representation, p, size);
+		break;
+
+	case MdnsLogRecordCode.PacketDetails:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representMdnsPacketDetails(representation, p, size, foldFlags);
+		break;
+
+	case MdnsLogRecordCode.QueryError:
+		io.SocketAddress const* address = (io.SocketAddress const*)p;
+		std.Error const* error = (std.Error const*)(address + 1);
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot query via \e[34m%1\e[m: %2"(
+			address.getString(),
+			error.m_description
+		));
+		break;
+
+	case MdnsLogRecordCode.ScanCompleted:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Stop;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Scan completed: %1 reply(s)"(*(uint32_t const*)p));
+		break;
+
+	case MdnsLogRecordCode.ScanStopped:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Stop;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Scan stopped: %1 reply(s)"(*(uint32_t const*)p));
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+bool detailizeMdnsLog(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+) {
+	switch (recordCode) {
+	case MdnsLogRecordCode.TxPacket:
+	case MdnsLogRecordCode.RxPacket:
+		writer.write(timestamp, MdnsLogRecordCode.PacketDetails, p, size);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// same as NetSnifferLog DNS digests: a header line + a preview of the first RRs
+
+void representMdnsPacketDigest(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+) {
+	enum {
+		PreviewLineCount = 2,
+	}
+
+	MdnsPacketHdr const* hdr = (MdnsPacketHdr const*)p;
+	void const* message = hdr + 1;
+	size_t messageSize = size - sizeof(MdnsPacketHdr);
+	string_t srcString = hdr.m_srcAddress.getString();
+	string_t dstString = hdr.m_dstAddress.getString();
+
+	if (messageSize < sizeof(io.DnsHdr)) {
+		representation.addHyperText($"\e[1mmDNS \e[10;34m%1\e[m \u2192 \e[34m%2\e[m [INCOMPLETE]"(srcString, dstString));
+		return;
+	}
+
+	representation.addHyperText($"\e[1mmDNS \e[10;34m%1\e[m \u2192 \e[34m%2\e[m %3"(
+		srcString,
+		dstString,
+		io.formatDnsDigest(message)
+	));
+
+	io.MdnsRecordCollector* collector = new io.MdnsRecordCollector;
+	bool isValid = io.collectMdnsRecords(collector, message, messageSize);
+
+	size_t count = collector.m_recordArray.m_count;
+	size_t previewCount = count;
+	size_t previewLineIdx = -1;
+	if (count > PreviewLineCount) {
+		previewCount = PreviewLineCount;
+		previewLineIdx = PreviewLineCount - 1;
+	}
+
+	for (size_t i = 0; i < previewCount; i++) {
+		if (i == previewLineIdx)
+			representation.m_lineAttr.m_flags |= log.LineAttrFlags.Preview;
+
+		io.MdnsRecord const* record = collector.m_recordArray.m_p[i];
+		string_t typeString = typeof(io.DnsType).getValueString(record.m_type);
+		if (record.m_section == io.MdnsRecordSection.Question)
+			representation.addHyperText($"Question:\t%1 (%2)"(record.m_name, typeString));
+		else {
+			string_t valueString = record.getValueString();
+			representation.addHyperText($"Answer:\t%1 (%2%3%4)"(
+				record.m_name,
+				typeString,
+				valueString ? ": " : null,
+				valueString
+			));
+		}
+	}
+
+	if (!isValid)
+		representation.addHyperText("[MALFORMED]");
+}
+
+void representMdnsPacketDetails(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+) {
+	MdnsPacketHdr const* hdr = (MdnsPacketHdr const*)p;
+
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+	representation.addHyperText($"\e[1mUDP \e[10;34m%1\e[m \u2192 \e[34m%2"(
+		hdr.m_srcAddress.getString(),
+		hdr.m_dstAddress.getString()
+	));
+
+	representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined; // raw data base: transparent
+	representMdnsMessage(representation, hdr + 1, size - sizeof(MdnsPacketHdr), foldFlags);
+}
+
+void representMdnsMessage(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+) {
+	jnc.DynamicLayoutSectionBuilder builder;
+	jnc.DynamicLayout layout(builder, p, size);
+	io.layoutMdnsMessage(layout);
+	log.representDynamicLayout(representation, builder.m_sectionGroup, p, layout.m_size, foldFlags);
+
+catch:
+	representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+	representation.addHyperText($"Malformed mDNS message: %1"(std.getLastError().m_description));
+	representation.addBin(p, size);
+}
+
+//..............................................................................

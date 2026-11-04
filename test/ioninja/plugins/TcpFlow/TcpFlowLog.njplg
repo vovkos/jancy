@@ -24,7 +24,7 @@ TcpFlowLogRepresenter.jnc
 01d487c96e3d5259  # Connecting
 01d487c96e3d525a  # ConnectCompleted
 01d487c96e3d525b  # ConnectionPickedUp
-01d487c96e3d525c  # Disconnected_old
+01d487c96e3d525c  # Disconnected_0
 01d487c96e3d525d  # OutOfOrderDataDropped
 01d487c96e3d525e  # ConnectionChanged
 01d487c96e3d525f  # Disconnected

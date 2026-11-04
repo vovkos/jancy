@@ -27,4 +27,5 @@ org.jancy.io.file
 
 [scripts]
 
+EthernetTap.jnc
 EthernetTapSession.jnc

@@ -108,14 +108,6 @@ public:
 	}
 
 protected:
-	void onOpen() {
-		m_state ? close() : try open();
-	}
-
-	void onFileNameComboEnter() {
-		try open();
-	}
-
 	void onFileStreamEvent(
 		uint_t syncId,
 		io.FileStreamEvents triggeredEvents
@@ -149,7 +141,10 @@ void FileSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("File:");
 	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_fileNameCombo.m_isEditable = true;
-	m_fileNameCombo.m_onReturnPressed += onFileNameComboEnter;
+	m_fileNameCombo.m_onReturnPressed += []() {
+		try open();
+	}
+
 	m_fileNameCombo.m_placeholderText = "Enter a file or device name...";
 
 	m_pluginHost.m_toolBar.addSpacing();
@@ -160,7 +155,9 @@ void FileSession.createUi() {
 	m_iconTable[IconId.Clear] = new ui.Icon("images/clear.png");
 
 	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? close() : try open();
+	}
 
 	m_actionTable[ActionId.Clear] = createAction("Clear", m_iconTable[IconId.Clear]);
 	m_actionTable[ActionId.Clear].m_onTriggered += clear;
@@ -229,7 +226,7 @@ bool errorcode FileSession.open() {
 	m_file.m_options = getFileStreamOptions();
 	m_file.open(fileName, openFlags);
 
-	FileOpenLogRecordParams	params;
+	FileLogOpenParams	params;
 	params.m_kind = m_file.m_kind;
 	params.m_openFlags = openFlags;
 
@@ -237,8 +234,8 @@ bool errorcode FileSession.open() {
 		FileLogRecordCode.Opened,
 		&params,
 		sizeof(params),
-		fileName.m_p,
-		fileName.m_length
+		(const char*)fileName,
+		fileName.m_length + 1
 	);
 
 	m_state = State.Opened;

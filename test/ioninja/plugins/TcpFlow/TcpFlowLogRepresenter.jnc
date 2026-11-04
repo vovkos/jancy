@@ -43,7 +43,7 @@ bool representTcpFlowLog(
 		);
 		break;
 
-	case TcpFlowLogRecordCode.Disconnected_old:
+	case TcpFlowLogRecordCode.Disconnected_0:
 		string_t addressString = ((io.SocketAddress const*)p).getString();
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;

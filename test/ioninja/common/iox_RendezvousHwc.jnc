@@ -1,0 +1,91 @@
+//..............................................................................
+//
+// IO Ninja rendezvous channel to a remote ioninja-hwc
+//
+// ioninja-hwc listens on the relay with no hardware selected; a session picks
+// a peripheral (activates it) right after connecting, then talks hwc protocol
+//
+
+import "iox_Rendezvous.jnc"
+import "iox_HwcTransport.jnc"
+import "io_HwcProto.jnc"
+import "std_Buffer.jnc"
+
+namespace iox {
+
+//! \addtogroup common-rendezvous
+//! @{
+
+//..............................................................................
+
+// a peripheral of a remote ioninja-hwc, as listed by the relay
+
+class RendezvousHwcDevice {
+	string_t m_path; // <owner>/<device>:<endpoint>; the server url is taken on connect
+	string_t m_text; // as shown in the device combo, e.g. <owner>/<device> COM3
+	io.RendezvousHwcPeripheralKind m_kind;
+	uint_t m_bus;     // usb taps
+	uint_t m_address; // usb taps
+	string_t m_port;  // serial
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class RendezvousHwc:
+	Rendezvous,
+	HwcTransport {
+public:
+	construct(doc.PluginHost* pluginHost) {
+		basetype.construct(pluginHost);
+		m_onConnected += resetDecoder;
+		m_onIncomingData += decode;
+	}
+
+	override bool errorcode writeMsg(
+		io.HwcMsgCode code,
+		void const* p = null,
+		size_t size = 0
+	);
+
+	bool errorcode writeActivateDeviceMsg(
+		RendezvousHwcDevice const* device,
+		io.HwcControllerKind controllerKind,
+		io.HwcCmdLineFlags cmdLineFlags = 0
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode RendezvousHwc.writeMsg(
+	io.HwcMsgCode code,
+	void const* p,
+	size_t size
+) {
+	std.Buffer buffer;
+	io.packHwcMsg(buffer, code, p, size);
+	write(buffer.m_p, buffer.m_size);
+	return true;
+}
+
+bool errorcode RendezvousHwc.writeActivateDeviceMsg(
+	RendezvousHwcDevice const* device,
+	io.HwcControllerKind controllerKind,
+	io.HwcCmdLineFlags cmdLineFlags
+) {
+	io.HwcDeviceMgrActivateDeviceParams params;
+	params.m_controllerKind = controllerKind;
+	params.m_bus = device.m_bus;
+	params.m_address = device.m_address;
+	params.m_cmdLineFlags = cmdLineFlags;
+
+	std.Buffer buffer;
+	buffer.append(&params, sizeof(params));
+	buffer.append(device.m_port.m_p, device.m_port.m_length); // serial port name, if any
+	return writeMsg(io.HwcMsgCode.DeviceMgrActivateDevice, buffer.m_p, buffer.m_size);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

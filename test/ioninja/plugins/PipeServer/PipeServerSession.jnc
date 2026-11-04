@@ -120,14 +120,6 @@ public:
 	}
 
 protected:
-	void onListen() {
-		m_state ? stopListen() : try listen();
-	}
-
-	void onPipeNameComboEnter() {
-		try listen();
-	}
-
 	void onListenerPipeEvent(
 		uint_t syncId,
 		io.NamedPipeEvents triggeredEvents
@@ -165,7 +157,10 @@ void PipeServerSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Pipe:");
 	m_pipeNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_pipeNameCombo.m_isEditable = true;
-	m_pipeNameCombo.m_onReturnPressed += onPipeNameComboEnter;
+	m_pipeNameCombo.m_onReturnPressed += []() {
+		try listen();
+	}
+
 	m_pipeNameCombo.m_placeholderText = "Enter a pipe name...";
 
 	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
@@ -173,7 +168,9 @@ void PipeServerSession.createUi() {
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
-	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
+	m_actionTable[ActionId.Listen].m_onTriggered += []() {
+		m_state ? stopListen() : try listen();
+	}
 
 	// form
 
@@ -294,7 +291,7 @@ void PipeServerSession.disconnectAll() {
 }
 
 void PipeServerSession.disconnect(PipeServerSession.Client* client) {
-	PipeDisconnectLogRecordParams params;
+	PipeServerLogDisconnectParams params;
 	params.m_id = client.m_pipe.m_osHandle;
 	m_logWriter.write(PipeServerLogRecordCode.ClientDisconnected, &params, sizeof(params));
 	removeClient(client);
@@ -510,9 +507,9 @@ void PipeServerSession.onClientPipeEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 		}
 
-		PipeDisconnectLogRecordParams params;
+		PipeServerLogDisconnectParams params;
 		params.m_id = client.m_pipe.m_osHandle;
-		params.m_flags = PipeDisconnectLogRecordFlags.Remote;
+		params.m_flags = PipeServerLogDisconnectFlags.Remote;
 		m_logWriter.write(PipeServerLogRecordCode.ClientDisconnected, &params, sizeof(params));
 		removeClient(client);
 		return;

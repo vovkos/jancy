@@ -1,0 +1,351 @@
+//..............................................................................
+//
+// DNS-SD service browser over mDNS (high-level interface for session UIs)
+//
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "io_NetworkAdapter.jnc"
+import "io_Mdns.jnc"
+import "doc_PluginHost.jnc"
+import "sys_Timer.jnc"
+import "std_Array.jnc"
+import "std_Buffer.jnc"
+import "std_HashTable.jnc"
+
+namespace iox {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+// queries every multicast-capable IPv4 adapter from an ephemeral port (legacy
+// unicast: responders reply directly, usually with PTR + SRV + TXT in one packet);
+// follow-up unicast queries to a discovered responder join the same session
+
+class MdnsBrowser {
+public:
+	enum {
+		DefaultTimeout = 2000,
+	}
+
+	class Service {
+		string_t m_serviceName;  // as queried, e.g., "_serial._sub._ioninja._tcp.local"
+		string_t m_instanceName; // e.g., "raspberrypi ttyUSB0._ioninja._tcp.local"
+		string_t m_hostName;     // SRV target
+		uint16_t m_port;         // SRV port
+		io.SocketAddress m_address; // the responder (reachable via this adapter); port = m_port
+		std.Array m_txtArray;    // string_t entries
+		size_t m_socketIndex;    // the adapter query socket it arrived on
+
+		// keys are case-insensitive; returns null if not found
+
+		string_t findTxtValue(string_t key) const;
+	}
+
+protected:
+	enum {
+		MaxDatagramSize = 9000, // RFC 6762 17
+	}
+
+	class QuerySocket {
+		io.Socket m_socket;
+	}
+
+protected:
+	doc.PluginHost* m_pluginHost;
+	std.Array m_socketArray;
+	std.StringHashTable m_serviceSet; // instance name + address -> true
+	std.StringHashTableIgnoreCase m_queryNameMap; // service name -> as queried
+	sys.Timer m_timer;
+	uint64_t m_dueTime;
+	std.Buffer m_readBuffer;
+	uint_t m_syncId;
+
+public:
+	bool bindable readonly m_isBrowsing;
+	event m_onServiceFound(Service const* service);
+	event m_onCompleted();
+
+public:
+	construct(doc.PluginHost* pluginHost) {
+		m_pluginHost = pluginHost;
+	}
+
+	// starts a session with a multicast query, e.g., "_ioninja-hwc._sub._ioninja._tcp.local"
+
+	bool errorcode browse(
+		string_t serviceName,
+		uint_t timeout = DefaultTimeout
+	);
+
+	// unicast follow-up to a responder of this session (e.g., from m_onServiceFound);
+	// each query extends the session until its own timeout
+
+	bool errorcode query(
+		string_t serviceName,
+		Service const* responder,
+		uint_t timeout = DefaultTimeout
+	);
+
+	void cancel();
+
+protected:
+	void extendDueTime(uint_t timeout);
+
+	void openQuerySocket(
+		io.SocketAddress const* interfaceAddress,
+		void const* p,
+		size_t size
+	);
+
+	void waitSocketEvents(size_t index);
+
+	void onSocketEvent(
+		uint_t syncId,
+		size_t index,
+		io.SocketEvents triggeredEvents
+	);
+
+	void onTimer(uint_t syncId);
+
+	void processReply(
+		size_t socketIndex,
+		io.SocketAddress const* address,
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string_t MdnsBrowser.Service.findTxtValue(string_t key) const {
+	for (size_t i = 0; i < m_txtArray.m_count; i++) {
+		string_t entry = m_txtArray.m_p[i];
+		if (entry.m_length > key.m_length &&
+			entry.m_p[key.m_length] == '=' &&
+			strnicmp(entry.m_p, key.m_p, key.m_length) == 0
+		)
+			return string_t(entry.m_p + key.m_length + 1, entry.m_length - key.m_length - 1);
+	}
+
+	return null;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode MdnsBrowser.browse(
+	string_t serviceName,
+	uint_t timeout
+) {
+	io.MdnsQueryBuilder queryBuilder;
+	queryBuilder.addQuestion(serviceName, io.DnsType.PTR);
+
+	cancel();
+
+	m_queryNameMap[serviceName] = serviceName;
+	m_readBuffer.setSize(MaxDatagramSize);
+
+	io.NetworkAdapterDesc const* adapter = io.enumerateNetworkAdapters();
+	for (; adapter; adapter = adapter.m_next) {
+		if (adapter.m_type == io.NetworkAdapterType.Loopback ||
+			!(adapter.m_flags & io.NetworkAdapterFlags.Multicast))
+			continue;
+
+		io.NetworkAdapterAddress const* address = adapter.m_address;
+		for (; address; address = address.m_next)
+			if (address.m_address.m_family == io.AddressFamily.Ip4)
+				openQuerySocket(&address.m_address, queryBuilder.m_buffer.m_p, queryBuilder.m_buffer.m_size);
+	}
+
+	m_isBrowsing = true;
+	extendDueTime(timeout);
+	return true;
+}
+
+bool errorcode MdnsBrowser.query(
+	string_t serviceName,
+	Service const* responder,
+	uint_t timeout
+) {
+	if (!m_isBrowsing || responder.m_socketIndex >= m_socketArray.m_count) {
+		std.setError("mDNS browsing session is not active");
+		return false;
+	}
+
+	io.MdnsQueryBuilder queryBuilder;
+	queryBuilder.addQuestion(serviceName, io.DnsType.PTR);
+
+	io.SocketAddress address = responder.m_address;
+	address.m_port = io.MdnsPort;
+
+	QuerySocket* socket = m_socketArray.m_p[responder.m_socketIndex];
+	socket.m_socket.writeDatagram(queryBuilder.m_buffer.m_p, queryBuilder.m_buffer.m_size, &address);
+
+	m_queryNameMap[serviceName] = serviceName;
+	extendDueTime(timeout);
+	return true;
+}
+
+void MdnsBrowser.cancel() {
+	m_timer.stop();
+	m_dueTime = 0;
+
+	for (size_t i = 0; i < m_socketArray.m_count; i++) {
+		QuerySocket* socket = m_socketArray.m_p[i];
+		socket.m_socket.close();
+	}
+
+	m_socketArray.clear();
+	m_serviceSet.clear();
+	m_queryNameMap.clear();
+	m_isBrowsing = false;
+	m_syncId++;
+}
+
+void MdnsBrowser.extendDueTime(uint_t timeout) {
+	uint64_t dueTime = sys.getTimestamp() + timeout * 10000;
+	if (dueTime <= m_dueTime)
+		return;
+
+	m_dueTime = dueTime;
+	m_timer.startDueTimer(onTimer~(m_syncId) @ m_pluginHost.m_mainThreadScheduler, dueTime);
+}
+
+// adapters that are down fail here -- skipped silently (no adapter state to filter them out)
+
+void MdnsBrowser.openQuerySocket(
+	io.SocketAddress const* interfaceAddress,
+	void const* p,
+	size_t size
+) {
+	QuerySocket* socket = new QuerySocket;
+
+nestedscope:
+	// bound explicitly: windows rejects recvfrom on an unbound socket
+
+	io.SocketAddress anyAddress;
+	anyAddress.m_family = interfaceAddress.m_family;
+
+	socket.m_socket.m_multicastHopLimit = 255; // RFC 6762 11
+	socket.m_socket.m_multicastInterfaceAddress = *interfaceAddress;
+	socket.m_socket.open(io.Protocol.Udp, &anyAddress);
+
+	io.SocketAddress groupAddress = io.getMdnsGroupAddress(interfaceAddress.m_family);
+	socket.m_socket.writeDatagram(p, size, &groupAddress);
+
+	size_t index = m_socketArray.m_count;
+	m_socketArray.append(socket);
+	waitSocketEvents(index);
+
+catch:
+	socket.m_socket.close();
+}
+
+void MdnsBrowser.waitSocketEvents(size_t index) {
+	QuerySocket* socket = m_socketArray.m_p[index];
+	socket.m_socket.wait(
+		io.SocketEvents.IoError | io.SocketEvents.IncomingData,
+		onSocketEvent~(m_syncId, index) @ m_pluginHost.m_mainThreadScheduler
+	);
+}
+
+void MdnsBrowser.onSocketEvent(
+	uint_t syncId,
+	size_t index,
+	io.SocketEvents triggeredEvents
+) {
+	if (syncId != m_syncId)
+		return;
+
+	QuerySocket* socket = m_socketArray.m_p[index];
+
+	if (triggeredEvents & io.SocketEvents.IoError) {
+		socket.m_socket.close();
+		return;
+	}
+
+	if (triggeredEvents & io.SocketEvents.IncomingData) {
+		io.SocketAddress address;
+		size_t size = socket.m_socket.readDatagram(m_readBuffer.m_p, m_readBuffer.m_size, &address);
+
+		// services keep views into the datagram (TXT strings) -- each one needs its own copy
+		void* p = new char[size];
+		memcpy(p, m_readBuffer.m_p, size);
+		processReply(index, &address, p, size);
+		if (syncId != m_syncId) // cancelled from m_onServiceFound
+			return;
+	}
+
+	waitSocketEvents(index);
+}
+
+void MdnsBrowser.onTimer(uint_t syncId) {
+	if (syncId != m_syncId)
+		return;
+
+	cancel();
+	m_onCompleted();
+}
+
+void MdnsBrowser.processReply(
+	size_t socketIndex,
+	io.SocketAddress const* address,
+	void const* p,
+	size_t size
+) {
+	io.MdnsRecordCollector* collector = new io.MdnsRecordCollector;
+	io.collectMdnsRecords(collector, p, size); // a malformed tail is ignored
+
+	std.Array const* recordArray = collector.m_recordArray;
+	for (size_t i = 0; i < recordArray.m_count; i++) {
+		io.MdnsRecord const* ptr = recordArray.m_p[i];
+		if (ptr.m_section == io.MdnsRecordSection.Question || ptr.m_type != io.DnsType.PTR)
+			continue;
+
+		string_t serviceName = m_queryNameMap[ptr.m_name];
+		if (!serviceName)
+			continue;
+
+		Service* service = new Service;
+		service.m_serviceName = serviceName;
+		service.m_instanceName = ptr.m_targetName;
+		service.m_address = *address;
+		service.m_socketIndex = socketIndex;
+
+		for (size_t j = 0; j < recordArray.m_count; j++) {
+			io.MdnsRecord const* record = recordArray.m_p[j];
+			if (record.m_section == io.MdnsRecordSection.Question ||
+				stricmp(record.m_name, service.m_instanceName) != 0)
+				continue;
+
+			switch (record.m_type) {
+			case io.DnsType.SRV:
+				service.m_hostName = record.m_targetName;
+				service.m_port = record.m_port;
+				break;
+
+			case io.DnsType.TXT:
+				service.m_txtArray.copy(record.m_txtArray.m_p, record.m_txtArray.m_count);
+				break;
+			}
+		}
+
+		service.m_address.m_port = service.m_port;
+
+		string_t key = $"%1\n%2"(service.m_instanceName, address.getString());
+		std.MapEntry* entry = m_serviceSet.visit(key);
+		if (entry.m_value) // already reported (e.g., via another adapter)
+			continue;
+
+		entry.m_value = true;
+		m_onServiceFound(service);
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

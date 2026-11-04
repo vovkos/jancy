@@ -114,6 +114,27 @@ size_t errorcode receiveAll(
 	return p - p0;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// inter-session messaging
+
+void listenToMessages(string_t receiverId);
+
+void sendMessage(
+	string_t receiverId,
+	string_t messageId,
+	void const* p,
+	size_t size
+);
+
+void sendMessage(
+	string_t receiverId,
+	string_t messageId,
+	string_t text
+) {
+	sendMessage(receiverId, messageId, text.m_p, text.m_length);
+}
+
 //..............................................................................
 
 // entry points for the script (beware the thread context!)
@@ -139,6 +160,13 @@ void pretransmit(
 void onLogRecord(
 	uint64_t timestamp,
 	uint64_t recordCode,
+	void const* p,
+	size_t size
+);
+
+[ prototype ]
+void onMessage(
+	string_t messageId,
 	void const* p,
 	size_t size
 );

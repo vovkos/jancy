@@ -28,7 +28,7 @@ bool representHidLog(
 			log.StdLogIcon.Connect,
 			log.StdLogColor.Connect,
 			"Opened HID device",
-			(HidDeviceInfoParams const*)p,
+			(HidLogDeviceInfoParams const*)p,
 			foldFlags
 		);
 		break;
@@ -39,7 +39,7 @@ bool representHidLog(
 			log.StdLogIcon.Info,
 			ui.StdColor.PastelGray,
 			"HID device info",
-			(HidDeviceInfoParams const*)p,
+			(HidLogDeviceInfoParams const*)p,
 			foldFlags
 		);
 		break;
@@ -141,7 +141,6 @@ bool representHidLog(
 		);
 		break;
 
-
 	default:
 		return false;
 	}
@@ -156,7 +155,7 @@ void representDeviceInfo(
 	uint_t iconIdx,
 	uint_t backColor,
 	string_t text,
-	HidDeviceInfoParams const* params,
+	HidLogDeviceInfoParams const* params,
 	uint_t foldFlags
 ) {
 	string_t path = (char const*)(params + 1);
@@ -344,11 +343,11 @@ void representReport(
 	string_t suffix;
 
 	if (!(uint16_t const*)p) {
-		UnknownHidReportParams const* params = (UnknownHidReportParams const*)p;
+		HidLogUnknownReportParams const* params = (HidLogUnknownReportParams const*)p;
 		reportId = params.m_reportId;
 		suffix = " \e[31mUNKNOWN";
 		p = params + 1;
-		size -= sizeof(UnknownHidReportParams);
+		size -= sizeof(HidLogUnknownReportParams);
 	} else {
 		report = new io.HidStandaloneReport;
 		size_t decodeInfoSize = report.loadDecodeInfo(io.g_hidDb, p, size);

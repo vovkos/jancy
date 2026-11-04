@@ -122,31 +122,9 @@ public:
 	);
 
 protected:
-	void onRefresh() {
-		ui.enumerateNetworkAdapters(
-			ui.NetworkAdapterUsage.Listener,
-			m_adapterCombo,
-			m_socketPropertySet.m_adapterProp
-		);
-	}
-
-	void onOpen() {
-		m_state ? closeSocket() : try openSocket();
-	}
-
-	void onPortComboEnter() {
-		try openSocket();
-	}
-
 	void onRemoteAddressChanged() {
 		m_resolver.cancel();
 	}
-
-	void onRemoteAddressEnter() {
-		try resolve();
-	}
-
-	void onResolveCompleted();
 
 	void onSocketEvent(
 		uint_t syncId,
@@ -174,7 +152,12 @@ UdpSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_resolver.m_onCompleted += onResolveCompleted;
+	m_resolver.m_onCompleted += []() {
+		if (m_resolver.m_state == iox.HostNameResolver.State.Resolved && m_hasPendingDatagram)
+			writeDatagram(m_pendingDatagram.m_p, m_pendingDatagram.m_size, &m_resolver.m_address);
+
+		m_hasPendingDatagram = false;
+	}
 }
 
 void UdpSession.createUi() {
@@ -188,7 +171,10 @@ void UdpSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Remote:");
 	m_remoteAddressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_remoteAddressCombo.m_isEditable = true;
-	m_remoteAddressCombo.m_onReturnPressed += onRemoteAddressEnter;
+	m_remoteAddressCombo.m_onReturnPressed += []() {
+		try resolve();
+	}
+
 	bindingof(m_remoteAddressCombo.m_editText) += onRemoteAddressChanged;
 	m_remoteAddressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
@@ -197,16 +183,29 @@ void UdpSession.createUi() {
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_socketPropertySet.m_adapterProp
+		);
+
+		if (count > 1)
+			m_adapterCombo.showPopup();
+	}
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Local port:");
 	m_localPortCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_localPortCombo.m_isEditable = true;
-	m_localPortCombo.m_onReturnPressed += onPortComboEnter;
+	m_localPortCombo.m_onReturnPressed += []() {
+		try openSocket();
+	}
 
 	m_actionTable[ActionId.Open] = createAction("Open socket", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? closeSocket() : try openSocket();
+	}
 
 	// status bar
 
@@ -277,8 +276,6 @@ nestedscope:
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
-	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
-	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 
 	m_socket.open(io.Protocol.Udp, &address);
 	address = m_socket.m_address;
@@ -344,7 +341,7 @@ void UdpSession.save(doc.Storage* storage) {
 
 	storage.writeString("remoteAddress", m_remoteAddressCombo.m_editText);
 	storage.writeInt("autoRemoteAddress", m_autoRemoteAddressProp.m_value);
-	storage.writeInt("adapterIdx", (int) m_adapterCombo.m_currentIndex);
+	storage.writeInt("adapterIdx", (int)m_adapterCombo.m_currentIndex);
 	storage.writeString("localPort", m_localPortCombo.m_editText);
 }
 
@@ -368,8 +365,6 @@ bool errorcode UdpSession.applyProperties() {
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
-	m_socket.m_tcpKeepAliveIdleTimeout = m_socketPropertySet.m_tcpKeepAliveIdleTimeoutProp.m_value;
-	m_socket.m_tcpKeepAliveRetryInterval = m_socketPropertySet.m_tcpKeepAliveRetryIntervalProp.m_value;
 	return true;
 }
 
@@ -523,13 +518,6 @@ void UdpSession.onSocketEvent(
 		m_isTransmitEnabled = true;
 
 	waitSocketEvents();
-}
-
-void UdpSession.onResolveCompleted() {
-	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved && m_hasPendingDatagram)
-		writeDatagram(m_pendingDatagram.m_p, m_pendingDatagram.m_size, &m_resolver.m_address);
-
-	m_hasPendingDatagram = false;
 }
 
 reactor UdpSession.m_uiReactor {

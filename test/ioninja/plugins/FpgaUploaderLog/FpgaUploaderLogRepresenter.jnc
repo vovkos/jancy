@@ -5,6 +5,7 @@
 
 import "log_Representation.jnc"
 import "io_RpdFile.jnc"
+import "io_usb.jncx"
 
 //..............................................................................
 
@@ -27,14 +28,26 @@ bool representFpgaUploaderLog(
 		representation.addHyperText("FPGA disabled");
 		break;
 
-	case FpgaUploaderLogRecordCode.FirmwareUpToDate:
+	case FpgaUploaderLogRecordCode.FirmwareUpToDate_0:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText("FPGA firmware is up-to-date");
 		break;
 
+	case FpgaUploaderLogRecordCode.FirmwareUpToDate:
+		uint16_t version = *(uint16_t const*)p;
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(
+			$"FPGA firmware is up-to-date (version \e[34m%1.%2\e[m)" (
+			version >> 8,
+			version & 0xff
+		));
+		break;
+
 	case FpgaUploaderLogRecordCode.FirmwareUpdateRequired:
-		uint_t version = ((io.RpdVersion const*)p).m_firmwareVersion;
+		uint16_t version = ((io.RpdVersion const*)p).m_firmwareVersion;
 		string_t fileName = (char const*)((io.RpdVersion const*)p + 1);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
@@ -42,7 +55,7 @@ bool representFpgaUploaderLog(
 		representation.addHyperText(
 			$"FPGA firmware update required: file \e[34m%1\e[m version \e[34m%2.%3\e[m" (
 			fileName,
-			(version >> 8) & 0xff,
+			version >> 8,
 			version & 0xff
 		));
 		break;
@@ -57,6 +70,12 @@ bool representFpgaUploaderLog(
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText("Uploading FPGA firmware...");
+		break;
+
+	case FpgaUploaderLogRecordCode.SendingFirmware:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Sending FPGA firmware to the remote host...");
 		break;
 
 	case FpgaUploaderLogRecordCode.EnablingFpga:
@@ -87,6 +106,16 @@ bool representFpgaUploaderLog(
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText("FPGA has been uploaded, but couldn't boot");
+		break;
+
+	case FpgaUploaderLogRecordCode.UnsupportedUsbSpeed:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText(
+			$"Device failed to negotiate\e[34mHigh\e[m speed\n"
+			"Please try plugging it via a different USB hub or cable"
+		);
+
 		break;
 
 	default:

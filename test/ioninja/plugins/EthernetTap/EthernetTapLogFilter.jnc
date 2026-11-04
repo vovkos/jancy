@@ -39,7 +39,7 @@ bool EthernetTapLogFilter.filter(
 	case EthernetTapLogRecordCode.Packet_ch1:
 	case EthernetTapLogRecordCode.Packet_ch2:
 		io.PcapFilter* filter = getPcapFilter(io.PcapLinkType.Ethernet);
-		return filter ? filter.match(p + MetaSize, size - MetaSize) : true;
+		return filter ? filter.match(p + sizeof(EthernetTapPacketMeta), size - sizeof(EthernetTapPacketMeta)) : true;
 
 	default:
 		return true; // everything else is visible

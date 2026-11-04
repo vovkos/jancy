@@ -9,6 +9,7 @@ import "io_websocket.jncx"
 import "io_WebSocket.jnc"
 import "iox_HostNameResolver.jnc"
 import "iox_WebSocket.jnc"
+import "ui_Dialog.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
 import "ui_SslPropertySet.jnc"
@@ -36,6 +37,7 @@ protected:
 		SslHandshaking,
 		WebSocketHandshakeRequest,
 		WebSocketHandshakeResponse,
+		WaitingPassphraseDlg,
 		Connected,
 		Closing,
 	}
@@ -48,6 +50,7 @@ protected:
 		"SSL-handshaking...",
 		"WS-handshaking...", // WebSocketHandshakeRequest
 		"WS-handshaking...", // WebSocketHandshakeResponse
+		"Waiting...", // WaitingPassphraseDlg
 		"Connected",
 		"Closing...",
 	}
@@ -81,7 +84,8 @@ protected:
 		SecurePort   = 443,
 	}
 
-	struct ResolverContext {
+	struct ConnectParams {
+		io.SocketAddress m_address;
 		string_t m_resource;
 		string_t m_host;
 		bool m_isSecure;
@@ -93,7 +97,8 @@ protected:
 	State bindable m_state;
 	io.WebSocket m_socket;
 	iox.HostNameResolver m_resolver;
-	ResolverContext m_resolverContext;
+	ConnectParams m_connectParams;
+	ui.PasswordDlg* m_passphraseDlg;
 	io.SocketAddress m_localAddress;
 	io.SocketAddress m_remoteAddress;
 	std.Buffer m_readBuffer;
@@ -168,14 +173,6 @@ protected:
 	void close();
 	void handleSocketError(std.Error const* error);
 
-	void onConnect() {
-		m_state ? disconnect() : try connect();
-	}
-
-	void onAddressComboEnter() {
-		try connect();
-	}
-
 	void onResolveCompleted();
 
 	void onSocketEvent(
@@ -186,6 +183,7 @@ protected:
 	void onReconnectTimer(uint_t syncId);
 
 	void createUi();
+	void onPassphraseDlgCompleted(ui.StdDlgButton button);
 	void startReconnectTimer(uint64_t lastReconnectTime = -1);
 	void waitSocketEvents();
 	void addDisconnectLogRecord(uint_t flags);
@@ -210,14 +208,20 @@ void WebSocketClientSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
+	m_addressCombo.m_onReturnPressed += []() {
+		try connect();
+	}
+
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
 	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
-	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
+	m_actionTable[ActionId.Connect].m_onTriggered += []() {
+		m_state ? disconnect() : try connect();
+	}
+
 	m_actionTable[ActionId.Ping] = createAction("Ping", "images/ping.png");
 	m_actionTable[ActionId.Ping].m_onTriggered += ping;
 
@@ -289,6 +293,9 @@ void WebSocketClientSession.createUi() {
 bool errorcode WebSocketClientSession.connect() {
 	disconnect();
 
+	if (!m_sslPropertySet.m_rememberLastPassphraseProp.m_value && m_passphraseDlg)
+		m_passphraseDlg.m_password = null;
+
 	startSession();
 
 	string_t addressString = m_addressCombo.m_editText;
@@ -332,9 +339,9 @@ bool errorcode WebSocketClientSession.connect() {
 			addressFamily = adapterAddress.m_family;
 	}
 
-	m_resolverContext.m_resource = resource;
-	m_resolverContext.m_host = host;
-	m_resolverContext.m_isSecure = isSecure;
+	m_connectParams.m_resource = resource;
+	m_connectParams.m_host = host;
+	m_connectParams.m_isSecure = isSecure;
 
 	m_resolver.m_defaultPort = isSecure ? Defaults.SecurePort : Defaults.InsecurePort;
 	m_resolver.resolve(host, addressFamily);
@@ -383,29 +390,68 @@ bool errorcode WebSocketClientSession.connect(
 		m_socket.open(&m_localAddress, isSecure);
 	}
 
-	m_state = State.TcpConnecting;
-	m_sessionConnectionState = SessionConnectionState.Connecting;
-	m_remoteAddress = *remoteAddress;
-
 	if (isSecure) {
 		m_socket.m_sslState.m_securityLevel = m_sslPropertySet.m_securityLevelProp.m_value;
 		m_socket.m_sslState.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
 
 		if (m_sslPropertySet.m_useCertificateProp.m_value) {
 			m_socket.m_sslState.loadCertificate(m_sslPropertySet.m_certificateFileProp.m_value);
-			m_socket.m_sslState.loadPrivateKey(m_sslPropertySet.m_privateKeyFileProp.m_value);
+
+			string_t keyFileName = m_sslPropertySet.m_privateKeyFileProp.m_value;
+			string_t passphrase = m_passphraseDlg ? m_passphraseDlg.m_password : null;
+			io.SslPrivateKeyResult result = try m_socket.m_sslState.loadPrivateKey(keyFileName, passphrase);
+			if (result != io.SslPrivateKeyResult.Success) {
+				if (result != io.SslPrivateKeyResult.PassphraseError)
+					throw; // hard error, handle it in catch
+
+				// the key is encrypted and we have no passphrase (or a wrong one);
+				// ask the user, then re-enter connect() from onPassphraseDlgCompleted
+
+				if (!m_passphraseDlg) {
+					m_passphraseDlg = new ui.PasswordDlg;
+					m_passphraseDlg.m_title = "Private Key Passphrase";
+					m_passphraseDlg.m_onCompleted += onPassphraseDlgCompleted;
+				}
+
+				m_passphraseDlg.m_message = m_passphraseDlg.m_password ?
+					$"Wrong passphrase, please try again:" :
+					$"Enter the passphrase for the private key<br><b>$keyFileName</b>:";
+
+				if (passphrase) { // the one we just tried was wrong
+					std.setError("wrong passphrase");
+					m_logWriter.writeLastError(SocketLogRecordCode.ConnectError);
+				}
+
+				m_logWriter.write(SslLogRecordCode.SslPassphrasePrompt);
+				m_passphraseDlg.show();
+
+				m_connectParams.m_address = *remoteAddress;
+				m_connectParams.m_resource = resource;
+				m_connectParams.m_host = host;
+				m_connectParams.m_isSecure = isSecure;
+
+				m_state = State.WaitingPassphraseDlg;
+				m_sessionConnectionState = SessionConnectionState.Connecting;
+				return true;
+			}
 		}
 
 		if (m_sslPropertySet.m_verifyCertificateProp.m_value) {
 			m_socket.m_sslState.m_verifyMode = io.SslVerifyMode.VerifyPeerCertificate;
 			m_socket.m_sslState.m_verifyDepth = m_sslPropertySet.m_verifyDepthProp.m_value;
 
-			m_socket.m_sslState.loadVerifyLocations(
-				m_sslPropertySet.m_verifyCaFileProp.m_value,
-				m_sslPropertySet.m_verifyCaDirProp.m_value
-			);
+			string_t caFileName = m_sslPropertySet.m_verifyCaFileProp.m_value;
+			string_t caDir = m_sslPropertySet.m_verifyCaDirProp.m_value;
+			if (caFileName || caDir)
+				m_socket.m_sslState.loadVerifyLocations(caFileName, caDir);
+			else
+				m_socket.m_sslState.setDefaultVerifyPaths();
 		}
 	}
+
+	m_state = State.TcpConnecting;
+	m_sessionConnectionState = SessionConnectionState.Connecting;
+	m_remoteAddress = *remoteAddress;
 
 	m_socket.connect(remoteAddress, resource, host);
 
@@ -417,9 +463,9 @@ bool errorcode WebSocketClientSession.connect(
 	return true;
 
 catch:
-	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
+	if (!m_socketPropertySet.m_useLocalAddressProp.m_value)
 		m_logWriter.write(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
-	} else {
+	else {
 		void const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 		m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 	}
@@ -432,7 +478,8 @@ void WebSocketClientSession.waitSocketEvents() {
 	io.WebSocketEvents eventMask =
 		io.WebSocketEvents.IoError |
 		io.WebSocketEvents.TcpDisconnected |
-		io.WebSocketEvents.TcpReset;
+		io.WebSocketEvents.TcpReset |
+		io.WebSocketEvents.TcpAborted;
 
 	switch (m_state) {
 	case State.TcpConnecting:
@@ -470,15 +517,10 @@ void WebSocketClientSession.waitSocketEvents() {
 }
 
 void WebSocketClientSession.addDisconnectLogRecord(uint_t flags) {
-	TcpDisconnectLogRecordParams params;
+	SocketLogDisconnectParams params;
 	params.m_address = m_remoteAddress;
 	params.m_flags = flags;
-
-	m_logWriter.write(
-		SocketLogRecordCode.Disconnected,
-		&params,
-		sizeof(params)
-	);
+	m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 }
 
 void WebSocketClientSession.handleSocketError(std.Error const* error) {
@@ -510,6 +552,7 @@ void WebSocketClientSession.disconnect() {
 	case State.SslHandshaking:
 	case State.WebSocketHandshakeRequest:
 	case State.WebSocketHandshakeResponse:
+	case State.WaitingPassphraseDlg:
 		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
 		break;
 
@@ -525,11 +568,7 @@ void WebSocketClientSession.disconnect() {
 		// ...and fall-through
 
 	case State.Closing:
-		addDisconnectLogRecord(
-			(m_socket.m_options & io.SocketOptions.TcpReset) ?
-			TcpDisconnectLogRecordFlags.Reset :
-			0
-		);
+		addDisconnectLogRecord(getSocketLogDisconnectFlagsFromOptions(m_socket.m_options));
 		break;
 	}
 
@@ -684,7 +723,17 @@ void WebSocketClientSession.onSocketEvent(
 			m_logWriter.write(SslLogRecordCode.SslCertificate, buffer.m_p, buffer.m_size);
 		}
 
-		m_logWriter.write(SslLogRecordCode.SslCipher, m_socket.m_sslState.m_currentCipher.m_name);
+		packSslLogConnectParams(
+			buffer,
+			m_socket.m_sslState.m_version,
+			m_socket.m_sslState.m_keyExchangeGroup,
+			m_socket.m_sslState.m_currentCipher.m_name,
+			SslLogConnectFlags.Info | ( // WebSocket connection established comes later
+				(m_socket.m_sslState.m_verifyMode & io.SslVerifyMode.VerifyPeerCertificate) ? 0 : SslLogConnectFlags.CertificateNotVerified
+			)
+		);
+
+		m_logWriter.write(SslLogRecordCode.SslConnectCompleted, buffer.m_p, buffer.m_size);
 		m_state = State.WebSocketHandshakeRequest;
 	}
 
@@ -723,11 +772,7 @@ void WebSocketClientSession.onSocketEvent(
 				m_readBuffer.m_size
 			));
 
-		addDisconnectLogRecord(
-			(m_socket.m_options & io.SocketOptions.TcpReset) ?
-			TcpDisconnectLogRecordFlags.Reset :
-			0
-		);
+		addDisconnectLogRecord(getSocketLogDisconnectFlagsFromOptions(m_socket.m_options));
 
 		close();
 		return;
@@ -742,11 +787,7 @@ void WebSocketClientSession.onSocketEvent(
 				m_readBuffer.m_size
 			));
 
-		addDisconnectLogRecord(
-			(triggeredEvents & io.WebSocketEvents.TcpReset) ?
-			TcpDisconnectLogRecordFlags.Remote | TcpDisconnectLogRecordFlags.Reset :
-			TcpDisconnectLogRecordFlags.Remote
-		);
+		addDisconnectLogRecord(getSocketLogDisconnectFlagsFromEvents(triggeredEvents));
 
 		uint64_t lastReconnectTime = m_lastReconnectTime;
 		close();
@@ -770,15 +811,35 @@ void WebSocketClientSession.onSocketEvent(
 	waitSocketEvents();
 }
 
+void WebSocketClientSession.onPassphraseDlgCompleted(ui.StdDlgButton button) {
+	if (m_state != State.WaitingPassphraseDlg)
+		return;
+
+	if (button != ui.StdDlgButton.Ok) {
+		m_passphraseDlg.m_password = null;
+		disconnect();
+		return;
+	}
+
+	m_state = State.Closed;
+
+	try connect(
+		&m_connectParams.m_address,
+		m_connectParams.m_resource,
+		m_connectParams.m_host,
+		m_connectParams.m_isSecure
+	);
+}
+
 void WebSocketClientSession.onResolveCompleted() {
 	m_state = State.Closed;
 
 	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
 		try connect(
 			m_resolver.m_address,
-			m_resolverContext.m_resource,
-			m_resolverContext.m_host,
-			m_resolverContext.m_isSecure
+			m_connectParams.m_resource,
+			m_connectParams.m_host,
+			m_connectParams.m_isSecure
 		);
 }
 

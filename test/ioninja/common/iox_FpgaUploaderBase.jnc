@@ -1,0 +1,69 @@
+//..............................................................................
+//
+// Common surface of local & remote FPGA uploaders (the progress dialog binds to it)
+//
+
+import "doc_PluginHost.jnc"
+import "log_Writer.jnc"
+
+namespace iox {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+enum FpgaUploaderState {
+	Idle,
+	QueryingVersion, // remote: queryVersion()
+	CheckingVersion, // remote: is the firmware up-to-date?
+
+	// from here on, the firmware is being updated
+
+	Preparing,       // local: pre-erase status check
+	Sending,         // remote: sending the file to ioninja-hwc
+	Erasing,
+	Writing,
+	Loading,
+	Verifying,       // remote: did the new firmware boot?
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class FpgaUploaderBase {
+protected:
+	log.Writer* m_logWriter;
+	jnc.Scheduler* m_mainThreadScheduler;
+
+public:
+	FpgaUploaderState bindable readonly m_state;
+	uint_t bindable readonly m_progress; // 0..100
+
+	static string_t const m_stateStringTable[] = {
+		"Idle",
+		"Querying firmware version...",
+		"Checking firmware version...",
+		"Preparing...",
+		"Sending firmware file...",
+		"Erasing flash memory...",
+		"Uploading firmware file...",
+		"Switching to the newly uploaded firmware...",
+		"Verifying the newly uploaded firmware...",
+	}
+
+	event m_onUpdateCompleted(bool result);
+
+public:
+	construct(doc.PluginHost* pluginHost) {
+		m_logWriter = pluginHost.m_log.m_writer;
+		m_mainThreadScheduler = pluginHost.m_mainThreadScheduler;
+	}
+
+	abstract void cancel();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

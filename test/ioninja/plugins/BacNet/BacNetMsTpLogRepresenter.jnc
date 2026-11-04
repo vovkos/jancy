@@ -29,7 +29,8 @@ bool representBacNetMsTpLog(
 	case BacNetMsTpLogRecordCode.RxPacket:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket + recordCode - BacNetMsTpLogRecordCode.TxPacket;
 
-		jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Stream | jnc.DynamicLayoutMode.Save, p, size);
+		jnc.DynamicLayoutSectionBuilder builder;
+		jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Stream, builder, p, size);
 		jnc.Promise* promise = layoutBacNetMsTp(layout);
 		if (layout.m_isIncomplete) {
 			representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
@@ -40,7 +41,7 @@ bool representBacNetMsTpLog(
 			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 			representation.addHyperText($"BacNetMsTp parse error: %1"(promise.m_error.m_description));
 		} else
-			log.representDynamicLayout(representation, layout, foldFlags);
+			log.representDynamicLayout(representation, builder.m_sectionGroup, p, layout.m_size, foldFlags);
 
 		break;
 

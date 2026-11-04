@@ -19,6 +19,7 @@ log-filter-class     = EthernetTapLogFilter
 
 EthernetTapLogRepresenter.jnc
 EthernetTapLogRecordCode.jnc
+EthernetTap.jnc
 EthernetTapLogFilter.jnc
 EthernetTapLogToPcap.jnc
 

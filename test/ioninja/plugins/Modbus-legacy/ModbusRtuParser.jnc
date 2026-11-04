@@ -102,7 +102,7 @@ nestedscope:
 
 		if (m_mode == ModbusParserMode.Alternate) {
 			m_modbusRole = aduHdr.m_deviceAddress != 0 ? // write-only broadcast from master
-				(io.ModbusRole) !m_modbusRole :
+				(io.ModbusRole)!m_modbusRole :
 				io.ModbusRole.Master;
 
 			recordCode = getPacketRecordCode();

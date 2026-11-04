@@ -133,16 +133,6 @@ protected:
 	void close();
 	void handleSocketError(std.Error const* error);
 
-	void onConnect() {
-		m_state ? disconnect() : try connect();
-	}
-
-	void onAddressComboEnter() {
-		try connect();
-	}
-
-	void onResolveCompleted();
-
 	void onSocketEvent(
 		uint_t syncId,
 		io.SslSocketEvents triggeredEvents
@@ -165,7 +155,12 @@ SslConnectionSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_resolver.m_onCompleted += onResolveCompleted;
+	m_resolver.m_onCompleted += []() {
+		m_state = State.Closed;
+
+		if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+			try connect(m_resolver.m_address);
+	}
 }
 
 void SslConnectionSession.createUi() {
@@ -174,14 +169,19 @@ void SslConnectionSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
+	m_addressCombo.m_onReturnPressed += []() {
+		try connect();
+	}
+
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
 	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
-	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
+	m_actionTable[ActionId.Connect].m_onTriggered += []() {
+		m_state ? disconnect() : try connect();
+	}
 
 	// status bar
 
@@ -325,10 +325,12 @@ bool errorcode SslConnectionSession.connect(io.SocketAddress const* remoteAddres
 		m_socket.m_verifyMode = io.SslVerifyMode.VerifyPeerCertificate;
 		m_socket.m_verifyDepth = m_sslPropertySet.m_verifyDepthProp.m_value;
 
-		m_socket.loadVerifyLocations(
-			m_sslPropertySet.m_verifyCaFileProp.m_value,
-			m_sslPropertySet.m_verifyCaDirProp.m_value
-		);
+		string_t caFileName = m_sslPropertySet.m_verifyCaFileProp.m_value;
+		string_t caDir = m_sslPropertySet.m_verifyCaDirProp.m_value;
+		if (caFileName || caDir)
+			m_socket.loadVerifyLocations(caFileName, caDir);
+		else
+			m_socket.setDefaultVerifyPaths();
 	}
 
 	if (m_hostname)
@@ -367,6 +369,7 @@ void SslConnectionSession.waitSocketEvents() {
 		eventMask |=
 			io.SslSocketEvents.TcpDisconnected |
 			io.SslSocketEvents.TcpReset |
+			io.SslSocketEvents.TcpAborted |
 			io.SslSocketEvents.SslHandshakeCompleted;
 		break;
 
@@ -374,7 +377,8 @@ void SslConnectionSession.waitSocketEvents() {
 		eventMask |=
 			io.SslSocketEvents.IncomingData |
 			io.SslSocketEvents.TcpDisconnected |
-			io.SslSocketEvents.TcpReset;
+			io.SslSocketEvents.TcpReset |
+			io.SslSocketEvents.TcpAborted;
 
 		if (!m_isTransmitEnabled)
 			eventMask |= io.SslSocketEvents.WriteBufferReady;
@@ -420,19 +424,10 @@ void SslConnectionSession.disconnect() {
 		break;
 
 	case State.Connected:
-		TcpDisconnectLogRecordParams params;
+		SocketLogDisconnectParams params;
 		params.m_address = m_remoteAddress;
-		params.m_flags = 0;
-
-		if (m_socketPropertySet.m_tcpResetProp.m_value)
-			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&params,
-			sizeof(params)
-		);
-
+		params.m_flags = getSocketLogDisconnectFlagsFromOptions(m_socket.m_options);
+		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 		break;
 	}
 
@@ -558,9 +553,15 @@ void SslConnectionSession.onSocketEvent(
 			m_logWriter.write(SslLogRecordCode.SslCertificate, buffer.m_p, buffer.m_size);
 		}
 
-		m_logWriter.write(SslLogRecordCode.SslCipher, m_socket.m_currentCipher.m_name);
+		packSslLogConnectParams(
+			buffer,
+			m_socket.m_version,
+			m_socket.m_keyExchangeGroup,
+			m_socket.m_currentCipher.m_name,
+			(m_socket.m_verifyMode & io.SslVerifyMode.VerifyPeerCertificate) ? 0 : SslLogConnectFlags.CertificateNotVerified
+		);
 
-		m_logWriter.write(SslLogRecordCode.SslConnectCompleted);
+		m_logWriter.write(SslLogRecordCode.SslConnectCompleted, buffer.m_p, buffer.m_size);
 		m_infoTable[InfoId.LocalAddress].m_value = m_localAddress.getString();
 		m_infoTable[InfoId.RemoteAddress].m_value = m_remoteAddress.getString();
 		m_state = State.Connected;
@@ -578,18 +579,10 @@ void SslConnectionSession.onSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 		}
 
-		TcpDisconnectLogRecordParams recordParams;
-		recordParams.m_address = m_remoteAddress;
-		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
-
-		if (triggeredEvents & io.SslSocketEvents.TcpReset)
-			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&recordParams,
-			sizeof(recordParams)
-		);
+		SocketLogDisconnectParams params;
+		params.m_address = m_remoteAddress;
+		params.m_flags = getSocketLogDisconnectFlagsFromEvents(triggeredEvents);
+		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 
 		uint64_t lastReconnectTime = m_lastReconnectTime;
 		close();
@@ -614,13 +607,6 @@ void SslConnectionSession.onSocketEvent(
 		m_isTransmitEnabled = true;
 
 	waitSocketEvents();
-}
-
-void SslConnectionSession.onResolveCompleted() {
-	m_state = State.Closed;
-
-	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
-		try connect(m_resolver.m_address);
 }
 
 void SslConnectionSession.onReconnectTimer(uint_t syncId) {

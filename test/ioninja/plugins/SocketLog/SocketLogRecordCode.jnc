@@ -4,6 +4,9 @@
 //
 
 import "log_RecordCode.jnc"
+import "io_base.jncx"
+import "io_SocketEvents.jnc"
+import "io_SocketOptions.jnc"
 
 //..............................................................................
 
@@ -20,7 +23,7 @@ enum SocketLogRecordCode: uint64_t {
 	ConnectCancelled   = 0x01d483f3e69da208,
 	ConnectError       = 0x01d483f3e69da209,
 	Disconnected       = 0x01d483f3e69da20a,
-	Disconnected_old   = 0x01d483f3e69da20b,
+	Disconnected_0     = 0x01d483f3e69da20b, // deprecated
 	ResolveCancelled   = ConnectCancelled,   // alias
 	ResolveError       = ConnectError,       // alias
 	ReconnectDelay     = 0x01d483f3e69da212,
@@ -48,15 +51,37 @@ enum SocketLogPartCode: uint64_t {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum TcpDisconnectLogRecordFlags {
+bitflag enum SocketLogDisconnectFlags {
 	Remote,
-	Reset,
-	KeepClient,
+	Reset_old,   // for compatibility with existing logs
+	KeepClient,  // hint for ServerSocketLogFilter
+	Reset_event  = io.SocketEvents.TcpReset,
+	Reset_option = io.SocketOptions.TcpReset,
+	Aborted      = io.SocketEvents.TcpAborted,
+	ResetMask    = Reset_event | Reset_option | Reset_old,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TcpDisconnectLogRecordParams {
+SocketLogDisconnectFlags getSocketLogDisconnectFlagsFromEvents(uint_t events) {
+	SocketLogDisconnectFlags flags = (
+		SocketLogDisconnectFlags.Reset_event |
+		SocketLogDisconnectFlags.Aborted
+	) & events;
+
+	if (!(flags & SocketLogDisconnectFlags.Aborted))
+		flags |= SocketLogDisconnectFlags.Remote;
+
+	return flags;
+}
+
+SocketLogDisconnectFlags getSocketLogDisconnectFlagsFromOptions(uint_t options) {
+	return SocketLogDisconnectFlags.Reset_option & options;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SocketLogDisconnectParams {
 	io.SocketAddress m_address;
 	uint_t m_flags;
 }

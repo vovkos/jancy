@@ -77,7 +77,6 @@ enum UartGpioPin {
 	Cts = 13,
 }
 
-
 bool getGpioPin(
 	io.UsbDevice* device,
 	uint_t pin
@@ -261,14 +260,6 @@ public:
 	);
 
 protected:
-	void onCapture() {
-		m_state ? stopCapture() : try capture();
-	}
-
-	void onDeviceComboEnter() {
-		try capture();
-	}
-
 	void onBaudRateChanged();
 	void onDataBitsChanged();
 	void onParityChanged();
@@ -324,13 +315,17 @@ void SerialTapSession.createUi() {
 
 	m_pluginHost.m_toolBar.addLabel("Tap:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_deviceCombo.m_onReturnPressed += onDeviceComboEnter;
+	m_deviceCombo.m_onReturnPressed += []() {
+		try capture();
+	}
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate devices", "images/refresh.png");
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? stopCapture() : try capture();
+	}
 
 	m_actionTable[ActionId.Flip] = createAction("Flip DTE/DCE", "images/flip.png");
 	m_actionTable[ActionId.Flip].m_isCheckable = true;
@@ -690,7 +685,7 @@ void SerialTapSession.load(doc.Storage* storage) {
 void SerialTapSession.save(doc.Storage* storage) {
 	m_serialUi.save(storage);
 
-	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
+	storage.writeInt("deviceIdx", (int)m_deviceCombo.m_currentIndex);
 	storage.writeBool("flipDteDce", m_actionTable[ActionId.Flip].m_isChecked);
 
 	m_bufferPropertySet.save(storage);
@@ -707,8 +702,12 @@ bool errorcode SerialTapSession.applyProperties() {
 	m_serialUi.applyProperties();
 
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
-	m_actionTable[ActionId.Flip].m_isChecked = m_flipProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	if (m_flipProp.m_value != m_actionTable[ActionId.Flip].m_isChecked) {
+		m_actionTable[ActionId.Flip].m_isChecked = m_flipProp.m_value;
+		flipDteDce();
+	}
 
 	if (m_state != State.Opened)
 		return true;

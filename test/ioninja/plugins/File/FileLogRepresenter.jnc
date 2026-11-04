@@ -26,7 +26,7 @@ bool representFileLog(
 		break;
 
 	case FileLogRecordCode.Opened:
-		FileOpenLogRecordParams const* params = (FileOpenLogRecordParams const*)p;
+		FileLogOpenParams const* params = (FileLogOpenParams const*)p;
 		string_t fileName = (char const*)(params + 1);
 		string_t kindString = io.getFileStreamKindString(params.m_kind);
 		string_t modeString =

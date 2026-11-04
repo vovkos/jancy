@@ -1,0 +1,584 @@
+//..............................................................................
+//
+// mDNS (multicast DNS, RFC 6762) and DNS-SD (RFC 6763) definitions
+//
+
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+import "io_Dns.jnc"
+import "ui_Color.jnc"
+import "std_Array.jnc"
+import "std_Buffer.jnc"
+import "std_String.jnc"
+
+namespace io {
+
+//! \addtogroup proto-mdns
+//! @{
+
+pragma(Alignment, 1);
+
+//..............................................................................
+
+enum {
+	MdnsPort = 5353,
+}
+
+// 224.0.0.251:5353 or [ff02::fb]:5353
+
+SocketAddress getMdnsGroupAddress(AddressFamily family) {
+	SocketAddress address;
+	address.parse(family == AddressFamily.Ip6 ? "[ff02::fb]:5353" : "224.0.0.251:5353");
+	return address;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// mDNS splits the class field: the high bit requests a unicast response (QU)
+
+struct MdnsQuestionRrSuffix {
+	[ displayName = "Type" ]
+	bigendian DnsType m_type;
+
+	[
+		displayName = "Unicast response",
+		displayType = typeof(bool)
+	]
+	bigendian uint16_t m_isUnicastResponse: 1;
+
+	[
+		displayName = "Class",
+		displayType = typeof(DnsClass)
+	]
+	bigendian uint16_t m_class: 15;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// mDNS splits the class field: the high bit flushes the cached records of this
+// name & type
+
+struct MdnsAnswerRrSuffix {
+	[ displayName = "Type" ]
+	bigendian DnsType m_type;
+
+	[
+		displayName = "Cache flush",
+		displayType = typeof(bool)
+	]
+	bigendian uint16_t m_isCacheFlush: 1;
+
+	[
+		displayName = "Class",
+		displayType = typeof(DnsClass)
+	]
+	bigendian uint16_t m_class: 15;
+
+	[ displayName = "Time to live" ]
+	bigendian uint32_t m_ttl;
+
+	[ displayName = "Data length" ]
+	bigendian uint16_t m_dataLength;
+}
+
+//..............................................................................
+
+enum MdnsRecordSection {
+	Question,
+	Answer,
+	Authority,
+	Additional,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// a decoded resource record (or a question) passed to MdnsRecordVisitor
+
+class MdnsRecord {
+	MdnsRecordSection m_section;
+	string_t m_name;
+	DnsType m_type;
+	DnsClass m_class;
+	bool m_isUnicastResponse; // questions only
+	bool m_isCacheFlush;      // answers only
+	uint32_t m_ttl;
+
+	// decoded data (depends on m_type)
+
+	string_t m_targetName;    // PTR, CNAME, NS, SRV
+	uint16_t m_priority;      // SRV
+	uint16_t m_weight;        // SRV
+	uint16_t m_port;          // SRV
+	SocketAddress m_address;  // A, AAAA (link-local AAAA comes without a scope ID)
+	std.Array m_txtArray;     // TXT: string_t entries, "key=value" or just "key"
+
+	// keys are case-insensitive; returns null if not found
+
+	string_t findTxtValue(string_t key) const;
+
+	// decoded data as a string; null for types without decoded data
+
+	string_t getValueString() const;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string_t MdnsRecord.getValueString() const {
+	switch (m_type) {
+	case DnsType.PTR:
+	case DnsType.CNAME:
+	case DnsType.NS:
+		return m_targetName;
+
+	case DnsType.SRV:
+		return $"%1:%2"(m_targetName, m_port);
+
+	case DnsType.A:
+		return m_address.m_ip4.m_address.getString();
+
+	case DnsType.AAAA:
+		return m_address.m_ip6.m_address.getString();
+
+	case DnsType.TXT:
+		std.StringBuilder string;
+		for (size_t i = 0; i < m_txtArray.m_count; i++) {
+			if (i)
+				string.append(' ');
+
+			string.append((string_t)m_txtArray.m_p[i]);
+		}
+
+		return string.detachString();
+
+	default:
+		return null;
+	}
+}
+
+string_t MdnsRecord.findTxtValue(string_t key) const {
+	for (size_t i = 0; i < m_txtArray.m_count; i++) {
+		string_t entry = m_txtArray.m_p[i];
+		if (entry.m_length > key.m_length &&
+			entry.m_p[key.m_length] == '=' &&
+			strnicmp(entry.m_p, key.m_p, key.m_length) == 0
+		)
+			return string_t(entry.m_p + key.m_length + 1, entry.m_length - key.m_length - 1);
+	}
+
+	return null;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef void MdnsRecordVisitor(MdnsRecord const* record);
+
+//..............................................................................
+
+// one layout for log representation, packet templates, and extraction (visitor
+// is called for every question & record); throws on a malformed message;
+// colors follow NetSnifferLog (app layer + payload)
+
+void layoutMdnsMessage(
+	jnc.DynamicLayout* layout,
+	MdnsRecordVisitor* visitor = null
+) {
+	dylayout (layout) {
+		[
+			displayName = "mDNS",
+			displayNameAttr = "\e[1m",
+			backColor = ui.StdColor.PastelOrange,
+			digestFunc = getMdnsDigest,
+			foldFlag = 1,
+			root // root groups are for log only (ungrouped in packet templates)
+		]
+		dyfield message {
+			dyfield DnsHdr hdr;
+
+			void const* base = &hdr; // compression pointers are relative to the header
+			void const* p = &hdr + 1;
+			void const* end = layout.m_p + layout.m_bufferSize;
+
+			p = layoutMdnsRecordTable(layout, MdnsRecordSection.Question, hdr.m_questionRrCount, base, p, end, visitor);
+			p = layoutMdnsRecordTable(layout, MdnsRecordSection.Answer, hdr.m_answerRrCount, base, p, end, visitor);
+			p = layoutMdnsRecordTable(layout, MdnsRecordSection.Authority, hdr.m_authorityRrCount, base, p, end, visitor);
+			p = layoutMdnsRecordTable(layout, MdnsRecordSection.Additional, hdr.m_additionalRrCount, base, p, end, visitor);
+		}
+	}
+}
+
+[
+	packetTemplate,
+	displayName = "mDNS"
+]
+void layoutMdnsPacket(jnc.DynamicLayout* layout) {
+	layoutMdnsMessage(layout);
+}
+
+// digestFunc of the root group
+
+string_t getMdnsDigest(
+	void const* p,
+	size_t size,
+	jnc.ModuleItemDecl* decl
+) {
+	return formatDnsDigest(p);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// collects all questions & records of a message
+
+class MdnsRecordCollector {
+	std.Array m_recordArray; // MdnsRecord const*
+
+	void visit(MdnsRecord const* record) {
+		m_recordArray.append(record);
+	}
+}
+
+// returns false on a malformed message (the records before the error are collected)
+
+bool collectMdnsRecords(
+	MdnsRecordCollector* collector,
+	void const* p,
+	size_t size
+) {
+	jnc.DynamicLayout layout(null, p, size);
+	layoutMdnsMessage(layout, collector.visit);
+	return true;
+
+catch:
+	return false;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void const* layoutMdnsRecordTable(
+	jnc.DynamicLayout* layout,
+	MdnsRecordSection section,
+	size_t count,
+	void const* base,
+	void const* p,
+	void const* end,
+	MdnsRecordVisitor* visitor
+) {
+	static string_t const tableNames[] = {
+		"Question RRs",
+		"Answer RRs",
+		"Authority RRs",
+		"Additional RRs",
+	}
+
+	if (!count)
+		return p;
+
+	dylayout (layout) {
+		[
+			displayName = tableNames[section],
+			backColor = ui.StdColor.PastelYellow
+		]
+		dyfield table {
+			for (size_t i = 0; i < count; i++)
+				p = layoutMdnsRecord(layout, section, i, base, p, end, visitor);
+		}
+	}
+
+	return p;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void const* layoutMdnsName(
+	jnc.DynamicLayout* layout,
+	string_t displayName,
+	void const* base,
+	void const* p,
+	void const* end,
+	string_t* name
+) {
+	std.StringBuilder string;
+	void const* nameEnd = formatDnsNameImpl(string, p, end, base);
+	*name = string.detachString();
+
+	dylayout (layout) {
+		[
+			displayName = displayName,
+			formatFunc = formatMdnsName~(,,, base)
+		]
+		dyfield char nameField[nameEnd - p];
+	}
+
+	return nameEnd;
+}
+
+// formatFunc of name fields (bound to the message start for compression pointers)
+
+string_t formatMdnsName(
+	void const* p,
+	size_t size,
+	jnc.ModuleItemDecl* decl,
+	void const* base
+) {
+	return formatDnsName(p, size, base);
+}
+
+// formatFunc of TXT strings (length byte + text)
+
+string_t formatMdnsTxtString(
+	void const* p,
+	size_t size,
+	jnc.ModuleItemDecl* decl
+) {
+	return string_t(p + 1, size - 1);
+}
+
+void const* layoutMdnsRecord(
+	jnc.DynamicLayout* layout,
+	MdnsRecordSection section,
+	size_t index,
+	void const* base,
+	void const* p,
+	void const* end,
+	MdnsRecordVisitor* visitor
+) {
+	MdnsRecord* record = visitor ? new MdnsRecord : null;
+	string_t name;
+
+	dylayout (layout) {
+		[ displayName = $"#%1"(index + 1) ]
+		dyfield rr {
+			p = layoutMdnsName(layout, "Name", base, p, end, &name);
+
+			if (section == MdnsRecordSection.Question) {
+				[ ungroup ]
+				dyfield MdnsQuestionRrSuffix suffix;
+
+				p = &suffix + 1;
+
+				if (record) {
+					record.m_type = suffix.m_type;
+					record.m_class = (DnsClass)suffix.m_class;
+					record.m_isUnicastResponse = suffix.m_isUnicastResponse;
+				}
+			} else {
+				[ ungroup ]
+				dyfield MdnsAnswerRrSuffix suffix;
+
+				p = &suffix + 1;
+
+				void const* dataEnd = p + suffix.m_dataLength;
+				if (dataEnd > end) {
+					std.setError("truncated mDNS record data");
+					throw;
+				}
+
+				p = layoutMdnsRecordData(layout, suffix.m_type, base, p, dataEnd, record);
+
+				if (record) {
+					record.m_type = suffix.m_type;
+					record.m_class = (DnsClass)suffix.m_class;
+					record.m_isCacheFlush = suffix.m_isCacheFlush;
+					record.m_ttl = suffix.m_ttl;
+				}
+			}
+		}
+	}
+
+	if (record) {
+		record.m_section = section;
+		record.m_name = name;
+		visitor(record);
+	}
+
+	return p;
+}
+
+void const* layoutMdnsRecordData(
+	jnc.DynamicLayout* layout,
+	DnsType type,
+	void const* base,
+	void const* p,
+	void const* end,
+	MdnsRecord* record
+) {
+	string_t targetName;
+
+	dylayout (layout) {
+		switch (type) {
+		case DnsType.PTR:
+		case DnsType.CNAME:
+		case DnsType.NS:
+			p = layoutMdnsName(layout, "Target", base, p, end, &targetName);
+			break;
+
+		case DnsType.SRV:
+			[ ungroup ]
+			dyfield DnsSrvRdataHdr srv;
+
+			p = layoutMdnsName(layout, "Target", base, &srv + 1, end, &targetName);
+
+			if (record) {
+				record.m_priority = srv.m_priority;
+				record.m_weight = srv.m_weight;
+				record.m_port = srv.m_port;
+			}
+			break;
+
+		case DnsType.TXT:
+			while (p < end) {
+				size_t length = *(uchar_t const*)p;
+				if (length >= end - p) {
+					std.setError("invalid mDNS TXT record");
+					throw;
+				}
+
+				[
+					displayName = "Text",
+					formatFunc = formatMdnsTxtString
+				]
+				dyfield char textField[length + 1];
+
+				if (record)
+					record.m_txtArray.append(string_t(p + 1, length));
+
+				p += length + 1;
+			}
+			break;
+
+		case DnsType.A:
+			if (end - p != sizeof(Address_ip4))
+				break;
+
+			[
+				displayName = "Address",
+				stringify
+			]
+			dyfield Address_ip4 address;
+
+			p = &address + 1;
+
+			if (record) {
+				record.m_address.m_family = AddressFamily.Ip4;
+				record.m_address.m_ip4.m_address = address;
+			}
+			break;
+
+		case DnsType.AAAA:
+			if (end - p != sizeof(Address_ip6))
+				break;
+
+			[
+				displayName = "Address",
+				stringify
+			]
+			dyfield Address_ip6 address;
+
+			p = &address + 1;
+
+			if (record) {
+				record.m_address.m_family = AddressFamily.Ip6;
+				record.m_address.m_ip6.m_address = address;
+			}
+			break;
+		}
+
+		if (p < end) {
+			[
+				displayName = "Data",
+				binary
+			]
+			dyfield char data[end - p];
+
+			p = end;
+		}
+	}
+
+	if (p > end) {
+		std.setError("invalid mDNS record data");
+		throw;
+	}
+
+	if (record)
+		record.m_targetName = targetName;
+
+	return p;
+}
+
+//..............................................................................
+
+// builds mDNS queries; send m_buffer.m_p / m_buffer.m_size
+
+class MdnsQueryBuilder {
+	std.Buffer readonly m_buffer;
+
+	construct(uint16_t id = 0) {
+		reset(id);
+	}
+
+	void reset(uint16_t id = 0);
+
+	bool errorcode addQuestion(
+		string_t name, // e.g., "_ioninja-hwc._tcp.local"
+		DnsType type = DnsType.PTR,
+		bool isUnicastResponse = false
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void MdnsQueryBuilder.reset(uint16_t id) {
+	DnsHdr hdr;
+	hdr.m_id = id;
+
+	m_buffer.clear();
+	m_buffer.append(&hdr, sizeof(hdr));
+}
+
+bool errorcode MdnsQueryBuilder.addQuestion(
+	string_t name,
+	DnsType type,
+	bool isUnicastResponse
+) {
+	size_t length = name.m_length;
+	if (length && name.m_p[length - 1] == '.')
+		length--;
+
+	if (length > 253) {
+		std.setError("DNS name too long");
+		return false;
+	}
+
+	size_t offset = m_buffer.m_size;
+	size_t i = 0;
+	while (i < length) {
+		char const* dot = memchr(name.m_p + i, '.', length - i);
+		size_t j = dot ? dot - name.m_p : length;
+		size_t labelLength = j - i;
+		if (!labelLength || labelLength > 63) {
+			m_buffer.setSize(offset);
+			std.setError("invalid DNS name label");
+			return false;
+		}
+
+		m_buffer.append((char)labelLength);
+		m_buffer.append(name.m_p + i, labelLength);
+		i = j + 1;
+	}
+
+	m_buffer.append((char)0);
+
+	MdnsQuestionRrSuffix suffix;
+	suffix.m_type = type;
+	suffix.m_isUnicastResponse = isUnicastResponse;
+	suffix.m_class = DnsClass.Internet;
+	m_buffer.append(&suffix, sizeof(suffix));
+
+	((DnsHdr*)m_buffer.m_p).m_questionRrCount++;
+	return true;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

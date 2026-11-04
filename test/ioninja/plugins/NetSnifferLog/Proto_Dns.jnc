@@ -689,7 +689,7 @@ protected:
 construct() {
 	static DnsProtoParser dns;
 	static NbnsProtoParser nbns;
-	static DnsProtoParser mdns("MDNS");
+	static DnsProtoParser mdns("mDNS");
 	static DnsProtoParser llmnr("LLMNR");
 
 	g_udpPortAppProtoParserMap[53] = dns;

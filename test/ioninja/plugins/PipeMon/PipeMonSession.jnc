@@ -102,10 +102,6 @@ public:
 	}
 
 protected:
-	void onCapture() {
-		m_state ? close() : try capture();
-	}
-
 	void onSetViewFilter() {
 		applyViewFilter(true);
 	}
@@ -164,7 +160,9 @@ void PipeMonSession.createUi() {
 	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetViewFilter;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? close() : try capture();
+	}
 
 	// status bar
 

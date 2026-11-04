@@ -150,7 +150,6 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onOpenDevice();
 	void onDownloadFile();
 	void onUploadFile();
 	void onFileDlgCompleted(ui.StdDlgButton button);
@@ -218,7 +217,9 @@ void CypressUploaderSession.createUi() {
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
 
 	m_actionTable[ActionId.Open] = createAction("Open device", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpenDevice;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state >= State.Opened ? closeDevice() : openDevice();
+	}
 
 	m_pluginHost.m_menu.addSeparator();
 	m_pluginHost.m_toolBar.addSeparator();
@@ -307,13 +308,6 @@ void CypressUploaderSession.createUi() {
 	enumerateDevices();
 }
 
-void CypressUploaderSession.onOpenDevice() {
-	if (m_state >= State.Opened)
-		closeDevice();
-	else
-		openDevice();
-}
-
 void CypressUploaderSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
@@ -398,7 +392,7 @@ void CypressUploaderSession.load(doc.Storage* storage) {
 }
 
 void CypressUploaderSession.save(doc.Storage* storage) {
-	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
+	storage.writeInt("deviceIdx", (int)m_deviceCombo.m_currentIndex);
 	storage.writeBool("autoDetachKernelDriver", m_autoDetachKernelDriverProp.m_value);
 	storage.writeInt("statusCheckInterval", m_statusCheckIntervalProp.m_value);
 	storage.writeInt("fpgaCheckRetryCount", m_fpgaCheckRetryCountProp.m_value);

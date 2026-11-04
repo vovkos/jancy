@@ -126,14 +126,6 @@ public:
 	);
 
 protected:
-	void onStart() {
-		m_state ? close() : try start();
-	}
-
-	void onProcessNameComboEnter() {
-		try start();
-	}
-
 	void onChildProcessEvent(
 		uint_t syncId,
 		io.ChildProcessEvents triggeredEvents
@@ -151,8 +143,6 @@ protected:
 		size_t size
 	);
 
-	void onConsoleSizeChanged();
-
 	io.ChildProcessOptions getChildProcessOptions();
 	void waitChildProcessEvents();
 	void waitStderrEvents();
@@ -168,7 +158,13 @@ ProcessSession.construct(doc.PluginHost* pluginHost) {
 
 	createUi();
 
-	pluginHost.m_terminal.m_onConsoleSizeChanged += onConsoleSizeChanged;
+	pluginHost.m_terminal.m_onConsoleSizeChanged += []() {
+		io.PtySize size;
+		size.m_colCount = m_pluginHost.m_terminal.m_consoleWidth;
+		size.m_rowCount = m_pluginHost.m_terminal.m_consoleHeight;
+		m_process.m_ptySize = size;
+	}
+
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	pluginHost.m_log.addObserver(onLogRecord);
@@ -186,7 +182,10 @@ void ProcessSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Command:");
 	m_commandLineCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_commandLineCombo.m_isEditable = true;
-	m_commandLineCombo.m_onReturnPressed += onProcessNameComboEnter;
+	m_commandLineCombo.m_onReturnPressed += []() {
+		try start();
+	}
+
 	m_commandLineCombo.m_placeholderText = "Enter a command line...";
 
 	m_iconTable[IconId.Start] = new ui.Icon("images/start.png");
@@ -194,7 +193,9 @@ void ProcessSession.createUi() {
 	m_iconTable[IconId.Terminate] = new ui.Icon("images/terminate.png");
 
 	m_actionTable[ActionId.Start] = createAction("Open", m_iconTable[IconId.Start]);
-	m_actionTable[ActionId.Start].m_onTriggered += onStart;
+	m_actionTable[ActionId.Start].m_onTriggered += []() {
+		m_state ? close() : try start();
+	}
 
 	m_actionTable[ActionId.Detach] = createAction("Detach", m_iconTable[IconId.Detach]);
 	m_actionTable[ActionId.Detach].m_onTriggered += detach;
@@ -488,13 +489,6 @@ size_t errorcode ProcessSession.transmit(
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	return result;
-}
-
-void ProcessSession.onConsoleSizeChanged() {
-	io.PtySize size;
-	size.m_colCount = m_pluginHost.m_terminal.m_consoleWidth;
-	size.m_rowCount = m_pluginHost.m_terminal.m_consoleHeight;
-	m_process.m_ptySize = size;
 }
 
 void ProcessSession.onChildProcessEvent(

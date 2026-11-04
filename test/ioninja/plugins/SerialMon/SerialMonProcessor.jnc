@@ -6,6 +6,9 @@
 import "io_devmon.jncx"
 import "io_base.jncx"
 import "io_Serial.jnc"
+import "std_Buffer.jnc"
+import "std_String.jnc"
+import "SerialMonLogRecordCode.jnc"
 
 //..............................................................................
 
@@ -13,18 +16,62 @@ class SerialMonProcessor {
 protected:
 	log.Writer* m_logWriter;
 	io.SerialStatusLines m_statusLines;
+	bool m_isRemote; // notifications come from another machine -- process names come from tdevmon, not from local lookups
 
 public:
-	construct(log.Writer* logWriter) {
+	string_t m_deviceName; // as reported by tdevmon
+
+public:
+	construct(
+		log.Writer* logWriter,
+		bool isRemote
+	) {
 		m_logWriter = logWriter;
+		m_isRemote = isRemote;
 		reset();
 	}
 
 	void reset() {
-		m_statusLines = (io.SerialStatusLines) -1; // special meaning: unintitalized
+		m_statusLines = (io.SerialStatusLines)-1; // special meaning: unintitalized
 	}
 
 	abstract void processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
+
+protected:
+	void writeDeviceOpenRecord(
+		uint64_t timestamp,
+		uint32_t processId,
+		std.Error const* error, // null if the device was opened successfully
+		string_t deviceName,
+		string_t processName
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void SerialMonProcessor.writeDeviceOpenRecord(
+	uint64_t timestamp,
+	uint32_t processId,
+	std.Error const* error,
+	string_t deviceName,
+	string_t processName
+) {
+	std.Buffer params;
+	params.append(&processId, sizeof(processId));
+
+	if (error)
+		params.append(error, error.m_size);
+
+	params.append(deviceName);
+	params.append((char)0);
+	params.append(processName);
+
+	m_logWriter.write(
+		timestamp,
+		error ? SerialMonLogRecordCode.DeviceOpenError : SerialMonLogRecordCode.DeviceOpened,
+		params.m_p,
+		params.m_size
+	);
 }
 
 //..............................................................................

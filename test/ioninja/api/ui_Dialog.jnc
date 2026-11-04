@@ -93,6 +93,21 @@ opaque class LoginDlg {
 
 //..............................................................................
 
+opaque class PasswordDlg {
+	string_t autoget property m_title;
+	string_t autoget property m_message;
+	string_t autoget property m_password;
+
+	event m_onCompleted(StdDlgButton button);
+
+	construct();
+	destruct();
+
+	void show();
+}
+
+//..............................................................................
+
 opaque class MessageDlg {
 	string_t autoget property m_title;
 	string_t autoget property m_message;

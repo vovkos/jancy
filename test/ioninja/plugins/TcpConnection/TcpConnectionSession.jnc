@@ -133,20 +133,10 @@ protected:
 	void close();
 	void handleSocketError(std.Error const* error);
 
-	void onConnect() {
-		m_state ? disconnect() : try connect();
-	}
-
-	void onAddressComboEnter() {
-		try connect();
-	}
-
 	void onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 	);
-
-	void onResolveCompleted();
 	void onReconnectTimer(uint_t syncId);
 
 	void createUi();
@@ -164,7 +154,12 @@ TcpConnectionSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_resolver.m_onCompleted += onResolveCompleted;
+	m_resolver.m_onCompleted += []() {
+		m_state = State.Closed;
+
+		if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+			try connect(m_resolver.m_address);
+	}
 }
 
 void TcpConnectionSession.createUi() {
@@ -173,14 +168,19 @@ void TcpConnectionSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
+	m_addressCombo.m_onReturnPressed += []() {
+		try connect();
+	}
+
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
 	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
-	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
+	m_actionTable[ActionId.Connect].m_onTriggered += []() {
+		m_state ? disconnect() : try connect();
+	}
 
 	// status bar
 
@@ -321,7 +321,8 @@ void TcpConnectionSession.waitSocketEvents() {
 		eventMask |=
 			io.SocketEvents.IncomingData |
 			io.SocketEvents.TcpDisconnected |
-			io.SocketEvents.TcpReset;
+			io.SocketEvents.TcpReset |
+			io.SocketEvents.TcpAborted;
 
 		if (!m_isTransmitEnabled)
 			eventMask |= io.SocketEvents.WriteBufferReady;
@@ -366,19 +367,10 @@ void TcpConnectionSession.disconnect() {
 		break;
 
 	case State.Connected:
-		TcpDisconnectLogRecordParams params;
+		SocketLogDisconnectParams params;
 		params.m_address = m_remoteAddress;
-		params.m_flags = 0;
-
-		if (m_socketPropertySet.m_tcpResetProp.m_value)
-			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&params,
-			sizeof(params)
-		);
-
+		params.m_flags = getSocketLogDisconnectFlagsFromOptions(m_socket.m_options);
+		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 		break;
 	}
 
@@ -543,18 +535,10 @@ void TcpConnectionSession.onSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 		}
 
-		TcpDisconnectLogRecordParams recordParams;
-		recordParams.m_address = m_remoteAddress;
-		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
-
-		if (triggeredEvents & io.SocketEvents.TcpReset)
-			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&recordParams,
-			sizeof(recordParams)
-		);
+		SocketLogDisconnectParams params;
+		params.m_address = m_remoteAddress;
+		params.m_flags = getSocketLogDisconnectFlagsFromEvents(triggeredEvents);
+		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 
 		uint64_t lastReconnectTime = m_lastReconnectTime;
 		close();
@@ -579,13 +563,6 @@ void TcpConnectionSession.onSocketEvent(
 		m_isTransmitEnabled = true;
 
 	waitSocketEvents();
-}
-
-void TcpConnectionSession.onResolveCompleted() {
-	m_state = State.Closed;
-
-	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
-		try connect(m_resolver.m_address);
 }
 
 void TcpConnectionSession.onReconnectTimer(uint_t syncId) {

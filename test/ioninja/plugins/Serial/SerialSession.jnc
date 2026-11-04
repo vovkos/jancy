@@ -140,14 +140,6 @@ public:
 	);
 
 protected:
-	void onOpen() {
-		m_state ? close() : try open();
-	}
-
-	void onPortComboEnter() {
-		try open();
-	}
-
 	void onBaudRateChanged();
 	void onDataBitsChanged();
 	void onParityChanged();
@@ -165,11 +157,6 @@ protected:
 	void onReopenTimer(uint_t syncId);
 
 	void createUi();
-
-	void enumeratePorts() {
-		ui.enumerateSerialPorts(m_portCombo, m_portProp);
-	}
-
 	void waitSerialEvents();
 
 	void startReopenTimer() {
@@ -226,13 +213,23 @@ void SerialSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onReturnPressed += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += []() {
+		try open();
+	}
+
 	m_portCombo.m_placeholderText = "Enter a serial port name...";
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate ports", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += enumeratePorts;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.enumerateSerialPorts(m_portCombo, m_portProp);
+		if (count)
+			m_portCombo.showPopup();
+	}
+
 	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? close() : try open();
+	}
 
 	// settings
 
@@ -351,7 +348,7 @@ void SerialSession.createUi() {
 	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
-	enumeratePorts();
+	ui.enumerateSerialPorts(m_portCombo, m_portProp);
 	m_uiReactor.start();
 }
 

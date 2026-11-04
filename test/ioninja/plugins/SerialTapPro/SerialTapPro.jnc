@@ -9,6 +9,9 @@ import "std_String.jnc"
 
 //..............................................................................
 
+string_t const SerialTapProBootloaderFileName = __DIR__ "/firmware/serial-tap-pro-1.2-bl.rpd";
+string_t const SerialTapProFirmwareFileName   = __DIR__ "/firmware/serial-tap-pro-1.4.rpd";
+
 enum SerialTapProUsb {
 	VendorId             = 0x326f,
 	ProductId            = 0x0005,
@@ -121,38 +124,38 @@ SerialTapProLines flipSerialTapProLines(SerialTapProLines lines) {
 }
 
 bitflag enum SerialTapProOverflows: uint16_t {
-	Edge_1      = 0x0200,
-	Edge_0      = 0x0100,
-	Data_1      = 0x0080,
-	Data_0      = 0x0040,
-	Lines       = 0x0020,
-	Break_1     = 0x0010,
-	Break_0     = 0x0008,
 	Status      = 0x0004,
+	Break_0     = 0x0008,
+	Break_1     = 0x0010,
+	Lines       = 0x0020,
+	Data_0      = 0x0040,
+	Data_1      = 0x0080,
+	Edge_0      = 0x0100,
+	Edge_1      = 0x0200,
 
 	NonDataMask = 0x003c,
-	Mask        = 0x00fc,
+	Mask        = 0x03fc,
 }
 
 uint16_t flipSerialTapProOverflows(uint16_t status) {
 	return
 		(status & ~(
-			SerialTapProOverflows.Edge_0 |
-			SerialTapProOverflows.Edge_1 |
+			SerialTapProOverflows.Break_0 |
+			SerialTapProOverflows.Break_1 |
 			SerialTapProOverflows.Data_0 |
 			SerialTapProOverflows.Data_1 |
-			SerialTapProOverflows.Break_0 |
-			SerialTapProOverflows.Break_1
+			SerialTapProOverflows.Edge_0 |
+			SerialTapProOverflows.Edge_1
 		)) | ((status & (
-				SerialTapProOverflows.Edge_0 |
+				SerialTapProOverflows.Break_0 |
 				SerialTapProOverflows.Data_0 |
-				SerialTapProOverflows.Break_0
-			)) >> 1
-		) | ((status & (
-				SerialTapProOverflows.Edge_1 |
-				SerialTapProOverflows.Data_1 |
-				SerialTapProOverflows.Break_1
+				SerialTapProOverflows.Edge_0
 			)) << 1
+		) | ((status & (
+				SerialTapProOverflows.Break_1 |
+				SerialTapProOverflows.Data_1 |
+				SerialTapProOverflows.Edge_1
+			)) >> 1
 		);
 }
 

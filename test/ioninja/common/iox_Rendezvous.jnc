@@ -1,0 +1,553 @@
+//..............................................................................
+//
+// IO Ninja rendezvous channel
+//
+// a jancy-side state machine over io.RendezvousSocket, shaped like
+// iox.SshChannel so sessions can swap one transport for the other
+//
+
+import "doc_Session.jnc"
+import "io_rdv.jncx"
+import "ui_SocketUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "std_Buffer.jnc"
+import "sys_Timer.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
+import "RendezvousLog/RendezvousLogRecordCode.jnc"
+import "SslLog/SslLogRecordCode.jnc"
+
+namespace iox {
+
+//! \addtogroup common-rendezvous
+//! @{
+
+//..............................................................................
+
+class Rendezvous {
+public:
+	enum State {
+		Closed,
+		ReconnectDelay,
+		Connecting,  // opening the relay websocket, then authenticating our key
+		Pairing,     // waiting for the relay to pair us with the tap
+		Negotiating, // ICE is in progress
+		Connected,   // the data channel is open
+	}
+
+	struct ConnectParams {
+		size_t m_readBufferSize;
+		string_t m_keyFileName;
+		io.RendezvousOptions m_options;
+		bool m_useReconnect;
+		uint_t m_reconnectTimeout;
+
+		construct();
+	}
+
+protected:
+	doc.PluginHost* m_pluginHost;
+	io.RendezvousIdentity m_identity;
+	io.RendezvousSocket m_socket;
+	std.Buffer m_readBuffer;
+	sys.Timer m_reconnectTimer;
+	uint64_t m_lastReconnectTime;
+	ConnectParams m_connectParams;
+	uint_t m_syncId;
+
+	log.Writer* const property m_logWriter {
+		return m_pluginHost.m_log.m_writer;
+	}
+
+public:
+	string_t readonly m_url;
+	State bindable readonly m_state;
+	bool bindable readonly m_isTransmitEnabled;
+
+	event m_onConnected();
+	event m_onDisconnected();
+	event m_onIncomingData(
+		void const* p,
+		size_t size
+	);
+
+	static string_t const m_stateStringTable[] = {
+		"Not connected",
+		"Waiting...",
+		"Connecting...",
+		"Pairing...",
+		"Negotiating...",
+		"Connected",
+	}
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	void close();
+
+	// url is the full relay path, device included:
+	// wss://<rendezvous-server>/<owner>/<device>[:<endpoint>]
+
+	bool errorcode connect(
+		string_t url,
+		ConnectParams const* params
+	);
+
+	size_t errorcode read(
+		void* p,
+		size_t size
+	) {
+		return m_socket.read(p, size);
+	}
+
+	size_t errorcode write(
+		void const* p,
+		size_t size
+	);
+
+	static void initConnectParams(
+		ConnectParams* params,
+		ui.SocketPropertySet const* socketPropSet,
+		ui.BufferPropertySet const* bufferPropSet,
+		string_t keyFileName
+	);
+
+	bool errorcode applyProperties(
+		ui.SocketPropertySet const* socketPropSet,
+		ui.BufferPropertySet const* bufferPropSet
+	);
+
+	void waitRendezvousEvents();
+
+protected:
+	void onRendezvousEvent(
+		uint_t syncId,
+		io.RendezvousSocketEvents triggeredEvents
+	);
+
+	void onReconnectTimer(uint_t syncId);
+
+	void closeImpl();
+	void writeSignalingInfo();
+	void writeTlsInfo(
+		io.RendezvousTlsInfo const* tlsInfo,
+		SslLogConnectFlags flags
+	);
+	void writeNegotiationSteps();
+	void writeNegotiationStep(io.RendezvousNegotiationStep const* step);
+	void writeDisconnected(SocketLogDisconnectFlags flags);
+	void handleConnectError(std.Error const* error);
+	void startReconnectTimer(uint64_t lastReconnectTime = -1);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Rendezvous.ConnectParams.construct() {
+	m_readBufferSize = ui.BufferPropertySet.Defaults.ReadBufferSize;
+	m_options = io.RendezvousOptions.NegotiationSteps;
+	m_useReconnect = ui.SocketPropertySet.Defaults.UseReconnect;
+	m_reconnectTimeout = ui.SocketPropertySet.Defaults.ReconnectTimeout;
+}
+
+Rendezvous.construct(doc.PluginHost* pluginHost) {
+	m_pluginHost = pluginHost;
+	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
+}
+
+void Rendezvous.close() {
+	switch (m_state) {
+	case State.Closed:
+		return;
+
+	case State.Connecting:
+	case State.Pairing:
+	case State.Negotiating:
+		writeNegotiationSteps();
+		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
+		break;
+
+	case State.Connected:
+		writeDisconnected(0);
+		break;
+	}
+
+	closeImpl();
+}
+
+void Rendezvous.writeDisconnected(SocketLogDisconnectFlags flags) {
+	RendezvousLogDisconnectParams params;
+	params.m_flags = flags;
+	m_logWriter.write(RendezvousLogRecordCode.Disconnected, &params, sizeof(params), m_url.m_p, m_url.m_length);
+}
+
+void Rendezvous.writeSignalingInfo() {
+	io.RendezvousSignalingInfo const* info = m_socket.m_signalingInfo;
+	if (!info)
+		return;
+
+	writeTlsInfo(
+		info.m_tlsInfo,
+		(m_socket.m_options & io.RendezvousOptions.DisableTlsVerification) ?
+			SslLogConnectFlags.CertificateNotVerified :
+			0
+	);
+}
+
+void Rendezvous.writeTlsInfo(
+	io.RendezvousTlsInfo const* tlsInfo,
+	SslLogConnectFlags flags
+) {
+	for (size_t i = 0; i < tlsInfo.m_certificateCount; i++)
+		m_logWriter.write(
+			SslLogRecordCode.SslCertificate,
+			tlsInfo.m_certificateChain[i].m_p,
+			tlsInfo.m_certificateChain[i].m_size
+		);
+
+	std.Buffer buffer;
+	packSslLogConnectParams(
+		buffer,
+		tlsInfo.m_version,
+		tlsInfo.m_group,
+		tlsInfo.m_cipher,
+		flags | SslLogConnectFlags.Info // RDV connection established comes later
+	);
+	m_logWriter.write(SslLogRecordCode.SslConnectCompleted, buffer.m_p, buffer.m_size);
+}
+
+void Rendezvous.writeNegotiationSteps() {
+	if (m_state < State.Negotiating) // SessionReady goes first
+		return;
+
+	io.RendezvousNegotiationStep stepTable[8];
+
+	for (;;) {
+		size_t count = m_socket.readNegotiationSteps(stepTable, countof(stepTable));
+		for (size_t i = 0; i < count; i++)
+			writeNegotiationStep(&stepTable[i]);
+
+		if (count < countof(stepTable))
+			break;
+	}
+}
+
+void Rendezvous.writeNegotiationStep(io.RendezvousNegotiationStep const* step) {
+	std.Buffer buffer;
+
+	switch (step.m_kind) {
+	case io.RendezvousNegotiationStepKind.LocalCandidate:
+	case io.RendezvousNegotiationStepKind.RemoteCandidate:
+		if (m_state == State.Connected) // late candidates don't matter anymore
+			break;
+
+		bool isLocal = step.m_kind == io.RendezvousNegotiationStepKind.LocalCandidate;
+		io.RendezvousCandidate const* candidate = isLocal ? &step.m_localCandidate : &step.m_remoteCandidate;
+
+		RendezvousLogCandidateParams params;
+		initLogCandidate(&params.m_candidate, candidate);
+
+		m_logWriter.write(
+			isLocal ? RendezvousLogRecordCode.LocalCandidate : RendezvousLogRecordCode.RemoteCandidate,
+			&params,
+			sizeof(params),
+			candidate.m_address.m_p,
+			candidate.m_address.m_length
+		);
+		break;
+
+	case io.RendezvousNegotiationStepKind.LocalGatheringComplete:
+		if (m_state != State.Connected)
+			m_logWriter.write(RendezvousLogRecordCode.LocalGatheringComplete);
+
+		break;
+
+	case io.RendezvousNegotiationStepKind.IceStateChanged:
+		if (!step.m_localCandidate.m_address) { // no selected pair
+			m_logWriter.write(RendezvousLogRecordCode.IceStateChanged, &step.m_iceState, sizeof(step.m_iceState));
+			break;
+		}
+
+		RendezvousLogIceConnectedParams params;
+		params.m_iceState = step.m_iceState;
+		initLogCandidate(&params.m_localCandidate, &step.m_localCandidate);
+		initLogCandidate(&params.m_remoteCandidate, &step.m_remoteCandidate);
+		buffer.copy(&params, sizeof(params));
+		appendZeroTerminated(buffer, step.m_localCandidate.m_address);
+		appendZeroTerminated(buffer, step.m_remoteCandidate.m_address);
+		m_logWriter.write(RendezvousLogRecordCode.IceConnected, buffer.m_p, buffer.m_size);
+		break;
+
+	case io.RendezvousNegotiationStepKind.DtlsConnected:
+		writeTlsInfo( // libdatachannel ignores the chain and matches the SDP fingerprint
+			step.m_dtlsInfo,
+			SslLogConnectFlags.CertificateFingerprintVerified |
+			(step.m_dtlsInfo.m_isServer ? SslLogConnectFlags.Server : SslLogConnectFlags.Client)
+		);
+		break;
+	}
+}
+
+void Rendezvous.closeImpl() {
+	m_socket.close();
+	m_state = State.Closed;
+	m_isTransmitEnabled = false;
+	m_lastReconnectTime = 0;
+	m_syncId++;
+}
+
+bool errorcode Rendezvous.connect(
+	string_t url,
+	ConnectParams const* params
+) {
+	close();
+
+	m_connectParams = *params;
+	m_url = url;
+
+	// the key identifies us to the relay -- a wrong or unregistered one is
+	// rejected at the Authenticated step, not here
+
+	m_identity.setKeyPemFile(params.m_keyFileName);
+	m_socket.m_readBufferSize = params.m_readBufferSize;
+	m_socket.m_options = params.m_options;
+
+	m_logWriter.write(RendezvousLogRecordCode.Connecting, url.m_p, url.m_length);
+	m_socket.connect(m_identity, url);
+
+	m_state = State.Connecting;
+	waitRendezvousEvents();
+	return true;
+
+catch:
+	handleConnectError(std.getLastError());
+	return false;
+}
+
+size_t errorcode Rendezvous.write(
+	void const* p,
+	size_t size
+) {
+	size_t result = m_socket.write(p, size);
+	if (result < size && m_isTransmitEnabled) {
+		m_isTransmitEnabled = false;
+		waitRendezvousEvents();
+	}
+
+	return result;
+}
+
+void Rendezvous.initConnectParams(
+	ConnectParams* params,
+	ui.SocketPropertySet const* socketPropSet,
+	ui.BufferPropertySet const* bufferPropSet,
+	string_t keyFileName
+) {
+	params.m_readBufferSize = bufferPropSet.m_readBufferSizeProp ?
+		bufferPropSet.m_readBufferSizeProp.m_value :
+		ui.BufferPropertySet.Defaults.ReadBufferSize;
+
+	params.m_useReconnect = socketPropSet.m_useReconnectProp ?
+		socketPropSet.m_useReconnectProp.m_value :
+		ui.SocketPropertySet.Defaults.UseReconnect;
+
+	params.m_reconnectTimeout = socketPropSet.m_reconnectTimeoutProp ?
+		socketPropSet.m_reconnectTimeoutProp.m_value :
+		ui.SocketPropertySet.Defaults.ReconnectTimeout;
+
+	params.m_keyFileName = keyFileName;
+}
+
+bool errorcode Rendezvous.applyProperties(
+	ui.SocketPropertySet const* socketPropSet,
+	ui.BufferPropertySet const* bufferPropSet
+) {
+	m_readBuffer.setSize(bufferPropSet.m_readBufferSizeProp.m_value);
+	m_socket.m_readBufferSize = bufferPropSet.m_readBufferSizeProp.m_value;
+
+	m_connectParams.m_useReconnect = socketPropSet.m_useReconnectProp ?
+		socketPropSet.m_useReconnectProp.m_value :
+		ui.SocketPropertySet.Defaults.UseReconnect;
+
+	m_connectParams.m_reconnectTimeout = socketPropSet.m_reconnectTimeoutProp ?
+		socketPropSet.m_reconnectTimeoutProp.m_value :
+		ui.SocketPropertySet.Defaults.ReconnectTimeout;
+
+	return true;
+}
+
+void Rendezvous.waitRendezvousEvents() {
+	io.RendezvousSocketEvents eventMask = io.RendezvousSocketEvents.IoError;
+
+	switch (m_state) {
+	case State.Connecting:
+		eventMask |= io.RendezvousSocketEvents.Authenticated;
+		break;
+
+	case State.Pairing:
+		eventMask |= io.RendezvousSocketEvents.SessionReady;
+		break;
+
+	case State.Negotiating:
+		eventMask |=
+			io.RendezvousSocketEvents.Connected |
+			io.RendezvousSocketEvents.NegotiationStep;
+		break;
+
+	case State.Connected:
+		eventMask |=
+			io.RendezvousSocketEvents.IncomingData |
+			io.RendezvousSocketEvents.Disconnected |
+			io.RendezvousSocketEvents.NegotiationStep; // e.g., ICE disconnected
+
+		if (!m_isTransmitEnabled)
+			eventMask |= io.RendezvousSocketEvents.WriteBufferReady;
+
+		break;
+	}
+
+	m_socket.wait(eventMask, onRendezvousEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+void Rendezvous.handleConnectError(std.Error const* error) {
+	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
+	m_socket.close();
+	m_state = State.Closed;
+}
+
+void Rendezvous.onRendezvousEvent(
+	uint_t syncId,
+	io.RendezvousSocketEvents triggeredEvents
+) {
+	if (syncId != m_syncId)
+		return;
+
+	if (triggeredEvents & io.RendezvousSocketEvents.Authenticated) {
+		m_logWriter.write(RendezvousLogRecordCode.Authenticated);
+		writeSignalingInfo();
+		m_state = State.Pairing;
+	}
+
+	if (triggeredEvents & io.RendezvousSocketEvents.SessionReady) {
+		std.Buffer buffer;
+		appendZeroTerminated(buffer, m_socket.m_iceServer);
+		appendZeroTerminated(buffer, m_identity.m_keyFingerprint);
+		appendZeroTerminated(buffer, m_socket.m_peerFingerprint);
+		m_logWriter.write(RendezvousLogRecordCode.SessionReady, buffer.m_p, buffer.m_size);
+		m_state = State.Negotiating;
+	}
+
+	writeNegotiationSteps(); // before the error -- it tells why
+
+	if (triggeredEvents & io.RendezvousSocketEvents.IoError) {
+		bool isReconnecting = m_lastReconnectTime != 0;
+		handleConnectError(m_socket.m_ioError);
+
+		if (isReconnecting && m_connectParams.m_useReconnect)
+			startReconnectTimer();
+
+		return;
+	}
+
+	if (triggeredEvents & io.RendezvousSocketEvents.Connected) {
+		uint_t rtt = m_socket.m_roundTripTime;
+		if (rtt != -1)
+			m_logWriter.write(RendezvousLogRecordCode.ConnectCompleted, &rtt, sizeof(rtt));
+		else
+			m_logWriter.write(RendezvousLogRecordCode.ConnectCompleted);
+
+		m_state = State.Connected;
+		m_isTransmitEnabled = true;
+		m_onConnected();
+	}
+
+	if (triggeredEvents & io.RendezvousSocketEvents.Disconnected) {
+		for (;;) { // drain whatever is still buffered
+			size_t size = m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
+			if (!size)
+				break;
+
+			m_onIncomingData(m_readBuffer.m_p, size);
+		}
+
+		uint64_t lastReconnectTime = m_lastReconnectTime;
+		closeImpl();
+		m_onDisconnected(); // let the session close its nested scopes (e.g. capture stopped) first
+		writeDisconnected(SocketLogDisconnectFlags.Remote);
+
+		if (m_connectParams.m_useReconnect)
+			startReconnectTimer(lastReconnectTime);
+
+		return;
+	}
+
+	if (triggeredEvents & io.RendezvousSocketEvents.WriteBufferReady)
+		m_isTransmitEnabled = true;
+
+	if (triggeredEvents & io.RendezvousSocketEvents.IncomingData) {
+		size_t size = m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (size)
+			m_onIncomingData(m_readBuffer.m_p, size);
+	}
+
+	// m_onIncomingData could have closed us, so re-check the state
+
+	if (m_state)
+		waitRendezvousEvents();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	close();
+}
+
+void Rendezvous.startReconnectTimer(uint64_t lastReconnectTime) {
+	uint64_t time = sys.getTimestamp();
+	uint64_t delay = (uint64_t)m_connectParams.m_reconnectTimeout * 10000;
+
+	if (time - delay > lastReconnectTime) { // don't spam reconnects if insta-rejected
+		onReconnectTimer(m_syncId);
+		return;
+	}
+
+	m_state = State.ReconnectDelay;
+	m_logWriter.write(SocketLogRecordCode.ReconnectDelay);
+
+	m_reconnectTimer.startDueTimer(
+		onReconnectTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
+		time + delay
+	);
+}
+
+void Rendezvous.onReconnectTimer(uint_t syncId) {
+	if (syncId != m_syncId)
+		return;
+
+	bool result = try connect(m_url, m_connectParams);
+	m_lastReconnectTime = sys.getTimestamp(); // after connect (connect calls close)
+
+	if (!result && m_connectParams.m_useReconnect)
+		startReconnectTimer();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void appendZeroTerminated(
+	std.Buffer* buffer,
+	string_t string
+) {
+	buffer.append(string);
+	buffer.append('\0');
+}
+
+void initLogCandidate(
+	RendezvousLogCandidate* logCandidate,
+	io.RendezvousCandidate const* candidate
+) {
+	logCandidate.m_type = candidate.m_type;
+	logCandidate.m_transport = candidate.m_transport;
+	logCandidate.m_port = candidate.m_port;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

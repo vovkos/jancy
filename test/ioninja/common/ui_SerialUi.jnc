@@ -537,8 +537,7 @@ size_t enumerateSerialPorts(
 	ComboBox* portCombo,
 	ComboProperty* portProp
 ) {
-	string_t editText = portCombo.m_editText; // save edit text
-	portCombo.clear();
+	portCombo.removeAllItems();
 
 	size_t count;
 	io.SerialPortDesc const* portList = io.enumerateSerialPorts(io.SerialPortDescFlags.All, &count);
@@ -591,7 +590,6 @@ size_t enumerateSerialPorts(
 		option.m_value = port.m_deviceName;
 	}
 
-	portCombo.m_editText = editText; // restore edit text
 	portProp.setOptions(optionArray, count);
 	return count;
 }

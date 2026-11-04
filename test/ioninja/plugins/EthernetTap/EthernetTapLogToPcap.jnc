@@ -28,10 +28,9 @@ size_t EthernetTapLogToPcap.exportRecord(
 	switch (record.m_code) {
 	case EthernetTapLogRecordCode.Packet_ch1:
 	case EthernetTapLogRecordCode.Packet_ch2:
-		uint32_t const* idx = (uint32_t const*)(record + 1);
-		PacketHdr const* hdr = (PacketHdr const*)(idx + 1);
-		p = hdr + 1;
-		size = hdr.m_size;
+		EthernetTapPacketMeta const* meta = (EthernetTapPacketMeta const*)(record + 1);
+		p = meta + 1;
+		size = meta.m_hdr.m_size;
 		break;
 
 	default:

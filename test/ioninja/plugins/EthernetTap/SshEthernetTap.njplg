@@ -12,6 +12,7 @@ group       = hw
 monitor     = true
 terminal    = false
 log-guid    = ae3dc2da-6124-4c14-b05a-200df2fc580a  # ethernet tap
+log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
 log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/sniffer.png
@@ -32,4 +33,5 @@ org.jancy.io.file
 
 [scripts]
 
+EthernetTap.jnc
 SshEthernetTapSession.jnc

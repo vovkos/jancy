@@ -1,0 +1,33 @@
+#...............................................................................
+#
+#  RDV (IO Ninja rendezvous) log representer plugin
+#
+
+[plugin]
+
+name        = "RDV Log"
+description = "IO Ninja rendezvous (RDV) log representer"
+group       = net
+guid        = e44cf2e3-53c6-4484-8b32-4931a1df0f8a
+icon        = images/socket.png
+small-icon  = images/socket-16x16.png
+
+log-representer-func = representRendezvousLog
+
+[scripts]
+
+RendezvousLogRecordCode.jnc
+RendezvousLogRepresenter.jnc
+
+[records]
+
+01dd548d3f674700  # Connecting
+01dd548d3f674701  # Authenticated
+01dd548d3f674702  # ConnectCompleted
+01dd548d3f674703  # Disconnected
+81dd548d3f674704  # SessionReady
+01dd548d3f674705  # LocalCandidate
+01dd548d3f674706  # RemoteCandidate
+01dd548d3f674707  # LocalGatheringComplete
+01dd548d3f674708  # IceStateChanged
+81dd548d3f674709  # IceConnected

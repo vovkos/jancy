@@ -84,8 +84,11 @@ struct SERIAL_HANDFLOW {
 //..............................................................................
 
 class SerialMonProcessor_win: SerialMonProcessor {
-	construct(log.Writer* logWriter) {
-		basetype.construct(logWriter);
+	construct(
+		log.Writer* logWriter,
+		bool isRemote = false
+	) {
+		basetype.construct(logWriter, isRemote);
 	}
 
 	override void processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
@@ -109,30 +112,35 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 	case io.win.DeviceMonitorNotifyCode.Create:
 		io.win.DeviceMonitorCreateNotifyParams const* params = (io.win.DeviceMonitorCreateNotifyParams const*)(notifyHdr + 1);
 
-		uint64_t recordCode;
-		std.Buffer logParams;
-		logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
+		// the UTF16 file name (relative to the device) is followed by the UTF16 process name (remote tdevmon 3.3.19+)
 
-		if (notifyHdr.m_ntStatus == 0) {
-			recordCode = SerialMonLogRecordCode.DeviceOpened;
-		} else {
-			recordCode = SerialMonLogRecordCode.DeviceOpenError;
+		std.StringBuilder deviceName;
+		deviceName.copy(m_deviceName);
+		if (params.m_fileNameLength)
+			deviceName.append((utf16_t const*)(params + 1), params.m_fileNameLength);
 
+		string_t processName;
+		size_t processNameOffset =
+			sizeof(io.win.DeviceMonitorCreateNotifyParams) +
+			(params.m_fileNameLength + 1) * sizeof(utf16_t);
+
+		if (!m_isRemote)
+			processName = try sys.getProcessImageName(notifyHdr.m_processId);
+		else if (notifyHdr.m_paramSize > processNameOffset) {
+			std.StringBuilder string;
+			string.copy((utf16_t const*)((char const*)params + processNameOffset));
+			processName = string.detachString();
+		}
+
+		if (notifyHdr.m_ntStatus == 0)
+			writeDeviceOpenRecord(notifyHdr.m_timestamp, notifyHdr.m_processId, null, deviceName.detachString(), processName);
+		else {
 			std.Error error;
 			error.m_size = sizeof(error);
 			error.m_guid = std.g_ntStatusGuid;
 			error.m_code = notifyHdr.m_ntStatus;
-			logParams.append(&error, error.m_size);
+			writeDeviceOpenRecord(notifyHdr.m_timestamp, notifyHdr.m_processId, &error, deviceName.detachString(), processName);
 		}
-
-		logParams.append(try sys.getProcessImageName(notifyHdr.m_processId));
-
-		m_logWriter.write(
-			notifyHdr.m_timestamp,
-			recordCode,
-			logParams.m_p,
-			logParams.m_size
-		);
 
 		break;
 
@@ -248,8 +256,8 @@ void SerialMonProcessor_win.processIoctlNotification(
 			(p.ControlHandShake & wdk.SERIAL_CTS_HANDSHAKE) && (p.FlowReplace & wdk.SERIAL_RTS_HANDSHAKE) ?
 				io.SerialFlowControl.RtsCts :
 			(p.ControlHandShake & wdk.SERIAL_AUTO_RECEIVE) && (p.ControlHandShake & wdk.SERIAL_AUTO_TRANSMIT) ?
-				flowControl = io.SerialFlowControl.XonXoff :
-				flowControl = io.SerialFlowControl.None;
+				io.SerialFlowControl.XonXoff :
+				io.SerialFlowControl.None;
 
 		m_logWriter.write(
 			timestamp,

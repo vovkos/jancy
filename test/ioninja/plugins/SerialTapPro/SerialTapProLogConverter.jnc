@@ -146,7 +146,7 @@ protected:
 		bool isStatusLineChangeVisible,
 		bool isLineErrorVisible,
 		uint64_t timestamp,
-		uint8_t status0,
+		uint16_t status0,
 		SerialTapProLines lines0,
 		void const thin* p0,
 		size_t size
@@ -342,7 +342,7 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 	bool isStatusLineChangeVisible,
 	bool isLineErrorVisible,
 	uint64_t timestamp,
-	uint8_t status0,
+	uint16_t status0,
 	SerialTapProLines lines0,
 	void const thin* p0,
 	size_t size
@@ -363,6 +363,7 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 	char thin* pd = data;
 	uint64_t thin* pd9 = bin9;
 	uint64_t dataRecordCode;
+	uint64_t dataTimestamp;
 	RecordCodeIdx dataRecordCodeBase = isParityBitVisible ? RecordCodeIdx.Data9_0 : RecordCodeIdx.Data_0;
 
 	char thin const* p = p0;
@@ -375,8 +376,12 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 		DecodeUlebResult uleb = decodeUleb(p, end);
 		p = uleb.m_p;
 
-		uint64_t prevTimestamp = timestamp;
 		timestamp += uleb.m_value * 10; // FPGA timestamps are in mcs
+
+		if (notificationCode >= SerialTapProNotificationCode.EdgeFall_0 &&
+			notificationCode <= SerialTapProNotificationCode.EdgeRise_1
+		)
+			continue; // edges only feed auto-baud detection
 
 		if (notificationCode == SerialTapProNotificationCode.Data_0 || // Rx
 			notificationCode == SerialTapProNotificationCode.Data_1    // Tx
@@ -391,8 +396,8 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 				if (dataRecordCode) {
 					size_t size = pd - data;
 					isParityBitVisible ?
-						writer.write(prevTimestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
-						writer.write(prevTimestamp, dataRecordCode, data, size);
+						writer.write(dataTimestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
+						writer.write(dataTimestamp, dataRecordCode, data, size);
 				}
 
 				dataRecordCode = recordCode;
@@ -407,6 +412,7 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 			}
 
 			*pd++ = byte;
+			dataTimestamp = timestamp;
 
 			if (isLineErrorVisible && (flags & SerialTapProDataFlags.ErrorMask)) {
 				size_t size = pd - data;
@@ -425,8 +431,8 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 			if (dataRecordCode) {
 				size_t size = pd - data;
 				isParityBitVisible ?
-					writer.write(prevTimestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
-					writer.write(prevTimestamp, dataRecordCode, data, size);
+					writer.write(dataTimestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
+					writer.write(dataTimestamp, dataRecordCode, data, size);
 				dataRecordCode = 0;
 			}
 
@@ -497,8 +503,8 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 	if (dataRecordCode) {
 		size_t size = pd - data;
 		isParityBitVisible ?
-			writer.write(timestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
-			writer.write(timestamp, dataRecordCode, data, size);
+			writer.write(dataTimestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
+			writer.write(dataTimestamp, dataRecordCode, data, size);
 	}
 }
 

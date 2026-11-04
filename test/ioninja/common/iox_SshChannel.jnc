@@ -14,7 +14,7 @@ import "doc_PluginHost.jnc"
 import "std_Buffer.jnc"
 import "sys_Timer.jnc"
 import "SocketLog/SocketLogRecordCode.jnc"
-import "SshChannel/SshLogRecordCode.jnc"
+import "SshLog/SshLogRecordCode.jnc"
 
 namespace iox {
 
@@ -36,6 +36,7 @@ public:
 		SshOpeningChannel,
 		SshRequestingPty,
 		SshStartingProcess,
+		SshCompletingConnect,
 		Connected,
 	}
 
@@ -96,12 +97,13 @@ public:
 		"Resolving...",
 		"Waiting...",
 		"Connecting...",
-		"Handhsaking...",
+		"Handshaking...",
 		"Authenticating...",
 		"Authenticating...",
 		"Opening channel...",
 		"Requesting PTY...",
 		"Starting process...",
+		"Completing connection...",
 		"Connected",
 	}
 
@@ -156,8 +158,6 @@ public:
 	}
 
 protected:
-	void onResolveCompleted();
-
 	void onSshEvent(
 		uint_t syncId,
 		io.SshEvents triggeredEvents
@@ -165,8 +165,6 @@ protected:
 
 	void onReconnectTimer(uint_t syncId);
 	void onLoginDlgCompleted(ui.StdDlgButton button);
-	void onConsoleSizeChanged();
-
 	void closeImpl();
 	void handleConnectError(std.Error const* error);
 	void handleSshAuthenticateError(std.Error const* error);
@@ -188,9 +186,21 @@ SshChannel.ConnectParams.construct() {
 SshChannel.construct(doc.PluginHost* pluginHost) {
 	m_resolver.construct(pluginHost);
 	m_pluginHost = pluginHost;
-	m_pluginHost.m_terminal.m_onConsoleSizeChanged += onConsoleSizeChanged;
+	m_pluginHost.m_terminal.m_onConsoleSizeChanged += []() {
+		if (m_state == State.Connected && m_connectParams.m_sshParams.m_ptyType)
+			m_ssh.resizePty(
+				m_pluginHost.m_terminal.m_consoleWidth,
+				m_pluginHost.m_terminal.m_consoleHeight
+			);
+	}
+
 	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
-	m_resolver.m_onCompleted += onResolveCompleted;
+	m_resolver.m_onCompleted += []() {
+		m_state = State.Closed;
+
+		if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+			try connect(m_resolver.m_address, &m_connectParams);
+	}
 }
 
 void SshChannel.close() {
@@ -209,18 +219,15 @@ void SshChannel.close() {
 	case State.SshOpeningChannel:
 	case State.SshRequestingPty:
 	case State.SshStartingProcess:
+	case State.SshCompletingConnect:
 		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
 		break;
 
 	case State.Connected:
-		TcpDisconnectLogRecordParams params;
+		SocketLogDisconnectParams params;
 		params.m_address = m_remoteAddress;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&params,
-			sizeof(params)
-		);
+		params.m_flags = getSocketLogDisconnectFlagsFromOptions(m_ssh.m_options);
+		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 		break;
 	}
 
@@ -274,7 +281,6 @@ bool errorcode SshChannel.connect(
 	m_ssh.m_options = params.m_socketOptions;
 	m_ssh.m_tcpKeepAliveIdleTimeout = params.m_tcpKeepAliveIdleTimeout;
 	m_ssh.m_tcpKeepAliveRetryInterval = params.m_tcpKeepAliveRetryInterval;
-
 
 	if (params.m_localAddress.m_family)
 		m_ssh.open(params.m_localAddress);
@@ -395,12 +401,20 @@ bool errorcode SshChannel.applyProperties(
 	ui.BufferPropertySet const* bufferPropSet
 ) {
 	m_readBuffer.setSize(bufferPropSet.m_readBufferSizeProp.m_value);
+
 	m_connectParams.m_useReconnect = socketPropSet.m_useReconnectProp ?
 		socketPropSet.m_useReconnectProp.m_value :
 		ui.SocketPropertySet.Defaults.UseReconnect;
 	m_connectParams.m_reconnectTimeout = socketPropSet.m_reconnectTimeoutProp ?
 		socketPropSet.m_reconnectTimeoutProp.m_value :
 		ui.SocketPropertySet.Defaults.ReconnectTimeout;
+
+	m_ssh.m_readBlockSize = bufferPropSet.m_readBlockSizeProp.m_value;
+	m_ssh.m_readBufferSize = bufferPropSet.m_readBufferSizeProp.m_value;
+	m_ssh.m_writeBufferSize = bufferPropSet.m_writeBufferSizeProp.m_value;
+	m_ssh.m_options = ui.getSocketOptions(socketPropSet, bufferPropSet);
+	m_ssh.m_tcpKeepAliveIdleTimeout = socketPropSet.m_tcpKeepAliveIdleTimeoutProp.m_value;
+	m_ssh.m_tcpKeepAliveRetryInterval = socketPropSet.m_tcpKeepAliveRetryIntervalProp.m_value;
 	return true;
 }
 
@@ -429,13 +443,19 @@ void SshChannel.waitSshEvents() {
 		break;
 
 	case State.SshStartingProcess:
+		eventMask |= io.SshEvents.SshProcessStarted;
+		break;
+
+	case State.SshCompletingConnect:
 		eventMask |= io.SshEvents.SshConnectCompleted;
 		break;
 
 	case State.Connected:
 		eventMask |=
+			io.SshEvents.IncomingData |
 			io.SshEvents.TcpDisconnected |
-			io.SshEvents.IncomingData;
+			io.SshEvents.TcpReset |
+			io.SshEvents.TcpAborted;
 
 		if (!m_isTransmitEnabled)
 			eventMask |= io.SshEvents.WriteBufferReady;
@@ -482,7 +502,7 @@ void SshChannel.onLoginDlgCompleted(ui.StdDlgButton button) {
 
 	if (m_loginDlg.m_userName == m_connectParams.m_sshParams.m_userName) {
 		nextState = State.SshAuthenticating;
-		m_logWriter.write(SshLogRecordCode.SshAuthenticating);
+		m_logWriter.write(SshLogRecordCode.Reauthenticating);
 	} else {
 		nextState = State.TcpConnecting;
 		m_logWriter.write(SshLogRecordCode.Reconnecting);
@@ -544,33 +564,50 @@ void SshChannel.onSshEvent(
 	}
 
 	if (triggeredEvents & io.SshEvents.TcpConnected) {
-		m_logWriter.write(SshLogRecordCode.TcpConnectCompleted);
+		m_logWriter.write(SshLogRecordCode.Handshaking);
 		m_state = State.SshHandshaking;
 	}
 
 	if (triggeredEvents & io.SshEvents.SshHandshakeCompleted) {
-		m_logWriter.write(SshLogRecordCode.SshHandshakeCompleted);
+		m_logWriter.write(SshLogRecordCode.Authenticating);
 		m_state = State.SshAuthenticating;
 	}
 
 	if (triggeredEvents & io.SshEvents.SshAuthenticateCompleted) {
-		m_logWriter.write(SshLogRecordCode.SshAuthCompleted);
+		m_logWriter.write(SshLogRecordCode.OpeningChannel);
 		m_state = State.SshOpeningChannel;
 	}
 
 	if (triggeredEvents & io.SshEvents.SshChannelOpened) {
-		m_logWriter.write(SshLogRecordCode.SshChannelOpened);
-		m_state = State.SshRequestingPty;
+		if (m_connectParams.m_sshParams.m_ptyType) {
+			m_logWriter.write(SshLogRecordCode.RequestingPty);
+			m_state = State.SshRequestingPty;
+		} else if (m_connectParams.m_sshParams.m_processType) {
+			m_logWriter.write(SshLogRecordCode.StartingProcess);
+			m_state = State.SshStartingProcess;
+		} else {
+			m_logWriter.write(SshLogRecordCode.LastStepCompleted);
+			m_state = State.SshCompletingConnect;
+		}
 	}
 
 	if (triggeredEvents & io.SshEvents.SshPtyRequestCompleted) {
-		m_logWriter.write(SshLogRecordCode.SshPtyRequested);
-		m_state = State.SshStartingProcess;
+		if (m_connectParams.m_sshParams.m_processType) {
+			m_logWriter.write(SshLogRecordCode.StartingProcess);
+			m_state = State.SshStartingProcess;
+		} else {
+			m_logWriter.write(SshLogRecordCode.LastStepCompleted);
+			m_state = State.SshCompletingConnect;
+		}
+	}
+
+	if (triggeredEvents & io.SshEvents.SshProcessStarted) {
+		m_logWriter.write(SshLogRecordCode.LastStepCompleted);
+		m_state = State.SshCompletingConnect;
 	}
 
 	if (triggeredEvents & io.SshEvents.SshConnectCompleted) {
-		m_logWriter.write(SshLogRecordCode.SshProcessStarted);
-		m_logWriter.write(SshLogRecordCode.ConnectCompleted);
+		m_logWriter.write(SshLogRecordCode.ChannelEstablished);
 		m_state = State.Connected;
 		m_isTransmitEnabled = true;
 		m_onConnected();
@@ -583,20 +620,14 @@ void SshChannel.onSshEvent(
 				break;
 
 			m_onIncomingData(m_readBuffer.m_p, size);
+			if (!m_state) // m_onIncomingData could have closed us
+				return;
 		}
 
-		TcpDisconnectLogRecordParams params;
+		SocketLogDisconnectParams params;
 		params.m_address = m_remoteAddress;
-		params.m_flags = TcpDisconnectLogRecordFlags.Remote;
-
-		if (triggeredEvents & io.SshEvents.TcpReset)
-			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&params,
-			sizeof(params)
-		);
+		params.m_flags = getSocketLogDisconnectFlagsFromEvents(triggeredEvents);
+		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 
 		uint64_t lastReconnectTime = m_lastReconnectTime;
 		closeImpl();
@@ -651,21 +682,6 @@ void SshChannel.onReconnectTimer(uint_t syncId) {
 
 	if (!result && m_connectParams.m_useReconnect)
 		startReconnectTimer();
-}
-
-void SshChannel.onResolveCompleted() {
-	m_state = State.Closed;
-
-	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
-		try connect(m_resolver.m_address, &m_connectParams);
-}
-
-void SshChannel.onConsoleSizeChanged() {
-	if (m_state == State.Connected)
-		m_ssh.resizePty(
-			m_pluginHost.m_terminal.m_consoleWidth,
-			m_pluginHost.m_terminal.m_consoleHeight
-		);
 }
 
 //..............................................................................

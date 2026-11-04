@@ -1,0 +1,164 @@
+//..............................................................................
+//
+// IO Ninja SSH channel to a remote ioninja-hwc (launched with --stdin)
+//
+
+import "iox_SshChannel.jnc"
+import "iox_HwcTransport.jnc"
+import "io_HwcProto.jnc"
+import "std_Buffer.jnc"
+import "std_String.jnc"
+
+namespace iox {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+class SshHwc:
+	SshChannel,
+	HwcTransport {
+public:
+	construct(doc.PluginHost* pluginHost) {
+		basetype.construct(pluginHost);
+		m_onConnected += resetDecoder;
+		m_onIncomingData += decode;
+	}
+
+	override bool errorcode writeMsg(
+		io.HwcMsgCode code,
+		void const* p = null,
+		size_t size = 0
+	) {
+		std.Buffer buffer;
+		io.packHwcMsg(buffer, code, p, size);
+		write(buffer.m_p, buffer.m_size);
+		return true;
+	}
+}
+
+//..............................................................................
+
+// [ssh://][user@]host[:port][/device] -- the device is the URL path as is
+// (/dev/ttyUSB0), except that a single segment drops its leading slash (COM1)
+
+struct SshHwcUrl {
+	string_t m_userName; // null if not specified
+	string_t m_address;  // host[:port], as accepted by SshChannel.connect
+	string_t m_device;   // null if not specified
+
+	bool errorcode parse(string_t string);
+	string_t getString() const;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode SshHwcUrl.parse(string_t string) {
+	static char const prefix[] = "ssh://";
+
+	char const* p = string.m_p;
+	char const* end = p + string.m_length;
+	if (string.m_length >= sizeof(prefix) - 1 && strnicmp(p, prefix, sizeof(prefix) - 1) == 0)
+		p += sizeof(prefix) - 1;
+
+	char const* slash = memchr(p, '/', end - p);
+	char const* at = memchr(p, '@', end - p);
+	if (at && (!slash || at < slash)) {
+		m_userName = string_t(p, at - p);
+		p = at + 1;
+	} else
+		m_userName = null;
+
+	char const* hostEnd = p;
+	if (p < end && *p == '[') { // IPv6 literal
+		char const* bracket = memchr(p, ']', end - p);
+		if (!bracket) {
+			std.setError("invalid IPv6 address in URL");
+			return false;
+		}
+
+		hostEnd = bracket + 1;
+	}
+
+	slash = memchr(hostEnd, '/', end - hostEnd);
+	char const* addressEnd = slash ? slash : end;
+	m_address = string_t(p, addressEnd - p);
+	if (!m_address.m_length) {
+		std.setError("remote address not specified");
+		return false;
+	}
+
+	if (!slash || slash + 1 == end)
+		m_device = null;
+	else if (memchr(slash + 1, '/', end - slash - 1))
+		m_device = string_t(slash, end - slash);
+	else
+		m_device = string_t(slash + 1, end - slash - 1);
+
+	return true;
+}
+
+string_t SshHwcUrl.getString() const {
+	std.StringBuilder string;
+	string.append("ssh://");
+	if (m_userName) {
+		string.append(m_userName);
+		string.append('@');
+	}
+
+	string.append(m_address);
+
+	if (m_device) {
+		if (m_device.m_p[0] != '/')
+			string.append('/');
+
+		string.append(m_device);
+	}
+
+	return string.detachString();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// USB peripherals (taps) are addressed as @bus:address -- e.g., ssh://host/@001:027,
+// as in Avahi service names; no device -- ioninja-hwc opens the first attached one
+
+string_t formatSshHwcUsbDevice(
+	uint_t bus,
+	uint_t address
+) {
+	return $"@%(1;03d):%(2;03d)"(bus, address);
+}
+
+bool errorcode parseSshHwcUsbDevice(
+	string_t device,
+	uint_t* bus,
+	uint_t* address
+) {
+	char const* colon = memchr(device.m_p, ':', device.m_length);
+	if (device.m_length && device.m_p[0] == '@' && colon) {
+		string_t busString = string_t(device.m_p + 1, colon - device.m_p - 1);
+		string_t addressString = string_t(colon + 1, device.m_p + device.m_length - colon - 1);
+
+		size_t busLength;
+		size_t addressLength;
+		*bus = strtoul(busString, &busLength, 10);
+		*address = strtoul(addressString, &addressLength, 10);
+
+		if (busLength &&
+			busLength == busString.m_length &&
+			addressLength &&
+			addressLength == addressString.m_length)
+			return true;
+	}
+
+	std.setError($"invalid tap address '$device' (expected @bus:address, e.g., @001:027)");
+	return false;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

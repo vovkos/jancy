@@ -19,6 +19,7 @@ typedef ListItem ComboItem;
 
 opaque class ComboBox: Widget {
 	bool autoget property m_isEditable; // for editable combo boxes: if itemData is non-null, it's used as the actual value
+	bool autoget property m_isEditEnabled; // for editable combo boxes: the drop-down still works
 
 	string_t bindable autoget property m_editText;
 	string_t autoget property m_placeholderText;
@@ -28,6 +29,7 @@ opaque class ComboBox: Widget {
 	string_t property m_itemText(size_t index);
 	variant_t property m_itemData(size_t index);
 	string_t property m_itemToolTip(size_t index);
+	bool property m_isItemEnabled(size_t index);
 
 	size_t bindable autoget property m_currentIndex;
 	string_t bindable const property m_currentText;
@@ -45,6 +47,7 @@ opaque class ComboBox: Widget {
 	destruct();
 
 	void adjustSizeToContents();
+	void showPopup();
 
 	size_t addItem(
 		string_t text,
@@ -77,6 +80,7 @@ opaque class ComboBox: Widget {
 	void insertSeparator(size_t index);
 
 	bool removeItem(size_t index);
+	void removeAllItems();
 
 	void setItems(
 		ComboItem const* itemArray,

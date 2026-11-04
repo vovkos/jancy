@@ -8,7 +8,7 @@ import "log_RecordCode.jnc"
 //..............................................................................
 
 enum FileLogRecordCode: uint64_t {
-	Opened_0   = 0x01d485548790df29,
+	Opened_0   = 0x01d485548790df29, // deprecated
 	OpenError  = 0x01d485548790df2a,
 	Closed     = 0x01d485548790df2b,
 	Eof        = 0x01d485548790df2c,
@@ -19,7 +19,7 @@ enum FileLogRecordCode: uint64_t {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct FileOpenLogRecordParams {
+struct FileLogOpenParams {
 	io.FileKind m_kind;
 	io.FileOpenFlags m_openFlags;
 

@@ -101,19 +101,6 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onRefresh() {
-		ui.refreshHidMonDeviceListUi(m_deviceCombo, m_deviceProp);
-	}
-
-	void onInfo() {
-		m_logWriter.write(HidLogRecordCode.DeviceInfo, m_deviceInfoBuffer.m_p, m_deviceInfoBuffer.m_size);
-		m_logWriter.write(HidLogRecordCode.ReportDescriptor, m_rdBuffer.m_p, m_rdBuffer.m_size);
-	}
-
-	void onCapture() {
-		m_state ? close() : try capture();
-	}
-
 	void onMonitorEvent(
 		uint_t syncId,
 		io.UsbMonEvents triggeredEvents
@@ -152,11 +139,22 @@ void HidMonSession.createUi() {
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
 	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.refreshHidMonDeviceListUi(m_deviceCombo, m_deviceProp);
+		if (count > 1)
+			m_deviceCombo.showPopup();
+	}
+
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? close() : try capture();
+	}
+
 	m_actionTable[ActionId.Info] = createAction("HID device info", m_iconTable[IconId.Info]);
-	m_actionTable[ActionId.Info].m_onTriggered += onInfo;
+	m_actionTable[ActionId.Info].m_onTriggered += []() {
+		m_logWriter.write(HidLogRecordCode.DeviceInfo, m_deviceInfoBuffer.m_p, m_deviceInfoBuffer.m_size);
+		m_logWriter.write(HidLogRecordCode.ReportDescriptor, m_rdBuffer.m_p, m_rdBuffer.m_size);
+	}
 
 	// status bar
 
@@ -282,8 +280,8 @@ bool errorcode HidMonSession.capture() {
 		buffer.m_size
 	);
 
-	m_deviceInfoBuffer.setSize(sizeof(HidDeviceInfoParams));
-	HidDeviceInfoParams* hidDeviceInfoParams = (HidDeviceInfoParams*)m_deviceInfoBuffer.m_p;
+	m_deviceInfoBuffer.setSize(sizeof(HidLogDeviceInfoParams));
+	HidLogDeviceInfoParams* hidDeviceInfoParams = (HidLogDeviceInfoParams*)m_deviceInfoBuffer.m_p;
 	hidDeviceInfoParams.m_releaseNumber = device.m_releaseNumber;
 	hidDeviceInfoParams.m_vendorId = device.m_vendorId;
 	hidDeviceInfoParams.m_productId = device.m_productId;

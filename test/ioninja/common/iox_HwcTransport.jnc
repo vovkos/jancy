@@ -1,0 +1,93 @@
+//..............................................................................
+//
+// Common surface of channels to a remote ioninja-hwc (SSH, rendezvous)
+//
+// incoming hwc messages go to the current sink -- normally the session; the
+// FPGA uploader takes the sink over for the duration of its requests
+//
+
+import "io_HwcProto.jnc"
+import "std_Buffer.jnc"
+
+namespace iox {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+class HwcTransportSink {
+	abstract void onMsg(io.HwcMsgHdr const* hdr);
+
+	abstract void onOobData(
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class HwcTransport {
+public:
+	HwcTransportSink* m_sink;
+	readonly std.Buffer m_msgBuffer; // not yet complete message
+	readonly size_t m_msgCount;      // since the last connect
+
+public:
+	abstract bool errorcode writeMsg(
+		io.HwcMsgCode code,
+		void const* p = null,
+		size_t size = 0
+	);
+
+protected:
+	void resetDecoder(); // on connect
+	void decode(        // on incoming data
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void HwcTransport.resetDecoder() {
+	m_msgBuffer.clear();
+	m_msgCount = 0;
+}
+
+void HwcTransport.decode(
+	void const* p,
+	size_t size
+) {
+	m_msgBuffer.append(p, size);
+
+	while (m_msgBuffer.m_size >= sizeof(io.HwcMsgHdr)) {
+		io.HwcMsgHdr const* hdr = (io.HwcMsgHdr const*)m_msgBuffer.m_p;
+		if (hdr.m_stx != 0x02) {
+			char const* stx = memchr(m_msgBuffer.m_p, 0x02, m_msgBuffer.m_size);
+			size_t skipSize = stx ? stx - m_msgBuffer.m_p : m_msgBuffer.m_size;
+			if (m_sink)
+				m_sink.onOobData(m_msgBuffer.m_p, skipSize);
+
+			m_msgBuffer.remove(0, skipSize);
+			if (m_msgBuffer.m_size < sizeof(io.HwcMsgHdr))
+				break; // header not buffered yet
+		}
+
+		size_t msgSize = sizeof(io.HwcMsgHdr) + hdr->m_dataSize;
+		if (m_msgBuffer.m_size < msgSize)
+			break; // not fully buffered yet
+
+		if (m_sink)
+			m_sink.onMsg(hdr);
+
+		m_msgCount++;
+		m_msgBuffer.remove(0, msgSize);
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

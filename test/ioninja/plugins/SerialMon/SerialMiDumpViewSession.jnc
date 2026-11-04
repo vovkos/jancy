@@ -88,17 +88,6 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onOpen() {
-		m_state ? close() : try open();
-	}
-
-	void onBrowse();
-	void onFileDlgCompleted(ui.StdDlgButton button);
-
-	void onComboEnter() {
-		try open();
-	}
-
 	void createUi();
 	void readThreadFunc();
 }
@@ -109,7 +98,10 @@ SerialMiDumpViewSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_monitor.construct(pluginHost.m_log.m_writer);
 
-	m_fileDlg.m_onCompleted += onFileDlgCompleted;
+	m_fileDlg.m_onCompleted += [](ui.StdDlgButton button) {
+		if (button == ui.StdDlgButton.Ok)
+			m_fileNameCombo.m_editText = m_fileDlg.m_filePath;
+	}
 
 	createUi();
 
@@ -123,17 +115,27 @@ void SerialMiDumpViewSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("File:");
 	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_fileNameCombo.m_isEditable = true;
-	m_fileNameCombo.m_onReturnPressed += onComboEnter;
+	m_fileNameCombo.m_onReturnPressed += []() {
+		try open();
+	}
+
 	m_fileNameCombo.m_placeholderText = "Enter a MI dump file name...";
 
 	m_iconTable[IconId.Open] = new ui.Icon("images/capture.png");
 	m_iconTable[IconId.Close] = new ui.Icon("images/pause.png");
 
 	m_actionTable[ActionId.Browse] = createAction("Browse", "images/browse.png");
-	m_actionTable[ActionId.Browse].m_onTriggered += onBrowse;
+	m_actionTable[ActionId.Browse].m_onTriggered += []() {
+		m_fileDlg.m_kind = ui.FileDlgKind.Open;
+		m_fileDlg.m_title = "Open Device Monitor MI Dump...";
+		m_fileDlg.m_filter = "All files (*.*)";
+		m_fileDlg.show();
+	}
 
 	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? close() : try open();
+	}
 
 	// property grid
 
@@ -185,18 +187,6 @@ void SerialMiDumpViewSession.close() {
 	m_state = State.Closed;
 	m_syncId++;
 	m_stdSessionInfoSet.endSession();
-}
-
-void SerialMiDumpViewSession.onBrowse() {
-	m_fileDlg.m_kind = ui.FileDlgKind.Open;
-	m_fileDlg.m_title = "Open Device Monitor MI Dump...";
-	m_fileDlg.m_filter = "All files (*.*)";
-	m_fileDlg.show();
-}
-
-void SerialMiDumpViewSession.onFileDlgCompleted(ui.StdDlgButton button) {
-	if (button == ui.StdDlgButton.Ok)
-		m_fileNameCombo.m_editText = m_fileDlg.m_filePath;
 }
 
 void SerialMiDumpViewSession.load(doc.Storage* storage) {

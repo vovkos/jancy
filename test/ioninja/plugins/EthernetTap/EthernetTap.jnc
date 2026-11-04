@@ -1,0 +1,27 @@
+//..............................................................................
+//
+// Ethernet Tap definitions
+//
+
+//..............................................................................
+
+string_t const EthernetTapFirmwareFileName = __DIR__ "/firmware/eth.rpd";
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum EthernetTapPacketFlags: uint8_t {
+	Reserved,       // 1
+	CrcValid,       // 2
+	BufferOverflow, // 4
+	ChannelId,      // 8
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct EthernetTapPacketHdr {
+	uint16_t m_size;
+	uint8_t m_reserved;
+	EthernetTapPacketFlags m_flags;
+}
+
+//..............................................................................

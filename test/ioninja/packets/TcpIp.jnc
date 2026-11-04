@@ -52,7 +52,7 @@ struct IpPacket {
 
 	[ userAction = "Initialize with defaults" ]
 	void initialize() {
-		initializeEthernetIpHdr(&m_ethernet, &m_ip, (io.IpProtocol) 0);
+		initializeEthernetIpHdr(&m_ethernet, &m_ip, (io.IpProtocol)0);
 	}
 
 	[

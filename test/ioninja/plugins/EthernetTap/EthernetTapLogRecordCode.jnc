@@ -4,6 +4,7 @@
 //
 
 import "log_RecordCode.jnc"
+import "EthernetTap.jnc"
 
 //..............................................................................
 
@@ -24,23 +25,11 @@ enum EthernetTapLogRecordCode: uint64_t {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum PacketFlags: uint8_t {
-	Reserved,       // 1
-	CrcValid,       // 2
-	BufferOverflow, // 4
-	ChannelId,      // 8
-}
+// Packet_ch* records: this meta, then the frame with its CRC (m_hdr.m_size bytes)
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct PacketHdr {
-	uint16_t m_size;
-	uint8_t m_reserved;
-	PacketFlags m_flags;
-}
-
-enum {
-	MetaSize = sizeof(uint32_t) + sizeof(PacketHdr)
+struct EthernetTapPacketMeta {
+	uint32_t m_index;
+	EthernetTapPacketHdr m_hdr;
 }
 
 //..............................................................................

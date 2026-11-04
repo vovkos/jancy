@@ -1,0 +1,452 @@
+//..............................................................................
+//
+// mDNS scanner session
+//
+
+import "doc_Session.jnc"
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "io_NetworkAdapter.jnc"
+import "io_Mdns.jnc"
+import "sys_Timer.jnc"
+import "ui_SocketUi.jnc"
+import "std_Array.jnc"
+import "std_Buffer.jnc"
+import "MdnsLogRecordCode.jnc"
+
+//..............................................................................
+
+class MdnsScannerSession: doc.Session {
+protected:
+	enum Defaults {
+		QueryType = io.DnsType.PTR,
+		ScanTime  = 3000,
+	}
+
+	static char const DefaultQueryName[] = "_services._dns-sd._udp.local";
+
+	enum {
+		MaxDatagramSize = 9000, // RFC 6762 17
+	}
+
+	enum State {
+		Idle,
+		Scanning,
+	}
+
+	enum ActionId {
+		Refresh,
+		Scan,
+		_Count,
+	}
+
+	enum IconId {
+		Refresh,
+		Scan,
+		Stop,
+		_Count,
+	}
+
+	enum StatusPaneId {
+		State,
+		ReplyCount,
+		_Count,
+	}
+
+	// one query socket per interface address (legacy unicast: replies come back to its ephemeral port)
+
+	class QuerySocket {
+		io.Socket m_socket;
+		io.SocketAddress m_interfaceAddress;
+		io.SocketAddress m_localAddress; // interface address + the ephemeral port
+	}
+
+protected:
+	State bindable m_state;
+	std.Array m_socketArray;
+	sys.Timer m_scanTimer;
+	std.Buffer m_readBuffer;
+	uint_t m_syncId;
+	uint32_t bindable m_replyCount;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_queryNameCombo;
+	ui.ComboBox* m_adapterCombo;
+
+	// property grid
+
+	ui.ComboProperty* m_queryNameProp;
+	ui.EnumProperty* m_queryTypeProp;
+	ui.EnumProperty* m_adapterProp;
+	ui.IntProperty* m_scanTimeProp;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode startScan();
+	void stopScan();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override errorcode bool applyProperties();
+	override void restoreDefaultProperties();
+
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : startScan();
+	}
+
+	override void disconnectSession() {
+		stopScan();
+	}
+
+protected:
+	void createUi();
+
+	void sendQuery(
+		io.SocketAddress const* interfaceAddress,
+		void const* p,
+		size_t size
+	);
+
+	void waitSocketEvents(size_t index);
+
+	void onSocketEvent(
+		uint_t syncId,
+		size_t index,
+		io.SocketEvents triggeredEvents
+	);
+
+	void onScanTimer(uint_t syncId);
+	void closeSockets();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+MdnsScannerSession.construct(doc.PluginHost* pluginHost) {
+	basetype.construct(pluginHost);
+	m_readBuffer.setSize(MaxDatagramSize);
+	createUi();
+}
+
+void MdnsScannerSession.createUi() {
+	static ui.EnumPropertyOption queryNameTable[] = {
+		{ "_services._dns-sd._udp.local" }, // all service types
+		{ "_workstation._tcp.local" },
+		{ "_device-info._tcp.local" },
+		{ "_http._tcp.local" },
+		{ "_https._tcp.local" },
+		{ "_ssh._tcp.local" },
+		{ "_sftp-ssh._tcp.local" },
+		{ "_smb._tcp.local" },
+		{ "_ipp._tcp.local" },
+		{ "_printer._tcp.local" },
+		{ "_airplay._tcp.local" },
+		{ "_googlecast._tcp.local" },
+		{ "_hap._tcp.local" },
+		{ "_rfb._tcp.local" },
+		{ "_mqtt._tcp.local" },
+		{ "_ioninja._tcp.local" },
+	}
+
+	static ui.EnumPropertyOption queryTypeTable[] = {
+		{ "PTR (service instances)", io.DnsType.PTR },
+		{ "SRV (host & port)",       io.DnsType.SRV },
+		{ "TXT (attributes)",        io.DnsType.TXT },
+		{ "A (IPv4 address)",        io.DnsType.A },
+		{ "AAAA (IPv6 address)",     io.DnsType.AAAA },
+		{ "ANY",                     io.DnsType.ALL },
+	}
+
+	// toolbar
+
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Scan] = new ui.Icon("images/scan.png");
+	m_iconTable[IconId.Stop] = new ui.Icon("images/stop.png");
+
+	m_pluginHost.m_toolBar.addLabel("Query:");
+	m_queryNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_queryNameCombo.m_isEditable = true;
+	m_queryNameCombo.m_placeholderText = "Enter a service type or a host name...";
+	m_queryNameCombo.setItems(queryNameTable, countof(queryNameTable));
+	m_queryNameCombo.m_onReturnPressed += []() {
+		try startScan();
+	}
+
+	m_pluginHost.m_toolBar.addSpacing();
+	m_pluginHost.m_toolBar.addLabel("Adapter:");
+	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
+
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_adapterProp
+		);
+
+		if (count > 1)
+			m_adapterCombo.showPopup();
+	}
+
+	m_actionTable[ActionId.Scan] = createAction("Scan", m_iconTable[IconId.Scan]);
+	m_actionTable[ActionId.Scan].m_onTriggered += []() {
+		m_state ? stopScan() : try startScan();
+	}
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.ReplyCount] = m_pluginHost.m_statusBar.addPane(, 80);
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"mDNS",
+		"mDNS scanner settings"
+	);
+
+	m_queryNameProp = m_pluginHost.m_propertyGrid.createComboProperty(
+		group,,
+		"Query",
+		"Enter a service type or a host name...",
+		"Specify the DNS name to query (a DNS-SD service type or a .local host name)",
+		queryNameTable,
+		countof(queryNameTable)
+	);
+
+	m_queryTypeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"Query type",
+		"Specify the DNS record type to query",
+		queryTypeTable,
+		countof(queryTypeTable)
+	);
+
+	m_adapterProp = ui.createNetworkAdapterProperty(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		ui.NetworkAdapterUsage.Listener,
+		"Adapter",
+		"Network adapter(s) to send the query from"
+	);
+
+	m_scanTimeProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Scan time (ms)",
+		"Specify how long to collect replies after sending the query"
+	);
+
+	m_scanTimeProp.m_minValue = 100;
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+
+	m_uiReactor.start();
+}
+
+bool errorcode MdnsScannerSession.startScan() {
+	string_t queryName = m_queryNameCombo.m_editText;
+	io.DnsType queryType = m_queryTypeProp.m_value;
+	io.SocketAddress const* adapterAddress = m_adapterCombo.m_currentData;
+
+	io.MdnsQueryBuilder queryBuilder;
+	queryBuilder.addQuestion(queryName, queryType);
+
+	stopScan();
+	startSession();
+
+	MdnsScanParams params;
+	params.m_queryType = queryType;
+	m_logWriter.write(MdnsLogRecordCode.ScanStarted, &params, sizeof(params), queryName.m_p, queryName.m_length);
+
+	io.SocketAddress anyAddress;
+	anyAddress.m_family = adapterAddress.m_family;
+
+	if (!adapterAddress.isEqual(&anyAddress))
+		sendQuery(adapterAddress, queryBuilder.m_buffer.m_p, queryBuilder.m_buffer.m_size);
+	else {
+		io.NetworkAdapterDesc const* adapter = io.enumerateNetworkAdapters();
+		for (; adapter; adapter = adapter.m_next) {
+			if (adapter.m_type == io.NetworkAdapterType.Loopback ||
+				!(adapter.m_flags & io.NetworkAdapterFlags.Multicast))
+				continue;
+
+			io.NetworkAdapterAddress const* address = adapter.m_address;
+			for (; address; address = address.m_next) {
+				io.SocketAddress const* interfaceAddress = &address.m_address;
+				if (interfaceAddress.m_family != adapterAddress.m_family ||
+					interfaceAddress.m_family == io.AddressFamily.Ip6 && !interfaceAddress.m_ip6.m_scope) // IPV6_MULTICAST_IF needs an interface index
+					continue;
+
+				sendQuery(interfaceAddress, queryBuilder.m_buffer.m_p, queryBuilder.m_buffer.m_size);
+			}
+		}
+	}
+
+	m_replyCount = 0;
+	m_state = State.Scanning;
+	m_sessionConnectionState = SessionConnectionState.Connected;
+	m_scanTimer.startSingleShotTimer(onScanTimer~(m_syncId) @ m_pluginHost.m_mainThreadScheduler, m_scanTimeProp.m_value);
+	return true;
+}
+
+void MdnsScannerSession.sendQuery(
+	io.SocketAddress const* interfaceAddress,
+	void const* p,
+	size_t size
+) {
+	QuerySocket* socket = new QuerySocket;
+	socket.m_interfaceAddress = *interfaceAddress;
+
+nestedscope:
+	// bound explicitly: windows rejects recvfrom on an unbound socket
+
+	io.SocketAddress anyAddress;
+	anyAddress.m_family = interfaceAddress.m_family;
+
+	socket.m_socket.m_multicastHopLimit = 255; // RFC 6762 11
+	socket.m_socket.m_multicastInterfaceAddress = *interfaceAddress;
+	socket.m_socket.open(io.Protocol.Udp, &anyAddress);
+	io.SocketAddress boundAddress = socket.m_socket.m_address;
+	socket.m_localAddress = *interfaceAddress;
+	socket.m_localAddress.m_port = boundAddress.m_port;
+
+	MdnsPacketHdr hdr;
+	hdr.m_srcAddress = socket.m_localAddress;
+	hdr.m_dstAddress = io.getMdnsGroupAddress(interfaceAddress.m_family);
+	socket.m_socket.writeDatagram(p, size, &hdr.m_dstAddress);
+	m_logWriter.write(MdnsLogRecordCode.TxPacket, &hdr, sizeof(hdr), p, size);
+
+	size_t index = m_socketArray.m_count;
+	m_socketArray.append(socket);
+	waitSocketEvents(index);
+
+catch:
+	std.Error const* error = std.getLastError();
+	m_logWriter.write(MdnsLogRecordCode.QueryError, interfaceAddress, sizeof(io.SocketAddress), error, error.m_size);
+	socket.m_socket.close();
+}
+
+void MdnsScannerSession.stopScan() {
+	if (m_state == State.Idle)
+		return;
+
+	uint32_t replyCount = m_replyCount;
+	m_logWriter.write(MdnsLogRecordCode.ScanStopped, &replyCount, sizeof(replyCount));
+	closeSockets();
+}
+
+void MdnsScannerSession.closeSockets() {
+	m_scanTimer.stop();
+
+	for (size_t i = 0; i < m_socketArray.m_count; i++) {
+		QuerySocket* socket = m_socketArray.m_p[i];
+		socket.m_socket.close();
+	}
+
+	m_socketArray.clear();
+	m_state = State.Idle;
+	m_sessionConnectionState = SessionConnectionState.Disconnected;
+	m_syncId++;
+}
+
+void MdnsScannerSession.waitSocketEvents(size_t index) {
+	QuerySocket* socket = m_socketArray.m_p[index];
+	socket.m_socket.wait(
+		io.SocketEvents.IoError | io.SocketEvents.IncomingData,
+		onSocketEvent~(m_syncId, index) @ m_pluginHost.m_mainThreadScheduler
+	);
+}
+
+void MdnsScannerSession.onSocketEvent(
+	uint_t syncId,
+	size_t index,
+	io.SocketEvents triggeredEvents
+) {
+	if (syncId != m_syncId)
+		return;
+
+	QuerySocket* socket = m_socketArray.m_p[index];
+
+	if (triggeredEvents & io.SocketEvents.IoError) {
+		m_logWriter.write(
+			MdnsLogRecordCode.QueryError,
+			&socket.m_interfaceAddress,
+			sizeof(io.SocketAddress),
+			socket.m_socket.m_ioError,
+			socket.m_socket.m_ioError.m_size
+		);
+
+		socket.m_socket.close();
+		return;
+	}
+
+	if (triggeredEvents & io.SocketEvents.IncomingData) {
+		MdnsPacketHdr hdr;
+		size_t size = socket.m_socket.readDatagram(m_readBuffer.m_p, m_readBuffer.m_size, &hdr.m_srcAddress);
+		hdr.m_dstAddress = socket.m_localAddress;
+		m_logWriter.write(MdnsLogRecordCode.RxPacket, &hdr, sizeof(hdr), m_readBuffer.m_p, size);
+		m_replyCount++;
+	}
+
+	waitSocketEvents(index);
+}
+
+void MdnsScannerSession.onScanTimer(uint_t syncId) {
+	if (syncId != m_syncId)
+		return;
+
+	uint32_t replyCount = m_replyCount;
+	m_logWriter.write(MdnsLogRecordCode.ScanCompleted, &replyCount, sizeof(replyCount));
+	closeSockets();
+}
+
+void MdnsScannerSession.load(doc.Storage* storage) {
+	m_queryNameCombo.m_editText = storage.readString("queryName", DefaultQueryName);
+	m_queryTypeProp.m_value = storage.readInt("queryType", Defaults.QueryType);
+	m_adapterCombo.m_currentIndex = storage.readInt("adapterIdx");
+	m_scanTimeProp.m_value = storage.readInt("scanTime", Defaults.ScanTime);
+}
+
+void MdnsScannerSession.save(doc.Storage* storage) {
+	storage.writeString("queryName", m_queryNameCombo.m_editText);
+	storage.writeInt("queryType", m_queryTypeProp.m_value);
+	storage.writeInt("adapterIdx", (int)m_adapterCombo.m_currentIndex);
+	storage.writeInt("scanTime", m_scanTimeProp.m_value);
+}
+
+void MdnsScannerSession.updateProperties() {
+	m_queryNameProp.m_value = m_queryNameCombo.m_editText;
+	m_adapterProp.m_currentIndex = m_adapterCombo.m_currentIndex;
+}
+
+bool errorcode MdnsScannerSession.applyProperties() {
+	m_queryNameCombo.m_editText = m_queryNameProp.m_value;
+	m_adapterCombo.m_currentIndex = m_adapterProp.m_currentIndex;
+	return true;
+}
+
+void MdnsScannerSession.restoreDefaultProperties() {
+	m_queryNameProp.m_value = DefaultQueryName;
+	m_queryTypeProp.m_value = Defaults.QueryType;
+	m_adapterProp.m_currentIndex = 0;
+	m_scanTimeProp.m_value = Defaults.ScanTime;
+}
+
+reactor MdnsScannerSession.m_uiReactor {
+	m_title = $"mDNS $(m_queryNameCombo.m_editText)";
+	m_actionTable[ActionId.Scan].m_text = m_state ? "Stop Scan" : "Scan";
+	m_actionTable[ActionId.Scan].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Scan];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Scanning..." : "Idle";
+	m_statusPaneTable[StatusPaneId.ReplyCount].m_text = $"$m_replyCount reply(s)";
+}
+
+//..............................................................................

@@ -58,7 +58,7 @@ void BacNetMsTpParser.parse(
 			}
 
 			// now, start laying out the new packet
-			m_packet.reset(jnc.DynamicLayoutMode.Stream, p, size);
+			m_packet.reset(jnc.DynamicLayoutMode.Stream, null, p, size);
 			promise = layoutBacNetMsTp(m_packet);
 			if (!m_packet.m_isIncomplete)
 				size = m_packet.m_size;

@@ -186,12 +186,12 @@ bool UdpFlowLayer.convert(
 
 	case EthernetTapLogRecordCode.Packet_ch1:
 	case EthernetTapLogRecordCode.Packet_ch2:
-		PacketHdr const* packetHdr = (PacketHdr const*)(p + sizeof(uint32_t));
-		if (!(packetHdr.m_flags & PacketFlags.CrcValid))
+		EthernetTapPacketMeta const* meta = (EthernetTapPacketMeta const*)p;
+		if (!(meta.m_hdr.m_flags & EthernetTapPacketFlags.CrcValid))
 			break; // ignore bad frames
 
-		p += MetaSize;
-		size -= MetaSize;
+		p += sizeof(EthernetTapPacketMeta);
+		size -= sizeof(EthernetTapPacketMeta);
 		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, timestamp, p, size);
 		break;
 

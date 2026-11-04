@@ -92,25 +92,24 @@ protected:
 	}
 
 	void restart();
-
-	void onBrowse();
-	void onFileDlgCompleted(ui.StdDlgButton button);
 	void onPlay();
 	void onTransmitTimer(uint_t syncId);
 	void onProgressTimer(uint_t syncId);
-
-	void onProgressDlgButtonClicked(ui.StdDlgButton button) {
-		close(); // any button essentialy ends the replay
-	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ReplayLogLayer.construct(doc.PluginHost* pluginHost) {
-	basetype1.construct(pluginHost);
+	basetype.construct(pluginHost);
 
-	m_fileDlg.m_onCompleted += onFileDlgCompleted;
-	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
+	m_fileDlg.m_onCompleted += [](ui.StdDlgButton button) {
+		if (button == ui.StdDlgButton.Ok)
+			m_fileNameCombo.m_editText = m_fileDlg.m_filePath;
+	}
+
+	m_progressDlg.m_onButtonClicked += [](ui.StdDlgButton button) {
+		close(); // any button essentialy ends the replay
+	}
 
 	createUi();
 }
@@ -125,7 +124,13 @@ void ReplayLogLayer.createUi() {
 	m_fileNameCombo.m_placeholderText = "Enter a log file name...";
 
 	m_actionTable[ActionId.Browse] = createAction("Browse", "images/browse.png");
-	m_actionTable[ActionId.Browse].m_onTriggered += onBrowse;
+	m_actionTable[ActionId.Browse].m_onTriggered += []() {
+		m_fileDlg.m_kind = ui.FileDlgKind.Open;
+		m_fileDlg.m_title = "Replay Log File...";
+		m_fileDlg.m_filter = "Log files (*.njlog);;All files (*.*)";
+		m_fileDlg.show();
+	}
+
 	m_actionTable[ActionId.Play] = createAction("Replay log", "images/play.png");
 	m_actionTable[ActionId.Play].m_onTriggered += onPlay;
 
@@ -314,18 +319,6 @@ bool errorcode ReplayLogLayer.sendNextRecord() {
 	m_prevRecordOffset = m_offset;
 	m_offset += sizeof(log.Record) + m_nextRecord.m_dataSize;
 	return true;
-}
-
-void ReplayLogLayer.onBrowse() {
-	m_fileDlg.m_kind = ui.FileDlgKind.Open;
-	m_fileDlg.m_title = "Replay Log File...";
-	m_fileDlg.m_filter = "Log files (*.njlog);;All files (*.*)";
-	m_fileDlg.show();
-}
-
-void ReplayLogLayer.onFileDlgCompleted(ui.StdDlgButton button) {
-	if (button == ui.StdDlgButton.Ok)
-		m_fileNameCombo.m_editText = m_fileDlg.m_filePath;
 }
 
 void ReplayLogLayer.onPlay() {

@@ -1,4 +1,5 @@
 import "std_Buffer.jnc"
+import "io_RpdFile.jnc"
 
 namespace io {
 
@@ -40,7 +41,7 @@ enum HwcMsgCode: uint8_t {
 
 	// out
 
-	SerialTapSetConfig = 6,
+	SerialTapSetConfig = 6, // HwcSerialConfig
 
 	// FPGA-based decoders
 
@@ -77,21 +78,103 @@ enum HwcMsgCode: uint8_t {
 	// out
 
 	SpiTapUploadFirmware = 23,
-	SpiTapStartCapture   = 24,
+	SpiTapStartCapture   = 24, // HwcSpiConfig
 	SpiTapStopCapture    = 25,
 
 	// hardware: Ethernet Tap
 
 	// in
 
-	EthernetTapPacket_ch1     = 27,
-	EthernetTapPacket_ch2     = 28,
+	EthernetTapPacket_ch1     = 27, // uint32_t index, then HwcEthernetTapPacketHdr
+	EthernetTapPacket_ch2     = 28, // uint32_t index, then HwcEthernetTapPacketHdr
 
 	// out
 
 	EthernetTapUploadFirmware = 29,
 	EthernetTapStartCapture   = 30,
 	EthernetTapStopCapture    = 31,
+
+	// hardware: Serial Tap Pro
+
+	// in
+
+	SerialTapProRawUsbBulk        = 41, // HwcSerialTapProRawUsbBulkParams
+	SerialTapProTx9               = 42,
+	SerialTapProRx9               = 43,
+	SerialTapProStatusLineChanged = 44, // HwcSerialTapProStatusLineChangedParams
+	SerialTapProTxBreakOn         = 45,
+	SerialTapProRxBreakOn         = 46,
+	SerialTapProTxBreakOff        = 47,
+	SerialTapProRxBreakOff        = 48,
+	SerialTapProInterfaceChanged  = 49,
+	SerialTapProOverflowChanged   = 50, // HwcSerialTapProOverflowChangedParams
+	SerialTapProCaptureStarted    = 57, // HwcSerialTapProRawUsbBulkParams
+
+	// out
+
+	SerialTapProUploadFirmware       = 51,
+	SerialTapProStartCapture         = 52,
+	SerialTapProStopCapture          = 53,
+	SerialTapProSetControl           = 54,
+	SerialTapProSetRs485InjectFlags  = 55,
+	SerialTapProSetNotificationDelay = 56,
+
+	// device manager in ioninja-hwc (server tcp/pipe/rdv)
+
+	// in
+
+	DeviceMgrDeviceAdded   = 60, // HwcDeviceMgrDeviceParams
+	DeviceMgrDeviceRemoved = 61, // HwcDeviceMgrDeviceParams
+
+	// out
+
+	DeviceMgrActivateDevice            = 62, // HwcDeviceMgrActivateDeviceParams
+	DeviceMgrActivateDeviceByIndex     = 63, // HwcDeviceMgrActivateDeviceParams
+	DeviceMgrEnumerateDevices          = 64,
+	DeviceMgrEnableDeviceNotifications = 65, // bool (default: true)
+
+	// FPGA firmware upload (all FPGA-based taps)
+
+	// in
+
+	FpgaVersion        = 71, // HwcFpgaVersionParams
+	FpgaUploadProgress = 72, // HwcFpgaUploadProgressParams
+
+	// out
+
+	FpgaGetVersion   = 66,
+	FpgaUploadBegin  = 67, // uint32_t total size of the .rpd file (RpdHdr included)
+	FpgaUploadData   = 68, // next chunk of the .rpd file
+	FpgaUploadEnd    = 69, // starts flashing
+	FpgaUploadCancel = 70,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// mirrors ControllerKind in nj_hwc/ControllerBase.h
+
+enum HwcControllerKind: uint16_t {
+	Undefined = 0,
+	DeviceMgr,
+	Serial,
+	SerialTap,
+	I2cTap,
+	SpiTap,
+	EthernetTap,
+	SerialTapPro,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// mirrors DeviceKind in nj_hwc/ControllerBase.h
+
+enum HwcDeviceKind: uint16_t {
+	Undefined = 0,
+	Serial,
+	SerialTap,
+	I2cSpiTap, // HwcControllerKind.I2cTap & HwcControllerKind.SpiTap
+	EthernetTap,
+	SerialTapPro,
 };
 
 pragma(Alignment, 1)
@@ -120,7 +203,16 @@ struct HwcSerialConfig {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// EthernetTapPacket_ch1, EthernetTapPacket_ch2
+// mirrors SpiConfig in nj_hwc/SpiConfig.h
+
+struct HwcSpiConfig {
+	uint8_t m_mode;       // 0..3
+	uint8_t m_dataBits;   // 4, 8, 12, 16
+	uint8_t m_endianness; // non-zero: big-endian (MSBit first)
+	uint8_t _m_padding;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum HwcEthernetTapPacketFlag {
 	Reserved,
@@ -134,66 +226,110 @@ bitflag enum HwcEthernetTapPacketFlag {
 struct HwcEthernetTapPacketHdr {
 	uint16_t m_size;
 	uint8_t m_reserved;
-	uint8_t m_flags;
+	uint8_t m_flags; // HwcEthernetTapPacketFlag
 };
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class HwcProtoDecoder {
-	readonly std.Buffer m_buffer;
-	readonly size_t m_msgCount;
-	event m_onMsg(HwcMsgHdr const* hdr);
-	event m_onOobData(
-		void const* p,
-		size_t size
-	);
+struct HwcSerialTapProRawUsbBulkParams {
+	uint16_t m_status;
+	uint16_t m_lines;
 
-	void reset();
-	void ensureZeroTerminatedBuffer();
+	// followed by the raw notification stream
+};
 
-	void write(
-		void const* p,
-		size_t size
-	);
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct HwcSerialTapProStatusLineChangedParams {
+	uint16_t m_lines;
+	uint16_t m_mask;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct HwcSerialTapProOverflowChangedParams {
+	uint16_t m_overflows;
+	uint16_t m_mask;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// DeviceMgrEnumerateDevices and the first DeviceMgrEnableDeviceNotifications
+// send the full list as DeviceMgrDeviceAdded
+
+struct HwcDeviceMgrDeviceParams {
+	HwcDeviceKind m_deviceKind;
+	uint8_t m_bus;
+	uint8_t m_address;
+
+	// for serial, followed by zero-terminated serial port name
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// mirrors the subset of CmdLineFlag in nj_hwc/CmdLine.h a client may pass on activation
+
+bitflag enum HwcCmdLineFlags: uint32_t {
+	Suspend    = 0x0004, // start suspended -- capture starts on SerialTapProStartCapture etc.
+	RawUsbBulk = 0x0400, // pass USB bulks as is -- the client decodes them
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void HwcProtoDecoder.reset() {
-	m_buffer.clear();
-	m_msgCount = 0;
-}
+struct HwcDeviceMgrActivateDeviceParams {
+	HwcControllerKind m_controllerKind;
 
-void HwcProtoDecoder.ensureZeroTerminatedBuffer() {
-	if (!m_buffer.m_size || m_buffer[m_buffer.m_size - 1])
-		m_buffer.append(0);
-}
-
-void HwcProtoDecoder.write(
-	void const* p,
-	size_t size
-) {
-	m_buffer.append(p, size);
-
-	while (m_buffer.m_size >= sizeof(HwcMsgHdr)) {
-		HwcMsgHdr const* hdr = (HwcMsgHdr const*)m_buffer.m_p;
-		if (hdr.m_stx != 0x02) {
-			char const* stx = memchr(m_buffer.m_p, 0x02, m_buffer.m_size);
-			size_t skipSize = stx ? stx - m_buffer.m_p : m_buffer.m_size;
-			m_onOobData(m_buffer.m_p, skipSize);
-			m_buffer.remove(0, skipSize);
-			if (m_buffer.m_size < sizeof(HwcMsgHdr))
-				break; // header not buffered yet
+	union {
+		struct {
+			uint8_t m_bus;
+			uint8_t m_address;
 		}
 
-		size_t msgSize = sizeof(HwcMsgHdr) + hdr->m_dataSize;
-		if (m_buffer.m_size < msgSize)
-			break; // not fully buffered yet
-
-		m_onMsg(hdr);
-		m_msgCount++;
-		m_buffer.remove(0, msgSize);
+		uint16_t m_index; // DeviceMgrActivateDeviceByIndex
 	}
+
+	HwcCmdLineFlags m_cmdLineFlags;
+
+	// for serial, followed by serial port name
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct HwcFpgaVersionParams {
+	RpdVersion m_version;
+	uint16_t m_status;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum HwcFpgaUploadStage: uint8_t {
+	Erasing,
+	Writing,
+	Loading,
+	StillWaiting,
+	Completed,
+};
+
+struct HwcFpgaUploadProgressParams {
+	HwcFpgaUploadStage m_stage;
+	uint8_t m_percent;
+};
+
+//..............................................................................
+
+void packHwcMsg(
+	std.Buffer* buffer,
+	HwcMsgCode code,
+	void const* p = null,
+	size_t size = 0
+) {
+	HwcMsgHdr hdr;
+	hdr.m_stx = 0x02;
+	hdr.m_code = code;
+	hdr.m_dataSize = size;
+
+	buffer.copy(&hdr, sizeof(hdr));
+	buffer.append(p, size);
 }
 
 //..............................................................................

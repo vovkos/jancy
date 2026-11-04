@@ -94,7 +94,6 @@ bool representPcapLog(
 
 		break;
 
-
 	default:
 		return false;
 	}

@@ -207,7 +207,6 @@ void initializeModbusRtuPacket(
 	((char*)p)[1] = func;
 }
 
-
 void updateModbusRtuChecksum(void* p) {
 	size_t size = dynamic sizeof(p);
 	if (size < 2)

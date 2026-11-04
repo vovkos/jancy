@@ -8,6 +8,7 @@ import "io_usb.jncx"
 import "io_UsbDevice.jnc"
 import "io_UsbEnumerator.jnc"
 import "iox_FpgaUploader.jnc"
+import "ui_FpgaUploaderProgressDlg.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
@@ -85,8 +86,8 @@ protected:
 	}
 
 	static string_t const m_fileNameTable[] = {
-		__DIR__ "/firmware/spi.rpd",
-		__DIR__ "/firmware/i2c.rpd",
+		SpiTapFirmwareFileName,
+		I2cTapFirmwareFileName,
 	}
 
 protected:
@@ -98,6 +99,7 @@ protected:
 	io.UsbEndpoint* m_outEndpoint; // until we figure out how to use control ep 0
 	io.UsbEndpoint* m_inEndpoint;
 	iox.FpgaUploader m_uploader;
+	ui.FpgaUploaderProgressDlg m_uploaderDlg;
 	std.Buffer m_readBuffer;
 	SpiDecoder m_spiDecoder;
 	I2cDecoder m_i2cDecoder;
@@ -160,14 +162,6 @@ public:
 	}
 
 protected:
-	void onCapture();
-
-	void onFlipMosiMiso() {
-		m_spiDecoder.m_isFlipMosiMiso = m_actionTable[ActionId.Flip].m_isChecked;
-	}
-
-	void onUpdateCompleted(bool result);
-
 	void onInEndpointEvent(
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
@@ -185,10 +179,14 @@ protected:
 I2cSpiTapSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_uploader.construct(pluginHost);
+	m_uploaderDlg.construct(m_uploader);
 	m_spiDecoder.construct(pluginHost.m_log.m_writer);
 	m_i2cDecoder.construct(pluginHost.m_log.m_writer);
 
-	m_uploader.m_onUpdateCompleted += onUpdateCompleted;
+	m_uploader.m_onUpdateCompleted += [](bool result) {
+		result ? try startCapture() : stopCapture();
+	}
+
 	m_decoder = m_spiDecoder;
 
 	createUi();
@@ -243,10 +241,15 @@ void I2cSpiTapSession.createUi() {
 	);
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? stopCapture() : try capture();
+	}
+
 	m_actionTable[ActionId.Flip] = createAction("Flip SPI MOSI/MISO", m_iconTable[IconId.Flip]);
 	m_actionTable[ActionId.Flip].m_isCheckable = true;
-	m_actionTable[ActionId.Flip].m_onTriggered += onFlipMosiMiso;
+	m_actionTable[ActionId.Flip].m_onTriggered += []() {
+		m_spiDecoder.m_isFlipMosiMiso = m_actionTable[ActionId.Flip].m_isChecked;
+	}
 
 	// status bar
 
@@ -349,20 +352,6 @@ void I2cSpiTapSession.createUi() {
 	m_isTransmitEnabled = true;
 }
 
-void I2cSpiTapSession.onCapture() {
-	if (m_state)
-		stopCapture();
-	else
-		try capture();
-}
-
-void I2cSpiTapSession.onUpdateCompleted(bool result) {
-	if (result)
-		try startCapture();
-	else
-		stopCapture();
-}
-
 void I2cSpiTapSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
@@ -407,9 +396,11 @@ bool errorcode I2cSpiTapSession.capture() {
 	m_device.open();
 
 	m_logWriter.write(I2cSpiTapLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
+	m_uploader.checkSpeed(m_device);
 
 	Protocol protocol = m_protocolCombo.m_currentData;
-	return m_uploader.update(m_device, m_fileNameTable[protocol], FpgaUploadBaseIndex);
+	m_uploader.update(m_device, m_fileNameTable[protocol], FpgaUploadBaseIndex);
+	return true;
 
 catch:
 	m_logWriter.writeLastError(I2cSpiTapLogRecordCode.CaptureError);

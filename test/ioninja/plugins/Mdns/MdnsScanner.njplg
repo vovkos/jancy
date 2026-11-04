@@ -1,0 +1,26 @@
+#...............................................................................
+#
+#  mDNS scanner session plugin
+#
+
+[plugin]
+
+name        = "mDNS Scanner"
+description = "Discovers mDNS/DNS-SD services and hosts on the local network"
+id          = mdns-scanner
+group       = net
+monitor     = true
+log-guid    = 0e9299bd-2d9a-47fa-99d2-825d9e94f1e7  # mdns
+icon        = images/mdns.png
+small-icon  = images/mdns-16x16.png
+
+session-class = MdnsScannerSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.udp
+
+[scripts]
+
+MdnsScannerSession.jnc

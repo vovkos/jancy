@@ -1,0 +1,40 @@
+#...............................................................................
+#
+#  I2C/SPI Tap over SSH session plugin
+#
+
+[plugin]
+
+name        = "I2C/SPI Tap over SSH"
+description = "Monitor I2C/SPI communication via an I2C/SPI Tap connected to a remote machine over SSH"
+id          = ssh-i2c-spi-tap
+group       = hw
+monitor     = true
+log-guid    = 39ee6b0f-a65e-4e8a-b252-6fa28d8e3327  # i2c-spi tap
+log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
+log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
+
+session-class = SshI2cSpiTapSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.ssh
+
+[optional-capabilities]
+
+org.jancy.io.ip4
+org.jancy.io.ip6
+org.jancy.io.file
+
+[scripts]
+
+SshI2cSpiTapSession.jnc
+I2cSpiTapHwc.jnc
+I2cSpiTapLogRecordCode.jnc
+Decoder.jnc
+I2cDecoder.jnc
+SpiDecoder.jnc

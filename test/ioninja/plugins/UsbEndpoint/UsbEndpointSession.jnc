@@ -156,14 +156,6 @@ public:
 	);
 
 protected:
-	void onEnumerateDevices() {
-		ui.refreshUsbDeviceListUi(m_deviceCombo, m_deviceProp);
-	}
-
-	void onOpenDevice() {
-		m_state ? closeDevice() : try openDevice();
-	}
-
 	void onClaimInterfaces() {
 		m_state >= State.Claimed ? releaseInterfaces() : try claimInterfaces();
 	}
@@ -279,10 +271,16 @@ void UsbEndpointSession.createUi() {
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
 	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onEnumerateDevices;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.refreshUsbDeviceListUi(m_deviceCombo, m_deviceProp);
+		if (count > 1)
+			m_deviceCombo.showPopup();
+	}
 
 	m_actionTable[ActionId.Open] = createAction("Open device", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpenDevice;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? closeDevice() : try openDevice();
+	}
 
 	m_actionTable[ActionId.Claim] = new ui.Action(m_iconTable[IconId.Open], "Claim", onClaimInterfaces);
 	m_actionTable[ActionId.Claim].m_toolTip = "Claim/release selected interface(s)";

@@ -293,7 +293,7 @@ string_t getBacNetMsTpDigest(
 	size_t size
 ) {
 	std.StringBuilder digest;
-	jnc.DynamicLayout layout(p, size);
+	jnc.DynamicLayout layout(null, p, size);
 	dylayout (layout) {
 		dyfield BacNetMsTpHdr hdr;
 		bool isValidCrc = hdr.isValidCrc();

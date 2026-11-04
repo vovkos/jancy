@@ -125,14 +125,6 @@ public:
 	);
 
 protected:
-	void onCapture() {
-		m_state ? stopCapture() : try capture();
-	}
-
-	void onPortComboEnter() {
-		try capture();
-	}
-
 	void onSerialSettingChanged();
 
 	void onSerialEvent(
@@ -232,14 +224,19 @@ void EzTapProSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onReturnPressed += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += []() {
+		try capture();
+	}
+
 	m_portCombo.m_placeholderText = "Enter a serial port name...";
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate ports", "images/refresh.png");
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumeratePorts;
 
 	m_actionTable[ActionId.Capture]  = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? stopCapture() : try capture();
+	}
 
 	ui.GroupProperty* groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",

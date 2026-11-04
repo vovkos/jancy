@@ -11,7 +11,7 @@ enum TcpFlowLogRecordCode: uint64_t {
 	Connecting            = 0x01d487c96e3d5259,
 	ConnectCompleted      = 0x01d487c96e3d525a,
 	ConnectionPickedUp    = 0x01d487c96e3d525b,
-	Disconnected_old      = 0x01d487c96e3d525c,
+	Disconnected_0        = 0x01d487c96e3d525c, // deprecated
 	OutOfOrderDataDropped = 0x01d487c96e3d525d,
 	ConnectionChanged     = 0x01d487c96e3d525e,
 	Disconnected          = 0x01d487c96e3d525f,

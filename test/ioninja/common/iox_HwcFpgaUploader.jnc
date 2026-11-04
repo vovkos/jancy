@@ -1,0 +1,342 @@
+//..............................................................................
+//
+// FPGA uploader for a tap attached to a remote ioninja-hwc (SSH, rendezvous)
+//
+// the .rpd file is sent first, then ioninja-hwc flashes it; the up-to-date
+// check and the post-boot verification mirror the local iox.FpgaUploader
+//
+// while not idle, the uploader is the sink of the transport; messages it
+// doesn't handle are passed on to the previous sink (the session)
+//
+
+import "iox_FpgaUploaderBase.jnc"
+import "iox_HwcTransport.jnc"
+import "io_HwcProto.jnc"
+import "io_base.jncx"
+import "io_MappedFile.jnc"
+import "FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc"
+
+namespace iox {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+class HwcFpgaUploader:
+	FpgaUploaderBase,
+	HwcTransportSink {
+protected:
+	enum {
+		BlockSize = 16 * 1024,
+	}
+
+protected:
+	HwcTransport* m_transport;
+	HwcTransportSink* m_prevSink;
+	io.MappedFile m_file;
+	string_t m_fileName;
+	io.RpdVersion m_fileVersion;
+	size_t m_ackCount;   // Success replies to FpgaUploadBegin & FpgaUploadData
+	size_t m_ackTotal;
+
+public:
+	event m_onVersion(io.RpdVersion version); // queryVersion() completed
+
+public:
+	construct(
+		doc.PluginHost* pluginHost,
+		HwcTransport* transport
+	) {
+		basetype.construct(pluginHost);
+		m_transport = transport;
+	}
+
+	override void cancel();
+
+	bool errorcode queryVersion();
+
+	bool errorcode update(
+		string_t fileName,
+		bool skipVersionCheck = false
+	);
+
+protected:
+	override void onMsg(io.HwcMsgHdr const* hdr);
+
+	override void onOobData(
+		void const* p,
+		size_t size
+	);
+
+	void start(FpgaUploaderState state); // take over the transport
+	void stop();                         // hand it back, go idle
+	bool processMsg(io.HwcMsgHdr const* hdr); // false if not ours
+	bool errorcode startUpload();
+	void onVersion(io.HwcFpgaVersionParams const* params);
+	void onProgress(io.HwcFpgaUploadProgressParams const* params);
+	void complete(bool result);
+	void fail();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void HwcFpgaUploader.cancel() {
+	switch (m_state) {
+	case FpgaUploaderState.Idle:
+		return;
+
+	case FpgaUploaderState.Sending:
+	case FpgaUploaderState.Erasing:
+	case FpgaUploaderState.Writing:
+	case FpgaUploaderState.Loading:
+		try m_transport.writeMsg(io.HwcMsgCode.FpgaUploadCancel);
+		break;
+	}
+
+	m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUploadCancelled);
+	complete(false);
+}
+
+bool errorcode HwcFpgaUploader.queryVersion() {
+	cancel();
+	start(FpgaUploaderState.QueryingVersion);
+	m_transport.writeMsg(io.HwcMsgCode.FpgaGetVersion);
+	return true;
+
+catch:
+	stop();
+	return false;
+}
+
+bool errorcode HwcFpgaUploader.update(
+	string_t fileName,
+	bool skipVersionCheck
+) {
+	cancel();
+	start(FpgaUploaderState.CheckingVersion);
+
+	m_file.open(fileName, io.FileOpenFlags.ReadOnly);
+	io.RpdHdr const* hdr = (io.RpdHdr const*)m_file.view(0, sizeof(io.RpdHdr), false);
+	m_fileVersion = hdr.m_version;
+	m_fileName = fileName;
+
+	if (skipVersionCheck)
+		startUpload();
+	else
+		m_transport.writeMsg(io.HwcMsgCode.FpgaGetVersion);
+
+	return true;
+
+catch:
+	stop();
+	return false; // don't write log error (session will do that)
+}
+
+void HwcFpgaUploader.start(FpgaUploaderState state) {
+	m_prevSink = m_transport.m_sink;
+	m_transport.m_sink = this;
+	m_state = state;
+}
+
+void HwcFpgaUploader.stop() {
+	m_transport.m_sink = m_prevSink;
+	m_prevSink = null;
+	m_file.close();
+	m_state = FpgaUploaderState.Idle;
+}
+
+bool errorcode HwcFpgaUploader.startUpload() {
+	char const* p = strrchr(m_fileName, '/');
+	char const* params = $"$(m_fileVersion; B)$(p ? p + 1 : m_fileName)";
+
+	m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUpdateRequired, params, dynamic sizeof(params));
+	m_logWriter.write(FpgaUploaderLogRecordCode.SendingFirmware);
+
+	m_progress = 0;
+	m_state = FpgaUploaderState.Sending;
+
+	uint32_t fileSize = m_file.m_size;
+	m_ackCount = 0;
+	m_ackTotal = 1 + (fileSize + BlockSize - 1) / BlockSize; // begin + blocks
+
+	m_transport.writeMsg(io.HwcMsgCode.FpgaUploadBegin, &fileSize, sizeof(fileSize));
+
+	for (size_t offset = 0; offset < fileSize; offset += BlockSize) {
+		size_t size = fileSize - offset;
+		if (size > BlockSize)
+			size = BlockSize;
+
+		m_transport.writeMsg(io.HwcMsgCode.FpgaUploadData, m_file.view(offset, size), size);
+	}
+
+	m_transport.writeMsg(io.HwcMsgCode.FpgaUploadEnd);
+	return true;
+}
+
+void HwcFpgaUploader.onMsg(io.HwcMsgHdr const* hdr) {
+	if (!processMsg(hdr) && m_prevSink)
+		m_prevSink.onMsg(hdr);
+}
+
+void HwcFpgaUploader.onOobData(
+	void const* p,
+	size_t size
+) {
+	if (m_prevSink)
+		m_prevSink.onOobData(p, size);
+}
+
+bool HwcFpgaUploader.processMsg(io.HwcMsgHdr const* hdr) {
+	switch (hdr.m_code) {
+	case io.HwcMsgCode.Success:
+		if (m_state == FpgaUploaderState.Sending && m_ackCount < m_ackTotal)
+			m_progress = ++m_ackCount * 100 / m_ackTotal;
+
+		break;
+
+	case io.HwcMsgCode.Error:
+		std.Error const* error = (std.Error const*)(hdr + 1);
+		m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
+		complete(false);
+		break;
+
+	case io.HwcMsgCode.ErrorString:
+		std.setError((char const*)(hdr + 1));
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+		complete(false);
+		break;
+
+	case io.HwcMsgCode.FpgaVersion:
+		if (hdr.m_dataSize < sizeof(io.HwcFpgaVersionParams)) {
+			std.setError("malformed FPGA version message");
+			fail();
+			break;
+		}
+
+		onVersion((io.HwcFpgaVersionParams const*)(hdr + 1));
+		break;
+
+	case io.HwcMsgCode.FpgaUploadProgress:
+		if (hdr.m_dataSize < sizeof(io.HwcFpgaUploadProgressParams)) {
+			std.setError("malformed FPGA upload progress message");
+			fail();
+			break;
+		}
+
+		onProgress((io.HwcFpgaUploadProgressParams const*)(hdr + 1));
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+void HwcFpgaUploader.onVersion(io.HwcFpgaVersionParams const* params) {
+	switch (m_state) {
+	case FpgaUploaderState.QueryingVersion:
+		stop();
+		m_onVersion(params.m_version);
+		break;
+
+	case FpgaUploaderState.CheckingVersion:
+		bool isUpToDate =
+			params.m_status == 0 &&
+			params.m_version.m_firmwareType == m_fileVersion.m_firmwareType &&
+			params.m_version.m_firmwareVersion >= m_fileVersion.m_firmwareVersion;
+
+		if (isUpToDate) {
+			uint16_t firmwareVersion = params.m_version.m_firmwareVersion;
+			m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUpToDate, &firmwareVersion, sizeof(firmwareVersion));
+			stop();
+			m_onUpdateCompleted(true);
+		} else if (!try startUpload())
+			fail();
+
+		break;
+
+	case FpgaUploaderState.Verifying:
+		if (params.m_version.m_firmwareType == m_fileVersion.m_firmwareType &&
+			params.m_version.m_firmwareVersion == m_fileVersion.m_firmwareVersion
+		) {
+			complete(true);
+		} else {
+			m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareBootFailed);
+			complete(false);
+		}
+
+		break;
+	}
+}
+
+void HwcFpgaUploader.onProgress(io.HwcFpgaUploadProgressParams const* params) {
+	switch (m_state) {
+	case FpgaUploaderState.Sending:
+	case FpgaUploaderState.Erasing:
+	case FpgaUploaderState.Writing:
+	case FpgaUploaderState.Loading:
+		break;
+
+	default:
+		return;
+	}
+
+	switch (params.m_stage) {
+	case io.HwcFpgaUploadStage.Erasing:
+		if (m_state != FpgaUploaderState.Erasing) {
+			m_logWriter.write(FpgaUploaderLogRecordCode.ErasingFlash);
+			m_state = FpgaUploaderState.Erasing;
+		}
+
+		break;
+
+	case io.HwcFpgaUploadStage.Writing:
+		if (m_state != FpgaUploaderState.Writing) {
+			m_logWriter.write(FpgaUploaderLogRecordCode.UploadingFirmware);
+			m_state = FpgaUploaderState.Writing;
+		}
+
+		m_progress = params.m_percent;
+		break;
+
+	case io.HwcFpgaUploadStage.Loading:
+		if (m_state != FpgaUploaderState.Loading) {
+			m_logWriter.write(FpgaUploaderLogRecordCode.EnablingFpga);
+			m_state = FpgaUploaderState.Loading;
+		}
+
+		break;
+
+	case io.HwcFpgaUploadStage.StillWaiting:
+		m_logWriter.write(FpgaUploaderLogRecordCode.StillWaiting);
+		break;
+
+	case io.HwcFpgaUploadStage.Completed:
+		m_state = FpgaUploaderState.Verifying;
+		if (!try m_transport.writeMsg(io.HwcMsgCode.FpgaGetVersion))
+			fail();
+
+		break;
+	}
+}
+
+void HwcFpgaUploader.complete(bool result) {
+	if (result)
+		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUploadCompleted);
+
+	stop();
+	m_onUpdateCompleted(result);
+}
+
+void HwcFpgaUploader.fail() {
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	complete(false);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

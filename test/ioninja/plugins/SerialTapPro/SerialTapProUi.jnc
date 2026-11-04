@@ -1,0 +1,306 @@
+//..............................................................................
+//
+// Serial Tap Pro user interface
+//
+
+import "doc_Storage.jnc"
+import "ui_PropertyGrid.jnc"
+import "ui_ComboBox.jnc"
+import "ui_Button.jnc"
+import "ui_GroupBox.jnc"
+import "ui_Layout.jnc"
+import "ui_ToolBar.jnc"
+import "ui_Action.jnc"
+import "ui_InformationGrid.jnc"
+import "io_abr.jncx"
+import "SerialTapPro.jnc"
+import "SerialTapProInfoSet.jnc"
+
+//..............................................................................
+
+class SerialTapProUi {
+	enum Defaults {
+		NotificationDelay        = 20,
+		Inject                   = false,
+		Rs485Mode                = SerialTapProRs485Mode.HalfDuplex,
+		Rs485Channel             = 0,
+		AbrStdBaudRateOnly       = true,
+		AbrBaudRateGridCellCount = 10000,
+		AbrEdgeErrorTolerance    = 10,   // 10%
+		AbrHorizon               = 1000, // 1 sec
+	}
+
+	enum {
+		AbrBaudRateCap = 1000000, // should't go any higher with 1 mcs precision
+	}
+
+	// form
+
+	ui.CheckBox* m_abrEnableCheckBoxes[2];
+	ui.GroupBox* m_injectGroupBox;
+	ui.ComboBox* m_rs485ModeCombo;
+	ui.ComboBox* m_rs485ChannelCombo;
+	ui.Action* m_dtrAction;
+	ui.Action* m_rtsAction;
+
+	// property grid
+
+	ui.IntProperty* m_notificationDelayProp;
+	ui.BoolProperty* m_abrEnableProps[2];
+	ui.BoolProperty* m_abrStdBaudRateOnlyProp;
+	ui.IntProperty* m_abrBaudRateGridCellCountProp;
+	ui.IntProperty* m_abrEdgeErrorToleranceProp;
+	ui.IntProperty* m_abrHorizonProp;
+
+	// information grid
+
+	SerialTapProInfoSet m_infoSet;
+
+	static string_t const AbrNameTable[] = {
+		"Auto-detect baud rate (TX)",
+		"Auto-detect baud rate (RX)"
+	}
+
+	static string_t const AbrToolTipTable[] = {
+		"Enable auto baud rate detector on TX line",
+		"Enable auto baud rate detector on RX line"
+	}
+
+	static ui.ComboItem const Rs485ModeItemTable[] = {
+		{ "Half-duplex",              SerialTapProRs485Mode.HalfDuplex },
+		{ "Half-duplex D1 \u2194 D2", SerialTapProRs485Mode.HalfDuplexForward },
+		{ "Full-duplex",              SerialTapProRs485Mode.FullDuplex },
+	}
+
+	static ui.ComboItem const Rs485ChannelItemTable[] = {
+		{ "D1" },
+		{ "D2" },
+	}
+
+public:
+	// the ABR check boxes are appended to the serial settings layout; the inject
+	// group box is created, but adding it to the form is up to the caller
+
+	void createForm(ui.FormLayout* serialLayout);
+
+	void createProperties(
+		ui.PropertyGrid* propertyGrid,
+		ui.GroupProperty* groupProp = null
+	);
+
+	void createInfoSet(
+		ui.InformationGrid* infoGrid,
+		ui.InformationGroup* infoGroup = null
+	) {
+		m_infoSet.create(infoGrid, infoGroup);
+	}
+
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+	void updateProperties();
+	void applyProperties();
+	void restoreDefaultProperties();
+
+	void configureAbr(
+		io.AutoBaudRate* abr[2],
+		SerialTapProLines lines
+	);
+
+	SerialTapProControlFlags calcControl();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void SerialTapProUi.createForm(ui.FormLayout* serialLayout) {
+	serialLayout.addLine(ui.FrameShadow.Sunken);
+
+	for (size_t i = 0; i < 2; i++) {
+		ui.CheckBox checkBox(AbrNameTable[i]);
+		serialLayout.addRow(checkBox);
+		m_abrEnableCheckBoxes[i] = checkBox;
+	}
+
+	m_rs485ModeCombo = new ui.ComboBox(Rs485ModeItemTable, countof(Rs485ModeItemTable));
+	m_rs485ChannelCombo = new ui.ComboBox(Rs485ChannelItemTable, countof(Rs485ChannelItemTable));
+
+	m_dtrAction = new ui.Action("images/dtr.png", "DTR");
+	m_dtrAction.m_isCheckable = true;
+
+	m_rtsAction = new ui.Action("images/rts.png", "RTS");
+	m_rtsAction.m_isCheckable = true;
+
+	ui.ToolBar controlLineToolBar;
+	controlLineToolBar.addStretch();
+	controlLineToolBar.addAction(m_dtrAction);
+	controlLineToolBar.addAction(m_rtsAction);
+
+	ui.HBoxLayout controlLineLayout;
+	controlLineLayout.addLabel("RS232/TTL:");
+	controlLineLayout.addWidget(controlLineToolBar);
+
+	ui.FormLayout injectLayout;
+	m_injectGroupBox = new ui.GroupBox("Serial Tap Pro injection", injectLayout);
+	m_injectGroupBox.m_isCheckable = true;
+	m_injectGroupBox.m_isChecked = false;
+
+	injectLayout.addLabel("RS485/RS422:");
+	injectLayout.addRow("    Mode:", m_rs485ModeCombo);
+	injectLayout.addRow("    Inject to:", m_rs485ChannelCombo);
+	injectLayout.addRow(controlLineLayout);
+}
+
+void SerialTapProUi.createProperties(
+	ui.PropertyGrid* propertyGrid,
+	ui.GroupProperty* groupProp
+) {
+	m_notificationDelayProp = propertyGrid.createIntProperty(
+		groupProp,,
+		"Notification delay (ms)",
+		"Maximum delay until sending out a USB bulk transfer (ms)"
+	);
+
+	groupProp = propertyGrid.createGroupProperty(
+		"Auto baud rate detector",
+		"Automatic baud rate detection settings"
+	);
+
+	for (size_t i = 0; i < 2; i++)
+		m_abrEnableProps[i] = propertyGrid.createBoolProperty(
+			groupProp,,
+			AbrNameTable[i],
+			AbrToolTipTable[i]
+		);
+
+	m_abrStdBaudRateOnlyProp = propertyGrid.createBoolProperty(
+		groupProp,,
+		"Standard baud rates only",
+		"Limit auto baud rate detector to standard baud rates only"
+	);
+
+	m_abrBaudRateGridCellCountProp = propertyGrid.createIntProperty(
+		groupProp,,
+		"Baud rate grid cell count",
+		"Number of cells in the baud rate approximation grid"
+	);
+
+	m_abrEdgeErrorToleranceProp = propertyGrid.createIntProperty(
+		groupProp,,
+		"Edge error tolerance (%)",
+		"Auto baud rate detector ignores edge errors within this tolerance (percents)"
+	);
+
+	m_abrHorizonProp = propertyGrid.createIntProperty(
+		groupProp,,
+		"Horizon (ms)",
+		"Maximum event horizon for auto baud rate detector (ms)"
+	);
+}
+
+void SerialTapProUi.load(doc.Storage* storage) {
+	m_notificationDelayProp.m_value = storage.readInt("notificationDelay", Defaults.NotificationDelay);
+	m_abrStdBaudRateOnlyProp.m_value = storage.readBool("abrStdBaudRateOnly", Defaults.AbrStdBaudRateOnly);
+	m_abrBaudRateGridCellCountProp.m_value = storage.readInt("abrBaudRateGridCellCount", Defaults.AbrBaudRateGridCellCount);
+	m_abrEdgeErrorToleranceProp.m_value = storage.readInt("abrEdgeErrorToleranceProp", Defaults.AbrEdgeErrorTolerance);
+	m_abrHorizonProp.m_value = storage.readInt("abrHorizon", Defaults.AbrHorizon);
+	m_injectGroupBox.m_isChecked = storage.readBool("inject", Defaults.Inject);
+	m_rs485ModeCombo.m_currentIndex = storage.readInt("rs485Mode", Defaults.Rs485Mode);
+	m_rs485ChannelCombo.m_currentIndex = storage.readInt("rs485Channel", Defaults.Rs485Channel);
+}
+
+void SerialTapProUi.save(doc.Storage* storage) {
+	storage.writeInt("notificationDelay", m_notificationDelayProp.m_value);
+	storage.writeBool("abrStdBaudRateOnly", m_abrStdBaudRateOnlyProp.m_value);
+	storage.writeInt("abrBaudRateGridCellCount", m_abrBaudRateGridCellCountProp.m_value);
+	storage.writeInt("abrEdgeErrorToleranceProp", m_abrEdgeErrorToleranceProp.m_value);
+	storage.writeInt("abrHorizon", m_abrHorizonProp.m_value);
+	storage.writeBool("inject", m_injectGroupBox.m_isChecked);
+	storage.writeInt("rs485Mode", m_rs485ModeCombo.m_currentIndex);
+	storage.writeInt("rs485Channel", m_rs485ChannelCombo.m_currentIndex);
+}
+
+void SerialTapProUi.updateProperties() {
+	m_abrEnableProps[0].m_value = m_abrEnableCheckBoxes[0].m_isChecked;
+	m_abrEnableProps[1].m_value = m_abrEnableCheckBoxes[1].m_isChecked;
+}
+
+void SerialTapProUi.applyProperties() {
+	m_abrEnableCheckBoxes[0].m_isChecked = m_abrEnableProps[0].m_value;
+	m_abrEnableCheckBoxes[1].m_isChecked = m_abrEnableProps[1].m_value;
+}
+
+void SerialTapProUi.restoreDefaultProperties() {
+	m_notificationDelayProp.m_value = Defaults.NotificationDelay;
+	m_abrEnableProps[0].m_value = false;
+	m_abrEnableProps[1].m_value = false;
+	m_abrStdBaudRateOnlyProp.m_value = Defaults.AbrStdBaudRateOnly;
+	m_abrBaudRateGridCellCountProp.m_value = Defaults.AbrBaudRateGridCellCount;
+	m_abrEdgeErrorToleranceProp.m_value = Defaults.AbrEdgeErrorTolerance;
+	m_abrHorizonProp.m_value = Defaults.AbrHorizon;
+}
+
+void SerialTapProUi.configureAbr(
+	io.AutoBaudRate* abr[2],
+	SerialTapProLines lines
+) {
+	size_t baudRateGridCount = m_abrStdBaudRateOnlyProp.m_value ? 0 : m_abrBaudRateGridCellCountProp.m_value;
+	double edgeErrorTolerance = m_abrEdgeErrorToleranceProp.m_value / 100.0;
+	uint64_t horizon = m_abrHorizonProp.m_value * 10000; // in 100-nsec interval
+
+	for (size_t i = 0; i < 2; i++) {
+		if (!m_abrEnableCheckBoxes[i].m_isChecked) {
+			if (abr[i].m_isOpen) {
+				abr[i].close();
+				m_infoSet.updateAbr(i, abr[i]);
+			}
+		} else {
+			if (!abr[i].m_isOpen || baudRateGridCount != abr[i].m_baudGridCellCount) {
+				bool uart = lines & (SerialTapProLines.Data_0 << i);
+				abr[i].create(AbrBaudRateCap, baudRateGridCount, uart);
+				m_infoSet.updateAbr(i, abr[i]);
+			}
+
+			abr[i].m_edgeErrorTolerance = edgeErrorTolerance;
+			abr[i].m_horizon = horizon;
+		}
+	}
+}
+
+SerialTapProControlFlags SerialTapProUi.calcControl() {
+	SerialTapProControlFlags control = SerialTapProControlFlags.Start;
+
+	if (m_abrEnableCheckBoxes[0].m_isChecked)
+		control |= SerialTapProControlFlags.Edges_0;
+
+	if (m_abrEnableCheckBoxes[1].m_isChecked)
+		control |= SerialTapProControlFlags.Edges_1;
+
+	if (!m_injectGroupBox.m_isChecked)
+		return control;
+
+	SerialTapProRs485Mode rs485Mode = m_rs485ModeCombo.m_currentData;
+	switch (rs485Mode) {
+	case SerialTapProRs485Mode.HalfDuplex:
+		control |= SerialTapProControlFlags.Rs485InjectHalfDuplex;
+		break;
+
+	case SerialTapProRs485Mode.HalfDuplexForward:
+		control |= SerialTapProControlFlags.Rs485InjectHalfDuplex | SerialTapProControlFlags.Forward;
+		break;
+
+	case SerialTapProRs485Mode.FullDuplex:
+		break;
+	}
+
+	if (m_dtrAction.m_isChecked)
+		control |= SerialTapProControlFlags.Dtr;
+
+	if (m_rtsAction.m_isChecked)
+		control |= SerialTapProControlFlags.Rts;
+
+	if (m_rs485ChannelCombo.m_currentIndex)
+		control |= SerialTapProControlFlags.Rs485InjectChannel;
+
+	return control;
+}
+
+//..............................................................................

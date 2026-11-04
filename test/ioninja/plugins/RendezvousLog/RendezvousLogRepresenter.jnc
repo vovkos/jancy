@@ -1,0 +1,210 @@
+//..............................................................................
+//
+// RDV (IO Ninja rendezvous) log representer
+//
+
+import "log_Representation.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
+
+//..............................................................................
+
+// splits a tail of zero-terminated strings
+
+void splitRendezvousLogStrings(
+	string_t* strings,
+	size_t count,
+	void const* p0,
+	size_t size
+) {
+	char const* p = p0;
+	char const* end = p + size;
+	for (size_t i = 0; i < count && p < end; i++) {
+		string_t string = p;
+		strings[i] = string;
+		p += string.m_length + 1;
+	}
+}
+
+string_t getRendezvousLogCandidateString(
+	RendezvousLogCandidate const* candidate,
+	string_t address
+) {
+	static string_t const typeStringTable[] = {
+		"unknown",
+		"host",
+		"srflx",
+		"prflx",
+		"relay",
+	}
+
+	static string_t const transportStringTable[] = {
+		"unknown",
+		"UDP",
+		"TCP active",
+		"TCP passive",
+		"TCP so",
+		"TCP",
+	}
+
+	string_t typeString = typeStringTable[candidate.m_type < countof(typeStringTable) ? candidate.m_type : 0];
+	string_t transportString = transportStringTable[candidate.m_transport < countof(transportStringTable) ? candidate.m_transport : 0];
+
+	return memchr(address.m_p, ':', address.m_length) ? // IPv6
+		$"$typeString [$address]:$(candidate.m_port) ($transportString)" :
+		$"$typeString $address:$(candidate.m_port) ($transportString)";
+}
+
+string_t getRendezvousLogIceStateString(io.RendezvousIceState state) {
+	static string_t const stringTable[] = {
+		"new",
+		"checking",
+		"connected",
+		"completed",
+		"failed",
+		"disconnected",
+		"closed",
+	}
+
+	return state < countof(stringTable) ? stringTable[state] : "unknown";
+}
+
+string_t getRendezvousLogMethodString(RendezvousLogIceConnectedParams const* params) {
+	if (params.m_localCandidate.m_type == io.RendezvousCandidateType.Relayed ||
+		params.m_remoteCandidate.m_type == io.RendezvousCandidateType.Relayed
+	)
+		return "relayed (TURN)";
+
+	if (params.m_localCandidate.m_type == io.RendezvousCandidateType.ServerReflexive ||
+		params.m_remoteCandidate.m_type == io.RendezvousCandidateType.ServerReflexive
+	)
+		return "direct (NAT traversal)";
+
+	return "direct"; // host IPs may be public; prflx may be a host whose check beat its signaling
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool representRendezvousLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+) {
+	switch (recordCode) {
+	case RendezvousLogRecordCode.Connecting:
+		string_t url = string_t((char const*)p, size);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, $"Connecting to \e[34m$url\e[m...");
+		break;
+
+	case RendezvousLogRecordCode.Authenticated:
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		break;
+
+	case RendezvousLogRecordCode.SessionReady:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		string_t strings[3]; // ICE server, local fingerprint, remote fingerprint
+		splitRendezvousLogStrings(strings, countof(strings), p, size);
+
+		if (!(foldFlags & 1)) {
+			representation.addHyperText($"[\e^+1\e[34m+\e[m] RDV session established (ICE server: \e[34m$(strings[0])\e[m)");
+			break;
+		}
+
+		representation.addHyperText(
+			$"[\e^-1\e[34m-\e[m] RDV session established\n"
+			$"    \e[90mICE server:\t\e[34m$(strings[0])\n"
+			$"    \e[90mLocal identity:\t\e[34m$(strings[1])\n"
+			$"    \e[90mRemote identity:\t\e[34m$(strings[2])"
+		);
+		break;
+
+	case RendezvousLogRecordCode.LocalCandidate:
+	case RendezvousLogRecordCode.RemoteCandidate:
+		RendezvousLogCandidateParams const* params = (RendezvousLogCandidateParams const*)p;
+		string_t address = string_t((char const*)(params + 1), size - sizeof(RendezvousLogCandidateParams));
+		string_t side = recordCode == RendezvousLogRecordCode.LocalCandidate ? "Local" : "Remote";
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText($"%1 candidate: \e[34m%2"(side, getRendezvousLogCandidateString(params.m_candidate, address)));
+		break;
+
+	case RendezvousLogRecordCode.LocalGatheringComplete:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Local candidate gathering complete");
+		break;
+
+	case RendezvousLogRecordCode.IceStateChanged:
+		io.RendezvousIceState state = *(io.RendezvousIceState const*)p;
+		bool isBad = state == io.RendezvousIceState.Failed || state == io.RendezvousIceState.Disconnected;
+		representation.m_lineAttr.m_iconIdx = isBad ? log.StdLogIcon.Warning : log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = isBad ? log.StdLogColor.Warning : log.StdLogColor.Info;
+		representation.addHyperText($"ICE state changed: \e[34m%1"(getRendezvousLogIceStateString(state)));
+		break;
+
+	case RendezvousLogRecordCode.IceConnected:
+		RendezvousLogIceConnectedParams const* params = (RendezvousLogIceConnectedParams const*)p;
+		string_t stateString = getRendezvousLogIceStateString(params.m_iceState);
+		string_t methodString = getRendezvousLogMethodString(params);
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		if (!(foldFlags & 1)) {
+			representation.addHyperText($"[\e^+1\e[34m+\e[m] ICE state changed: \e[34m$stateString, $methodString");
+			break;
+		}
+
+		string_t strings[2]; // local address, remote address
+		splitRendezvousLogStrings(strings, countof(strings), params + 1, size - sizeof(RendezvousLogIceConnectedParams));
+
+		representation.addHyperText(
+			$"[\e^-1\e[34m-\e[m] ICE state changed:\n"
+			$"    \e[90mState:\t\e[34m$stateString\n"
+			$"    \e[90mMethod:\t\e[34m$methodString\n"
+			$"    \e[90mLocal candidate:\t\e[34m$(getRendezvousLogCandidateString(params.m_localCandidate, strings[0]))\n"
+			$"    \e[90mRemote candidate:\t\e[34m$(getRendezvousLogCandidateString(params.m_remoteCandidate, strings[1]))"
+		);
+		break;
+
+	case RendezvousLogRecordCode.ConnectCompleted:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+
+		if (size < sizeof(uint_t)) {
+			representation.addHyperText("RDV connection established");
+			break;
+		}
+
+		uint_t rtt = *(uint_t const*)p;
+		representation.addHyperText(rtt ?
+			$"RDV connection established (round-trip time \e[34m$rtt ms)" :
+			"RDV connection established (round-trip time \e[34m< 1 ms)" // usrsctp reports whole milliseconds
+		);
+		break;
+
+	case RendezvousLogRecordCode.Disconnected:
+		RendezvousLogDisconnectParams const* params = (RendezvousLogDisconnectParams const*)p;
+		string_t url = string_t((char const*)(params + 1), size - sizeof(RendezvousLogDisconnectParams));
+		string_t initiator = (params.m_flags & SocketLogDisconnectFlags.Remote) ? "remote" : "local";
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Disconnected from \e[34m$url\e[m (closed by $initiator)");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

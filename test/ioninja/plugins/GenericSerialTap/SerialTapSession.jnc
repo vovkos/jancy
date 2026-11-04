@@ -122,10 +122,6 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onOpen() {
-		m_state ? close() : try open();
-	}
-
 	void onPortComboEnter() {
 		try open();
 	}
@@ -213,7 +209,9 @@ void SerialTapSession.createUi() {
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumeratePorts;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? close() : try open();
+	}
 
 	ui.GroupProperty* groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",

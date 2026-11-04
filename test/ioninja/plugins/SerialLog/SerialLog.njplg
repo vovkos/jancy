@@ -24,7 +24,7 @@ SerialLogFilter.jnc
 [records]
 
 81d47c8fc7b0f700  # PortOpened
-81d47c8fc7b0f701  # PortOpened_old
+81d47c8fc7b0f701  # PortOpened_0
 01d47c8fc7b0f702  # PortOpenError
 01d47c8fc7b0f703  # PortClosedNamed
 01d47c8fc7b0f704  # BaudRateChanged

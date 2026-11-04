@@ -149,10 +149,6 @@ protected:
 	bool errorcode connectJlink();
 	bool errorcode connectSocket();
 
-	void onOpen() {
-		m_state ? close() : try open();
-	}
-
 	void onDeviceComboEnter() {
 		try open();
 	}
@@ -174,7 +170,6 @@ protected:
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 	);
-
 
 	void jlinkReadThreadFunc();
 
@@ -252,7 +247,9 @@ void JLinkRttSession.createUi() {
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
 
 	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? close() : try open();
+	}
 
 	// status bar
 
@@ -630,7 +627,8 @@ void JLinkRttSession.waitSocketEvents() {
 		eventMask |=
 			io.SocketEvents.IncomingData |
 			io.SocketEvents.TcpDisconnected |
-			io.SocketEvents.TcpReset;
+			io.SocketEvents.TcpReset |
+			io.SocketEvents.TcpAborted;
 
 		if (!m_isTransmitEnabled)
 			eventMask |= io.SocketEvents.WriteBufferReady;
@@ -679,18 +677,10 @@ void JLinkRttSession.onSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_socketReadBuffer.m_p, result);
 		}
 
-		TcpDisconnectLogRecordParams recordParams;
-		recordParams.m_address = m_socketRemoteAddress;
-		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
-
-		if (triggeredEvents & io.SocketEvents.TcpReset)
-			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&recordParams,
-			sizeof(recordParams)
-		);
+		SocketLogDisconnectParams params;
+		params.m_address = m_socketRemoteAddress;
+		params.m_flags = getSocketLogDisconnectFlagsFromEvents(triggeredEvents);
+		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 
 		m_socket.close();
 		startSocketReconnectTimer();

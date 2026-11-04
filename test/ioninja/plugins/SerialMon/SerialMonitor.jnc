@@ -71,6 +71,7 @@ bool errorcode SerialMonitor.capture(string_t deviceName) {
 	}
 
 	m_processor.reset();
+	m_processor.m_deviceName = m_monitor.m_deviceName;
 	return true;
 }
 

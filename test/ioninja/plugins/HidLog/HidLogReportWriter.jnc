@@ -71,7 +71,7 @@ void HidLogReportWriter.writeUnknownReport(
 	void const* p,
 	size_t size
 ) {
-	UnknownHidReportParams params;
+	HidLogUnknownReportParams params;
 	params.m_decodeInfoSize = 0;
 	params.m_reportId = reportId;
 

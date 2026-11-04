@@ -8,6 +8,7 @@ import "io_usb.jncx"
 import "io_UsbDevice.jnc"
 import "io_UsbEnumerator.jnc"
 import "iox_FpgaUploader.jnc"
+import "ui_FpgaUploaderProgressDlg.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "ui_History.jnc"
@@ -72,8 +73,6 @@ protected:
 		PacketSize  = 512,
 	}
 
-	static char const m_firmwareFileName[] = __DIR__ "/firmware/eth.rpd";
-
 protected:
 	// usb
 
@@ -83,6 +82,7 @@ protected:
 	io.UsbEndpoint* m_outEndpoint; // until we figure out how to use control ep 0
 	io.UsbEndpoint* m_inEndpoint;
 	iox.FpgaUploader m_uploader;
+	ui.FpgaUploaderProgressDlg m_uploaderDlg;
 	std.Buffer m_readBuffer;
 	std.Buffer m_packetBuffer;
 	uint16_t m_packetOffset;
@@ -136,14 +136,10 @@ public:
 	}
 
 protected:
-	void onCapture();
-
 	void onInEndpointEvent(
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
 	);
-
-	void onUpdateCompleted(bool result);
 
 	void createUi();
 	void enumerateDevices();
@@ -163,8 +159,11 @@ protected:
 EthernetTapSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_uploader.construct(pluginHost);
+	m_uploaderDlg.construct(m_uploader);
 
-	m_uploader.m_onUpdateCompleted += onUpdateCompleted;
+	m_uploader.m_onUpdateCompleted += [](bool result) {
+		result ? try startCapture() : stopCapture();
+	}
 
 	createUi();
 
@@ -184,7 +183,9 @@ void EthernetTapSession.createUi() {
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? stopCapture() : try capture();
+	}
 
 	// status bar
 
@@ -241,20 +242,6 @@ void EthernetTapSession.createUi() {
 	m_isTransmitEnabled = true;
 }
 
-void EthernetTapSession.onCapture() {
-	if (m_state)
-		stopCapture();
-	else
-		try capture();
-}
-
-void EthernetTapSession.onUpdateCompleted(bool result) {
-	if (result)
-		try startCapture();
-	else
-		stopCapture();
-}
-
 void EthernetTapSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
@@ -299,7 +286,9 @@ bool errorcode EthernetTapSession.capture() {
 	m_device.open();
 
 	m_logWriter.write(EthernetTapLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
-	return m_uploader.update(m_device, m_firmwareFileName, FpgaUploadBaseIndex);
+	m_uploader.checkSpeed(m_device);
+	m_uploader.update(m_device, EthernetTapFirmwareFileName, FpgaUploadBaseIndex);
+	return true;
 
 catch:
 	m_logWriter.writeLastError(EthernetTapLogRecordCode.CaptureError);
@@ -460,10 +449,10 @@ void EthernetTapSession.parse(
 					break2;
 
 			size_t packetSize = ((*p & 0xffff) + 3) & ~3; // align on 4 bytes
-			size_t bufferSize = sizeof(uint32_t) * 2 + packetSize;
+			size_t bufferSize = sizeof(EthernetTapPacketMeta) + packetSize;
 			m_packetBuffer.setSize(bufferSize);
-			*(uint32_t*)m_packetBuffer.m_p = ++m_packetIndex;
-			m_packetOffset = sizeof(uint32_t);
+			((EthernetTapPacketMeta*)m_packetBuffer.m_p).m_index = ++m_packetIndex;
+			m_packetOffset = offsetof(EthernetTapPacketMeta.m_hdr);
 		}
 
 		size_t dstSize = m_packetBuffer.m_size - m_packetOffset;
@@ -491,13 +480,13 @@ void EthernetTapSession.parse(
 
 		p += dstSize / sizeof(uint32_t);
 
-		PacketHdr* hdr = (PacketHdr*)(m_packetBuffer.m_p + sizeof(uint32_t));
+		EthernetTapPacketHdr* hdr = &((EthernetTapPacketMeta*)m_packetBuffer.m_p).m_hdr;
 		uint64_t recordCode;
 
 //		if (rand() & 1)
-//			hdr.m_flags &= ~PacketFlags.CrcValid;
+//			hdr.m_flags &= ~EthernetTapPacketFlags.CrcValid;
 
-		if (hdr.m_flags & PacketFlags.ChannelId) {
+		if (hdr.m_flags & EthernetTapPacketFlags.ChannelId) {
 			recordCode = EthernetTapLogRecordCode.Packet_ch2;
 			m_pluginHost.m_txRxStats.addRx(m_packetBuffer.m_size);
 		} else {

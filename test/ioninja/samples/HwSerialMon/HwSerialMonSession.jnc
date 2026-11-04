@@ -16,7 +16,6 @@ import "std_Buffer.jnc"
 import "HwSerialMonLogRecordCode.jnc"
 import "UsbLog/UsbLogRecordCode.jnc"
 
-
 //..............................................................................
 
 class HwSerialMonSession: doc.Session {
@@ -122,8 +121,6 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onOpenDevice();
-	void onCapture();
 	void onUsbThroughputTimer(uint_t syncId);
 
 	void onInEndpointEvent(
@@ -172,9 +169,14 @@ void HwSerialMonSession.createUi() {
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate Devices", m_iconTable[IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
 	m_actionTable[ActionId.Open] = createAction("Open Sniffer Device", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpenDevice;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state >= State.Opened ? closeDevice() : try openDevice();
+	}
+
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state >= State.Capturing ? stopCapture() : try capture();
+	}
 
 	// status bar
 
@@ -252,20 +254,6 @@ void HwSerialMonSession.createUi() {
 	enumerateDevices();
 
 	m_uiReactor.start();
-}
-
-void HwSerialMonSession.onOpenDevice() {
-	if (m_state >= State.Opened)
-		closeDevice();
-	else
-		try openDevice();
-}
-
-void HwSerialMonSession.onCapture() {
-	if (m_state >= State.Capturing)
-		stopCapture();
-	else
-		try capture();
 }
 
 void HwSerialMonSession.enumerateDevices() {

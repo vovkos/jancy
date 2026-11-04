@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// DNS (domain name system) defitions; also used for NetBIOS, MDNS, LLMNR
+// DNS (domain name system) defitions; also used for NetBIOS, mDNS, LLMNR
 //
 
 import "std_String.jnc"
@@ -232,6 +232,21 @@ struct DnsAnswerRrSuffix {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+// followed by the target name
+
+struct DnsSrvRdataHdr {
+	[ displayName = "Priority" ]
+	bigendian uint16_t m_priority;
+
+	[ displayName = "Weight" ]
+	bigendian uint16_t m_weight;
+
+	[ displayName = "Port" ]
+	bigendian uint16_t m_port;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 string_t formatDnsDigest(void const* p) {
 	DnsHdr const* hdr = (DnsHdr const*)p;
 	uint_t opcode = hdr.m_opcode;
@@ -306,24 +321,59 @@ void const* formatDnsName(
 	void const* end,
 	void const* base
 ) {
-	while (p < end) {
+	void const* nameEnd = try formatDnsNameImpl(string, p, end, base);
+	if (nameEnd)
+		return nameEnd;
+
+	string.append("[INVALID-DNS-NAME]");
+	return scanDnsName(p, end);
+}
+
+// returns the end of the name at its original position (past the first pointer);
+// pointers must go strictly backwards, so malformed loops terminate
+
+void const* errorcode formatDnsNameImpl(
+	std.StringBuilder* string,
+	void const* p,
+	void const* end,
+	void const* base
+) {
+	void const* nameEnd = null;
+	void const* limit = p;
+
+	for (;;) {
+		if (p >= end) {
+			std.setError("truncated DNS name");
+			return null;
+		}
+
 		uchar_t c = *(uchar_t const*)p++;
 		if (!c)
 			break;
 
-		if (c & 0xc0) { // pointer
-			size_t offset = ((c & ~0xc0) << 8) | *(uchar_t const*)p++;
-			if (offset >= end - base)
-				string.append("[INVALID-DNS-NAME-OFFSET]");
-			else
-				formatDnsName(string, base + offset, end, base);
+		if ((c & 0xc0) == 0xc0) { // pointer
+			if (p >= end) {
+				std.setError("truncated DNS name");
+				return null;
+			}
 
-			break;
+			size_t offset = ((c & ~0xc0) << 8) | *(uchar_t const*)p++;
+			if (!nameEnd)
+				nameEnd = p;
+
+			if (offset >= limit - base) {
+				std.setError("invalid DNS name pointer");
+				return null;
+			}
+
+			p = base + offset;
+			limit = p;
+			continue;
 		}
 
-		if (c > end - p) {
-			string.append("[INVALID-DNS-NAME-LENGTH]");
-			break;
+		if ((c & 0xc0) || c > end - p) { // 0x40 & 0x80 label types are reserved
+			std.setError("invalid DNS name label");
+			return null;
 		}
 
 		if (string.m_length)
@@ -333,7 +383,7 @@ void const* formatDnsName(
 		p += c;
 	}
 
-	return p;
+	return nameEnd ? nameEnd : p;
 }
 
 //..............................................................................

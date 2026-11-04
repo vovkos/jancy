@@ -1,0 +1,600 @@
+//..............................................................................
+//
+// Serial Tap over rendezvous session
+//
+
+import "doc_Session.jnc"
+import "io_base.jncx"
+import "io_Serial.jnc"
+import "iox_RendezvousHwc.jnc"
+import "io_HwcProto.jnc"
+import "ui_SocketUi.jnc"
+import "ui_SerialUi.jnc"
+import "ui_RendezvousHwcUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "ui_GroupBox.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
+
+//..............................................................................
+
+class RdvSerialTapSession:
+	doc.Session,
+	iox.HwcTransportSink {
+protected:
+	alias RdvState = iox.Rendezvous.State;
+
+	enum ActionId {
+		Capture,
+		Flip,
+		_Count,
+	}
+
+	enum IconId {
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum StatusPaneId {
+		RemoteAddress,
+		State,
+		_Count,
+	}
+
+	enum InfoId {
+		Dtr,
+		Rts,
+		Dsr,
+		Cts,
+		_Count,
+	}
+
+protected:
+	// Serial Tap over rendezvous
+
+	iox.RendezvousHwc m_rdv;
+	ui.RendezvousHwcUi m_rdvUi;
+	iox.RendezvousHwcDevice* m_device;
+	bool m_isFlippedDteDce;
+	uint_t bindable m_baudRate;
+	uint_t m_dataBits;
+	io.SerialParity m_parity;
+	io.SerialStopBits m_stopBits;
+	io.SerialStatusLines bindable m_statusLines;
+	io.SerialStatusLines bindable m_controlLines;
+
+	// common serial ui
+
+	ui.SerialUi m_serialUi;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+
+	// serial property grid
+
+	ui.SocketPropertySet m_socketPropertySet;
+	ui.BoolProperty* m_flipProp;
+	ui.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+	ui.InformationValue* m_infoTable[InfoId._Count];
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode connect();
+	void disconnect();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
+
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession() {
+		disconnect();
+	}
+
+protected:
+	void onConnected();
+	void onDisconnected();
+
+	override void onMsg(io.HwcMsgHdr const* hdr);
+
+	override void onOobData(
+		void const* p,
+		size_t size
+	) {
+		m_logWriter.write(log.StdRecordCode.Bin, p, size);
+	}
+
+	void onBaudRateChanged();
+	void onDataBitsChanged();
+	void onParityChanged();
+	void onStopBitsChanged();
+
+	void createUi();
+	void flipDteDce();
+
+	iox.Rendezvous.ConnectParams const* createConnectParams();
+	bool errorcode writeSerialConfigMsg();
+
+	void updateLineInfoValue(
+		InfoId infoId,
+		bool line
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+RdvSerialTapSession.construct(doc.PluginHost* pluginHost) {
+	basetype.construct(pluginHost);
+	m_rdv.construct(pluginHost);
+	m_rdvUi.construct(pluginHost, io.RendezvousHwcPeripheralKind.SerialTap, "Serial Tap");
+
+	createUi();
+
+	m_rdv.m_onConnected += onConnected;
+	m_rdv.m_onDisconnected += onDisconnected;
+	m_rdv.m_sink = this;
+
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+}
+
+void RdvSerialTapSession.createUi() {
+	// toolbar
+
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
+
+	m_rdvUi.createToolBar("Tap:");
+	m_rdvUi.m_deviceCombo.m_onReturnPressed += []() {
+		try connect();
+	}
+
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_rdv.m_state ? disconnect() : try connect();
+	}
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = ui.StdColor.Blue;
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Rendezvous connection",
+		"Rendezvous-specific connection settings"
+	);
+
+	m_rdvUi.createProperties(groupProp);
+
+	m_socketPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		groupProp,,
+		ui.SocketPropertySet.PropertyId.Reconnect
+	);
+
+	groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Serial settings",
+		"Serial settings of the remote Serial Tap"
+	);
+
+	ui.FormLayout layout;
+
+	ui.SerialUi.ItemId serialUiMask =
+		ui.SerialUi.ItemId.BaudRate |
+		ui.SerialUi.ItemId.DataBits |
+		ui.SerialUi.ItemId.StopBits |
+		ui.SerialUi.ItemId.Parity;
+
+	m_serialUi.createForm(layout, serialUiMask);
+	m_serialUi.createProperties(m_pluginHost.m_propertyGrid, groupProp, serialUiMask);
+
+	ui.GroupBox groupBox("Serial tap settings", layout);
+	m_pluginHost.createForm(groupBox);
+
+	m_serialUi.m_baudRateCombo.m_onReturnPressed += onBaudRateChanged;
+	bindingof(m_serialUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
+	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onDataBitsChanged;
+	bindingof(m_serialUi.m_parityCombo.m_currentIndex) += onParityChanged;
+	bindingof(m_serialUi.m_stopBitsCombo.m_currentIndex) += onStopBitsChanged;
+
+	m_pluginHost.m_menu.addSeparator();
+
+	m_actionTable[ActionId.Flip] = createAction("Flip DTE/DCE", "images/flip.png");
+	m_actionTable[ActionId.Flip].m_isCheckable = true;
+	m_actionTable[ActionId.Flip].m_onTriggered += flipDteDce;
+
+	m_flipProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		groupProp,,
+		"Flip DTE/DCE",
+		"Flip logical sides of the tap cable"
+	);
+
+	m_bufferPropertySet.createPropertiesGrouped(
+		m_pluginHost.m_propertyGrid,,,
+		ui.BufferPropertySet.PropertyId.All & ~ui.BufferPropertySet.PropertyId.ReadParallelism
+	);
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial Tap");
+
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
+
+	m_infoTable[InfoId.Dtr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DTR");
+	m_infoTable[InfoId.Rts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "RTS");
+	m_infoTable[InfoId.Dsr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DSR");
+	m_infoTable[InfoId.Cts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "CTS");
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
+	m_rdvUi.enumerate();
+	m_uiReactor.start();
+}
+
+void RdvSerialTapSession.flipDteDce() {
+	m_isFlippedDteDce = !m_isFlippedDteDce;
+
+	io.SerialStatusLines temp = m_controlLines;
+	m_controlLines = m_statusLines;
+	m_statusLines = temp;
+}
+
+bool errorcode RdvSerialTapSession.connect() {
+	iox.RendezvousHwcDevice* device = m_rdvUi.m_device;
+	if (!device) {
+		std.setError("no remote Serial Tap selected");
+		return false;
+	}
+
+	disconnect();
+	startSession();
+
+	m_baudRate = m_serialUi.m_baudRate;
+	m_dataBits = m_serialUi.m_dataBits;
+	m_stopBits = m_serialUi.m_stopBits;
+	m_parity = m_serialUi.m_parity;
+	m_statusLines = 0;
+	m_controlLines = 0;
+
+	m_device = device;
+	return m_rdv.connect(m_rdvUi.getServerUrl(device.m_path), createConnectParams());
+}
+
+void RdvSerialTapSession.disconnect() {
+	if (!m_rdv.m_state)
+		return;
+
+	m_rdv.close();
+	m_stdSessionInfoSet.endSession();
+}
+
+void RdvSerialTapSession.load(doc.Storage* storage) {
+	m_actionTable[ActionId.Flip].m_isChecked = storage.readBool("flipDteDce");
+
+	m_serialUi.load(storage);
+	m_socketPropertySet.load(storage);
+	m_bufferPropertySet.load(storage);
+	m_rdv.applyProperties(m_socketPropertySet, m_bufferPropertySet);
+	m_rdvUi.load(storage);
+}
+
+void RdvSerialTapSession.save(doc.Storage* storage) {
+	m_serialUi.save(storage);
+	m_socketPropertySet.save(storage);
+	m_bufferPropertySet.save(storage);
+	m_rdvUi.save(storage);
+
+	storage.writeBool("flipDteDce", m_actionTable[ActionId.Flip].m_isChecked);
+}
+
+void RdvSerialTapSession.updateProperties() {
+	m_flipProp.m_value = m_actionTable[ActionId.Flip].m_isChecked;
+
+	m_serialUi.updateProperties();
+	m_rdvUi.updateProperties();
+}
+
+bool errorcode RdvSerialTapSession.applyProperties() {
+	m_serialUi.applyProperties();
+	m_rdv.applyProperties(m_socketPropertySet, m_bufferPropertySet);
+	m_rdvUi.applyProperties();
+
+	if (m_flipProp.m_value != m_actionTable[ActionId.Flip].m_isChecked) {
+		m_actionTable[ActionId.Flip].m_isChecked = m_flipProp.m_value;
+		flipDteDce();
+	}
+
+	if (m_rdv.m_state != RdvState.Connected)
+		return true;
+
+	// collect new values from ui
+
+	uint_t baudRate = m_serialUi.m_baudRate;
+	uint_t dataBits = m_serialUi.m_dataBits;
+	io.SerialStopBits stopBits = m_serialUi.m_stopBits;
+	io.SerialParity parity = m_serialUi.m_parity;
+
+	bool isConfigChanged;
+
+	if (baudRate != m_baudRate) {
+		m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+		m_baudRate = baudRate;
+		isConfigChanged = true;
+	}
+
+	if (dataBits != m_dataBits) {
+		m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
+		m_dataBits = dataBits;
+		isConfigChanged = true;
+	}
+
+	if (stopBits != m_stopBits) {
+		m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
+		m_stopBits = stopBits;
+		isConfigChanged = true;
+	}
+
+	if (parity != m_parity) {
+		m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
+		m_parity = parity;
+		isConfigChanged = true;
+	}
+
+	if (isConfigChanged)
+		writeSerialConfigMsg();
+
+	return true;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	return false;
+}
+
+void RdvSerialTapSession.restoreDefaultProperties() {
+	m_socketPropertySet.restoreDefaults();
+	m_serialUi.restoreDefaultProperties();
+	m_bufferPropertySet.restoreDefaults();
+	m_rdvUi.restoreDefaults();
+
+	m_flipProp.m_value = false;
+}
+
+iox.Rendezvous.ConnectParams const* RdvSerialTapSession.createConnectParams() {
+	iox.Rendezvous.ConnectParams params;
+
+	iox.Rendezvous.initConnectParams(
+		&params,
+		m_socketPropertySet,
+		m_bufferPropertySet,
+		m_rdvUi.m_keyFileProp.m_value
+	);
+
+	return params;
+}
+
+void RdvSerialTapSession.onConnected() {
+	// unlike the SSH session -- which launches ioninja-hwc with the whole
+	// configuration on its command line -- we pick the tap first, then configure it
+
+	m_rdv.writeActivateDeviceMsg(m_device, io.HwcControllerKind.SerialTap);
+	writeSerialConfigMsg();
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialTapSession.onDisconnected() {
+	if (!m_rdv.m_msgCount) {
+		std.setError("'ioninja-hwc' on the target machine failed to initialize");
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+	}
+
+	m_stdSessionInfoSet.endSession();
+}
+
+void RdvSerialTapSession.onMsg(io.HwcMsgHdr const* hdr) {
+	static io.HwcMsgCode flippedCodeTable[] = {
+		io.HwcMsgCode.Success,         // Success         = 0,
+		io.HwcMsgCode.ErrorString,     // ErrorString     = 1,
+		io.HwcMsgCode.Rx,              // Tx              = 2,
+		io.HwcMsgCode.Tx,              // Rx              = 3,
+		io.HwcMsgCode.SerialTapCtsDsr, // SerialTapRtsDtr = 4,
+		io.HwcMsgCode.SerialTapRtsDtr, // SerialTapCtsDsr = 5,
+	}
+
+	uint_t code = m_isFlippedDteDce && (size_t)hdr.m_code < countof(flippedCodeTable) ?
+		flippedCodeTable[hdr.m_code] :
+		hdr.m_code;
+
+	switch (code) {
+	case io.HwcMsgCode.Error:
+		std.Error const* error = (std.Error const*)(hdr + 1);
+		m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
+		disconnect();
+		break;
+
+	case io.HwcMsgCode.ErrorString:
+		std.setError((char const*)(hdr + 1));
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+		disconnect();
+		break;
+
+	case io.HwcMsgCode.Rx:
+		m_logWriter.write(log.StdRecordCode.Rx, hdr + 1, hdr.m_dataSize);
+		break;
+
+	case io.HwcMsgCode.Tx:
+		m_logWriter.write(log.StdRecordCode.Tx, hdr + 1, hdr.m_dataSize);
+		break;
+
+	case io.HwcMsgCode.SerialTapRtsDtr:
+		io.SerialStatusLines lines = (io.SerialStatusLines)*(uchar_t const*)(hdr + 1);
+		io.SerialStatusLines lineMask = (lines ^ m_controlLines) & (io.SerialStatusLines.Cts | io.SerialStatusLines.Dsr);
+		if (lineMask) {
+			SerialStatusLineChangedParams params = { lines, lineMask }
+			m_logWriter.write(SerialLogRecordCode.ControlLineChanged, params, sizeof(params));
+			m_controlLines = lines;
+		}
+
+		break;
+
+	case io.HwcMsgCode.SerialTapCtsDsr:
+		io.SerialStatusLines lines = (io.SerialStatusLines)*(uchar_t const*)(hdr + 1);
+		io.SerialStatusLines lineMask = (lines ^ m_statusLines) & (io.SerialStatusLines.Cts | io.SerialStatusLines.Dsr);
+		if (lineMask) {
+			SerialStatusLineChangedParams params = { lines, lineMask }
+			m_logWriter.write(SerialLogRecordCode.StatusLineChanged, params, sizeof(params));
+			m_statusLines = lines;
+		}
+
+		break;
+
+	case io.HwcMsgCode.SerialLineError:
+		io.SerialLineErrors lineErrors = (io.SerialLineErrors)*(uchar_t const*)(hdr + 1);
+		if (lineErrors)
+			m_logWriter.write(SerialLogRecordCode.LineError, &lineErrors, sizeof(lineErrors));
+
+		break;
+	}
+}
+
+void RdvSerialTapSession.onBaudRateChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	uint_t baudRate = m_serialUi.m_baudRate;
+	if (baudRate == m_baudRate)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+	m_baudRate = baudRate;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialTapSession.onDataBitsChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	uint_t dataBits = m_serialUi.m_dataBits;
+	if (dataBits == m_dataBits)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
+	m_dataBits = dataBits;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialTapSession.onParityChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	io.SerialParity parity = m_serialUi.m_parity;
+	if (parity == m_parity)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
+	m_parity = parity;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialTapSession.onStopBitsChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	io.SerialStopBits stopBits = m_serialUi.m_stopBits;
+	if (stopBits == m_stopBits)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
+	m_stopBits = stopBits;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+bool errorcode RdvSerialTapSession.writeSerialConfigMsg() {
+	io.HwcSerialConfig config;
+	config.m_baudRate = m_baudRate;
+	config.m_dataBits = m_dataBits;
+	config.m_stopBits = m_stopBits;
+	config.m_parity = m_parity;
+	config.m_flowControl = false;
+	return m_rdv.writeMsg(io.HwcMsgCode.SerialTapSetConfig, &config, sizeof(config));
+}
+
+void RdvSerialTapSession.updateLineInfoValue(
+	InfoId infoId,
+	bool line
+) {
+	m_infoTable[infoId].m_value = line ? "on" : "off";
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.BrightRed : ui.StdColor.BrightBlack;
+}
+
+reactor RdvSerialTapSession.m_uiReactor {
+	m_title = m_rdv.m_state == RdvState.Connected ?
+		$"Serial Tap $(m_device.m_text) $m_baudRate bps" :
+		$"Serial Tap $(m_rdvUi.m_deviceCombo.m_currentText) $(m_serialUi.m_baudRateCombo.m_editText)";
+
+	m_sessionConnectionState =
+		m_rdv.m_state == RdvState.Connected ? SessionConnectionState.Connected :
+		m_rdv.m_state == RdvState.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
+	m_actionTable[ActionId.Capture].m_text = m_rdv.m_state ? "Stop capture" : "Capture";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_rdv.m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_rdv.m_stateStringTable[m_rdv.m_state];
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_rdv.m_state ? m_rdv.m_url : "<tap-url>";
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_rdv.m_state != RdvState.Closed;
+
+	m_infoTable[InfoId.Dsr].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+	m_infoTable[InfoId.Cts].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+	m_infoTable[InfoId.Dtr].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+	m_infoTable[InfoId.Rts].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+
+	updateLineInfoValue(InfoId.Dtr, m_controlLines & io.SerialStatusLines.Dsr);
+	updateLineInfoValue(InfoId.Rts, m_controlLines & io.SerialStatusLines.Cts);
+	updateLineInfoValue(InfoId.Dsr, m_statusLines & io.SerialStatusLines.Dsr);
+	updateLineInfoValue(InfoId.Cts, m_statusLines & io.SerialStatusLines.Cts);
+}
+
+//..............................................................................

@@ -1,0 +1,716 @@
+//..............................................................................
+//
+// Serial over rendezvous session
+//
+
+import "doc_Session.jnc"
+import "io_base.jncx"
+import "io_Serial.jnc"
+import "iox_RendezvousHwc.jnc"
+import "io_HwcProto.jnc"
+import "ui_SocketUi.jnc"
+import "ui_SerialUi.jnc"
+import "ui_RendezvousHwcUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "ui_GroupBox.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
+
+//..............................................................................
+
+class RdvSerialSession:
+	doc.Session,
+	iox.HwcTransportSink {
+protected:
+	alias RdvState = iox.Rendezvous.State;
+
+	enum ActionId {
+		Connect,
+		_Count,
+	}
+
+	enum IconId {
+		Connect,
+		Disconnect,
+		_Count,
+	}
+
+	enum StatusPaneId {
+		RemoteAddress,
+		State,
+		_Count,
+	}
+
+	enum PortState {
+		Closed,
+		Opening, // activate-device sent, waiting for the reply
+		Opened,
+	}
+
+	enum InfoId {
+		Dsr,
+		Cts,
+		Dtr,
+		Rts,
+		BreakCondition,
+		_Count,
+	}
+
+protected:
+	// serial port over rendezvous
+
+	iox.RendezvousHwc m_rdv;
+	ui.RendezvousHwcUi m_rdvUi;
+	iox.RendezvousHwcDevice* m_device;
+	PortState m_portState;
+	uint_t bindable m_baudRate;
+	uint_t m_dataBits;
+	io.SerialParity m_parity;
+	io.SerialStopBits m_stopBits;
+	io.SerialFlowControl m_flowControl;
+	io.SerialStatusLines bindable m_statusLines;
+	bool bindable m_dtr;
+	bool bindable m_rts;
+	bool bindable m_breakCondition;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+
+	// serial property grid
+
+	ui.SocketPropertySet m_socketPropertySet;
+	ui.SerialUi m_serialUi;
+	ui.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	ui.InformationValue* m_infoTable[InfoId._Count];
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode connect();
+	void disconnect();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
+
+	override size_t errorcode transmit(
+		void const* p,
+		size_t size
+	);
+
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession() {
+		disconnect();
+	}
+
+protected:
+	void onBaudRateChanged();
+	void onDataBitsChanged();
+	void onParityChanged();
+	void onStopBitsChanged();
+	void onFlowControlChanged();
+	void onDtrChanged();
+	void onRtsChanged();
+	void onBreakConditionChanged();
+
+	void onConnected();
+	void onDisconnected();
+
+	override void onMsg(io.HwcMsgHdr const* hdr);
+	void onPortOpened();
+	void onPortClosed();
+
+	override void onOobData(
+		void const* p,
+		size_t size
+	) {
+		m_logWriter.write(log.StdRecordCode.Bin, p, size);
+	}
+
+	void createUi();
+
+	iox.Rendezvous.ConnectParams const* createConnectParams();
+	bool errorcode writeSerialConfigMsg();
+
+	bool errorcode writeLineChangeMsg(
+		io.HwcMsgCode code,
+		bool value
+	) {
+		return m_rdv.writeMsg(code, &value, sizeof(value));
+	}
+
+	void updateLineInfoValue(
+		InfoId infoId,
+		bool line
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+RdvSerialSession.construct(doc.PluginHost* pluginHost) {
+	basetype.construct(pluginHost);
+	m_rdv.construct(pluginHost);
+	m_rdvUi.construct(pluginHost, io.RendezvousHwcPeripheralKind.Serial, "serial port");
+
+	m_rdv.m_onConnected += onConnected;
+	m_rdv.m_onDisconnected += onDisconnected;
+	m_rdv.m_sink = this;
+
+	createUi();
+
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+}
+
+void RdvSerialSession.createUi() {
+	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
+	m_iconTable[IconId.Disconnect] = new ui.Icon("images/pause.png");
+
+	// toolbar
+
+	m_rdvUi.createToolBar("Port:");
+	m_rdvUi.m_deviceCombo.m_onReturnPressed += []() {
+		try connect();
+	}
+
+	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
+	m_actionTable[ActionId.Connect].m_onTriggered += []() {
+		m_rdv.m_state ? disconnect() : try connect();
+	}
+
+	// property grid
+
+	ui.GroupProperty* groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Rendezvous connection",
+		"Rendezvous-specific connection settings"
+	);
+
+	m_rdvUi.createProperties(groupProp);
+
+	m_socketPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		groupProp,,
+		ui.SocketPropertySet.PropertyId.Reconnect
+	);
+
+	groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Serial port",
+		"Serial port-specific connection settings"
+	);
+
+	ui.FormLayout layout;
+	m_serialUi.createForm(layout);
+	m_serialUi.createProperties(m_pluginHost.m_propertyGrid, groupProp);
+
+	ui.GroupBox groupBox("Serial settings", layout);
+	m_pluginHost.createForm(groupBox);
+
+	m_serialUi.m_baudRateCombo.m_onReturnPressed += onBaudRateChanged;
+	bindingof(m_serialUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
+	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onDataBitsChanged;
+	bindingof(m_serialUi.m_parityCombo.m_currentIndex) += onParityChanged;
+	bindingof(m_serialUi.m_stopBitsCombo.m_currentIndex) += onStopBitsChanged;
+	bindingof(m_serialUi.m_flowControlCombo.m_currentIndex) += onFlowControlChanged;
+	m_serialUi.m_dtrAction.m_onTriggered += onDtrChanged;
+	m_serialUi.m_rtsAction.m_onTriggered += onRtsChanged;
+	m_serialUi.m_breakConditionAction.m_onTriggered += onBreakConditionChanged;
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = ui.StdColor.Blue;
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	m_bufferPropertySet.createPropertiesGrouped(
+		m_pluginHost.m_propertyGrid,,,
+		ui.BufferPropertySet.PropertyId.All & ~ui.BufferPropertySet.PropertyId.ReadParallelism
+	);
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial over RDV");
+
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
+
+	m_infoTable[InfoId.Dsr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DSR");
+	m_infoTable[InfoId.Cts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "CTS");
+	m_infoTable[InfoId.Dtr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DTR");
+	m_infoTable[InfoId.Rts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "RTS");
+	m_infoTable[InfoId.BreakCondition] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "BREAK");
+
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
+	m_rdvUi.enumerate();
+	m_uiReactor.start();
+}
+
+void RdvSerialSession.load(doc.Storage* storage) {
+	m_serialUi.load(storage);
+	m_socketPropertySet.load(storage);
+	m_bufferPropertySet.load(storage);
+	m_rdv.applyProperties(m_socketPropertySet, m_bufferPropertySet);
+	m_rdvUi.load(storage);
+}
+
+void RdvSerialSession.save(doc.Storage* storage) {
+	m_serialUi.save(storage);
+	m_socketPropertySet.save(storage);
+	m_bufferPropertySet.save(storage);
+	m_rdvUi.save(storage);
+}
+
+void RdvSerialSession.updateProperties() {
+	m_serialUi.updateProperties();
+	m_rdvUi.updateProperties();
+}
+
+bool errorcode RdvSerialSession.applyProperties() {
+	m_serialUi.applyProperties();
+	m_rdv.applyProperties(m_socketPropertySet, m_bufferPropertySet);
+	m_rdvUi.applyProperties();
+
+	if (m_rdv.m_state != RdvState.Connected) {
+		m_dtr = m_serialUi.m_dtrProp.m_value;
+		m_rts = m_serialUi.m_rtsProp.m_value;
+		m_breakCondition = m_serialUi.m_breakConditionProp.m_value;
+		return true;
+	}
+
+	// collect new values from ui
+
+	uint_t baudRate = m_serialUi.m_baudRate;
+	uint_t dataBits = m_serialUi.m_dataBits;
+	io.SerialStopBits stopBits = m_serialUi.m_stopBits;
+	io.SerialParity parity = m_serialUi.m_parity;
+	io.SerialFlowControl flowControl = m_serialUi.m_flowControl;
+
+	bool isConfigChanged;
+	bool dtr = m_serialUi.m_dtrProp.m_value;
+	bool rts = m_serialUi.m_rtsProp.m_value;
+	bool breakCondition = m_serialUi.m_breakConditionProp.m_value;
+
+	if (baudRate != m_baudRate) {
+		m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+		m_baudRate = baudRate;
+		isConfigChanged = true;
+	}
+
+	if (dataBits != m_dataBits) {
+		m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
+		m_dataBits = dataBits;
+		isConfigChanged = true;
+	}
+
+	if (stopBits != m_stopBits) {
+		m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
+		m_stopBits = stopBits;
+		isConfigChanged = true;
+	}
+
+	if (parity != m_parity) {
+		m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
+		m_parity = parity;
+		isConfigChanged = true;
+	}
+
+	if (flowControl != m_flowControl) {
+		m_logWriter.write(SerialLogRecordCode.FlowControlChanged, &flowControl, sizeof(flowControl));
+		m_flowControl = flowControl;
+		isConfigChanged = true;
+	}
+
+	if (isConfigChanged)
+		writeSerialConfigMsg();
+
+	if (dtr != m_dtr) {
+		m_logWriter.write(SerialLogRecordCode.DtrChanged, &dtr, sizeof(dtr));
+		m_dtr = dtr;
+		writeLineChangeMsg(io.HwcMsgCode.SerialSetDtr, dtr);
+	}
+
+	if (rts != m_rts) {
+		m_logWriter.write(SerialLogRecordCode.RtsChanged, &rts, sizeof(rts));
+		m_rts = rts;
+		writeLineChangeMsg(io.HwcMsgCode.SerialSetRts, rts);
+	}
+
+	if (breakCondition != m_breakCondition) {
+		m_logWriter.write(SerialLogRecordCode.BreakConditionChanged, &breakCondition, sizeof(breakCondition));
+		m_breakCondition = breakCondition;
+		writeLineChangeMsg(io.HwcMsgCode.SerialSetBreak, breakCondition);
+	}
+
+	return true;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	return false;
+}
+
+void RdvSerialSession.restoreDefaultProperties() {
+	m_socketPropertySet.restoreDefaults();
+	m_serialUi.restoreDefaultProperties();
+	m_bufferPropertySet.restoreDefaults();
+	m_rdvUi.restoreDefaults();
+}
+
+size_t errorcode RdvSerialSession.transmit(
+	void const* p,
+	size_t size
+) {
+	if (m_rdv.m_state != RdvState.Connected) {
+		std.setError("serial port not opened");
+		return -1;
+	}
+
+	m_rdv.writeMsg(io.HwcMsgCode.SerialTransmit, p, size);
+	m_logWriter.write(log.StdRecordCode.Tx, p, size);
+	return size;
+}
+
+bool errorcode RdvSerialSession.connect() {
+	iox.RendezvousHwcDevice* device = m_rdvUi.m_device;
+	if (!device) {
+		std.setError("no remote serial port selected");
+		return false;
+	}
+
+	disconnect();
+	startSession();
+
+	m_baudRate = m_serialUi.m_baudRate;
+	m_dataBits = m_serialUi.m_dataBits;
+	m_stopBits = m_serialUi.m_stopBits;
+	m_parity = m_serialUi.m_parity;
+	m_flowControl = m_serialUi.m_flowControl;
+	m_dtr = m_serialUi.m_dtr;
+	m_rts = m_serialUi.m_rts;
+	m_breakCondition = false; // set later after connect
+	m_statusLines = 0;
+	m_portState = PortState.Closed;
+
+	m_device = device;
+	return m_rdv.connect(m_rdvUi.getServerUrl(device.m_path), createConnectParams());
+}
+
+void RdvSerialSession.disconnect() {
+	if (!m_rdv.m_state)
+		return;
+
+	onPortClosed();
+	m_rdv.close();
+	m_stdSessionInfoSet.endSession();
+}
+
+iox.Rendezvous.ConnectParams const* RdvSerialSession.createConnectParams() {
+	iox.Rendezvous.ConnectParams params;
+
+	iox.Rendezvous.initConnectParams(
+		&params,
+		m_socketPropertySet,
+		m_bufferPropertySet,
+		m_rdvUi.m_keyFileProp.m_value
+	);
+
+	return params;
+}
+
+void RdvSerialSession.onConnected() {
+	// unlike the SSH session -- which launches ioninja-hwc with the whole
+	// configuration on its command line -- we open the port first, then configure it
+
+	m_rdv.writeActivateDeviceMsg(m_device, io.HwcControllerKind.Serial);
+	m_portState = PortState.Opening;
+	writeSerialConfigMsg();
+	writeLineChangeMsg(io.HwcMsgCode.SerialSetDtr, m_dtr);
+	writeLineChangeMsg(io.HwcMsgCode.SerialSetRts, m_rts);
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialSession.onDisconnected() {
+	if (m_rdv.m_msgBuffer.m_size) // show buffered bytes
+		m_logWriter.write(log.StdRecordCode.Bin, m_rdv.m_msgBuffer.m_p, m_rdv.m_msgBuffer.m_size);
+
+	if (!m_rdv.m_msgCount) {
+		std.setError("'ioninja-hwc' on the target machine failed to initialize");
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+	}
+
+	onPortClosed();
+	m_breakCondition = false;
+	m_stdSessionInfoSet.endSession();
+}
+
+// hwc replies to every command; the first reply is to activate-device
+
+void RdvSerialSession.onPortOpened() {
+	SerialOpenParams params;
+	params.m_baudRate = m_baudRate;
+	params.m_flowControl = m_flowControl;
+	params.m_dataBits = m_dataBits;
+	params.m_stopBits = m_stopBits;
+	params.m_parity = m_parity;
+	params.m_dtr = m_dtr;
+	params.m_rts = m_rts;
+	params.m_statusLines = m_statusLines;
+	params.m_osKind = -1; // remote os is unknown; no windows read mode
+
+	m_logWriter.write(
+		SerialLogRecordCode.PortOpened,
+		&params,
+		sizeof(params),
+		m_device.m_port.m_p,
+		m_device.m_port.m_length
+	);
+
+	m_portState = PortState.Opened;
+}
+
+void RdvSerialSession.onPortClosed() {
+	if (m_portState == PortState.Opened)
+		m_logWriter.write(SerialLogRecordCode.PortClosed);
+
+	m_portState = PortState.Closed;
+}
+
+void RdvSerialSession.onMsg(io.HwcMsgHdr const* hdr) {
+	uint64_t errorRecordCode = m_portState == PortState.Opening ?
+		SerialLogRecordCode.PortOpenError :
+		log.StdRecordCode.Error;
+
+	switch (hdr.m_code) {
+	case io.HwcMsgCode.Success:
+		if (m_portState == PortState.Opening)
+			onPortOpened();
+		break;
+
+	case io.HwcMsgCode.Error:
+		std.Error const* error = (std.Error const*)(hdr + 1);
+		m_logWriter.write(errorRecordCode, error, error.m_size);
+		m_portState = PortState.Closed;
+		disconnect();
+		break;
+
+	case io.HwcMsgCode.ErrorString:
+		std.setError((char const*)(hdr + 1));
+		m_logWriter.writeLastError(errorRecordCode);
+		m_portState = PortState.Closed;
+		disconnect();
+		break;
+
+	case io.HwcMsgCode.Rx:
+		m_logWriter.write(log.StdRecordCode.Rx, hdr + 1, hdr.m_dataSize);
+		break;
+
+	case io.HwcMsgCode.SerialLineError:
+		io.SerialLineErrors errors = (io.SerialLineErrors)*(uchar_t const*)(hdr + 1);
+		m_logWriter.write(SerialLogRecordCode.LineError, &errors, sizeof(errors));
+		break;
+
+	case io.HwcMsgCode.SerialCtsDsr:
+		io.SerialStatusLines lines = (io.SerialStatusLines)*(uchar_t const*)(hdr + 1);
+		io.SerialStatusLines lineMask = lines ^ m_statusLines;
+		if (lineMask) {
+			SerialStatusLineChangedParams params = { lines, lineMask }
+			m_logWriter.write(SerialLogRecordCode.StatusLineChanged, params, sizeof(params));
+			m_statusLines = lines;
+		}
+
+		break;
+	}
+}
+
+void RdvSerialSession.onBaudRateChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	uint_t baudRate = m_serialUi.m_baudRate;
+	if (baudRate == m_baudRate)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+	m_baudRate = baudRate;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialSession.onDataBitsChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	uint_t dataBits = m_serialUi.m_dataBits;
+	if (dataBits == m_dataBits)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
+	m_dataBits = dataBits;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialSession.onParityChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	io.SerialParity parity = m_serialUi.m_parity;
+	if (parity == m_parity)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
+	m_parity = parity;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialSession.onStopBitsChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	io.SerialStopBits stopBits = m_serialUi.m_stopBits;
+	if (stopBits == m_stopBits)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
+	m_stopBits = stopBits;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void RdvSerialSession.onFlowControlChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	io.SerialFlowControl flowControl = m_serialUi.m_flowControl;
+	if (flowControl == m_flowControl)
+		return;
+
+	m_logWriter.write(SerialLogRecordCode.FlowControlChanged, &flowControl, sizeof(flowControl));
+	m_flowControl = flowControl;
+	writeSerialConfigMsg();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+bool errorcode RdvSerialSession.writeSerialConfigMsg() {
+	io.HwcSerialConfig config;
+	config.m_baudRate = m_baudRate;
+	config.m_dataBits = m_dataBits;
+	config.m_stopBits = m_stopBits;
+	config.m_parity = m_parity;
+	config.m_flowControl = m_flowControl;
+	return m_rdv.writeMsg(io.HwcMsgCode.SerialSetConfig, &config, sizeof(config));
+}
+
+void RdvSerialSession.onDtrChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	bool value = m_serialUi.m_dtr;
+	writeLineChangeMsg(io.HwcMsgCode.SerialSetDtr, value);
+	m_dtr = value;
+	m_logWriter.write(SerialLogRecordCode.DtrChanged, &value, sizeof(value));
+}
+
+void RdvSerialSession.onRtsChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	bool value = m_serialUi.m_rts;
+	writeLineChangeMsg(io.HwcMsgCode.SerialSetRts, value);
+	m_rts = value;
+	m_logWriter.write(SerialLogRecordCode.RtsChanged, &value, sizeof(value));
+}
+
+void RdvSerialSession.onBreakConditionChanged() {
+	if (m_rdv.m_state != RdvState.Connected)
+		return;
+
+	bool value = m_serialUi.m_breakCondition;
+	writeLineChangeMsg(io.HwcMsgCode.SerialSetBreak, value);
+	m_breakCondition = value;
+	m_logWriter.write(SerialLogRecordCode.BreakConditionChanged, &value, sizeof(value));
+}
+
+void RdvSerialSession.updateLineInfoValue(
+	InfoId infoId,
+	bool line
+) {
+	m_infoTable[infoId].m_value = line ? "on" : "off";
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.BrightRed : ui.StdColor.BrightBlack;
+}
+
+reactor RdvSerialSession.m_uiReactor {
+	m_title = m_rdv.m_state == RdvState.Connected ?
+		$"Serial $(m_device.m_text) $m_baudRate bps" :
+		$"Serial $(m_rdvUi.m_deviceCombo.m_currentText) $(m_serialUi.m_baudRateCombo.m_editText)";
+
+	m_isTransmitEnabled = m_rdv.m_isTransmitEnabled && !m_breakCondition;
+
+	if (m_rdv.m_state == RdvState.Connected) { // set BREAK on initial connect
+		if (!m_breakCondition && m_serialUi.m_breakCondition) // exclude bindingof(m_breakCondition)
+			onBreakConditionChanged();
+	}
+
+	m_sessionConnectionState =
+		m_rdv.m_state == RdvState.Connected ? SessionConnectionState.Connected :
+		m_rdv.m_state == RdvState.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
+	m_actionTable[ActionId.Connect].m_text = m_rdv.m_state ? "Close" : "Open";
+	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_rdv.m_state ? IconId.Disconnect : IconId.Connect];
+	m_serialUi.m_rtsAction.m_isEnabled = m_serialUi.m_flowControlCombo.m_currentData != io.SerialFlowControl.RtsCts;
+	m_serialUi.m_rtsProp.m_isEnabled = m_serialUi.m_flowControlProp.m_value != io.SerialFlowControl.RtsCts;
+	m_statusPaneTable[StatusPaneId.State].m_text = m_rdv.m_stateStringTable[m_rdv.m_state];
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_rdv.m_state ? m_rdv.m_url : "<port-url>";
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_rdv.m_state != RdvState.Closed;
+	m_infoTable[InfoId.Dsr].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+	m_infoTable[InfoId.Cts].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+	m_infoTable[InfoId.Dtr].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+	m_infoTable[InfoId.Rts].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+	m_infoTable[InfoId.BreakCondition].m_isEnabled = m_rdv.m_state == RdvState.Connected;
+
+	updateLineInfoValue(InfoId.Dtr, m_dtr);
+	updateLineInfoValue(InfoId.Rts, m_rts);
+	updateLineInfoValue(InfoId.Dsr, m_statusLines & io.SerialStatusLines.Dsr);
+	updateLineInfoValue(InfoId.Cts, m_statusLines & io.SerialStatusLines.Cts);
+	updateLineInfoValue(InfoId.BreakCondition, m_breakCondition);
+}
+
+//..............................................................................

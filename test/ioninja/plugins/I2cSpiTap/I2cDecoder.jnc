@@ -7,6 +7,8 @@ import "Decoder.jnc"
 
 //..............................................................................
 
+string_t const I2cTapFirmwareFileName = __DIR__ "/firmware/i2c.rpd";
+
 class I2cDecoder: Decoder {
 protected:
 	enum Code {

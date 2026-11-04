@@ -444,7 +444,7 @@ void SocketPropertySet.save(doc.Storage* storage) {
 		storage.writeBool("useLocalAddress", m_useLocalAddressProp.m_value);
 
 	if (m_adapterProp)
-		storage.writeInt("adapterIdx", (int) m_adapterProp.m_currentIndex);
+		storage.writeInt("adapterIdx", (int)m_adapterProp.m_currentIndex);
 
 	if (m_localPortProp)
 		storage.writeInt("localPort", m_localPortProp.m_value);

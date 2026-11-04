@@ -1,0 +1,354 @@
+//..............................................................................
+//
+// Remote ioninja-hwc peripheral picker for hardware sessions over rendezvous
+//
+// enumeration over the relay needs the identity, takes a while, may fail;
+// until there is something to pick, the device combo shows the status instead
+//
+
+import "doc_PluginHost.jnc"
+import "doc_Storage.jnc"
+import "ui_PropertyGrid.jnc"
+import "ui_Dialog.jnc"
+import "iox_RendezvousHwc.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+class RendezvousHwcUi {
+	static string_t const DefaultServerUrl = "wss://rendezvous.ioninja.com";
+	static string_t const EnumPath = "?enum=ioninja-hwc";
+
+	enum EnumeratorState {
+		Idle,
+		Enumerating,
+	}
+
+protected:
+	doc.PluginHost* m_pluginHost;
+	io.RendezvousHwcPeripheralKind m_kind;
+	string_t m_kindName;
+	io.RendezvousIdentity m_identity;
+	io.RendezvousEnumerator m_enumerator;
+	uint_t m_enumeratorSyncId;
+	string_t m_selectedDeviceText; // to re-select once the list arrives
+	bool m_showEnumPopup;
+	FileDlg* m_keyFileDlg;
+
+public:
+	EnumeratorState bindable readonly m_enumeratorState;
+
+	ComboBox* m_deviceCombo;
+	Action* m_refreshAction;
+	EnumProperty* m_deviceProp;
+	StringProperty* m_serverProp;
+	FileProperty* m_keyFileProp;
+
+	iox.RendezvousHwcDevice* const property m_device {
+		return m_deviceCombo.m_currentData;
+	}
+
+	reactor m_uiReactor;
+
+public:
+	construct(
+		doc.PluginHost* pluginHost,
+		io.RendezvousHwcPeripheralKind kind,
+		string_t kindName // e.g. "Serial Tap Pro"
+	);
+
+	// label, device combo, refresh action
+
+	void createToolBar(string_t label);
+
+	// device, server, private key
+
+	void createProperties(GroupProperty* group);
+
+	void load(doc.Storage* storage); // starts enumeration
+	void save(doc.Storage* storage);
+	void updateProperties();
+	void applyProperties();
+	void restoreDefaults();
+
+	string_t getServerUrl(string_t path);
+	void enumerate(bool showPopup = false);
+
+protected:
+	void onRefresh();
+	void onEnumeratorEvent(
+		uint_t syncId,
+		io.RendezvousEnumeratorEvents triggeredEvents
+	);
+
+	void setDeviceStatus(
+		string_t text,
+		string_t toolTip = null
+	);
+
+	string_t getDeviceText(
+		io.RendezvousDevice const* device,
+		io.RendezvousHwcPeripheral const* peripheral
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+RendezvousHwcUi.construct(
+	doc.PluginHost* pluginHost,
+	io.RendezvousHwcPeripheralKind kind,
+	string_t kindName
+) {
+	m_pluginHost = pluginHost;
+	m_kind = kind;
+	m_kindName = kindName;
+}
+
+void RendezvousHwcUi.createToolBar(string_t label) {
+	m_pluginHost.m_toolBar.addLabel(label);
+	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+
+	m_refreshAction = new Action(new Icon("images/refresh.png"), $"Re-enumerate remote $m_kindName devices");
+	m_refreshAction.m_onTriggered += onRefresh;
+	m_pluginHost.m_menu.addAction(m_refreshAction);
+	m_pluginHost.m_toolBar.addAction(m_refreshAction);
+
+	m_uiReactor.start();
+}
+
+void RendezvousHwcUi.createProperties(GroupProperty* group) {
+	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"Device",
+		$"Remote $m_kindName",
+		null, 0
+	);
+
+	m_serverProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		group,,
+		"Server",
+		DefaultServerUrl,
+		"Rendezvous relay URL"
+	);
+
+	m_keyFileProp = m_pluginHost.m_propertyGrid.createFileProperty(
+		group,,
+		"Private key",
+		"The key this peer is identified by on the rendezvous relay"
+	);
+
+	m_keyFileProp.m_fileDialogTitle = "Select a private key file...";
+	m_keyFileProp.m_filter = "PEM files (*.pem);;All files (*.*)";
+}
+
+void RendezvousHwcUi.load(doc.Storage* storage) {
+	m_serverProp.m_value = storage.readString("server", DefaultServerUrl);
+	m_keyFileProp.m_value = storage.readString("keyFile");
+	m_selectedDeviceText = storage.readString("device");
+	enumerate(); // after we loaded server and key
+}
+
+void RendezvousHwcUi.save(doc.Storage* storage) {
+	storage.writeString("server", m_serverProp.m_value);
+	storage.writeString("keyFile", m_keyFileProp.m_value);
+
+	storage.writeString(
+		"device",
+		m_deviceCombo.m_currentData ? m_deviceCombo.m_currentText : m_selectedDeviceText
+	);
+}
+
+void RendezvousHwcUi.updateProperties() {
+	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+}
+
+void RendezvousHwcUi.applyProperties() {
+	if (m_deviceCombo.m_currentData)
+		m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
+}
+
+void RendezvousHwcUi.restoreDefaults() {
+	m_serverProp.m_value = DefaultServerUrl;
+}
+
+string_t RendezvousHwcUi.getServerUrl(string_t path) {
+	string_t url = m_serverProp.m_value;
+	return url.m_length && url[url.m_length - 1] == '/' ? $"$url$path" : $"$url/$path";
+}
+
+void RendezvousHwcUi.setDeviceStatus(
+	string_t text,
+	string_t toolTip
+) {
+	m_deviceCombo.clear();
+	m_deviceCombo.addItem(text);
+	m_deviceCombo.m_itemToolTip[0] = toolTip;
+	m_deviceProp.setOptions(null, 0);
+}
+
+// a manual refresh with no identity asks for the key right away;
+// automatic enumeration just shows "No private key" in the device combo
+
+void RendezvousHwcUi.onRefresh() {
+	if (m_keyFileProp.m_value.m_length) {
+		enumerate(true);
+		return;
+	}
+
+	if (!m_keyFileDlg) {
+		m_keyFileDlg = new FileDlg;
+		m_keyFileDlg.m_onCompleted += [](StdDlgButton button) {
+			if (button != StdDlgButton.Ok)
+				return;
+
+			m_keyFileProp.m_value = m_keyFileDlg.m_filePath;
+			enumerate(true);
+		}
+	}
+
+	m_keyFileDlg.m_kind = FileDlgKind.Open;
+	m_keyFileDlg.m_title = m_keyFileProp.m_fileDialogTitle;
+	m_keyFileDlg.m_filter = m_keyFileProp.m_filter;
+	m_keyFileDlg.show();
+}
+
+void RendezvousHwcUi.enumerate(bool showPopup) {
+	if (m_deviceCombo.m_currentData)
+		m_selectedDeviceText = m_deviceCombo.m_currentText;
+
+	m_showEnumPopup = showPopup;
+
+	m_enumerator.close();
+	m_enumeratorSyncId++;
+	m_enumeratorState = EnumeratorState.Idle;
+
+	string_t keyFileName = m_keyFileProp.m_value;
+	if (!keyFileName.m_length) {
+		setDeviceStatus("No private key", "Click Refresh to choose the rendezvous private key");
+		return;
+	}
+
+	m_identity.setKeyPemFile(keyFileName);
+	m_enumerator.enumerate(m_identity, getServerUrl(EnumPath));
+
+	m_enumerator.wait(
+		io.RendezvousEnumeratorEvents.EnumerationCompleted |
+		io.RendezvousEnumeratorEvents.Error,
+		onEnumeratorEvent~(m_enumeratorSyncId) @ m_pluginHost.m_mainThreadScheduler
+	);
+
+	setDeviceStatus("Enumerating...");
+	m_enumeratorState = EnumeratorState.Enumerating;
+	return;
+
+catch:
+	string_t description = std.getLastError().m_description;
+	setDeviceStatus($"Error: $description", description);
+	m_enumerator.close();
+}
+
+string_t RendezvousHwcUi.getDeviceText(
+	io.RendezvousDevice const* device,
+	io.RendezvousHwcPeripheral const* peripheral
+) {
+	if (m_kind == io.RendezvousHwcPeripheralKind.Serial)
+		return $"$(device.m_owner)/$(device.m_name) $(peripheral.m_port)";
+
+	string_t location = $"@%(1;03d):%(2;03d)"(peripheral.m_bus, peripheral.m_address);
+	return $"$(device.m_owner)/$(device.m_name) $location $m_kindName";
+}
+
+void RendezvousHwcUi.onEnumeratorEvent(
+	uint_t syncId,
+	io.RendezvousEnumeratorEvents triggeredEvents
+) {
+	if (syncId != m_enumeratorSyncId)
+		return;
+
+	m_enumeratorState = EnumeratorState.Idle;
+
+	if (triggeredEvents & io.RendezvousEnumeratorEvents.Error) {
+		string_t description = m_enumerator.m_error.m_description;
+		setDeviceStatus($"Error: $description", description);
+		m_enumerator.close();
+		return;
+	}
+
+	io.RendezvousDeviceSnapshot const* snapshot = m_enumerator.m_deviceSnapshot;
+	size_t totalCount = 0;
+
+	for (size_t i = 0; i < snapshot.m_deviceCount; i++) {
+		io.RendezvousDevice const* device = &snapshot.m_deviceTable[i];
+		for (size_t j = 0; j < device.m_endpointCount; j++)
+			totalCount += device.m_endpointTable[j].m_hwcPeripheralCount;
+	}
+
+	EnumPropertyOption* optionTable = new EnumPropertyOption[totalCount];
+	size_t actualCount = 0;
+	intptr_t selectedIndex = -1;
+
+	m_deviceCombo.clear();
+
+	for (size_t i = 0; i < snapshot.m_deviceCount; i++) {
+		io.RendezvousDevice const* device = &snapshot.m_deviceTable[i];
+
+		for (size_t j = 0; j < device.m_endpointCount; j++) {
+			io.RendezvousEndpoint const* endpoint = &device.m_endpointTable[j];
+
+			for (size_t k = 0; k < endpoint.m_hwcPeripheralCount; k++) {
+				io.RendezvousHwcPeripheral const* peripheral = &endpoint.m_hwcPeripheralTable[k];
+				if (peripheral.m_kind != m_kind)
+					continue;
+
+				iox.RendezvousHwcDevice* hwcDevice = new iox.RendezvousHwcDevice;
+				hwcDevice.m_path = $"$(device.m_owner)/$(device.m_name):$(endpoint.m_name)";
+				hwcDevice.m_kind = peripheral.m_kind;
+				hwcDevice.m_bus = peripheral.m_bus;
+				hwcDevice.m_address = peripheral.m_address;
+				hwcDevice.m_port = peripheral.m_port;
+
+				string_t text = getDeviceText(device, peripheral);
+				hwcDevice.m_text = text;
+				m_deviceCombo.addItem(text, hwcDevice);
+
+				if (selectedIndex == -1 && text == m_selectedDeviceText)
+					selectedIndex = actualCount;
+
+				optionTable[actualCount].m_text = text;
+				optionTable[actualCount].m_value = hwcDevice;
+				actualCount++;
+			}
+		}
+	}
+
+	m_enumerator.close();
+
+	if (!actualCount) {
+		setDeviceStatus($"No remote $m_kindName found");
+		return;
+	}
+
+	if (selectedIndex != -1)
+		m_deviceCombo.m_currentIndex = selectedIndex;
+
+	m_deviceProp.setOptions(optionTable, actualCount);
+	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+
+	if (m_showEnumPopup && actualCount > 1)
+		m_deviceCombo.showPopup();
+}
+
+reactor RendezvousHwcUi.m_uiReactor {
+	m_refreshAction.m_isEnabled = m_enumeratorState == EnumeratorState.Idle;
+	m_deviceCombo.m_isEnabled = m_enumeratorState == EnumeratorState.Idle;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

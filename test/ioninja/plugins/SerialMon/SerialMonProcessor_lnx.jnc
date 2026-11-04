@@ -140,8 +140,11 @@ struct termios2: termios {
 //..............................................................................
 
 class SerialMonProcessor_lnx: SerialMonProcessor {
-	construct(log.Writer* logWriter) {
-		basetype.construct(logWriter);
+	construct(
+		log.Writer* logWriter,
+		bool isRemote = false
+	) {
+		basetype.construct(logWriter, isRemote);
 	}
 
 	override void processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
@@ -172,30 +175,29 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 	case io.lnx.DeviceMonitorNotifyCode.Open:
 		io.lnx.DeviceMonitorOpenNotifyParams const* params = (io.lnx.DeviceMonitorOpenNotifyParams const*)(notifyHdr + 1);
 
-		uint64_t recordCode;
-		std.Buffer logParams;
-		logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
+		// the file name (as opened) is followed by the process name (remote tdevmon 3.3.19+)
 
-		if (notifyHdr.m_errno == 0) {
-			recordCode = SerialMonLogRecordCode.DeviceOpened;
-		} else {
-			recordCode = SerialMonLogRecordCode.DeviceOpenError;
+		string_t deviceName = params.m_fileNameLength ?
+			string_t((char const*)(params + 1), params.m_fileNameLength) :
+			m_deviceName;
 
+		string_t processName;
+		size_t processNameOffset = sizeof(io.lnx.DeviceMonitorOpenNotifyParams) + params.m_fileNameLength + 1;
+
+		if (!m_isRemote)
+			processName = try sys.getProcessImageName(notifyHdr.m_processId);
+		else if (notifyHdr.m_paramSize > processNameOffset)
+			processName = (char const*)params + processNameOffset;
+
+		if (notifyHdr.m_errno == 0)
+			writeDeviceOpenRecord(notifyHdr.m_timestamp, notifyHdr.m_processId, null, deviceName, processName);
+		else {
 			std.Error error;
 			error.m_size = sizeof(error);
 			error.m_guid = std.g_errnoGuid;
 			error.m_code = notifyHdr.m_errno;
-			logParams.append(&error, error.m_size);
+			writeDeviceOpenRecord(notifyHdr.m_timestamp, notifyHdr.m_processId, &error, deviceName, processName);
 		}
-
-		logParams.append(try sys.getProcessImageName(notifyHdr.m_processId));
-
-		m_logWriter.write(
-			notifyHdr.m_timestamp,
-			recordCode,
-			logParams.m_p,
-			logParams.m_size
-		);
 
 		break;
 
@@ -228,7 +230,6 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 				params.m_dataSize
 			);
 		break;
-
 
 	case io.lnx.DeviceMonitorNotifyCode.UnlockedIoctl:
 	case io.lnx.DeviceMonitorNotifyCode.CompatIoctl:
@@ -530,7 +531,6 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 	flowControl =
 		(cflags & psx.CRTSCTS) ? io.SerialFlowControl.RtsCts :
 		(iflags & (psx.IXON | psx.IXOFF)) ? io.SerialFlowControl.XonXoff : io.SerialFlowControl.None;
-
 
 	m_logWriter.write(
 		timestamp,

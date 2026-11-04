@@ -126,27 +126,13 @@ public:
 		size_t size
 	);
 
+	override bool errorcode connectSession();
+
 	override void disconnectSession() {
 		disconnectAll();
 	}
 
 protected:
-	void onRefresh() {
-		ui.enumerateNetworkAdapters(
-			ui.NetworkAdapterUsage.Listener,
-			m_adapterCombo,
-			m_socketPropertySet.m_adapterProp
-		);
-	}
-
-	void onListen() {
-		m_listenerState ? stopListen() : try listen();
-	}
-
-	void onPortComboEnter() {
-		try listen();
-	}
-
 	void onListenerSocketEvent(
 		uint_t syncId,
 		io.SslSocketEvents triggeredEvents
@@ -189,16 +175,29 @@ void SslServerSession.createUi() {
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_socketPropertySet.m_adapterProp
+		);
+
+		if (count > 1)
+			m_adapterCombo.showPopup();
+	}
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onReturnPressed += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += []() {
+		try listen();
+	}
 
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
-	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
+	m_actionTable[ActionId.Listen].m_onTriggered += []() {
+		m_listenerState ? stopListen() : try listen();
+	}
 
 	// form
 
@@ -320,13 +319,9 @@ void SslServerSession.disconnectAll() {
 }
 
 void SslServerSession.disconnect(SslServerSession.Client* client) {
-	TcpDisconnectLogRecordParams params;
+	SocketLogDisconnectParams params;
 	params.m_address = client.m_address;
-	params.m_flags = 0;
-
-	if (m_socketPropertySet.m_tcpResetProp.m_value)
-		params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
+	params.m_flags = getSocketLogDisconnectFlagsFromOptions(client.m_socket.m_options);
 	m_logWriter.write(SocketLogRecordCode.ClientDisconnected, &params, sizeof(params));
 	removeClient(client);
 }
@@ -381,7 +376,7 @@ void SslServerSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
 
 	m_portCombo.saveHistory(storage, "portHistory");
-	storage.writeInt("adapterIdx", (int) m_adapterCombo.m_currentIndex);
+	storage.writeInt("adapterIdx", (int)m_adapterCombo.m_currentIndex);
 	storage.writeString("port", m_portCombo.m_editText);
 }
 
@@ -439,6 +434,17 @@ size_t errorcode SslServerSession.transmit(
 	return result;
 }
 
+bool errorcode SslServerSession.connectSession() {
+	if (m_sessionConnectionState)
+		return true;
+
+	if (!m_listenerState)
+		listen();
+
+	m_sessionConnectionState = SessionConnectionState.Connecting;
+	return true;
+}
+
 void SslServerSession.waitListenerSocketEvents() {
 	m_listenerSocket.wait(
 		io.SslSocketEvents.IoError |
@@ -455,6 +461,7 @@ void SslServerSession.waitClientSocketEvents(SslServerSession.Client* client) {
 		eventMask |=
 			io.SslSocketEvents.TcpDisconnected |
 			io.SslSocketEvents.TcpReset |
+			io.SslSocketEvents.TcpAborted |
 			io.SslSocketEvents.SslHandshakeCompleted;
 		break;
 
@@ -462,7 +469,8 @@ void SslServerSession.waitClientSocketEvents(SslServerSession.Client* client) {
 		eventMask |=
 			io.SslSocketEvents.IncomingData |
 			io.SslSocketEvents.TcpDisconnected |
-			io.SslSocketEvents.TcpReset;
+			io.SslSocketEvents.TcpReset |
+			io.SslSocketEvents.TcpAborted;
 
 		if (!client.m_isTransmitEnabled)
 			eventMask |= io.SslSocketEvents.WriteBufferReady;
@@ -487,6 +495,7 @@ void SslServerSession.onListenerSocketEvent(
 		m_logWriter.write(log.StdRecordCode.Error, m_listenerSocket.m_ioError);
 		m_listenerSocket.close();
 		m_listenerState = ListenerState.Closed;
+		m_listenerSyncId++;
 		m_stdSessionInfoSet.endSession();
 		return;
 	}
@@ -524,10 +533,12 @@ void SslServerSession.onListenerSocketEvent(
 				socket.m_verifyMode = io.SslVerifyMode.VerifyPeerCertificate;
 				socket.m_verifyDepth = m_sslPropertySet.m_verifyDepthProp.m_value;
 
-				socket.loadVerifyLocations(
-					m_sslPropertySet.m_verifyCaFileProp.m_value,
-					m_sslPropertySet.m_verifyCaDirProp.m_value
-				);
+				string_t caFileName = m_sslPropertySet.m_verifyCaFileProp.m_value;
+				string_t caDir = m_sslPropertySet.m_verifyCaDirProp.m_value;
+				if (caFileName || caDir)
+					socket.loadVerifyLocations(caFileName, caDir);
+				else
+					socket.setDefaultVerifyPaths();
 			}
 		}
 
@@ -582,9 +593,15 @@ void SslServerSession.onClientSocketEvent(
 			m_logWriter.write(SslLogRecordCode.SslCertificate, buffer.m_p, buffer.m_size);
 		}
 
-		m_logWriter.write(SslLogRecordCode.SslCipher, client.m_socket.m_currentCipher.m_name);
+		packSslLogConnectParams(
+			buffer,
+			client.m_socket.m_version,
+			client.m_socket.m_keyExchangeGroup,
+			client.m_socket.m_currentCipher.m_name,
+			cert && (client.m_socket.m_verifyMode & io.SslVerifyMode.VerifyPeerCertificate) ? 0 : SslLogConnectFlags.CertificateNotVerified
+		);
 
-		m_logWriter.write(SslLogRecordCode.SslConnectCompleted);
+		m_logWriter.write(SslLogRecordCode.SslConnectCompleted, buffer.m_p, buffer.m_size);
 		client.m_state = ConnectionState.Connected;
 		client.m_isTransmitEnabled = true;
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
@@ -600,19 +617,10 @@ void SslServerSession.onClientSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 		}
 
-		TcpDisconnectLogRecordParams recordParams;
-		recordParams.m_address = client.m_address;
-		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
-
-		if (triggeredEvents & io.SslSocketEvents.TcpReset)
-			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
-
-		m_logWriter.write(
-			SocketLogRecordCode.ClientDisconnected,
-			&recordParams,
-			sizeof(recordParams)
-		);
-
+		SocketLogDisconnectParams params;
+		params.m_address = client.m_address;
+		params.m_flags = getSocketLogDisconnectFlagsFromEvents(triggeredEvents);
+		m_logWriter.write(SocketLogRecordCode.ClientDisconnected, &params, sizeof(params));
 		removeClient(client);
 		return;
 	}
@@ -649,6 +657,9 @@ reactor SslServerSession.m_uiReactor {
 	m_sessionConnectionState = m_clientWidget.m_currentData ?
 		SessionConnectionState.Connected :
 		SessionConnectionState.Disconnected;
+
+	if (!m_listenerState && m_sessionConnectionState == SessionConnectionState.Connecting)
+		m_sessionConnectionState = SessionConnectionState.Disconnected;
 }
 
 //..............................................................................

@@ -79,7 +79,7 @@ void SerialTapProDecoder.flip(bool isFlipped) {
 
 	m_isFlipped = isFlipped;
 
-	uint8_t status, status0;
+	uint16_t status, status0;
 	SerialTapProLines lines, lines0;
 
 	if (isFlipped) {

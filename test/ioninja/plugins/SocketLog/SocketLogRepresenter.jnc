@@ -9,6 +9,17 @@ import "log_Representation.jnc"
 
 //..............................................................................
 
+string_t getDisconnectReasonString(uint_t flags) {
+	if (flags & SocketLogDisconnectFlags.Aborted)
+		return "aborted by local node";
+
+	string_t closeKind = (flags & SocketLogDisconnectFlags.ResetMask) ? "reset" : "closed";
+	string_t initiator = (flags & SocketLogDisconnectFlags.Remote) ? "remote" : "local";
+	return $"$closeKind by $initiator";
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool representSocketLog(
 	log.Representation* representation,
 	uint64_t recordCode,
@@ -101,17 +112,19 @@ bool representSocketLog(
 		break;
 
 	case SocketLogRecordCode.Disconnected:
-		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
+		SocketLogDisconnectParams const* params = (SocketLogDisconnectParams const*)p;
 		string_t addressString = params.m_address.getString();
-		string_t closeKind = (params.m_flags & TcpDisconnectLogRecordFlags.Reset) ? "reset" : "closed";
-		string_t initiator = (params.m_flags & TcpDisconnectLogRecordFlags.Remote) ? "remote" : "local";
+		string_t reasonString = getDisconnectReasonString(params.m_flags);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		representation.addHyperText($"Disconnected from \e[34m$addressString\e[m ($closeKind by $initiator node)");
+		representation.m_lineAttr.m_backColor = (params.m_flags & SocketLogDisconnectFlags.Aborted) ?
+			log.StdLogColor.Warning :
+			log.StdLogColor.Disconnect;
+
+		representation.addHyperText($"Disconnected from \e[34m$addressString\e[m ($reasonString)");
 		break;
 
-	case SocketLogRecordCode.Disconnected_old:
+	case SocketLogRecordCode.Disconnected_0:
 		string_t addressString = ((io.SocketAddress const*)p).getString();
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
@@ -153,14 +166,16 @@ bool representSocketLog(
 		break;
 
 	case SocketLogRecordCode.ClientDisconnected:
-		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
+		SocketLogDisconnectParams const* params = (SocketLogDisconnectParams const*)p;
 		string_t addressString = params.m_address.getString();
-		string_t closeKind = (params.m_flags & TcpDisconnectLogRecordFlags.Reset) ? "reset" : "closed";
-		string_t initiator = (params.m_flags & TcpDisconnectLogRecordFlags.Remote) ? "remote" : "local";
+		string_t reasonString = getDisconnectReasonString(params.m_flags);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		representation.addHyperText($"Client \e[34m$addressString\e[m disconnected ($closeKind by $initiator node)");
+		representation.m_lineAttr.m_backColor = (params.m_flags & SocketLogDisconnectFlags.Aborted) ?
+			log.StdLogColor.Warning :
+			log.StdLogColor.Disconnect;
+
+		representation.addHyperText($"Client \e[34m$addressString\e[m disconnected ($reasonString)");
 		break;
 
 	case SocketLogRecordCode.ClientRejected:

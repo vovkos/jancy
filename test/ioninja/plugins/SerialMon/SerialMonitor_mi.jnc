@@ -8,6 +8,7 @@ import "io_DeviceMonitorMi.jnc"
 import "SerialMonProcessor_win.jnc"
 import "SerialMonProcessor_lnx.jnc"
 import "std_Buffer.jnc"
+import "DeviceMonLog/DeviceMonLogRecordCode.jnc"
 
 //..............................................................................
 
@@ -110,14 +111,25 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr) 
 
 		io.DeviceMonitorMiStartParams const* params = (io.DeviceMonitorMiStartParams const*)(hdr + 1);
 		if (params.m_flags & io.DeviceMonitorMiStartFlags.Windows)
-			m_processor = new SerialMonProcessor_win(m_logWriter);
+			m_processor = new SerialMonProcessor_win(m_logWriter, true);
 		else if (params.m_flags & io.DeviceMonitorMiStartFlags.Linux)
-			m_processor = new SerialMonProcessor_lnx(m_logWriter);
+			m_processor = new SerialMonProcessor_lnx(m_logWriter, true);
 		else {
 			std.setError("unsupported target OS");
 			return false;
 		}
 
+		// the device name takes the rest of the message (not null-terminated);
+		// on Linux, it may be followed by '\0' and the module name
+		// copy it -- m_buffer gets reused
+
+		char const* name = (char const*)(params + 1);
+		size_t nameSize = hdr.m_paramSize - sizeof(io.DeviceMonitorMiStartParams);
+		char const* nameEnd = memchr(name, 0, nameSize);
+		size_t nameLength = nameEnd ? nameEnd - name : nameSize;
+
+		m_processor.m_deviceName = string_t(strdup(name, nameLength), nameLength);
+		m_logWriter.write(DeviceMonLogRecordCode.CaptureStarted_name, m_processor.m_deviceName);
 		break;
 
 	case io.DeviceMonitorMiMsgCode.Notification:

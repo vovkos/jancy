@@ -1,0 +1,315 @@
+//..............................................................................
+//
+// Remote peripheral URL for sessions over SSH (ioninja-hwc, tdevmon):
+// [ssh://][user@]host[:port][/device] in an editable combo, enumerated via mDNS
+// (Avahi services on the box): hosts running the agent, then their devices;
+// the edit text is preserved during enumeration
+//
+
+import "doc_PluginHost.jnc"
+import "doc_Storage.jnc"
+import "ui_PropertyGrid.jnc"
+import "ui_SocketUi.jnc"
+import "iox_SshHwc.jnc"
+import "iox_MdnsBrowser.jnc"
+import "std_HashTable.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+class SshHwcUrlUi {
+	enum DeviceKind {
+		SerialPort, // ssh://host/port (required)
+		Usb,        // ssh://host[/@bus:address] (none -- the first attached one)
+	}
+
+protected:
+	doc.PluginHost* m_pluginHost;
+	SocketPropertySet* m_socketPropertySet; // the SSH port decides if discovered URLs need one
+	DeviceKind m_deviceKind;
+	string_t m_agentName;         // e.g., "ioninja-hwc"
+	string_t m_agentServiceName;  // e.g., "_ioninja-hwc._sub._ioninja._tcp.local"
+	string_t m_deviceServiceName; // e.g., "_serial._sub._ioninja._tcp.local"
+	std.StringHashTableIgnoreCase m_agentMap; // host name -> agent iox.MdnsBrowser.Service
+	string_t m_kindName;    // e.g., "Serial Tap"
+	bool m_showEnumPopup;   // enumeration was user-induced
+
+public:
+	iox.MdnsBrowser m_mdnsBrowser;
+	string_t bindable readonly m_preEnumUrl; // while enumerating, the combo shows "<url> (enumerating via mDNS...)"
+	string_t bindable readonly m_displayUrl; // for titles
+
+	ComboBox* m_urlCombo;
+	Action* m_enumerateAction;
+	ComboProperty* m_urlProp;
+
+	string_t property m_url;
+
+	reactor m_uiReactor;
+
+public:
+	construct(
+		doc.PluginHost* pluginHost,
+		SocketPropertySet* socketPropertySet,
+		DeviceKind deviceKind,
+		string_t agentName,     // _<agent>._sub._ioninja._tcp, e.g., "ioninja-hwc", "tdevmon"
+		string_t deviceSubtype, // <subtype>._sub._ioninja._tcp, e.g., "_serial", "_serial-tap"
+		string_t kindName
+	);
+
+	// label, URL combo, enumerate action
+
+	void createToolBar(string_t label);
+	void createProperties(GroupProperty* group);
+
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+
+	void updateProperties() {
+		m_urlProp.m_value = m_url;
+	}
+
+	void applyProperties() {
+		m_url = m_urlProp.m_value;
+	}
+
+	void enumerate(bool showPopup = false);
+
+	// for USB peripherals: *hwcArgs = ioninja-hwc options selecting it (empty -- the first attached one)
+
+	bool errorcode parseUsbUrl(
+		iox.SshHwcUrl* url,
+		string_t* hwcArgs
+	);
+
+protected:
+	void onServiceFound(iox.MdnsBrowser.Service const* service);
+	void onEnumerateCompleted();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SshHwcUrlUi.construct(
+	doc.PluginHost* pluginHost,
+	SocketPropertySet* socketPropertySet,
+	DeviceKind deviceKind,
+	string_t agentName,
+	string_t deviceSubtype,
+	string_t kindName
+) {
+	m_mdnsBrowser.construct(pluginHost);
+	m_pluginHost = pluginHost;
+	m_socketPropertySet = socketPropertySet;
+	m_deviceKind = deviceKind;
+	m_agentName = agentName;
+	m_agentServiceName = $"_$agentName._sub._ioninja._tcp.local";
+	m_deviceServiceName = $"$deviceSubtype._sub._ioninja._tcp.local";
+	m_kindName = kindName;
+	m_mdnsBrowser.m_onServiceFound += onServiceFound;
+	m_mdnsBrowser.m_onCompleted += onEnumerateCompleted;
+}
+
+string_t SshHwcUrlUi.m_url.get() {
+	return m_mdnsBrowser.m_isBrowsing ? m_preEnumUrl : m_urlCombo.m_editText;
+}
+
+void SshHwcUrlUi.m_url.set(string_t value) {
+	if (!m_mdnsBrowser.m_isBrowsing)
+		m_urlCombo.m_editText = value;
+	else {
+		m_preEnumUrl = value;
+		m_urlCombo.m_editText = value ?
+			$"$value (enumerating via mDNS...)" :
+			"Enumerating via mDNS...";
+	}
+}
+
+void SshHwcUrlUi.createToolBar(string_t label) {
+	m_pluginHost.m_toolBar.addLabel(label);
+	m_urlCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_urlCombo.m_isEditable = true;
+
+	string_t actionText;
+	if (m_deviceKind == DeviceKind.SerialPort) {
+		m_urlCombo.m_placeholderText = "Enter ssh://host/port...";
+		m_urlCombo.m_toolTip = "Enter port URL in form: ssh://host/port\ne.g.: ssh://192.168.1.10/dev/ttyUSB0";
+		actionText = "Enumerate ports via mDNS";
+	} else {
+		m_urlCombo.m_placeholderText = "Enter ssh://host[/@bus:address]...";
+		m_urlCombo.m_toolTip =
+			$"Enter $m_kindName URL in form: ssh://host[/@bus:address]\n"
+			"e.g.: ssh://192.168.1.10/@001:003 (or just ssh://192.168.1.10 for the first attached one)";
+		actionText = $"Enumerate remote $m_kindName devices via mDNS";
+	}
+
+	m_enumerateAction = new Action(new Icon("images/refresh.png"), actionText);
+	m_enumerateAction.m_onTriggered += enumerate~(true);
+	m_pluginHost.m_menu.addAction(m_enumerateAction);
+	m_pluginHost.m_toolBar.addAction(m_enumerateAction);
+
+	m_uiReactor.start();
+}
+
+void SshHwcUrlUi.createProperties(GroupProperty* group) {
+	m_urlProp = m_deviceKind == DeviceKind.SerialPort ?
+		m_pluginHost.m_propertyGrid.createComboProperty(
+			group,,
+			"Port",
+			"Enter ssh://host/port...",
+			"Specify the remote serial port as [ssh://][user@]host[:port]/port (e.g., ssh://192.168.1.10/dev/ttyUSB0)"
+		) :
+		m_pluginHost.m_propertyGrid.createComboProperty(
+			group,,
+			m_kindName,
+			"Enter ssh://host[/@bus:address]...",
+			$"Specify the remote $m_kindName as [ssh://][user@]host[:port][/@bus:address] "
+			"(e.g., ssh://192.168.1.10/@001:003); without @bus:address, the first attached one is used"
+		);
+}
+
+void SshHwcUrlUi.load(doc.Storage* storage) {
+	string_t url = storage.readString("url");
+	if (!url) { // settings from before the URL
+		iox.SshHwcUrl legacyUrl;
+		legacyUrl.m_address = storage.readString("address");
+		if (m_deviceKind == DeviceKind.SerialPort)
+			legacyUrl.m_device = storage.readString("port");
+
+		if (legacyUrl.m_address)
+			url = legacyUrl.getString();
+	}
+
+	m_url = url;
+}
+
+void SshHwcUrlUi.save(doc.Storage* storage) {
+	storage.writeString("url", m_url);
+}
+
+void SshHwcUrlUi.enumerate(bool showPopup) {
+	string_t url = m_url;
+	m_urlCombo.removeAllItems();
+	m_showEnumPopup = showPopup;
+	m_agentMap.clear();
+	try m_mdnsBrowser.browse(m_agentServiceName);
+	m_url = url; // while browsing: kept aside, the edit text is decorated
+}
+
+bool errorcode SshHwcUrlUi.parseUsbUrl(
+	iox.SshHwcUrl* url,
+	string_t* hwcArgs
+) {
+	url.parse(m_url);
+
+	if (!url.m_device) {
+		*hwcArgs = null;
+		return true;
+	}
+
+	uint_t bus;
+	uint_t address;
+	iox.parseSshHwcUsbDevice(url.m_device, &bus, &address);
+	*hwcArgs = $" --bus $bus --address $address";
+	return true;
+}
+
+void SshHwcUrlUi.onServiceFound(iox.MdnsBrowser.Service const* service) {
+	if (service.m_serviceName == m_agentServiceName) {
+		m_agentMap[service.m_hostName] = service;
+		try m_mdnsBrowser.query(m_deviceServiceName, service);
+		return;
+	}
+
+	iox.MdnsBrowser.Service const* agent = m_agentMap[service.m_hostName];
+	if (!agent)
+		return;
+
+	string_t device;
+	if (m_deviceKind == DeviceKind.SerialPort)
+		device = service.findTxtValue("port");
+	else {
+		string_t bus = service.findTxtValue("bus");
+		string_t address = service.findTxtValue("address");
+		if (bus && address)
+			device = iox.formatSshHwcUsbDevice(strtoul(bus,, 10), strtoul(address,, 10));
+	}
+
+	if (!device)
+		return;
+
+	iox.SshHwcUrl url;
+	url.m_address = agent.m_port == m_socketPropertySet.m_remotePortProp.m_value ?
+		agent.m_address.m_ip4.m_address.getString() :
+		agent.m_address.getString();
+
+	url.m_device = device;
+
+	string_t value = url.getString();
+	string_t text = $"%1 (%2)"(value, service.m_hostName);
+	string_t version = agent.findTxtValue("version");
+
+	size_t i = m_urlCombo.addItem(text, value);
+	m_urlCombo.m_isItemEnabled[i] = false; // selectable when completed (selection would override the edit text)
+	m_urlCombo.m_itemToolTip[i] =
+		$"<table>"
+		$"<tr><td>Host:</td><td>%1</td></tr>"
+		$"<tr><td>Address:</td><td>%2</td></tr>"
+		$"<tr><td>Device:</td><td>%3</td></tr>"
+		$"<tr><td>Agent:</td><td>%4</td></tr>"
+		$"</table>"(
+			service.m_hostName,
+			service.m_address.getString(),
+			device,
+			version ? $"$m_agentName-$version" : m_agentName
+		);
+}
+
+// a user-induced enumeration drops down the result unless there is nothing to choose:
+// a single discovered URL that is already there (or was filled in for an empty edit)
+
+void SshHwcUrlUi.onEnumerateCompleted() {
+	size_t count = m_urlCombo.m_itemCount;
+	if (!count) {
+		m_urlCombo.m_editText = m_preEnumUrl;
+		m_urlCombo.addItem(m_deviceKind == DeviceKind.SerialPort ? "No SSH-accessible ports found" : "No SSH-accessible taps found");
+		m_urlCombo.m_isItemEnabled[0] = false;
+		m_urlProp.setOptions(null, 0);
+
+		if (m_showEnumPopup)
+			m_urlCombo.showPopup();
+
+		return;
+	}
+
+	string_t firstUrl = m_urlCombo.m_itemData[0];
+	string_t url = m_preEnumUrl.m_length ? m_preEnumUrl : firstUrl; // nothing was entered -- pick the first one
+	m_urlCombo.m_editText = url;
+
+	EnumPropertyOption* optionArray = new EnumPropertyOption[count];
+	for (size_t i = 0; i < count; i++) {
+		m_urlCombo.m_isItemEnabled[i] = true;
+		optionArray[i].m_text = m_urlCombo.m_itemText[i];
+		optionArray[i].m_value = m_urlCombo.m_itemData[i];
+	}
+
+	m_urlProp.setOptions(optionArray, count);
+
+	if (m_showEnumPopup && (count > 1 || url != firstUrl))
+		m_urlCombo.showPopup();
+}
+
+reactor SshHwcUrlUi.m_uiReactor {
+	m_enumerateAction.m_isEnabled = !m_mdnsBrowser.m_isBrowsing;
+	m_urlCombo.m_isEditEnabled = !m_mdnsBrowser.m_isBrowsing;
+	m_displayUrl = m_mdnsBrowser.m_isBrowsing ? m_preEnumUrl : m_urlCombo.m_currentText;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

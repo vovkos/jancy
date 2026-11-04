@@ -62,7 +62,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 XModemLayer.construct(doc.PluginHost* pluginHost) {
-	basetype1.construct(pluginHost);
+	basetype.construct(pluginHost);
 	m_transmitter.construct(this);
 	m_receiver.construct(this);
 

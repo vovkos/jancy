@@ -1,0 +1,32 @@
+#...............................................................................
+#
+#  mDNS log representer plugin
+#
+
+[plugin]
+
+name        = "mDNS Log"
+description = "mDNS log representer"
+group       = net
+guid        = 0e9299bd-2d9a-47fa-99d2-825d9e94f1e7
+icon        = images/mdns.png
+small-icon  = images/mdns-16x16.png
+
+log-representer-func  = representMdnsLog
+log-detailizer-func   = detailizeMdnsLog
+log-detail-fold-flags = 0x7f  # details expanded by default
+
+[scripts]
+
+MdnsLogRecordCode.jnc
+MdnsLogRepresenter.jnc
+
+[records]
+
+01dd6a9d0be54400  # ScanStarted
+81dd6a9d0be54401  # TxPacket
+01dd6a9d0be54402  # QueryError
+81dd6a9d0be54403  # RxPacket
+01dd6a9d0be54404  # ScanCompleted
+01dd6a9d0be54405  # ScanStopped
+81dd6a9d0be54406  # PacketDetails

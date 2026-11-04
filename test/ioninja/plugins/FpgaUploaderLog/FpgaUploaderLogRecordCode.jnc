@@ -10,7 +10,7 @@ import "log_RecordCode.jnc"
 enum FpgaUploaderLogRecordCode: uint64_t {
 	StillWaiting            = 0x01d487bb6423b807,
 	FpgaDisabled            = 0x01d487bb6423b808,
-	FirmwareUpToDate        = 0x01d487bb6423b809,
+	FirmwareUpToDate_0      = 0x01d487bb6423b809, // deprecated
 	FirmwareUpdateRequired  = 0x01d487bb6423b80a,
 	ErasingFlash            = 0x01d487bb6423b80b,
 	UploadingFirmware       = 0x01d487bb6423b80c,
@@ -19,6 +19,9 @@ enum FpgaUploaderLogRecordCode: uint64_t {
 	FirmwareUploadCancelled = 0x01d487bb6423b818,
 	FirmwareUploadCompleted = 0x01d487bb6423b819,
 	FirmwareBootFailed      = 0x01d487bb6423b81a,
+	UnsupportedUsbSpeed     = 0x01d487bb6423b81b,
+	SendingFirmware         = 0x01d487bb6423b81c,
+	FirmwareUpToDate        = 0x01d487bb6423b81d, // uint16_t version
 }
 
 //..............................................................................

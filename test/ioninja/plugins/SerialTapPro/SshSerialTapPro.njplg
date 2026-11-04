@@ -1,0 +1,41 @@
+#...............................................................................
+#
+#  Serial Tap Pro over SSH session plugin
+#
+
+[plugin]
+
+name        = "Serial Tap Pro over SSH"
+description = "Monitor serial communication via a Serial Tap Pro connected to a remote machine over SSH"
+id          = ssh-serial-tap-pro
+group       = hw
+log-guid    = 3a1ec99b-234a-49a0-be4b-f6e60b80a5c0  # serial tap pro
+log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
+log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class = SshSerialTapProSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.ssh
+
+[optional-capabilities]
+
+org.jancy.io.ip4
+org.jancy.io.ip6
+org.jancy.io.file
+
+[scripts]
+
+SerialTapPro.jnc
+SshSerialTapProSession.jnc
+SerialTapProUi.jnc
+SerialTapProDecoder.jnc
+SerialTapProInfoSet.jnc
+SerialTapProLogRecordCode.jnc
+SerialTapProDispatchCode.jnc
+uleb128.jnc

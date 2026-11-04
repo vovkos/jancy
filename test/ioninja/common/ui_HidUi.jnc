@@ -35,7 +35,7 @@ bool isHidDeviceLess(
 	return device1.m_description < device2.m_description;
 }
 
-void refreshHidDeviceListUi(
+size_t refreshHidDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
 ) {
@@ -119,6 +119,8 @@ void refreshHidDeviceListUi(
 
 		deviceCombo.m_currentIndex = index != -1 ? index : 0;
 	}
+
+	return count;
 }
 
 size_t findHidDeviceComboIndex(

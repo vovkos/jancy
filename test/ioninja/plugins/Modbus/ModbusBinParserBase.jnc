@@ -62,7 +62,7 @@ void ModbusBinParserBase.parse(
 			size = m_packet.resume(p, size);
 			promise = m_packet.m_promise;
 		} else { // start a new one
-			m_packet.reset(jnc.DynamicLayoutMode.Stream, p, size);
+			m_packet.reset(jnc.DynamicLayoutMode.Stream, null, p, size);
 			promise = layoutPacket();
 			if (!m_packet.m_isIncomplete)
 				size = m_packet.m_size;

@@ -62,8 +62,8 @@ bool representPipeServerLog  (
 		break;
 
 	case PipeServerLogRecordCode.ClientDisconnected:
-		PipeDisconnectLogRecordParams const* params = (PipeDisconnectLogRecordParams const*)p;
-		string_t initiator = (params.m_flags & PipeDisconnectLogRecordFlags.Remote) ? "remote" : "local";
+		PipeServerLogDisconnectParams const* params = (PipeServerLogDisconnectParams const*)p;
+		string_t initiator = (params.m_flags & PipeServerLogDisconnectFlags.Remote) ? "remote" : "local";
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 

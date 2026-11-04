@@ -1,0 +1,33 @@
+#...............................................................................
+#
+#  Serial over rendezvous session plugin
+#
+
+[plugin]
+
+name        = Serial over RDV
+description = "Serial communication using one of the COM ports on a remote machine reachable over the IO Ninja rendezvous relay"
+id          = rdv-serial
+group       = serial
+log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+log-guid    = e44cf2e3-53c6-4484-8b32-4931a1df0f8a  # rendezvous
+log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl
+icon        = images/serial.png
+small-icon  = images/serial-16x16.png
+
+session-class = RdvSerialSession
+
+[required-capabilities]
+
+org.jancy.io.net
+
+[optional-capabilities]
+
+org.jancy.io.ip4
+org.jancy.io.ip6
+org.jancy.io.file
+
+[scripts]
+
+RdvSerialSession.jnc

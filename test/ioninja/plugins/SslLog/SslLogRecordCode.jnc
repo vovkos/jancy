@@ -4,15 +4,53 @@
 //
 
 import "log_RecordCode.jnc"
+import "std_Buffer.jnc"
 
 //..............................................................................
 
 enum SslLogRecordCode: uint64_t {
-	SslHandshaking         = 0x01d5cdeded08f700,
-	SslHandshakeCompleted  = 0x01d5cdeded08f701,
-	SslCertificate         = 0x01d5cdeded08f702 | log.RecordCodeFlags.Foldable,
-	SslCipher              = 0x01d5cdeded08f703,
-	SslConnectCompleted    = 0x01d5cdeded08f704,
+	SslHandshaking        = 0x01d5cdeded08f700,
+	SslHandshakeCompleted = 0x01d5cdeded08f701,
+	SslCertificate        = 0x01d5cdeded08f702 | log.RecordCodeFlags.Foldable,
+	SslCipher             = 0x01d5cdeded08f703, // deprecated
+	SslConnectCompleted_0 = 0x01d5cdeded08f704, // deprecated
+	SslPassphrasePrompt   = 0x01d5cdeded08f705,
+	SslConnectCompleted   = 0x01d5cdeded08f706 | log.RecordCodeFlags.Foldable,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// SslConnectCompleted params:
+
+bitflag enum SslLogConnectFlags: uint8_t {
+	Info,   // use log.StdLogColor.Info rather than StdLogColor.Connect
+	Client, // a role is shown only when it's set (e.g. for DTLS, where it's negotiated)
+	Server,
+	CertificateNotVerified,
+	CertificateFingerprintVerified, // pinned via a fingerprint (DTLS in WebRTC) rather than a CA chain
+}
+
+// followed by zero-terminated char[]:
+// - TLS version
+// - key exchange group
+// - cipher
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void packSslLogConnectParams(
+	std.Buffer* buffer,
+	string_t version,
+	string_t keyExchangeGroup,
+	string_t cipher,
+	SslLogConnectFlags flags = 0
+) {
+	buffer.copy(flags);
+	buffer.append(version.m_p, version.m_length);
+	buffer.append(0);
+	buffer.append(keyExchangeGroup.m_p, keyExchangeGroup.m_length);
+	buffer.append(0);
+	buffer.append(cipher.m_p, cipher.m_length);
+	buffer.append(0);
 }
 
 //..............................................................................

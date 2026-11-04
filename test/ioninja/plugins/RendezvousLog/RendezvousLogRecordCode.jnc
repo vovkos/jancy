@@ -1,0 +1,54 @@
+//..............................................................................
+//
+// RDV (IO Ninja rendezvous) log record codes
+//
+
+import "io_rdv.jncx"
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum RendezvousLogRecordCode: uint64_t {
+	Connecting             = 0x01dd548d3f674700, // char[] url
+	Authenticated          = 0x01dd548d3f674701,
+	ConnectCompleted       = 0x01dd548d3f674702, // [uint_t round-trip time, ms]
+	Disconnected           = 0x01dd548d3f674703, // RendezvousLogDisconnectParams
+	SessionReady           = 0x01dd548d3f674704 | log.RecordCodeFlags.Foldable, // zero-terminated char[] ICE server, local, remote key fingerprints
+	LocalCandidate         = 0x01dd548d3f674705, // RendezvousLogCandidateParams
+	RemoteCandidate        = 0x01dd548d3f674706, // RendezvousLogCandidateParams
+	LocalGatheringComplete = 0x01dd548d3f674707,
+	IceStateChanged        = 0x01dd548d3f674708, // io.RendezvousIceState
+	IceConnected           = 0x01dd548d3f674709 | log.RecordCodeFlags.Foldable, // RendezvousLogIceConnectedParams
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RendezvousLogDisconnectParams {
+	uint_t m_flags; // SocketLogDisconnectFlags
+
+	// followed by char[] url
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RendezvousLogCandidate {
+	io.RendezvousCandidateType m_type;
+	io.RendezvousCandidateTransport m_transport;
+	uint_t m_port;
+}
+
+struct RendezvousLogCandidateParams {
+	RendezvousLogCandidate m_candidate;
+
+	// followed by char[] address
+}
+
+struct RendezvousLogIceConnectedParams {
+	io.RendezvousIceState m_iceState; // Connected (provisional pair) or Completed (nominated pair)
+	RendezvousLogCandidate m_localCandidate;
+	RendezvousLogCandidate m_remoteCandidate;
+
+	// followed by zero-terminated char[] local address, remote address
+}
+
+//..............................................................................

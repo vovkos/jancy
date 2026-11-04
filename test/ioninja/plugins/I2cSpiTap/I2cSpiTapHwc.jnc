@@ -1,0 +1,366 @@
+//..............................................................................
+//
+// I2C/SPI Tap via a remote ioninja-hwc (shared by SSH & rendezvous sessions)
+//
+// ioninja-hwc decodes the tap stream itself; we map its messages to log records
+//
+
+import "doc_PluginHost.jnc"
+import "doc_Storage.jnc"
+import "ui_PropertyGrid.jnc"
+import "io_HwcProto.jnc"
+import "std_Buffer.jnc"
+import "I2cSpiTapLogRecordCode.jnc"
+import "I2cDecoder.jnc"
+import "SpiDecoder.jnc"
+
+//..............................................................................
+
+class I2cSpiTapHwcUi {
+	enum Protocol {
+		Spi,
+		I2c,
+	}
+
+	enum Defaults {
+		Proto         = Protocol.Spi,
+		SpiMode       = 0,
+		SpiEndianness = true,
+		SpiDataBits   = 8,
+
+		UseLogCacheUpdateScrollRateLimit = true,
+		LogCacheUpdateScrollRateLimit    = 16,
+	}
+
+protected:
+	doc.PluginHost* m_pluginHost;
+
+public:
+	ui.ComboBox* m_protocolCombo;
+	ui.Action* m_flipAction;
+
+	ui.EnumProperty* m_protocolProp;
+	ui.EnumProperty* m_spiModeProp;
+	ui.EnumProperty* m_spiDataBitsProp;
+	ui.EnumProperty* m_spiEndiannessProp;
+	ui.BoolProperty* m_spiFlipMosiMisoProp;
+	ui.BoolProperty* m_useLogUpdateRateLimitProp;
+	ui.IntProperty* m_logUpdateRateLimitProp;
+
+	Protocol const property m_protocol {
+		return m_protocolCombo.m_currentData;
+	}
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost) {
+		m_pluginHost = pluginHost;
+	}
+
+	void createToolBar(); // protocol combo
+	void createFlipAction();
+	void createProperties(ui.GroupProperty* group);
+
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+	void updateProperties();
+	void applyProperties();
+	void restoreDefaults();
+
+	void applyLogUpdateRateLimit() {
+		m_pluginHost.m_log.m_cacheUpdateScrollRateLimit = m_useLogUpdateRateLimitProp.m_value ?
+			m_logUpdateRateLimitProp.m_value :
+			-1;
+	}
+
+	io.HwcControllerKind getControllerKind() {
+		return m_protocol == Protocol.I2c ? io.HwcControllerKind.I2cTap : io.HwcControllerKind.SpiTap;
+	}
+
+	// I2C & SPI need different FPGA firmware
+
+	string_t getFirmwareFileName() {
+		return m_protocol == Protocol.I2c ?
+			I2cTapFirmwareFileName :
+			SpiTapFirmwareFileName;
+	}
+
+	// start capture command for an ioninja-hwc launched/activated suspended
+
+	void packStartCaptureMsg(std.Buffer* buffer);
+
+	// returns false if not an I2C/SPI Tap message
+
+	bool writeLog(
+		log.Writer* logWriter,
+		io.HwcMsgHdr const* hdr
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void I2cSpiTapHwcUi.createToolBar() {
+	static ui.EnumPropertyOption protocolTable[] = {
+		{ "SPI", Protocol.Spi },
+		{ "I2C", Protocol.I2c },
+	}
+
+	m_protocolCombo = m_pluginHost.m_toolBar.addComboBox(
+		"Protocol:",
+		protocolTable,
+		countof(protocolTable)
+	);
+}
+
+void I2cSpiTapHwcUi.createFlipAction() {
+	m_flipAction = new ui.Action(new ui.Icon("images/flip.png"), "Flip SPI MOSI/MISO");
+	m_flipAction.m_isCheckable = true;
+	m_pluginHost.m_menu.addAction(m_flipAction);
+	m_pluginHost.m_toolBar.addAction(m_flipAction);
+}
+
+void I2cSpiTapHwcUi.createProperties(ui.GroupProperty* group) {
+	static ui.EnumPropertyOption protocolTable[] = {
+		{ "SPI", Protocol.Spi },
+		{ "I2C", Protocol.I2c },
+	}
+
+	static ui.EnumPropertyOption spiModeTable[] = {
+		{ "SPI 0 (CPOL 0, CPHA 0)",  0 },
+		{ "SPI 1 (CPOL 0, CPHA 1)",  1 },
+		{ "SPI 2 (CPOL 1, CPHA 0)",  2 },
+		{ "SPI 3 (CPOL 1, CPHA 1)",  3 },
+	}
+
+	static ui.EnumPropertyOption endiannessTable[] = {
+		{ "Little-endian (LSBit first)", false },
+		{ "Big-endian (MSBit first)",    true },
+	}
+
+	static ui.EnumPropertyOption dataBitsTable[] = {
+		{ "4 bits",  4 },
+		{ "8 bits",  8 },
+		{ "12 bits", 12 },
+		{ "16 bits", 16 },
+	}
+
+	m_protocolProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"Protocol",
+		"Specify hardware protocol",
+		protocolTable,
+		countof(protocolTable)
+	);
+
+	m_spiModeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"SPI mode",
+		"SPI CPOL/CPHA mode",
+		spiModeTable,
+		countof(spiModeTable)
+	);
+
+	m_spiDataBitsProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"SPI data bits",
+		"SPI word size",
+		dataBitsTable,
+		countof(dataBitsTable)
+	);
+
+	m_spiEndiannessProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"SPI endianness",
+		"SPI bit endianness",
+		endiannessTable,
+		countof(endiannessTable)
+	);
+
+	m_spiFlipMosiMisoProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		group,,
+		"Flip SPI MOSI/MISO",
+		"Flip interpretation of SPI MOSI/MISO lines as TX/RX"
+	);
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Log update",
+		"Limit log update rate for better performance"
+	);
+
+	m_useLogUpdateRateLimitProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		group,,
+		"Use update rate limit",
+		"When ON, the engine only allows the specified number of scroll operations per second"
+	);
+
+	m_logUpdateRateLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Update rate limit",
+		"Log cache update limit (in scroll operations per second)"
+	);
+
+	m_pluginHost.m_log.m_cacheUpdateScrollRateLimit = Defaults.LogCacheUpdateScrollRateLimit;
+	m_uiReactor.start();
+}
+
+void I2cSpiTapHwcUi.load(doc.Storage* storage) {
+	m_protocolCombo.m_currentData = storage.readInt("protocol", Defaults.Proto);
+	m_spiModeProp.m_value = storage.readInt("spiMode", Defaults.SpiMode);
+	m_spiDataBitsProp.m_value = storage.readInt("spiDataBits", Defaults.SpiDataBits);
+	m_spiEndiannessProp.m_value = storage.readInt("spiEndianness", Defaults.SpiEndianness);
+	m_flipAction.m_isChecked = storage.readBool("spiFlipMosiMiso", false);
+	m_useLogUpdateRateLimitProp.m_value = storage.readBool("useLogUpdateRateLimitProp", Defaults.UseLogCacheUpdateScrollRateLimit);
+	m_logUpdateRateLimitProp.m_value = storage.readInt("logUpdateRateLimitProp", Defaults.LogCacheUpdateScrollRateLimit);
+	applyLogUpdateRateLimit();
+}
+
+void I2cSpiTapHwcUi.save(doc.Storage* storage) {
+	storage.writeInt("protocol", m_protocolCombo.m_currentData);
+	storage.writeInt("spiMode", m_spiModeProp.m_value);
+	storage.writeInt("spiDataBits", m_spiDataBitsProp.m_value);
+	storage.writeInt("spiEndianness", m_spiEndiannessProp.m_value);
+	storage.writeBool("spiFlipMosiMiso", m_flipAction.m_isChecked);
+	storage.writeBool("useLogUpdateRateLimitProp", m_useLogUpdateRateLimitProp.m_value);
+	storage.writeInt("logUpdateRateLimitProp", m_logUpdateRateLimitProp.m_value);
+}
+
+void I2cSpiTapHwcUi.updateProperties() {
+	m_protocolProp.m_currentIndex = m_protocolCombo.m_currentIndex;
+	m_spiFlipMosiMisoProp.m_value = m_flipAction.m_isChecked;
+}
+
+void I2cSpiTapHwcUi.applyProperties() {
+	m_protocolCombo.m_currentIndex = m_protocolProp.m_currentIndex;
+	m_flipAction.m_isChecked = m_spiFlipMosiMisoProp.m_value;
+	applyLogUpdateRateLimit();
+}
+
+void I2cSpiTapHwcUi.restoreDefaults() {
+	m_protocolProp.m_value = Defaults.Proto;
+	m_spiModeProp.m_value = Defaults.SpiMode;
+	m_spiDataBitsProp.m_value = Defaults.SpiDataBits;
+	m_spiEndiannessProp.m_value = Defaults.SpiEndianness;
+	m_spiFlipMosiMisoProp.m_value = false;
+	m_useLogUpdateRateLimitProp.m_value = Defaults.UseLogCacheUpdateScrollRateLimit;
+	m_logUpdateRateLimitProp.m_value = Defaults.LogCacheUpdateScrollRateLimit;
+}
+
+void I2cSpiTapHwcUi.packStartCaptureMsg(std.Buffer* buffer) {
+	io.HwcMsgHdr hdr;
+	hdr.m_stx = 0x02;
+
+	buffer.clear();
+
+	if (m_protocol == Protocol.I2c) {
+		hdr.m_code = io.HwcMsgCode.I2cTapStartCapture;
+		hdr.m_dataSize = 0;
+		buffer.append(&hdr, sizeof(hdr));
+		return;
+	}
+
+	io.HwcSpiConfig config;
+	config.m_mode = m_spiModeProp.m_value;
+	config.m_dataBits = m_spiDataBitsProp.m_value;
+	config.m_endianness = m_spiEndiannessProp.m_value;
+
+	hdr.m_code = io.HwcMsgCode.SpiTapStartCapture;
+	hdr.m_dataSize = sizeof(config);
+	buffer.append(&hdr, sizeof(hdr));
+	buffer.append(&config, sizeof(config));
+}
+
+bool I2cSpiTapHwcUi.writeLog(
+	log.Writer* logWriter,
+	io.HwcMsgHdr const* hdr
+) {
+	void const* p = hdr + 1;
+	size_t size = hdr.m_dataSize;
+
+	switch (hdr.m_code) {
+	case io.HwcMsgCode.Tx:
+		logWriter.write(log.StdRecordCode.Tx, p, size);
+		break;
+
+	case io.HwcMsgCode.Rx:
+		logWriter.write(log.StdRecordCode.Rx, p, size);
+		break;
+
+	case io.HwcMsgCode.FpgaBufferOverflow:
+		logWriter.write(I2cSpiTapLogRecordCode.FpgaBufferOverflow);
+		break;
+
+	case io.HwcMsgCode.FpgaUnexpectedCode:
+		logWriter.write(I2cSpiTapLogRecordCode.UnexpectedCode, p, size);
+		break;
+
+	case io.HwcMsgCode.FpgaIncompleteByte:
+		logWriter.write(I2cSpiTapLogRecordCode.IncompleteByte, p, size);
+		break;
+
+	case io.HwcMsgCode.I2cTapStart:
+		logWriter.write(I2cSpiTapLogRecordCode.I2cStart);
+		break;
+
+	case io.HwcMsgCode.I2cTapFinalizeStart7Bit:
+		logWriter.write(I2cSpiTapLogRecordCode.I2cFinalizeStart7Bit, p, size);
+		break;
+
+	case io.HwcMsgCode.I2cTapFinalizeStart10Bit:
+		logWriter.write(I2cSpiTapLogRecordCode.I2cFinalizeStart10Bit, p, size);
+		break;
+
+	case io.HwcMsgCode.I2cTapStop:
+		logWriter.write(I2cSpiTapLogRecordCode.I2cStop);
+		break;
+
+	case io.HwcMsgCode.I2cTapStopOutOfTransaction:
+		logWriter.write(I2cSpiTapLogRecordCode.I2cStopOutOfTransaction);
+		break;
+
+	case io.HwcMsgCode.I2cTapTxNack:
+		logWriter.write(I2cSpiTapLogRecordCode.I2cTxNack, p, size);
+		break;
+
+	case io.HwcMsgCode.I2cTapRxNack:
+		logWriter.write(I2cSpiTapLogRecordCode.I2cRxNack, p, size);
+		break;
+
+	case io.HwcMsgCode.SpiTapStart:
+		logWriter.write(I2cSpiTapLogRecordCode.SpiStart);
+		break;
+
+	case io.HwcMsgCode.SpiTapStop:
+		logWriter.write(I2cSpiTapLogRecordCode.SpiStop);
+		break;
+
+	case io.HwcMsgCode.SpiTapTxRx: // MOSI block, then MISO block of the same size
+		if (!m_flipAction.m_isChecked) {
+			logWriter.write(log.StdRecordCode.TxRx, p, size);
+			break;
+		}
+
+		size_t halfSize = size / 2;
+		std.Buffer buffer;
+		buffer.append((char const*)p + halfSize, halfSize);
+		buffer.append(p, halfSize);
+		logWriter.write(log.StdRecordCode.TxRx, buffer.m_p, buffer.m_size);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+reactor I2cSpiTapHwcUi.m_uiReactor {
+	m_spiModeProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
+	m_spiDataBitsProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
+	m_spiEndiannessProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
+	m_spiFlipMosiMisoProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
+	m_flipAction.m_isEnabled = m_protocolCombo.m_currentData == Protocol.Spi;
+	m_logUpdateRateLimitProp.m_isEnabled = m_useLogUpdateRateLimitProp.m_value;
+}
+
+//..............................................................................

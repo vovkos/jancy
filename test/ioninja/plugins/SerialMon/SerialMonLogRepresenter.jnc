@@ -4,8 +4,30 @@
 //
 
 import "log_Representation.jnc"
+import "std_String.jnc"
 
 //..............................................................................
+
+string_t getDeviceOpenText(
+	string_t deviceName, // may be empty
+	string_t processName, // may be empty
+	uint32_t pid,
+	std.Error const* error = null // null if the device was opened successfully
+) {
+	std.StringBuilder text =
+		error ? (deviceName.m_length ? $"Cannot open port \e[34m$deviceName\e[m" : "Cannot open port") :
+		deviceName.m_length ? $"Opened port \e[34m$deviceName\e[m" : "Port opened";
+
+	if (processName.m_length)
+		text += $"\n\e[90mProcess:\t\e[34m$processName";
+
+	text += $"\n\e[90mPID:\t\e[34m$pid";
+
+	if (error)
+		text += $"\n\e[90mError:\t$(error.m_description)";
+
+	return text.detachString();
+}
 
 bool representSerialMonLog  (
 	log.Representation* representation,
@@ -28,37 +50,40 @@ bool representSerialMonLog  (
 		representation.addHyperText($"PID \e[34m#$pid\e[m: Port opened");
 		break;
 
-	case SerialMonLogRecordCode.DeviceOpened:
+	case SerialMonLogRecordCode.DeviceOpened_2:
 		uint32_t pid = *(uint32_t const*)p;
 		string_t processName = (char const*)(p + sizeof(pid));
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-
-		representation.addHyperText(
-			$"Port opened\n"
-			$"\e[90mProcess:\t\e[34m%1\n"
-			$"\e[90mPID:\t\e[34m%2"(
-			processName,
-			pid
-		));
+		representation.addHyperText(getDeviceOpenText(null, processName, pid));
 		break;
 
-	case SerialMonLogRecordCode.DeviceOpenError:
+	case SerialMonLogRecordCode.DeviceOpenError_2:
 		uint32_t pid = *(uint32_t const*)p;
 		std.Error const* error = (std.Error const*)(p + sizeof(pid));
 		string_t processName = (char const*)(error + 1);
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText(getDeviceOpenText(null, processName, pid, error));
+		break;
 
-		representation.addHyperText(
-			$"Cannot open port\n"
-			$"\e[90mProcess:\t\e[34m%1\n"
-			$"\e[90mPID:\t\e[34m%2\n"
-			$"\e[90mError:\t%3"(
-			processName,
-			pid,
-			error.m_description
-		));
+	case SerialMonLogRecordCode.DeviceOpened:
+		uint32_t pid = *(uint32_t const*)p;
+		string_t deviceName = (char const*)(p + sizeof(pid));
+		string_t processName = (char const*)(deviceName.m_p + deviceName.m_length + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText(getDeviceOpenText(deviceName, processName, pid));
+		break;
+
+	case SerialMonLogRecordCode.DeviceOpenError:
+		uint32_t pid = *(uint32_t const*)p;
+		std.Error const* error = (std.Error const*)(p + sizeof(pid));
+		string_t deviceName = (char const*)error + error.m_size;
+		string_t processName = (char const*)(deviceName.m_p + deviceName.m_length + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText(getDeviceOpenText(deviceName, processName, pid, error));
 		break;
 
 	case SerialMonLogRecordCode.DeviceClosed:

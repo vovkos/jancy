@@ -12,7 +12,7 @@ import "std_Buffer.jnc"
 
 enum SerialLogRecordCode: uint64_t {
 	PortOpened            = 0x01d47c8fc7b0f700 | log.RecordCodeFlags.Foldable,
-	PortOpened_old        = 0x01d47c8fc7b0f701 | log.RecordCodeFlags.Foldable,
+	PortOpened_0          = 0x01d47c8fc7b0f701 | log.RecordCodeFlags.Foldable, // deprecated
 	PortOpenError         = 0x01d47c8fc7b0f702,
 	PortClosedNamed       = 0x01d47c8fc7b0f703,
 	BaudRateChanged       = 0x01d47c8fc7b0f704,
@@ -66,7 +66,7 @@ struct SerialOpenParams {
 	// - location
 }
 
-struct SerialOpenParams_old {
+struct SerialOpenParams_0 {
 	uint_t m_baudRate;
 	uint_t m_flowControl;
 	uint_t m_dataBits;
@@ -88,7 +88,6 @@ io.SerialPortDesc const* findSerialPortDesc(string_t deviceName) {
 	for (io.SerialPortDesc const* port = portList; port; port = port.m_next)
 		if (port.m_deviceName == deviceName)
 			return port;
-
 
 	return null;
 }

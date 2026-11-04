@@ -1,0 +1,467 @@
+//..............................................................................
+//
+// I2C/SPI Tap over SSH session
+//
+
+import "doc_Session.jnc"
+import "iox_SshHwc.jnc"
+import "ui_SshHwcUrlUi.jnc"
+import "iox_HwcFpgaUploader.jnc"
+import "io_HwcProto.jnc"
+import "ui_SocketUi.jnc"
+import "ui_SshPropertySet.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_FpgaUploaderProgressDlg.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
+import "I2cSpiTapLogRecordCode.jnc"
+import "I2cSpiTapHwc.jnc"
+
+//..............................................................................
+
+class SshI2cSpiTapSession:
+	doc.Session,
+	iox.HwcTransportSink {
+protected:
+	alias SshState = iox.SshChannel.State;
+	alias Protocol = I2cSpiTapHwcUi.Protocol;
+
+	enum Defaults {
+		ServerPort = 22,
+	}
+
+	enum State {
+		Closed,
+		Connecting,        // see the transport state
+		UploadingFirmware, // incl. the up-to-date check
+		Capturing,
+	}
+
+	enum ActionId {
+		Capture,
+		_Count,
+	}
+
+	enum IconId {
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum StatusPaneId {
+		RemoteAddress,
+		State,
+		_Count,
+	}
+
+protected:
+	// I2C/SPI Tap over SSH
+
+	iox.SshHwc m_ssh;
+	iox.HwcFpgaUploader m_uploader;
+	ui.FpgaUploaderProgressDlg m_uploaderDlg;
+	Protocol m_protocol;
+	std.Buffer m_startCaptureMsg; // to restart on SPI config changes
+	State m_state;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+
+	// property grid
+
+	ui.SocketPropertySet m_socketPropertySet;
+	ui.SshHwcUrlUi m_urlUi;
+	ui.SshPropertySet m_sshPropertySet;
+	I2cSpiTapHwcUi m_tapUi;
+	ui.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode connect();
+	void disconnect();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override errorcode bool applyProperties();
+	override void restoreDefaultProperties();
+
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession() {
+		disconnect();
+	}
+
+protected:
+	void onProtocolChanged();
+	void onConnected();
+	void onDisconnected();
+	void onTransportStateChanged();
+	void onUpdateCompleted(bool result);
+
+	override void onMsg(io.HwcMsgHdr const* hdr);
+
+	override void onOobData(
+		void const* p,
+		size_t size
+	) {
+		m_logWriter.write(log.StdRecordCode.Bin, p, size);
+	}
+
+	void createUi();
+	bool errorcode startCapture();
+	void stopCapture();
+	bool errorcode restartSpiCapture();
+
+	iox.SshChannel.ConnectParams const* createConnectParams(
+		string_t userName, // null = from properties
+		string_t hwcArgs
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SshI2cSpiTapSession.construct(doc.PluginHost* pluginHost) {
+	basetype.construct(pluginHost);
+	m_ssh.construct(pluginHost);
+	m_urlUi.construct(pluginHost, m_socketPropertySet, ui.SshHwcUrlUi.DeviceKind.Usb, "ioninja-hwc", "_i2c-spi-tap", "I2C/SPI Tap");
+	m_tapUi.construct(pluginHost);
+	m_uploader.construct(pluginHost, m_ssh);
+	m_uploaderDlg.construct(m_uploader);
+
+	createUi();
+
+	m_uploader.m_onUpdateCompleted += onUpdateCompleted;
+	m_ssh.m_onLoginDlgCompleted += [](
+		string_t userName,
+		ui.AuthenticationMethod authenticationMethod,
+		string_t privateKeyFileName
+	) {
+		m_sshPropertySet.m_userNameProp.m_value = userName;
+		m_sshPropertySet.m_authenticationMethodProp.m_value = authenticationMethod;
+		m_sshPropertySet.m_privateKeyFileProp.m_value = privateKeyFileName;
+	}
+
+	m_ssh.m_onConnected += onConnected;
+	m_ssh.m_onDisconnected += onDisconnected;
+	bindingof(m_ssh.m_state) += onTransportStateChanged;
+	m_ssh.m_sink = this;
+
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+}
+
+void SshI2cSpiTapSession.createUi() {
+	// toolbar
+
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/stop.png");
+
+	m_urlUi.createToolBar("Tap:");
+	m_urlUi.m_urlCombo.m_onReturnPressed += []() {
+		try connect();
+	}
+
+	m_tapUi.createToolBar();
+	bindingof(m_tapUi.m_protocolCombo.m_currentIndex) += onProtocolChanged;
+
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_ssh.m_state ? disconnect() : try connect();
+	}
+
+	m_tapUi.createFlipAction();
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = ui.StdColor.Blue;
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"TCP connection",
+		"TCP-specific connection settings"
+	);
+
+	m_socketPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		ui.SocketPropertySet.PropertyId.AllTcpClient & ~ui.SocketPropertySet.PropertyId.RemoteAddress // it's in the URL
+	);
+
+	m_socketPropertySet.m_defaultRemotePort = Defaults.ServerPort;
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"SSH connection",
+		"SSH-specific connection settings"
+	);
+
+	m_sshPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		ui.SshPropertySet.PropertyId.UserName |
+		ui.SshPropertySet.PropertyId.AuthenticationMethod |
+		ui.SshPropertySet.PropertyId.RememberLastPassword
+	);
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"I2C/SPI Tap",
+		"Settings of the remote I2C/SPI Tap"
+	);
+
+	m_urlUi.createProperties(group);
+	m_tapUi.createProperties(group);
+
+	m_bufferPropertySet.createPropertiesGrouped(
+		m_pluginHost.m_propertyGrid,,,
+		ui.BufferPropertySet.PropertyId.All & ~ui.BufferPropertySet.PropertyId.ReadParallelism
+	);
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("I2C/SPI Tap");
+
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
+	m_urlUi.enumerate();
+	m_uiReactor.start();
+}
+
+bool errorcode SshI2cSpiTapSession.connect() {
+	disconnect();
+	startSession();
+
+	m_protocol = m_tapUi.m_protocol;
+	iox.SshHwcUrl url;
+	string_t hwcArgs;
+	bool result = try m_urlUi.parseUsbUrl(&url, &hwcArgs);
+	if (!result) {
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+		return false;
+	}
+
+	return m_ssh.connect(url.m_address, createConnectParams(url.m_userName, hwcArgs));
+}
+
+void SshI2cSpiTapSession.disconnect() {
+	m_uploader.cancel(); // completes with false, which re-enters disconnect()
+	if (!m_ssh.m_state)
+		return;
+
+	stopCapture(); // capture stopped goes before disconnected
+	m_ssh.close();
+	m_stdSessionInfoSet.endSession();
+}
+
+void SshI2cSpiTapSession.stopCapture() {
+	if (m_state == State.Capturing)
+		m_logWriter.write(I2cSpiTapLogRecordCode.CaptureStopped);
+
+	m_state = State.Closed;
+}
+
+iox.SshChannel.ConnectParams const* SshI2cSpiTapSession.createConnectParams(
+	string_t userName,
+	string_t hwcArgs
+) {
+	// start suspended: the firmware may need an update before capturing
+
+	string_t cmdLine = m_protocol == Protocol.I2c ?
+		$"ioninja-hwc --stdin --i2c-tap --suspend$hwcArgs" :
+		$"ioninja-hwc --stdin --spi-tap --suspend$hwcArgs";
+
+	iox.SshChannel.ConnectParams params;
+	iox.SshChannel.initConnectParams(&params, m_socketPropertySet, m_sshPropertySet, m_bufferPropertySet);
+	params.m_sshParams.m_channelType = "session";
+	params.m_sshParams.m_processType = "exec";
+	params.m_sshParams.m_processExtra = cmdLine.m_p;
+	params.m_sshParams.m_processExtraSize = cmdLine.m_length;
+
+	if (userName)
+		params.m_sshParams.m_userName = userName;
+
+	return params;
+}
+
+void SshI2cSpiTapSession.load(doc.Storage* storage) {
+	m_urlUi.load(storage);
+
+	m_tapUi.load(storage);
+	m_socketPropertySet.load(storage);
+	m_sshPropertySet.load(storage);
+	m_bufferPropertySet.load(storage);
+	m_ssh.applyProperties(m_socketPropertySet, m_sshPropertySet, m_bufferPropertySet);
+}
+
+void SshI2cSpiTapSession.save(doc.Storage* storage) {
+	m_tapUi.save(storage);
+	m_socketPropertySet.save(storage);
+	m_sshPropertySet.save(storage);
+	m_bufferPropertySet.save(storage);
+
+	m_urlUi.save(storage);
+}
+
+void SshI2cSpiTapSession.updateProperties() {
+	m_tapUi.updateProperties();
+	m_urlUi.updateProperties();
+}
+
+bool errorcode SshI2cSpiTapSession.applyProperties() {
+	m_tapUi.applyProperties(); // may change the protocol and reconnect
+	m_urlUi.applyProperties();
+	m_ssh.applyProperties(m_socketPropertySet, m_sshPropertySet, m_bufferPropertySet);
+
+	if (m_state == State.Capturing && m_protocol == Protocol.Spi)
+		restartSpiCapture();
+
+	return true;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	return false;
+}
+
+void SshI2cSpiTapSession.restoreDefaultProperties() {
+	m_tapUi.restoreDefaults();
+	m_socketPropertySet.restoreDefaults();
+	m_sshPropertySet.restoreDefaults();
+	m_bufferPropertySet.restoreDefaults();
+}
+
+// ioninja-hwc is launched for a specific protocol -- a new one needs a new session
+
+void SshI2cSpiTapSession.onProtocolChanged() {
+	if (m_ssh.m_state && m_tapUi.m_protocol != m_protocol)
+		try connect();
+}
+
+bool errorcode SshI2cSpiTapSession.restartSpiCapture() {
+	std.Buffer msg;
+	m_tapUi.packStartCaptureMsg(msg);
+	if (msg.m_size == m_startCaptureMsg.m_size && !memcmp(msg.m_p, m_startCaptureMsg.m_p, msg.m_size))
+		return true;
+
+	m_startCaptureMsg.copy(msg.m_p, msg.m_size);
+	m_ssh.write(msg.m_p, msg.m_size);
+	m_logWriter.write(I2cSpiTapLogRecordCode.CaptureStarted);
+	return true;
+}
+
+void SshI2cSpiTapSession.onConnected() {
+	m_state = State.UploadingFirmware;
+
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	m_uploader.update(m_tapUi.getFirmwareFileName());
+	return;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	disconnect();
+}
+
+void SshI2cSpiTapSession.onUpdateCompleted(bool result) {
+	if (!result) {
+		disconnect();
+		return;
+	}
+
+	startCapture();
+	return;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	disconnect();
+}
+
+bool errorcode SshI2cSpiTapSession.startCapture() {
+	m_tapUi.packStartCaptureMsg(m_startCaptureMsg);
+	m_ssh.write(m_startCaptureMsg.m_p, m_startCaptureMsg.m_size);
+	m_logWriter.write(I2cSpiTapLogRecordCode.CaptureStarted);
+	m_state = State.Capturing;
+	return true;
+}
+
+void SshI2cSpiTapSession.onDisconnected() {
+	m_uploader.cancel(); // completes with false, disconnect() is a no-op by now
+
+	if (!m_ssh.m_msgCount) {
+		std.setError("'ioninja-hwc' on the target machine failed to initialize");
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+	}
+
+	stopCapture();
+	m_stdSessionInfoSet.endSession();
+}
+
+// auto-reconnecting (or giving up on it) fires no session events
+
+void SshI2cSpiTapSession.onTransportStateChanged() {
+	if (m_state <= State.Connecting)
+		m_state = m_ssh.m_state ? State.Connecting : State.Closed;
+}
+
+void SshI2cSpiTapSession.onMsg(io.HwcMsgHdr const* hdr) {
+	switch (hdr.m_code) {
+	case io.HwcMsgCode.Error:
+		std.Error const* error = (std.Error const*)(hdr + 1);
+		m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
+		disconnect();
+		break;
+
+	case io.HwcMsgCode.ErrorString:
+		std.setError((char const*)(hdr + 1));
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+		disconnect();
+		break;
+
+	default:
+		m_tapUi.writeLog(m_logWriter, hdr);
+	}
+}
+
+reactor SshI2cSpiTapSession.m_uiReactor {
+	m_title = m_ssh.m_state == SshState.Connected ?
+		$"$(m_tapUi.m_protocolCombo.m_currentText) $(m_ssh.m_remoteAddress.getString())" :
+		$"$(m_tapUi.m_protocolCombo.m_currentText) $(m_urlUi.m_displayUrl)";
+
+	m_sessionConnectionState =
+		m_ssh.m_state == SshState.Connected ? SessionConnectionState.Connected :
+		m_ssh.m_state == SshState.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
+	m_actionTable[ActionId.Capture].m_text = m_ssh.m_state ? "Stop capture" : "Capture";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_ssh.m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_ssh.m_stateStringTable[m_ssh.m_state];
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_ssh.m_state > SshState.Resolving ?
+		m_ssh.m_remoteAddress.getString() :
+		"<peer-address>";
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_ssh.m_state > SshState.Resolving;
+}
+
+//..............................................................................

@@ -92,14 +92,6 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onRefresh() {
-		ui.refreshUsbMonDeviceListUi(m_deviceCombo, m_deviceProp);
-	}
-
-	void onCapture() {
-		m_state ? close() : try capture();
-	}
-
 	void onMonitorEvent(
 		uint_t syncId,
 		io.UsbMonEvents triggeredEvents
@@ -143,10 +135,16 @@ void UsbMonSession.createUi() {
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
 	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.refreshUsbMonDeviceListUi(m_deviceCombo, m_deviceProp);
+		if (count > 1)
+			m_deviceCombo.showPopup();
+	}
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? close() : try capture();
+	}
 
 	// status bar
 

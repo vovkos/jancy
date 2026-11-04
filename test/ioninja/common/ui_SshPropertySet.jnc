@@ -79,14 +79,14 @@ void SshPropertySet.createProperties(
 			group,,
 			"User name",
 			"Enter a user name...",
-			"User name for SSH authentification"
+			"User name for SSH authentication"
 		);
 
 	if (mask & PropertyId.AuthenticationMethod) {
 		m_authenticationMethodProp = propertyGrid.createEnumProperty(
 			group,,
 			"User authentication",
-			"How to authentify a user (password / private key)",
+			"How to authenticate a user (password / private key)",
 			authenticationMethodTable,
 			countof(authenticationMethodTable)
 		);
@@ -94,7 +94,7 @@ void SshPropertySet.createProperties(
 		m_privateKeyFileProp = propertyGrid.createFileProperty(
 			group,,
 			"Private key file",
-			"Private key file (PEM) for SSH authentification"
+			"Private key file (PEM) for SSH authentication"
 		);
 
 		m_privateKeyFileProp.m_fileDialogTitle = "Select Private Key File";
@@ -104,8 +104,8 @@ void SshPropertySet.createProperties(
 	if (mask & PropertyId.RememberLastPassword)
 		m_rememberLastPasswordProp = propertyGrid.createBoolProperty(
 			group,,
-			"Remember last password",
-			"Re-use the last entered password during subsequent connect attempts"
+			"Remember password",
+			"Reuse the last entered password or private key passphrase during subsequent connect attempts"
 		);
 
 	if (mask & PropertyId.Process) {

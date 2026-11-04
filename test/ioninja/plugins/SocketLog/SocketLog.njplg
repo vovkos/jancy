@@ -33,7 +33,7 @@ SocketLogRepresenter.jnc
 01d483f3e69da208  # ConnectCancelled/ResolveCancelled
 01d483f3e69da209  # ConnectError/ResolveError
 01d483f3e69da20a  # Disconnected
-01d483f3e69da20b  # Disconnected_old
+01d483f3e69da20b  # Disconnected_0
 01d483f3e69da212  # ReconnectDelay
 
 01d483f3e69da20c  # Listening

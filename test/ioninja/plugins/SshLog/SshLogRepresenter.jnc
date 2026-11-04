@@ -16,7 +16,7 @@ bool representSshLog(
 	uint_t foldFlags
 ) {
 	switch (recordCode) {
-	case SshLogRecordCode.TcpConnectCompleted:
+	case SshLogRecordCode.Handshaking:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
@@ -24,21 +24,21 @@ bool representSshLog(
 		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH handshake...");
 		break;
 
-	case SshLogRecordCode.SshHandshakeCompleted:
+	case SshLogRecordCode.Authenticating:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
-		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentification...");
+		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentication...");
 		break;
 
-	case SshLogRecordCode.SshAuthenticating:
+	case SshLogRecordCode.Reauthenticating:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentification...");
+		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentication...");
 		break;
 
-	case SshLogRecordCode.SshAuthCompleted:
+	case SshLogRecordCode.OpeningChannel:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
@@ -46,7 +46,7 @@ bool representSshLog(
 		representation.addHyperText(SocketLogPartCode.Connecting, "Opening SSH channel...");
 		break;
 
-	case SshLogRecordCode.SshChannelOpened:
+	case SshLogRecordCode.RequestingPty:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
@@ -54,7 +54,7 @@ bool representSshLog(
 		representation.addHyperText(SocketLogPartCode.Connecting, "Requesting PTY...");
 		break;
 
-	case SshLogRecordCode.SshPtyRequested:
+	case SshLogRecordCode.StartingProcess:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
@@ -62,11 +62,11 @@ bool representSshLog(
 		representation.addHyperText(SocketLogPartCode.Connecting, "Starting process...");
 		break;
 
-	case SshLogRecordCode.SshProcessStarted:
+	case SshLogRecordCode.LastStepCompleted:
 		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
 		break;
 
-	case SshLogRecordCode.ConnectCompleted:
+	case SshLogRecordCode.ChannelEstablished:
 		representation.m_lineAttr.m_iconIdx  = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText("SSH channel established");

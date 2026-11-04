@@ -27,7 +27,7 @@ bool isUsbDeviceLess(
 		entry1.m_device.m_address < entry2.m_device.m_address;
 }
 
-void refreshUsbDeviceListUi(
+size_t refreshUsbDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
 ) {
@@ -112,7 +112,7 @@ void refreshUsbDeviceListUi(
 	deviceProp.setOptions(optionArray, count);
 
 	if (!prevEntry)
-		return;
+		return count;
 
 	size_t i = findUsbDeviceComboIndex(
 		deviceCombo,
@@ -123,6 +123,7 @@ void refreshUsbDeviceListUi(
 	);
 
 	deviceCombo.m_currentIndex = i != -1 ? i : 0;
+	return count;
 }
 
 size_t findUsbDeviceComboIndex(

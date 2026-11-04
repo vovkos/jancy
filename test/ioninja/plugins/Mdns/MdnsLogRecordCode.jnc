@@ -1,0 +1,39 @@
+//..............................................................................
+//
+// mDNS log record codes
+//
+
+import "log_RecordCode.jnc"
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+import "io_Dns.jnc"
+
+//..............................................................................
+
+enum MdnsLogRecordCode: uint64_t {
+	ScanStarted   = 0x01dd6a9d0be54400,
+	TxPacket      = 0x01dd6a9d0be54401 | log.RecordCodeFlags.Foldable,
+	QueryError    = 0x01dd6a9d0be54402,
+	RxPacket      = 0x01dd6a9d0be54403 | log.RecordCodeFlags.Foldable,
+	ScanCompleted = 0x01dd6a9d0be54404,
+	ScanStopped   = 0x01dd6a9d0be54405,
+	PacketDetails = 0x01dd6a9d0be54406 | log.RecordCodeFlags.Foldable, // detailized TxPacket/RxPacket
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// ScanStarted: MdnsScanParams + query name
+// TxPacket, RxPacket, PacketDetails: MdnsPacketHdr + mDNS message
+// QueryError: io.SocketAddress (interface) + std.Error
+// ScanCompleted, ScanStopped: uint32_t (reply count)
+
+struct MdnsScanParams {
+	io.DnsType m_queryType;
+}
+
+struct MdnsPacketHdr {
+	io.SocketAddress m_srcAddress;
+	io.SocketAddress m_dstAddress;
+}
+
+//..............................................................................

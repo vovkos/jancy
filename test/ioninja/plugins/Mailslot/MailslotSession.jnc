@@ -25,7 +25,6 @@ protected:
 		Opened,
 	}
 
-
 	enum ActionId {
 		Open,
 		_Count,
@@ -87,14 +86,6 @@ public:
 protected:
 	void createUi();
 
-	void onOpen() {
-		m_state ? close() : try open();
-	}
-
-	void onNameComboEnter() {
-		try open();
-	}
-
 	void onMailslotEvent(
 		uint_t syncId,
 		io.MailslotEvents triggeredEvents
@@ -121,14 +112,19 @@ void MailslotSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Mailslot:");
 	m_nameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_nameCombo.m_isEditable = true;
-	m_nameCombo.m_onReturnPressed += onNameComboEnter;
+	m_nameCombo.m_onReturnPressed += []() {
+		try open();
+	}
+
 	m_nameCombo.m_placeholderText = "Enter a mailslot name...";
 
 	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
 	m_iconTable[IconId.Close] = new ui.Icon("images/close.png");
 
 	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? close() : try open();
+	}
 
 	// status bar
 

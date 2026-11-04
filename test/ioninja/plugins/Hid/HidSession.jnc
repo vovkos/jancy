@@ -139,23 +139,6 @@ public:
 	}
 
 protected:
-	void onRefresh() {
-		ui.refreshHidDeviceListUi(m_deviceCombo, m_deviceProp);
-	}
-
-	void onOpen() {
-		m_state ? close() : try open();
-	}
-
-	void onDeviceComboEnter() {
-		try open();
-	}
-
-	void onInfo() {
-		m_logWriter.write(HidLogRecordCode.DeviceInfo, m_deviceInfoBuffer.m_p, m_deviceInfoBuffer.m_size);
-		m_logWriter.write(HidLogRecordCode.ReportDescriptor, m_rdBuffer.m_p, m_rdBuffer.m_size);
-	}
-
 	void onSendReport();
 	void onGetFeatureReport();
 
@@ -197,7 +180,9 @@ void HidSession.createUi() {
 
 	m_pluginHost.m_toolBar.addLabel("Device:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_deviceCombo.m_onReturnPressed += onDeviceComboEnter;
+	m_deviceCombo.m_onReturnPressed += []() {
+		try open();
+	}
 
 	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
 	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
@@ -207,11 +192,22 @@ void HidSession.createUi() {
 	m_iconTable[IconId.Recv] = new ui.Icon("images/recv.png");
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate ports", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.refreshHidDeviceListUi(m_deviceCombo, m_deviceProp);
+		if (count > 1)
+			m_deviceCombo.showPopup();
+	}
+
 	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
-	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
+	m_actionTable[ActionId.Open].m_onTriggered += []() {
+		m_state ? close() : try open();
+	}
+
 	m_actionTable[ActionId.Info] = createAction("HID device info", m_iconTable[IconId.Info]);
-	m_actionTable[ActionId.Info].m_onTriggered += onInfo;
+	m_actionTable[ActionId.Info].m_onTriggered += []() {
+		m_logWriter.write(HidLogRecordCode.DeviceInfo, m_deviceInfoBuffer.m_p, m_deviceInfoBuffer.m_size);
+		m_logWriter.write(HidLogRecordCode.ReportDescriptor, m_rdBuffer.m_p, m_rdBuffer.m_size);
+	}
 
 	// report form
 
@@ -434,8 +430,8 @@ bool errorcode HidSession.open() {
 	m_device.m_options = options;
 	m_device.open(desc.m_path);
 
-	m_deviceInfoBuffer.setSize(sizeof(HidDeviceInfoParams));
-	HidDeviceInfoParams* params = (HidDeviceInfoParams*)m_deviceInfoBuffer.m_p;
+	m_deviceInfoBuffer.setSize(sizeof(HidLogDeviceInfoParams));
+	HidLogDeviceInfoParams* params = (HidLogDeviceInfoParams*)m_deviceInfoBuffer.m_p;
 	params.m_releaseNumber = desc.m_releaseNumber;
 	params.m_vendorId = desc.m_vendorId;
 	params.m_productId = desc.m_productId;

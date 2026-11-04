@@ -203,14 +203,6 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onCapture() {
-		m_state ? stopCapture() : try capture();
-	}
-
-	void onDeviceComboEnter() {
-		try capture();
-	}
-
 	void onModeChanged();
 
 	void onEndpointEvent(
@@ -279,7 +271,9 @@ void SpiTapSession.createUi() {
 
 	m_pluginHost.m_toolBar.addLabel("Tap:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_deviceCombo.m_onReturnPressed += onDeviceComboEnter;
+	m_deviceCombo.m_onReturnPressed += []() {
+		try capture();
+	}
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate devices", "images/refresh.png");
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
@@ -298,7 +292,9 @@ void SpiTapSession.createUi() {
 	bindingof(m_modeCombo.m_currentIndex) += onModeChanged;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture].m_onTriggered += []() {
+		m_state ? stopCapture() : try capture();
+	}
 
 	// status bar (only one pane)
 
@@ -729,7 +725,7 @@ void SpiTapSession.load(doc.Storage* storage) {
 }
 
 void SpiTapSession.save(doc.Storage* storage) {
-	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
+	storage.writeInt("deviceIdx", (int)m_deviceCombo.m_currentIndex);
 	storage.writeInt("frequency", m_frequencyProp.m_value);
 	storage.writeInt("mode", m_modeCombo.m_currentIndex);
 	storage.writeInt("dataBits", m_dataBitsProp.m_value);

@@ -81,7 +81,7 @@ string_t getItemDigest(
 	if (!attr)
 		return null;
 
-	ToStringFuncEx thin* func = attr;
+	ToStringFuncEx* func = attr;
 	return func ? func(p, size, decl) : null;
 }
 
@@ -93,7 +93,7 @@ string_t getItemValueString(
 	uint_t bitCount = 0,
 	void const* p
 ) {
-	ToStringFuncEx thin* formatFunc = decl.findAttributeValue("formatFunc");
+	ToStringFuncEx* formatFunc = decl.findAttributeValue("formatFunc");
 	if (formatFunc)
 		return formatFunc(p, type.m_size, decl);
 
@@ -117,7 +117,7 @@ ToStringFunc* getElementValueStringFunc(
 	jnc.Type safe* type,
 	jnc.PtrTypeFlags ptrTypeFlags = 0
 ) {
-	ToStringFuncEx thin* formatFunc = decl.findAttributeValue("valueFormatFunc");
+	ToStringFuncEx* formatFunc = decl.findAttributeValue("valueFormatFunc");
 	if (formatFunc)
 		return formatFunc~(, type.m_size, decl);
 
@@ -161,7 +161,9 @@ void setItemBackColor(
 
 void representDynamicLayout(
 	Representation safe* representation,
-	jnc.DynamicLayout safe* layout,
+	jnc.DynamicLayoutSectionGroup const safe* sectionGroup, // from jnc.DynamicLayoutSectionBuilder
+	void const* p,
+	size_t size,
 	uint_t foldFlags,
 	uint_t rawBinPartCode = DynamicLayoutBinPartCode.Raw,
 	string_t indent = ""
@@ -172,7 +174,7 @@ void representDynamicLayout(
 	context.m_rawBinPartCode = rawBinPartCode;
 
 	log.LineAttr prevAttr = representation.m_lineAttr;
-	bool isExpanded = representDynamicSectionGroup(context, layout, 0, layout.m_p, indent);
+	bool isExpanded = representDynamicLayoutSectionGroup(context, sectionGroup, 0, p, indent);
 	representation.m_lineAttr = prevAttr; // restore
 
 	if (!isExpanded)
@@ -180,7 +182,7 @@ void representDynamicLayout(
 
 	representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
 	representation.addBreak();
-	representation.addBin(rawBinPartCode, layout.m_p, layout.m_size);
+	representation.addBin(rawBinPartCode, p, size);
 	representation.m_lineAttr.m_textColor = prevAttr.m_textColor; // restore again
 
 	size_t rangeCount = context.m_colorRangeTree.m_rangeCount;
@@ -190,19 +192,18 @@ void representDynamicLayout(
 	ui.ColorRange* ranges = new ui.ColorRange[rangeCount];
 	context.m_colorRangeTree.flatten(ranges, rangeCount);
 
-	size_t end = layout.m_size;
 	for (size_t i = 0; i < rangeCount; i++) {
 		ui.ColorRange range = ranges[i];
 		ui.TextAttr attr = { ui.ColorFlags.Undefined, range.m_color, ui.FontFlags.Undefined	}
-		representation.retroColorize(range.m_offset - layout.m_size, range.m_length, attr);
+		representation.retroColorize(range.m_offset - size, range.m_length, attr);
 	}
 }
 
 // returns false if the root group is collapsed
 
-bool representDynamicSectionGroup(
+bool representDynamicLayoutSectionGroup(
 	RepresentDynamicLayoutContext safe* context,
-	jnc.DynamicSectionGroup safe* group,
+	jnc.DynamicLayoutSectionGroup const safe* group,
 	size_t offset0,
 	void const* p0,
 	string_t indent
@@ -210,11 +211,11 @@ bool representDynamicSectionGroup(
 	uint_t baseBackColor = context.m_representation.m_lineAttr.m_backColor;
 
 	for (size_t i = 0; i < group.m_sectionCount; i++) {
-		jnc.DynamicSection safe* section = group.m_sectionArray[i];
+		jnc.DynamicLayoutSection const safe* section = group.m_sectionArray[i];
 		size_t offset = offset0 + section.m_offset;
 		void const* p = p0 + section.m_offset;
 
-		if (section.m_sectionKind == jnc.DynamicSectionKind.Struct) { // shortcut
+		if (section.m_sectionKind == jnc.DynamicLayoutSectionKind.Struct) { // shortcut
 			jnc.StructType safe* type = dynamic (jnc.StructType*)section.m_type;
 			representFields(context, type, offset, p, indent);
 			continue;
@@ -226,7 +227,7 @@ bool representDynamicSectionGroup(
 			continue;
 
 		switch (section.m_sectionKind) {
-		case jnc.DynamicSectionKind.Array:
+		case jnc.DynamicLayoutSectionKind.Array:
 			representArray(
 				context,
 				decl,
@@ -239,7 +240,7 @@ bool representDynamicSectionGroup(
 			);
 			break;
 
-		case jnc.DynamicSectionKind.Field:
+		case jnc.DynamicLayoutSectionKind.Field:
 			representField(
 				context,
 				decl,
@@ -253,7 +254,7 @@ bool representDynamicSectionGroup(
 			);
 			break;
 
-		case jnc.DynamicSectionKind.Group:
+		case jnc.DynamicLayoutSectionKind.Group:
 			string_t subIndent;
 			if (section.m_decl.findAttribute("ungroup"))
 				subIndent = indent;
@@ -264,7 +265,7 @@ bool representDynamicSectionGroup(
 				subIndent = indent + "    ";
 			}
 
-			representDynamicSectionGroup(context, section, offset0, p0, subIndent);
+			representDynamicLayoutSectionGroup(context, section, offset0, p0, subIndent);
 			break;
 		}
 
@@ -358,12 +359,15 @@ bool representBinary(
 		return true;
 	}
 
-	jnc.DynamicLayout subLayout(jnc.DynamicLayoutMode.Save, buffer.m_p, buffer.m_size);
+	jnc.DynamicLayoutSectionBuilder builder;
+	jnc.DynamicLayout subLayout(builder, buffer.m_p, buffer.m_size);
 	layoutFunc(subLayout);
 
 	representDynamicLayout(
 		context.m_representation,
-		subLayout,
+		builder.m_sectionGroup,
+		subLayout.m_p,
+		subLayout.m_size,
 		context.m_foldFlags,
 		context.m_rawBinPartCode + 1,
 		indent + "    "
@@ -386,7 +390,7 @@ void representArray(
 	size_t arraySize = elementSize * elementCount;
 
 	if (!decl.findAttribute("ungroup")) {
-		ToStringFuncEx thin* formatFunc = decl.findAttributeValue("formatFunc");
+		ToStringFuncEx* formatFunc = decl.findAttributeValue("formatFunc");
 		string_t value =
 			formatFunc ? formatFunc(p, arraySize, decl) :
 			elementType.m_typeKind == jnc.TypeKind.Char ? string_t(p, elementCount) :

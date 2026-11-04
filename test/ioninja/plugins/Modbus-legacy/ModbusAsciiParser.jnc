@@ -100,7 +100,7 @@ void ModbusAsciiParser.parse(
 			m_infoSet.addAdu(m_modbusRole);
 
 			if (m_mode == ModbusParserMode.Alternate) {
-				m_modbusRole = (io.ModbusRole) !m_modbusRole;
+				m_modbusRole = (io.ModbusRole)!m_modbusRole;
 				recordCode = getPacketRecordCode();
 			}
 

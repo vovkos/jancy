@@ -10,17 +10,17 @@ import "io_UsbTransfer.jnc"
 //..............................................................................
 
 enum UsbLogRecordCode: uint64_t {
-	DeviceOpened_0        = 0x01d485f4acbf80b7,
+	DeviceOpened_0        = 0x01d485f4acbf80b7, // deprecated
 	DeviceOpenError       = 0x01d485f4acbf80b8,
 	DeviceClosed          = 0x01d485f4acbf80b9,
 	KernelDriverDetached  = 0x01d485f4acbf80ba,
-	InterfaceClaimed_0    = 0x01d485f4acbf80bb,
+	InterfaceClaimed_0    = 0x01d485f4acbf80bb, // deprecated
 	InterfaceClaimError   = 0x01d485f4acbf80bc,
 	InterfaceReleased     = 0x01d485f4acbf80bd,
-	ReadingStarted_0      = 0x01d485f4acbf80be,
+	ReadingStarted_0      = 0x01d485f4acbf80be, // deprecated
 	ReadingStopped        = 0x01d485f4acbf80bf,
 	EndpointOpenError     = 0x01d485f4acbf80c0,
-	ControlTransfer_0     = 0x01d485f4acbf80c1,
+	ControlTransfer_0     = 0x01d485f4acbf80c1, // deprecated
 	DeviceOpened          = 0x01d485f4acbf80c2 | log.RecordCodeFlags.Foldable,
 	CaptureStarted        = 0x01d485f4acbf80c3 | log.RecordCodeFlags.Foldable,
 	CaptureError          = 0x01d485f4acbf80c4,

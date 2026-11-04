@@ -74,25 +74,26 @@ ServerSocketLogFilter.construct(doc.PluginHost* pluginHost) {
 }
 
 void ServerSocketLogFilter.onApply() {
-	string_t filter = m_filterCombo.m_currentText;
-	m_log.suspend();
+	string_t filterText = m_filterCombo.m_currentText;
 
-	if (!filter)
-		m_filterAddress = null;
-	else {
-		bool result = try m_filterAddress.parse(filter);
+	io.SocketAddress filterAddress;
+	if (filterText) {
+		bool result = try filterAddress.parse(filterText);
 		if (!result) {
 			m_filterCombo.m_backgroundColor = ui.StdColor.PastelRed;
 			m_filterCombo.selectAllEditText();
 			m_filterCombo.setFocus();
 			return;
 		}
-
-		m_filterCombo.addEditTextToHistory();
 	}
 
-	m_log.resume();
+	if (filterAddress.isEqual(m_filterAddress))
+		return;
+
 	m_filterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
+	m_log.suspend();
+	m_filterAddress = filterAddress;
+	m_log.resume();
 	m_log.rebuild();
 }
 
@@ -125,9 +126,9 @@ bool ServerSocketLogFilter.filter(
 		return true;
 
 	case SocketLogRecordCode.ClientDisconnected:
-		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
+		SocketLogDisconnectParams const* params = (SocketLogDisconnectParams const*)p;
 		bool result = params.m_address.isMatch(m_filterAddress);
-		if (params.m_flags & TcpDisconnectLogRecordFlags.KeepClient) {
+		if (params.m_flags & SocketLogDisconnectFlags.KeepClient) {
 			if (result)
 				m_lastVisibleAddress = params.m_address;
 

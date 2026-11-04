@@ -21,6 +21,7 @@ class SslPropertySet {
 		SecurtiyLevel,
 		CipherSet,
 		Certificate,
+		RememberLastPassphrase,
 		VerifyClientCertificate,
 		VerifyServerCertificate,
 		EphemeralDh,
@@ -31,6 +32,7 @@ class SslPropertySet {
 			SecurtiyLevel |
 			CipherSet |
 			Certificate |
+			RememberLastPassphrase |
 			VerifyServerCertificate |
 			Hostname,
 
@@ -38,6 +40,7 @@ class SslPropertySet {
 			SecurtiyLevel |
 			CipherSet |
 			Certificate |
+			RememberLastPassphrase |
 			VerifyClientCertificate |
 			EphemeralDh |
 			EphemeralEcdh,
@@ -47,6 +50,7 @@ class SslPropertySet {
 		SecurityLevel         = 1,
 		TcpPort               = 443,
 		UseCertificate        = false,
+		RememberLastPassphrase = true,
 		VerifyPeerCertificate = false,
 		VerifyDepth           = 10,
 		UseEphemeralDh        = true,
@@ -63,6 +67,7 @@ class SslPropertySet {
 	BoolProperty* m_useCertificateProp;
 	FileProperty* m_certificateFileProp;
 	FileProperty* m_privateKeyFileProp;
+	BoolProperty* m_rememberLastPassphraseProp;
 	BoolProperty* m_verifyCertificateProp;
 	FileProperty* m_verifyCaFileProp;
 	FileProperty* m_verifyCaDirProp;
@@ -151,6 +156,13 @@ void SslPropertySet.createProperties(
 
 		m_privateKeyFileProp.m_fileDialogTitle = "Select Private Key File";
 		m_privateKeyFileProp.m_filter = "Key files (*.key; *.pem);;All files (*.*)";
+
+		if (mask & PropertyId.RememberLastPassphrase)
+			m_rememberLastPassphraseProp = propertyGrid.createBoolProperty(
+				m_useCertificateProp,,
+				"Remember passphrase",
+				"Reuse the last entered private key passphrase during subsequent connect attempts"
+			);
 	}
 
 	if (mask & (PropertyId.VerifyClientCertificate | PropertyId.VerifyServerCertificate)) {
@@ -289,6 +301,9 @@ void SslPropertySet.load(doc.Storage* storage) {
 		m_useCertificateProp.m_value = storage.readBool("useCertificate", Defaults.UseCertificate);
 		m_certificateFileProp.m_value = storage.readString("certificateFile");
 		m_privateKeyFileProp.m_value = storage.readString("privateKeyFile");
+
+		if (m_rememberLastPassphraseProp)
+			m_rememberLastPassphraseProp.m_value = storage.readBool("rememberLastPassphrase", Defaults.RememberLastPassphrase);
 	}
 
 	if (m_verifyCertificateProp) {
@@ -323,6 +338,9 @@ void SslPropertySet.save(doc.Storage* storage) {
 		storage.writeBool("useCertificate", m_useCertificateProp.m_value);
 		storage.writeString("certificateFile", m_certificateFileProp.m_value);
 		storage.writeString("privateKeyFile", m_privateKeyFileProp.m_value);
+
+		if (m_rememberLastPassphraseProp) // the flag only -- the passphrase itself is never stored
+			storage.writeBool("rememberLastPassphrase", m_rememberLastPassphraseProp.m_value);
 	}
 
 	if (m_verifyCertificateProp) {
@@ -355,6 +373,9 @@ void SslPropertySet.restoreDefaults() {
 
 	if (m_useCertificateProp)
 		m_useCertificateProp.m_value = Defaults.UseCertificate;
+
+	if (m_rememberLastPassphraseProp)
+		m_rememberLastPassphraseProp.m_value = Defaults.RememberLastPassphrase;
 
 	if (m_verifyCertificateProp) {
 		m_verifyCertificateProp.m_value = Defaults.VerifyPeerCertificate;

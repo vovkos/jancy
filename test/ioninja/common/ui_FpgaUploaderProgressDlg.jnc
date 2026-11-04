@@ -1,0 +1,60 @@
+//..............................................................................
+//
+// Progress dialog for local & remote FPGA uploaders
+//
+
+import "ui_Dialog.jnc"
+import "iox_FpgaUploaderBase.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+class FpgaUploaderProgressDlg {
+protected:
+	iox.FpgaUploaderBase* m_uploader;
+	ProgressDlg m_dlg;
+	reactor m_reactor;
+
+public:
+	construct(iox.FpgaUploaderBase* uploader);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+FpgaUploaderProgressDlg.construct(iox.FpgaUploaderBase* uploader) {
+	m_uploader = uploader;
+	m_dlg.m_title = "Updating FPGA Firmware";
+	m_dlg.m_buttons = StdDlgButtons.Abort;
+	m_dlg.m_onButtonClicked += [](StdDlgButton button) {
+		switch (button) {
+		case StdDlgButton.Cancel:
+		case StdDlgButton.Abort:
+			m_uploader.cancel();
+			break;
+		}
+	}
+
+	m_reactor.start();
+}
+
+reactor FpgaUploaderProgressDlg.m_reactor {
+	m_dlg.m_status = m_uploader.m_stateStringTable[m_uploader.m_state];
+	m_dlg.m_progress = m_uploader.m_progress;
+
+	onevent bindingof(m_uploader.m_state)() {
+		if (m_uploader.m_state >= iox.FpgaUploaderState.Preparing)
+			m_dlg.show();
+		else
+			m_dlg.hide();
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

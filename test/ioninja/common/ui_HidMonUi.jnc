@@ -32,7 +32,7 @@ bool isHidMonDeviceLess(
 		device1.m_address < device2.m_address;
 }
 
-void refreshHidMonDeviceListUi(
+size_t refreshHidMonDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
 ) {
@@ -45,7 +45,7 @@ void refreshHidMonDeviceListUi(
 		deviceCombo.clear();
 		deviceCombo.addItem(text);
 		deviceProp.addOption(text);
-		return;
+		return 0;
 	}
 
 	size_t count;
@@ -142,7 +142,7 @@ void refreshHidMonDeviceListUi(
 	deviceProp.setOptions(optionArray, count);
 
 	if (!prevDevice)
-		return;
+		return count;
 
 	size_t i = findHidMonDeviceComboIndex(
 		deviceCombo,
@@ -154,6 +154,7 @@ void refreshHidMonDeviceListUi(
 	);
 
 	deviceCombo.m_currentIndex = i != -1 ? i : 0;
+	return count;
 }
 
 size_t findHidMonDeviceComboIndex(

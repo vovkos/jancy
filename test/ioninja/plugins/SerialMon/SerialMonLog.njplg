@@ -24,5 +24,7 @@ SerialMonLogRepresenter.jnc
 01d47d759805baeb  # DeviceOpened_0
 01d47d759805baec  # DeviceClosed
 01d47d759805baed  # DeviceOpened_1
-01d47d759805baee  # DeviceOpened
-01d47d759805baef  # DeviceOpenError
+01d47d759805baee  # DeviceOpened_2
+01d47d759805baef  # DeviceOpenError_2
+01d47d759805baf0  # DeviceOpened
+01d47d759805baf1  # DeviceOpenError

@@ -128,11 +128,6 @@ class WebSocketUi {
 	void updateProperties();
 	void applyProperties();
 	void restoreDefaults();
-
-protected:
-	void onCloseModeChanged() {
-		m_closeTimeoutProp.m_isEnabled = m_closeModeProp.m_value == WebSocketCloseMode.Graceful;
-	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -221,7 +216,9 @@ void WebSocketUi.createProperties(
 				"Specify the WebSocket close timeout"
 			);
 
-			m_closeModeProp.m_onChanged += onCloseModeChanged;
+			m_closeModeProp.m_onChanged += []() {
+				m_closeTimeoutProp.m_isEnabled = m_closeModeProp.m_value == WebSocketCloseMode.Graceful;
+			}
 		}
 	}
 }

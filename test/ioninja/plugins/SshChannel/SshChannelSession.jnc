@@ -98,35 +98,6 @@ public:
 	}
 
 protected:
-	void onConnect() {
-		m_ssh.m_state ? disconnect() : try connect();
-	}
-
-	void onAddressComboEnter() {
-		try connect();
-	}
-
-	void onConnected() {
-		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
-	}
-
-	void onDisconnected() {
-		m_stdSessionInfoSet.endSession();
-	}
-
-	void onIncomingData(
-		void const* p,
-		size_t size
-	) {
-		m_logWriter.write(log.StdRecordCode.Rx, p, size);
-	}
-
-	void onLoginDlgCompleted(
-		string_t userName,
-		ui.AuthenticationMethod authenticationMethod,
-		string_t privateKeyFileName
-	);
-
 	void createUi();
 	iox.SshChannel.ConnectParams const* createConnectParams();
 }
@@ -137,10 +108,30 @@ SshChannelSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_ssh.construct(pluginHost);
 
-	m_ssh.m_onLoginDlgCompleted += onLoginDlgCompleted;
-	m_ssh.m_onConnected += onConnected;
-	m_ssh.m_onDisconnected += onDisconnected;
-	m_ssh.m_onIncomingData += onIncomingData;
+	m_ssh.m_onLoginDlgCompleted += [](
+		string_t userName,
+		ui.AuthenticationMethod authenticationMethod,
+		string_t privateKeyFileName
+	) {
+		m_sshPropertySet.m_userNameProp.m_value = userName;
+		m_sshPropertySet.m_authenticationMethodProp.m_value = authenticationMethod;
+		m_sshPropertySet.m_privateKeyFileProp.m_value = privateKeyFileName;
+	}
+
+	m_ssh.m_onConnected += []() {
+		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	}
+
+	m_ssh.m_onDisconnected += []() {
+		m_stdSessionInfoSet.endSession();
+	}
+
+	m_ssh.m_onIncomingData += [](
+		void const* p,
+		size_t size
+	) {
+		m_logWriter.write(log.StdRecordCode.Rx, p, size);
+	}
 
 	createUi();
 
@@ -154,14 +145,19 @@ void SshChannelSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
+	m_addressCombo.m_onReturnPressed += []() {
+		try connect();
+	}
+
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
 	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
-	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
+	m_actionTable[ActionId.Connect].m_onTriggered += []() {
+		m_ssh.m_state ? disconnect() : try connect();
+	}
 
 	// status bar
 
@@ -292,16 +288,6 @@ size_t errorcode SshChannelSession.transmit(
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	return result;
-}
-
-void SshChannelSession.onLoginDlgCompleted(
-	string_t userName,
-	ui.AuthenticationMethod authenticationMethod,
-	string_t privateKeyFileName
-) {
-	m_sshPropertySet.m_userNameProp.m_value = userName;
-	m_sshPropertySet.m_authenticationMethodProp.m_value = authenticationMethod;
-	m_sshPropertySet.m_privateKeyFileProp.m_value = privateKeyFileName;
 }
 
 reactor SshChannelSession.m_uiReactor {

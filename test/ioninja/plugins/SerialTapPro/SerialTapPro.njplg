@@ -29,6 +29,7 @@ org.jancy.io.file
 
 SerialTapPro.jnc
 SerialTapProSession.jnc
+SerialTapProUi.jnc
 SerialTapProDecoder.jnc
 SerialTapProInfoSet.jnc
 SerialTapProDispatchCode.jnc

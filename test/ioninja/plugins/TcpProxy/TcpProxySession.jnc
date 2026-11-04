@@ -144,28 +144,8 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onRefresh() {
-		ui.enumerateNetworkAdapters(
-			ui.NetworkAdapterUsage.Listener,
-			m_adapterCombo,
-			m_listenerSocketPropertySet.m_adapterProp
-		);
-	}
-
-	void onListen() {
-		m_listenerState ? stopListen() : try listen();
-	}
-
 	void onTargetAddressChanged() {
 		m_resolver.cancel();
-	}
-
-	void onTargetAddressEnter() {
-		try resolve();
-	}
-
-	void onPortComboEnter() {
-		try listen();
 	}
 
 	void onResolveCompleted();
@@ -236,7 +216,10 @@ void TcpProxySession.createUi() {
 	m_targetAddressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_targetAddressCombo.m_isEditable = true;
 	bindingof(m_targetAddressCombo.m_editText) += onTargetAddressChanged;
-	m_targetAddressCombo.m_onReturnPressed += onTargetAddressEnter;
+	m_targetAddressCombo.m_onReturnPressed += []() {
+		try resolve();
+	}
+
 	m_targetAddressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_pluginHost.m_toolBar.addSpacing();
@@ -244,16 +227,29 @@ void TcpProxySession.createUi() {
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate adapters", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+	m_actionTable[ActionId.Refresh].m_onTriggered += []() {
+		size_t count = ui.enumerateNetworkAdapters(
+			ui.NetworkAdapterUsage.Listener,
+			m_adapterCombo,
+			m_listenerSocketPropertySet.m_adapterProp
+		);
+
+		if (count > 1)
+			m_adapterCombo.showPopup();
+	}
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onReturnPressed += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += []() {
+		try listen();
+	}
 
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
-	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
+	m_actionTable[ActionId.Listen].m_onTriggered += []() {
+		m_listenerState ? stopListen() : try listen();
+	}
 
 	// form
 
@@ -381,10 +377,7 @@ void TcpProxySession.disconnectAll() {
 }
 
 void TcpProxySession.disconnect(Proxy* proxy) {
-	TcpDisconnectLogRecordParams params;
-	params.m_flags = (m_connectionSocketPropertySet.m_tcpResetProp.m_value) ?
-		TcpDisconnectLogRecordFlags.Reset :
-		0;
+	SocketLogDisconnectParams params;
 
 	switch (proxy.m_target.m_state) {
 	case ConnectionState.Connecting:
@@ -393,12 +386,9 @@ void TcpProxySession.disconnect(Proxy* proxy) {
 		break;
 
 	case ConnectionState.Connected:
-		proxy.m_target.m_socket.blockingWait(
-			io.SocketEvents.WriteBufferEmpty,
-			Defaults.TxDisconnectTimeout
-		);
-
+		proxy.m_target.m_socket.blockingWait(io.SocketEvents.WriteBufferEmpty, Defaults.TxDisconnectTimeout);
 		params.m_address = proxy.m_target.m_address;
+		params.m_flags = getSocketLogDisconnectFlagsFromOptions(proxy.m_target.m_socket.m_options);
 		m_logWriter.write(SocketLogRecordCode.Disconnected, &params, sizeof(params));
 		break;
 	}
@@ -406,12 +396,9 @@ void TcpProxySession.disconnect(Proxy* proxy) {
 	if (proxy.m_client.m_state != ConnectionState.Connected) { // already disconnected
 		m_logWriter.write(SocketLogRecordCode.ClientRemoved);
 	} else {
-		proxy.m_client.m_socket.blockingWait(
-			io.SocketEvents.WriteBufferEmpty,
-			Defaults.TxDisconnectTimeout
-		);
-
+		proxy.m_client.m_socket.blockingWait(io.SocketEvents.WriteBufferEmpty, Defaults.TxDisconnectTimeout);
 		params.m_address = proxy.m_client.m_address;
+		params.m_flags = getSocketLogDisconnectFlagsFromOptions(proxy.m_client.m_socket.m_options);
 		m_logWriter.write(SocketLogRecordCode.ClientDisconnected, &params, sizeof(params));
 	}
 
@@ -517,7 +504,7 @@ void TcpProxySession.save(doc.Storage* storage) {
 	m_connectionSocketPropertySet.save(storage);
 	m_bufferPropertySet.save(storage);
 
-	storage.writeInt("adapterIdx", (int) m_adapterCombo.m_currentIndex);
+	storage.writeInt("adapterIdx", (int)m_adapterCombo.m_currentIndex);
 	storage.writeString("port", m_portCombo.m_editText);
 	storage.writeString("targetAddress", m_targetAddressCombo.m_editText);
 }
@@ -633,15 +620,12 @@ void TcpProxySession.onConnectionSocketEvent(
 
 		forwardData(proxy, peer, connection);
 
-		TcpDisconnectLogRecordParams params;
+		SocketLogDisconnectParams params;
 		params.m_address = connection.m_address;
-		params.m_flags = TcpDisconnectLogRecordFlags.Remote;
-
-		if (triggeredEvents & io.SocketEvents.TcpReset)
-			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
+		params.m_flags = getSocketLogDisconnectFlagsFromEvents(triggeredEvents);
 
 		if (isClient) {
-			params.m_flags |= TcpDisconnectLogRecordFlags.KeepClient;
+			params.m_flags |= SocketLogDisconnectFlags.KeepClient;
 			m_logWriter.write(SocketLogRecordCode.ClientDisconnected, &params, sizeof(params));
 		} else {
 			setCurrentProxy(proxy);
@@ -771,7 +755,8 @@ void TcpProxySession.waitConnectionSocketEvents(
 	case ConnectionState.Connected:
 		eventMask |=
 			io.SocketEvents.TcpDisconnected |
-			io.SocketEvents.TcpReset;
+			io.SocketEvents.TcpReset |
+			io.SocketEvents.TcpAborted;
 
 		if (peerCanTransmit)
 			eventMask |= io.SocketEvents.IncomingData;
