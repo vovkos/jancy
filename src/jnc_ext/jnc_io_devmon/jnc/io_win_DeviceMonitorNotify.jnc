@@ -59,6 +59,7 @@ struct DeviceMonitorCreateNotifyParams {
 	uint32_t _m_padding;
 
 	// followed by UTF16 file name
+	// optionally followed by UTF16 process name (machine-interface mode only)
 }
 
 struct DeviceMonitorCreateNamedPipeNotifyParams: DeviceMonitorCreateNotifyParams {
@@ -71,6 +72,7 @@ struct DeviceMonitorCreateNamedPipeNotifyParams: DeviceMonitorCreateNotifyParams
 	uint64_t m_defaultTimeout;
 
 	// followed by UTF16 pipe name
+	// optionally followed by UTF16 process name (machine-interface mode only)
 }
 
 struct DeviceMonitorCreateMailslotNotifyParams: DeviceMonitorCreateNotifyParams {
@@ -79,6 +81,7 @@ struct DeviceMonitorCreateMailslotNotifyParams: DeviceMonitorCreateNotifyParams 
 	uint64_t m_readTimeout;
 
 	// followed by UTF16 mailslot name
+	// optionally followed by UTF16 process name (machine-interface mode only)
 }
 
 struct DeviceMonitorCloseNotifyParams {

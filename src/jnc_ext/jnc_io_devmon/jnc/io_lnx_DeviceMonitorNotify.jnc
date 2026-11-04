@@ -41,6 +41,7 @@ struct DeviceMonitorOpenNotifyParams {
 	uint32_t _m_padding;
 
 	// followed by file name
+	// optionally followed by process name (machine-interface mode only)
 }
 
 struct DeviceMonitorCloseNotifyParams {
