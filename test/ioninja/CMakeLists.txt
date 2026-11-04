@@ -25,9 +25,28 @@ set(
 
 set(JANCY_TEST_JIT_KIND " ") # don't append JIT kind to command line (infers JITting which we don't want)
 
+if(WIN32)
+	set(_JLINK_OS_SCRIPT io_JLink_win.jnc)
+elseif(APPLE)
+	set(_JLINK_OS_SCRIPT io_JLink_drw.jnc)
+else()
+	set(_JLINK_OS_SCRIPT io_JLink_lnx.jnc)
+endif()
+
 add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-plugin-"
 	FLAGS ${_COMMON_FLAGS}
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Df1
+	REQUIRES
+		Df1Layer
+		representDf1Log
+	FILES
+		Df1Layer.jnc
+		Df1Parser.jnc
+		Df1LogRecordCode.jnc
+		Df1LogRepresenter.jnc
+	FINALIZE_TEST Df1
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Echo
 	REQUIRES EchoLayer
@@ -67,6 +86,20 @@ add_jancy_tests(
 		../SerialLog/SerialLogFilter.jnc
 	FINALIZE_TEST GenericSerialTap
 
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/JLinkRtt
+	REQUIRES
+		JLinkRttSession
+		representJLinkRttLog
+		representSocketLog
+	FILES
+		JLinkRttSession.jnc
+		JLinkRttLogRecordCode.jnc
+		JLinkRttLogRepresenter.jnc
+		../../common/${_JLINK_OS_SCRIPT}
+		../SocketLog/SocketLogRecordCode.jnc
+		../SocketLog/SocketLogRepresenter.jnc
+	FINALIZE_TEST JLinkRtt
+
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Mailslot
 	REQUIRES
 		MailslotSession
@@ -76,6 +109,17 @@ add_jancy_tests(
 		MailslotLogRecordCode.jnc
 		MailslotLogRepresenter.jnc
 	FINALIZE_TEST Mailslot
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Mdns
+	REQUIRES
+		MdnsScannerSession
+		representMdnsLog
+		detailizeMdnsLog
+	FILES
+		MdnsScannerSession.jnc
+		MdnsLogRecordCode.jnc
+		MdnsLogRepresenter.jnc
+	FINALIZE_TEST MdnsScanner
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Modbus
 	REQUIRES
@@ -237,9 +281,15 @@ add_jancy_tests(
 		ProcessLogRepresenter.jnc
 	FINALIZE_TEST Process
 
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/ReplayLog
+	REQUIRES ReplayLogLayer
+	FILES ReplayLogLayer.jnc
+	FINALIZE_TEST ReplayLog
+
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TibboModbusGatewayMon
 	REQUIRES
 		ModbusGatewayMonSession
+		representModbusGatewayMonLog
 		representSocketLog
 	FILES
 		ModbusGatewayMonSession.jnc
@@ -262,6 +312,7 @@ add_jancy_tests(
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Udp
 	REQUIRES
 		UdpSession
+		representUdpLog
 		representSocketLog
 	FILES
 		UdpSession.jnc
@@ -288,6 +339,36 @@ add_jancy_tests(
 		XModemTransmitter.jnc
 		XModemReceiver.jnc
 	FINALIZE_TEST XModem
+
+	NAME_PREFIX "jnc-ioninja-sample-"
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/samples/Osdp
+	REQUIRES
+		OsdpLayer
+		representOsdpLog
+	FILES
+		OsdpLayer.jnc
+		OsdpParser.jnc
+		Osdp.jnc
+		OsdpLogRecordCode.jnc
+		OsdpLogRepresenter.jnc
+	FINALIZE_TEST Osdp
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/samples/PostIt
+	REQUIRES PostItLayer
+	FILES PostItLayer.jnc
+	FINALIZE_TEST PostIt
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/samples/TutoProto
+	REQUIRES
+		TutoProtoLayer
+		representTutoProtoLog
+	FILES
+		TutoProtoLayer.jnc
+		TutoProto.jnc
+		TutoProtoLogRecordCode.jnc
+		TutoProtoLogRepresenter.jnc
+	FINALIZE_TEST TutoProto
 )
 
 if(BUILD_JNC_IO_SSH)
@@ -302,8 +383,8 @@ if(BUILD_JNC_IO_SSH)
 			representSocketLog
 		FILES
 			SshChannelSession.jnc
-			SshLogRecordCode.jnc
-			SshLogRepresenter.jnc
+			../SshLog/SshLogRecordCode.jnc
+			../SshLog/SshLogRepresenter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
 		FINALIZE_TEST SshChannel
@@ -326,11 +407,105 @@ if(BUILD_JNC_IO_SSH)
 			../SerialLog/SerialLogRecordCode.jnc
 			../SerialLog/SerialLogRepresenter.jnc
 			../SerialLog/SerialLogFilter.jnc
-			../SshChannel/SshLogRecordCode.jnc
-			../SshChannel/SshLogRepresenter.jnc
+			../SshLog/SshLogRecordCode.jnc
+			../SshLog/SshLogRepresenter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
 		FINALIZE_TEST SshSerialMon
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Serial
+		REQUIRES
+			SshSerialSession
+			representSerialLog
+			representSshLog
+			representSocketLog
+		FILES
+			SshSerialSession.jnc
+			../SerialLog/SerialLogRecordCode.jnc
+			../SerialLog/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogFilter.jnc
+			../SshLog/SshLogRecordCode.jnc
+			../SshLog/SshLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST SshSerial
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialTap
+		REQUIRES
+			SshSerialTapSession
+			representSerialLog
+			representSshLog
+			representSocketLog
+		FILES
+			SshSerialTapSession.jnc
+			../SerialLog/SerialLogRecordCode.jnc
+			../SerialLog/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogFilter.jnc
+			../SshLog/SshLogRecordCode.jnc
+			../SshLog/SshLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST SshSerialTap
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/EthernetTap
+		REQUIRES
+			SshEthernetTapSession
+			representEthernetTapLog
+			detailizeEthernetTapLog
+			representFpgaUploaderLog
+			representSshLog
+			representSocketLog
+		FILES
+			EthernetTap.jnc
+			SshEthernetTapSession.jnc
+			EthernetTapLogToPcap.jnc
+			EthernetTapLogFilter.jnc
+			EthernetTapLogRecordCode.jnc
+			EthernetTapLogRepresenter.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
+			../NetSnifferLog/NetSnifferLogFilter.jnc
+			../NetSnifferLog/NetSnifferLogRecordCode.jnc
+			../NetSnifferLog/NetSnifferLogRepresenter.jnc
+			../NetSnifferLog/Protocols.jnc
+			../NetSnifferLog/Proto_Simple.jnc
+			../NetSnifferLog/Proto_Ethernet.jnc
+			../NetSnifferLog/Proto_Loopback.jnc
+			../NetSnifferLog/Proto_Arp.jnc
+			../NetSnifferLog/Proto_Ip.jnc
+			../NetSnifferLog/Proto_Ip6.jnc
+			../NetSnifferLog/Proto_Tcp.jnc
+			../NetSnifferLog/Proto_Udp.jnc
+			../NetSnifferLog/Proto_Dns.jnc
+			../NetSnifferLog/Proto_Dhcp.jnc
+			../SshLog/SshLogRecordCode.jnc
+			../SshLog/SshLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST SshEthernetTap
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/I2cSpiTap
+		REQUIRES
+			SshI2cSpiTapSession
+			representI2cSpiTapLog
+			representFpgaUploaderLog
+			representSshLog
+			representSocketLog
+		FILES
+			SshI2cSpiTapSession.jnc
+			I2cSpiTapHwc.jnc
+			I2cSpiTapLogRecordCode.jnc
+			I2cSpiTapLogRepresenter.jnc
+			Decoder.jnc
+			I2cDecoder.jnc
+			SpiDecoder.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
+			../SshLog/SshLogRecordCode.jnc
+			../SshLog/SshLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST SshI2cSpiTap
 	)
 endif()
 
@@ -575,6 +750,17 @@ if(BUILD_JNC_IO_USB)
 			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
 			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
 		FINALIZE_TEST I2cSpiTap
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialTapPro
+		REQUIRES
+			representSerialTapProLog
+		FILES
+			SerialTapPro.jnc
+			SerialTapProLogRecordCode.jnc
+			SerialTapProLogRepresenter.jnc
+			SerialTapProLogConverter.jnc
+			SerialTapProDispatchCode.jnc
+		FINALIZE_TEST SerialTapProLog
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/EthernetTap
 		REQUIRES
