@@ -22,6 +22,7 @@ enum AsyncIoDeviceEvent {
 	AsyncIoDeviceEvent_IncomingData     = 0x0002,
 	AsyncIoDeviceEvent_ReadBufferFull   = 0x0004,
 	AsyncIoDeviceEvent_WriteBufferEmpty = 0x0008,
+	AsyncIoDeviceEvent_BufferMask       = 0x000e,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

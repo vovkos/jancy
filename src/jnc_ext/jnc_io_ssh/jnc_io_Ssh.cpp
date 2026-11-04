@@ -703,7 +703,7 @@ SshChannel::sshReadWriteLoop() {
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SshEvent_FullyConnected;
+		m_activeEvents &= ~AsyncIoDeviceEvent_BufferMask;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 		char* p = readBlock.p();
@@ -813,7 +813,7 @@ SshChannel::sshReadWriteLoop() {
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SshEvent_FullyConnected;
+		m_activeEvents &= ~AsyncIoDeviceEvent_BufferMask;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 		char* p = readBlock.p();
