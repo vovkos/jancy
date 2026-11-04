@@ -324,6 +324,13 @@ SshChannel::resizePty(
 	uint_t height
 ) {
 	m_lock.lock();
+	if (!(m_ioThreadFlags & IoFlag_Pty)) {
+		m_lock.unlock();
+
+		setError(err::SystemErrorCode_InvalidDeviceState);
+		return false;
+	}
+
 	m_ptyWidth = width;
 	m_ptyHeight = height;
 	m_ioThreadFlags |= IoFlag_ResizePty;
