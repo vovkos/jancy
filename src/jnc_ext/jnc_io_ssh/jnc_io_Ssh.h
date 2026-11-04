@@ -27,7 +27,8 @@ enum SshEvent {
 	SshEvent_SshAuthenticateCompleted = 0x0800,
 	SshEvent_SshChannelOpened         = 0x1000,
 	SshEvent_SshPtyRequestCompleted   = 0x2000,
-	SshEvent_SshConnectCompleted      = 0x4000,
+	SshEvent_SshProcessStarted        = 0x4000,
+	SshEvent_SshConnectCompleted      = 0x8000,
 
 	SshEvent_FullyConnected =
 		SocketEvent_TcpConnected |

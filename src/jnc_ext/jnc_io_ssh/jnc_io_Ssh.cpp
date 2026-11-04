@@ -555,9 +555,9 @@ SshChannel::sshConnectLoop() {
 			setIoErrorEvent(getSshLastError(m_sshSession));
 			return false;
 		}
-	}
 
-	setEvents(SshEvent_SshPtyRequestCompleted);
+		setEvents(SshEvent_SshPtyRequestCompleted);
+	}
 
 	if (!m_connectParams->m_processType.isEmpty()) {
 		do {
@@ -576,6 +576,8 @@ SshChannel::sshConnectLoop() {
 			setIoErrorEvent(getSshLastError(m_sshSession));
 			return false;
 		}
+
+		setEvents(SshEvent_SshProcessStarted);
 	}
 
 	setEvents(SshEvent_SshConnectCompleted);

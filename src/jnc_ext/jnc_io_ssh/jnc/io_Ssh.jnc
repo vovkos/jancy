@@ -55,7 +55,7 @@ bitflag enum SshEvents: SocketEvents {
 
 	/**
 		``SSH`` channel to the server has been opened successfully; a request
-		for a specific pseudo-terminal(such as ``xterm``) has been sent.
+		for a pseudo-terminal or a remote process (if any) has been sent.
 	*/
 
 	SshChannelOpened,
@@ -63,15 +63,22 @@ bitflag enum SshEvents: SocketEvents {
 	/**
 		Request to the ``SSH`` server for a specific pseudo-terminal(such as
 		``xterm``) has been completed successfully; request to start a remote
-		process(such as ``shell``) has been sent.
+		process (if any) has been sent. Only fires if a pseudo-terminal was
+		requested.
 	*/
 
 	SshPtyRequestCompleted,
 
 	/**
-		A remote process(such as ``shell``) has been started; the full ``SSH``
-		connect sequence has been completed successfully. ``SSH`` channel is
-		ready to use.
+		A remote process(such as ``shell``) has been started. Only fires if a
+		remote process was requested.
+	*/
+
+	SshProcessStarted,
+
+	/**
+		The full ``SSH`` connect sequence has been completed successfully.
+		``SSH`` channel is ready to use.
 	*/
 
 	SshConnectCompleted,
@@ -383,7 +390,8 @@ opaque class SshChannel {
 		``height``. If ``isSync`` is ``true`` then this method does not return
 		until the remote server completes the request.
 
-		Returns ``true`` on success. If pseudo-terminal could not be resized,
+		Returns ``true`` on success. Fails if no pseudo-terminal was requested
+		in `io.SshChannel.connect`. If pseudo-terminal could not be resized,
 		error returned by the remote server is set and then the function returns
 		``false`` [#f1]_.
 	*/
