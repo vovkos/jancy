@@ -372,6 +372,13 @@ protected:
 
 	void
 	sshReadWriteLoop();
+
+	ssize_t
+	sshRead(
+		char* p,
+		size_t size,
+		bool hasStderr
+	);
 };
 
 //..............................................................................
