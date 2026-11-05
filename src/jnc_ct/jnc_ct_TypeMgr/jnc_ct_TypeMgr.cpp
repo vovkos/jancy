@@ -2012,12 +2012,19 @@ TypeMgr::createGcShadowStackFrameType() {
 	type->createField("!m_map", getStdType(StdType_ByteThinPtr));
 	type->createField("!m_gcRootArray", getStdType(StdType_ByteThinPtr)->getDataPtrType(DataPtrKind_Thin));
 	type->ensureLayout();
+	ASSERT(type->getSize() == sizeof(GcShadowStackFrame));
 	return type;
 }
 
 StructType*
 TypeMgr::createSjljFrameType() {
+#if (_JNC_OS_POSIX)
+	// jnc_SignalInfo is 8-byte aligned, and sizeof(jmp_buf) may be not (e.g., 148 on x86_64 macOS)
+	ArrayType* arrayType = getArrayType(getPrimitiveType(TypeKind_Char), offsetof(jnc_SjljFrame, m_signalInfo));
+#else
 	ArrayType* arrayType = getArrayType(getPrimitiveType(TypeKind_Char), sizeof(jmp_buf));
+#endif
+
 	StructType* type = createInternalStructType("jnc.SjljFrame");
 	type->createField("!m_jmpBuf", arrayType);
 
@@ -2032,6 +2039,7 @@ TypeMgr::createSjljFrameType() {
 #endif
 
 	type->ensureLayout();
+	ASSERT(type->getSize() == sizeof(SjljFrame));
 	type->m_alignment = 16; // override alignment
 	return type;
 }
