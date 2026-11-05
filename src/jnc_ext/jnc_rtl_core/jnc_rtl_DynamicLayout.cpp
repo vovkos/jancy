@@ -52,15 +52,6 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-class DynamicDecl: public ct::ModuleItemDecl {
-public:
-	virtual
-	ct::ModuleItem*
-	getDeclItem() {
-		return NULL;
-	}
-};
-
 static
 ModuleItemDecl*
 getRtlDecl(
@@ -79,7 +70,7 @@ getRtlDecl(
 	NoCollectRegion noCollectRegion(runtime);
 
 	ct::AttributeBlock* attributeBlock = module->m_attributeMgr.createDynamicAttributeBlock(decl);
-	DynamicDecl* dynamicDecl = new DynamicDecl;
+	ct::ModuleItemDecl* dynamicDecl = new ct::ModuleItemDecl;
 	dynamicDecl->copyDecl(decl, attributeBlock);
 
 	const sl::Array<ct::Attribute*>& attributeArray = attributeBlock->getAttributeArray();

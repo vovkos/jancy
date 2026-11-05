@@ -173,7 +173,10 @@ public:
 
 	virtual
 	ModuleItem*
-	getDeclItem() = 0;
+	getDeclItem() {
+		ASSERT(false);
+		return NULL;
+	}
 
 	StorageKind
 	getStorageKind() const {
