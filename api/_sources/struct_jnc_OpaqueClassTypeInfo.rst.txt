@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_OpaqueClassTypeInfo
+.. _doxid-structjnc___opaque_class_type_info:
+
+struct jnc_OpaqueClassTypeInfo
+==============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_OpaqueClassTypeInfo {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___opaque_class_type_info_1ae7d37bd7fc2d4585a4360476e0645c68>`;
+		jnc_MarkOpaqueGcRootsFunc* :target:`m_markOpaqueGcRootsFunc<doxid-structjnc___opaque_class_type_info_1a5ac08a73ee958cf7bffbb76c35eb8466>`;
+		jnc_RequireOpaqueItemsFunc* :target:`m_requireOpaqueItemsFunc<doxid-structjnc___opaque_class_type_info_1afae73e2a8ee5f8f6d5e30dfd096563a8>`;
+		:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>` :target:`m_isNonCreatable<doxid-structjnc___opaque_class_type_info_1a6907272bd224d10ace4e6f4e116d820c>`;
+	};

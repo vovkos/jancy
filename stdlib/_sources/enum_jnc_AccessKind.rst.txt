@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; AccessKind
+.. _doxid-typejnc_accesskind:
+
+enum jnc.AccessKind
+===================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum AccessKind {
+	    :target:`Undefined<doxid-enum_memberjnc_accesskind_undefined>` = 0,
+	    :target:`Public<doxid-enum_memberjnc_accesskind_public>`,
+	    :target:`Protected<doxid-enum_memberjnc_accesskind_protected>`,
+	    :target:`_Count<doxid-enum_memberjnc_accesskind__count>`,
+	};
+

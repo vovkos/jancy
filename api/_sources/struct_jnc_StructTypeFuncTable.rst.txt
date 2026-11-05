@@ -1,0 +1,21 @@
+.. index:: pair: struct; jnc_StructTypeFuncTable
+.. _doxid-structjnc___struct_type_func_table:
+
+struct jnc_StructTypeFuncTable
+==============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StructTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___struct_type_func_table_1a29f8183675d615af885e175743d09c03>`;
+	};

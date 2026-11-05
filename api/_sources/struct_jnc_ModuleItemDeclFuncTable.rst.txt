@@ -1,0 +1,31 @@
+.. index:: pair: struct; jnc_ModuleItemDeclFuncTable
+.. _doxid-structjnc___module_item_decl_func_table:
+
+struct jnc_ModuleItemDeclFuncTable
+==================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ModuleItemDeclFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___module_item_decl_func_table_1a3733bf73297e51bf2ccbe3d1f1794343>`;
+		jnc_ModuleItemDecl_GetNameFunc* :target:`m_getNameFunc<doxid-structjnc___module_item_decl_func_table_1a587a65bc4261df1d767d16c05a2087d2>`;
+		jnc_ModuleItemDecl_GetStorageKindFunc* :target:`m_getStorageKindFunc<doxid-structjnc___module_item_decl_func_table_1aad4fcf61b882156bf32dec43748451d4>`;
+		jnc_ModuleItemDecl_GetAccessKindFunc* :target:`m_getAccessKindFunc<doxid-structjnc___module_item_decl_func_table_1a26ba3ad1624bd96ff391ced5d9d7fba7>`;
+		jnc_ModuleItemDecl_GetAttributeBlockFunc* :target:`m_getAttributeBlockFunc<doxid-structjnc___module_item_decl_func_table_1a809262b552473bcc989127487a6a428a>`;
+		jnc_ModuleItemDecl_FindAttributeFunc* :target:`m_findAttributeFunc<doxid-structjnc___module_item_decl_func_table_1a374cb3c33177003a7463d44a65ce88b9>`;
+		jnc_ModuleItemDecl_GetParentUnitFunc* :target:`m_getParentUnitFunc<doxid-structjnc___module_item_decl_func_table_1ae13ba9a12fc73caa06f83fc73c9a902c>`;
+		jnc_ModuleItemDecl_GetParentNamespaceFunc* :target:`m_getParentNamespaceFunc<doxid-structjnc___module_item_decl_func_table_1af30783248a83533502a3cad0e2781297>`;
+		jnc_ModuleItemDecl_GetDeclItemFunc* :target:`m_getDeclItemFunc<doxid-structjnc___module_item_decl_func_table_1add00ecd8e3eca0fb677586168d95c307>`;
+		jnc_ModuleItemDecl_GetLineFunc* :target:`m_getLineFunc<doxid-structjnc___module_item_decl_func_table_1addd8c93b88f964add41e6849fc0bcfaf>`;
+		jnc_ModuleItemDecl_GetColFunc* :target:`m_getColFunc<doxid-structjnc___module_item_decl_func_table_1a75c9f7a5760a94cad18d633aeff0e801>`;
+	};

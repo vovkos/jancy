@@ -1,0 +1,34 @@
+.. include:: def.rst
+.. index:: pair: enum; ModuleItemKind
+.. _doxid-typejnc_moduleitemkind:
+
+enum jnc.ModuleItemKind
+=======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum ModuleItemKind {
+	    :target:`Undefined<doxid-enum_memberjnc_moduleitemkind_undefined>`        = 0,
+	    :target:`Namespace<doxid-enum_memberjnc_moduleitemkind_namespace>`,
+	    :target:`Scope<doxid-enum_memberjnc_moduleitemkind_scope>`,
+	    :target:`Type<doxid-enum_memberjnc_moduleitemkind_type>`,
+	    :target:`Typedef<doxid-enum_memberjnc_moduleitemkind_typedef>`,
+	    :target:`Alias<doxid-enum_memberjnc_moduleitemkind_alias>`,
+	    :target:`Const<doxid-enum_memberjnc_moduleitemkind_const>`,
+	    :target:`Variable<doxid-enum_memberjnc_moduleitemkind_variable>`,
+	    :target:`FunctionArg<doxid-enum_memberjnc_moduleitemkind_functionarg>`,
+	    :target:`Function<doxid-enum_memberjnc_moduleitemkind_function>`,
+	    :target:`Property<doxid-enum_memberjnc_moduleitemkind_property>`,
+	    :target:`PropertyTemplate<doxid-enum_memberjnc_moduleitemkind_propertytemplate>`,
+	    :target:`EnumConst<doxid-enum_memberjnc_moduleitemkind_enumconst>`,
+	    :target:`Field<doxid-enum_memberjnc_moduleitemkind_field>`,
+	    :target:`BaseTypeSlot<doxid-enum_memberjnc_moduleitemkind_basetypeslot>`,
+	    :target:`Orphan<doxid-enum_memberjnc_moduleitemkind_orphan>`,
+	    :target:`Lazy<doxid-enum_memberjnc_moduleitemkind_lazy>`,
+	    :target:`_Count<doxid-enum_memberjnc_moduleitemkind__count>`,
+	};
+

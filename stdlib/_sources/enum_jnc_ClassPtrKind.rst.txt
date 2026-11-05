@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; ClassPtrKind
+.. _doxid-typejnc_classptrkind:
+
+enum jnc.ClassPtrKind
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum ClassPtrKind {
+	    :target:`Normal<doxid-enum_memberjnc_classptrkind_normal>` = 0x000000,
+	    :target:`Weak<doxid-enum_memberjnc_classptrkind_weak>`   = 0x100000,
+	    :target:`_Count<doxid-enum_memberjnc_classptrkind__count>` = 2,
+	};
+

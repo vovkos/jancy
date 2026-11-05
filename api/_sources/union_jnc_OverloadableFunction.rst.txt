@@ -1,0 +1,23 @@
+.. index:: pair: union; jnc_OverloadableFunction
+.. _doxid-unionjnc___overloadable_function:
+
+union jnc_OverloadableFunction
+==============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	union jnc_OverloadableFunction {
+		// fields
+	
+		:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* :target:`m_item<doxid-unionjnc___overloadable_function_1a69918571da61da8cf0b4464fecb88aee>`;
+		:ref:`jnc_Function<doxid-structjnc___function>`* :target:`m_function<doxid-unionjnc___overloadable_function_1abd48c5c231b919241486e1f52f454683>`;
+		jnc_FunctionOverload* :target:`m_functionOverload<doxid-unionjnc___overloadable_function_1ae6e5536c2df03f571844ff03453f3876>`;
+	};

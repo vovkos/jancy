@@ -1,0 +1,124 @@
+.. include:: def.rst
+.. index:: pair: struct; io.SerialPortDesc
+.. _doxid-typeio_serialportdesc:
+
+struct io.SerialPortDesc
+========================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about the serial port device. :ref:`More...<details-typeio_serialportdesc>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_Serial.jnc"
+	
+	struct SerialPortDesc {
+		// fields
+	
+		io.SerialPortDesc const* :ref:`m_next<doxid-fieldio_serialportdesc_m_next>`;
+		typedef String string_t :ref:`m_deviceName<doxid-fieldio_serialportdesc_m_devicename>`;
+		typedef String string_t :ref:`m_description<doxid-fieldio_serialportdesc_m_description>`;
+		typedef String string_t :ref:`m_manufacturer<doxid-fieldio_serialportdesc_m_manufacturer>`;
+		typedef String string_t :ref:`m_hardwareIds<doxid-fieldio_serialportdesc_m_hardwareids>`;
+		typedef String string_t :ref:`m_driver<doxid-fieldio_serialportdesc_m_driver>`;
+		typedef String string_t :ref:`m_location<doxid-fieldio_serialportdesc_m_location>`;
+	};
+.. _details-typeio_serialportdesc:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about the serial port device.
+
+A list of serial port descriptions is returned by
+`io.enumerateSerialPorts`.
+
+
+
+.. rubric:: See also:
+
+`io.enumerateSerialPorts`
+
+Fields
+------
+
+.. index:: pair: variable; m_next
+.. _doxid-fieldio_serialportdesc_m_next:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	io.SerialPortDesc const* m_next
+
+Holds a pointer to the next serial port description or ``null`` if this
+is the last adapter.
+
+.. index:: pair: variable; m_deviceName
+.. _doxid-fieldio_serialportdesc_m_devicename:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_deviceName
+
+Holds the serial port device name; use this name as ``name`` argument in
+`io.Serial.open` method.
+
+.. index:: pair: variable; m_description
+.. _doxid-fieldio_serialportdesc_m_description:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_description
+
+Holds a human-readable description of the serial port.
+
+.. index:: pair: variable; m_manufacturer
+.. _doxid-fieldio_serialportdesc_m_manufacturer:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_manufacturer
+
+Holds the name of the manufacturer of this serial port.
+
+.. index:: pair: variable; m_hardwareIds
+.. _doxid-fieldio_serialportdesc_m_hardwareids:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_hardwareIds
+
+Holds hardware ID(s) of this serial port.
+
+.. index:: pair: variable; m_driver
+.. _doxid-fieldio_serialportdesc_m_driver:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_driver
+
+Holds information about the device driver for this serial port.
+
+.. index:: pair: variable; m_location
+.. _doxid-fieldio_serialportdesc_m_location:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t m_location
+
+Holds a string identifying the location of this serial port in the system device tree.
+

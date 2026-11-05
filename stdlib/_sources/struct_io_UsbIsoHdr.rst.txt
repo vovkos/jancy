@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbIsoHdr
+.. _doxid-typeio_usbisohdr:
+
+struct io.UsbIsoHdr
+===================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbIsoHdr {
+		// fields
+	
+		typedef unsigned int uint32_t :target:`m_packetCount<doxid-fieldio_usbisohdr_m_packetcount>`;
+		typedef unsigned int uint32_t :target:`m_errorCount<doxid-fieldio_usbisohdr_m_errorcount>`;
+	};

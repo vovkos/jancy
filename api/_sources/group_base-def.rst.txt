@@ -1,0 +1,25 @@
+.. index:: pair: group; Base Definitions
+.. _doxid-group__base-def:
+
+Base Definitions
+================
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Guid.rst
+	struct_jnc_ListLink.rst
+
+This section describes base global definitions of Jancy C API.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Def.h>
+	
+	// structs
+
+	struct :ref:`jnc_Guid<doxid-structjnc___guid>`;
+	struct :ref:`jnc_ListLink<doxid-structjnc___list_link>`;
+

@@ -1,0 +1,37 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidUsagePage
+.. _doxid-typeio_hidusagepage:
+
+class io.HidUsagePage
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidUsagePage {
+		// fields
+	
+		typedef unsigned int uint_t const :target:`m_id<doxid-fieldio_hidusagepage_m_id>`;
+
+		// properties
+	
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_name<doxid-propertyio_hidusagepage_m_name>`;
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_string<doxid-propertyio_hidusagepage_m_string>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_hidusagepage_construct>`();
+		:target:`destruct<doxid-functionio_hidusagepage_destruct>`();
+
+		// methods
+	
+		:ref:`string_t<doxid-typedefstring_t>` :target:`getUsageName<doxid-functionio_hidusagepage_getusagename>`(:ref:`uint_t<doxid-typedefuint_t>` usage) const;
+		:ref:`string_t<doxid-typedefstring_t>` :target:`getUsageString<doxid-functionio_hidusagepage_getusagestring>`(:ref:`uint_t<doxid-typedefuint_t>` usage) const;
+	};

@@ -1,0 +1,27 @@
+.. index:: pair: group; Module
+.. _doxid-group__module:
+
+Module
+======
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_CodeAuthenticatorConfig.rst
+	struct_jnc_Module.rst
+	struct_jnc_ModuleConfig.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Module.h>
+	
+	// structs
+
+	struct :ref:`jnc_CodeAuthenticatorConfig<doxid-structjnc___code_authenticator_config>`;
+	struct :ref:`jnc_Module<doxid-structjnc___module>`;
+	struct :ref:`jnc_ModuleConfig<doxid-structjnc___module_config>`;
+

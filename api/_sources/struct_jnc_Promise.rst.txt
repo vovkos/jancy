@@ -1,0 +1,27 @@
+.. index:: pair: struct; jnc_Promise
+.. _doxid-structjnc___promise:
+
+struct jnc_Promise
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_Promise {
+		// fields
+	
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>` :target:`m_ifaceHdr<doxid-structjnc___promise_1ade373ab3dcb5693feba14f7a3b627f25>`;
+		size_t :target:`m_state<doxid-structjnc___promise_1a148bd5ad7f9b59fdc87577dfb13d7383>`;
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>`* :target:`m_scheduler<doxid-structjnc___promise_1ae0c20e3d1fb2e43063018685b61fe989>`;
+		jnc_Promise* :target:`m_pendingPromise<doxid-structjnc___promise_1addbee9806c66a0a40bcff2d85e04fa58>`;
+		:ref:`jnc_GcShadowStackFrame<doxid-structjnc___gc_shadow_stack_frame>`* :target:`m_gcShadowStackFrame<doxid-structjnc___promise_1aed22cb857dce6f38ccb381d4ea022aa8>`;
+		:ref:`jnc_Variant<doxid-structjnc___variant>` :target:`m_result<doxid-structjnc___promise_1abd31b31b1ba98c7a268d798880286a65>`;
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_errorPtr<doxid-structjnc___promise_1a5778232c431ec12dce7e89f6abd942f4>`;
+	};

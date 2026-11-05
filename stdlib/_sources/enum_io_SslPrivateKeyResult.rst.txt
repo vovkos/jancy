@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; SslPrivateKeyResult
+.. _doxid-typeio_sslprivatekeyresult:
+
+enum io.SslPrivateKeyResult
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum SslPrivateKeyResult {
+	    :target:`PassphraseError<doxid-enum_memberio_sslprivatekeyresult_passphraseerror>` = -2,
+	    :target:`Error<doxid-enum_memberio_sslprivatekeyresult_error>`           = -1,
+	    :target:`Success<doxid-enum_memberio_sslprivatekeyresult_success>`         = 0,
+	};
+

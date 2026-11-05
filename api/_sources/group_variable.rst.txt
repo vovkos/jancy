@@ -1,0 +1,23 @@
+.. index:: pair: group; Variable
+.. _doxid-group__variable:
+
+Variable
+========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Variable.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Variable.h>
+	
+	// structs
+
+	struct :ref:`jnc_Variable<doxid-structjnc___variable>`;
+

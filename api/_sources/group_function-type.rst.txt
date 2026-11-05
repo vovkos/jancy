@@ -1,0 +1,23 @@
+.. index:: pair: group; Function Type
+.. _doxid-group__function-type:
+
+Function Type
+=============
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_FunctionType.rst
+
+Function type defines a signature of a function what it the calling convention, which type is the return value of, how many and which type of arguments a function accepts and so on.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_FunctionType.h>
+	
+	// structs
+
+	struct :ref:`jnc_FunctionType<doxid-structjnc___function_type>`;
+

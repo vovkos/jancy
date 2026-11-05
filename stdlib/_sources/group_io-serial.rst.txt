@@ -1,0 +1,102 @@
+.. include:: def.rst
+.. index:: pair: group; Serial Communications
+.. _doxid-group_io_serial:
+
+Serial Communications
+=====================
+
+.. toctree::
+	:hidden:
+
+	enum_io_SerialEvents.rst
+	enum_io_SerialFlowControl.rst
+	enum_io_SerialLineErrors.rst
+	enum_io_SerialOptions.rst
+	enum_io_SerialParity.rst
+	enum_io_SerialPortDescFlags.rst
+	enum_io_SerialStatusLines.rst
+	enum_io_SerialStopBits.rst
+	struct_io_SerialPortDesc.rst
+	class_io_Serial.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities used when programming serial communicatins. :ref:`More...<details-group_io_serial>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_Serial.jnc"
+	
+	// enums
+
+	bitflag enum :ref:`io.SerialEvents<doxid-typeio_serialevents>`;
+	enum :ref:`io.SerialFlowControl<doxid-typeio_serialflowcontrol>`;
+	bitflag enum :ref:`io.SerialLineErrors<doxid-typeio_seriallineerrors>`;
+	bitflag enum :ref:`io.SerialOptions<doxid-typeio_serialoptions>`;
+	enum :ref:`io.SerialParity<doxid-typeio_serialparity>`;
+	bitflag enum :ref:`io.SerialPortDescFlags<doxid-typeio_serialportdescflags>`;
+	bitflag enum :ref:`io.SerialStatusLines<doxid-typeio_serialstatuslines>`;
+	enum :ref:`io.SerialStopBits<doxid-typeio_serialstopbits>`;
+
+	// structs
+
+	struct :ref:`io.SerialPortDesc<doxid-typeio_serialportdesc>`;
+
+	// classes
+
+	class :ref:`io.Serial<doxid-typeio_serial>`;
+
+	// global functions
+
+	:ref:`io.SerialPortDesc<doxid-typeio_serialportdesc>` const* :ref:`io.enumerateSerialPorts<doxid-functionio_enumerateserialports>`(
+		:ref:`io.SerialPortDescFlags<doxid-typeio_serialportdescflags>` flags,
+		:ref:`size_t<doxid-typedefsize_t>`* count = null
+	);
+
+	:ref:`io.SerialPortDesc<doxid-typeio_serialportdesc>` const* :ref:`io.enumerateSerialPorts<doxid-functionio_enumerateserialports_2>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+
+.. _details-group_io_serial:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities used when programming serial communicatins.
+
+Global Functions
+----------------
+
+.. index:: pair: function; enumerateSerialPorts
+.. _doxid-functionio_enumerateserialports:
+.. index:: pair: function; enumerateSerialPorts
+.. _doxid-functionio_enumerateserialports_2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SerialPortDesc<doxid-typeio_serialportdesc>` const* io.enumerateSerialPorts(
+		:ref:`io.SerialPortDescFlags<doxid-typeio_serialportdescflags>` flags,
+		:ref:`size_t<doxid-typedefsize_t>`* count = null
+	)
+
+	:ref:`io.SerialPortDesc<doxid-typeio_serialportdesc>` const* io.enumerateSerialPorts(:ref:`size_t<doxid-typedefsize_t>`* count = null)
+
+Enumerates all available serial ports.
+
+``count`` argument can be used to obtain the total number of devices in the
+resulting list.
+
+Returns a pointer to the very first `io.SerialPortDesc` in the resulting
+list. You can walk through the list by inspecting `io.SerialPortDesc.m_next`
+field:
+
+.. ref-code-block::
+
+	`io.SerialPortDesc` const* portDesc = io.enumerateSerialPorts();
+	for (; portDesc; portDesc = portDesc.m_next) {
+		// add port to the combo box...
+	}
+

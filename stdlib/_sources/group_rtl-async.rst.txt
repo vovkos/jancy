@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: group; Async-await
+.. _doxid-group_rtl_async:
+
+Async-await
+===========
+
+.. toctree::
+	:hidden:
+
+	class_jnc_Promise.rst
+	class_jnc_Promisifier.rst
+
+This section describes facilities for the async-await paradigm.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// classes
+
+	class :ref:`jnc.Promise<doxid-typejnc_promise>`;
+	class :ref:`jnc.Promisifier<doxid-typejnc_promisifier>`;
+

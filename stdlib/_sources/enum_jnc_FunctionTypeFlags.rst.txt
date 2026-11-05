@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: enum; FunctionTypeFlags
+.. _doxid-typejnc_functiontypeflags:
+
+bitflag enum jnc.FunctionTypeFlags
+==================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum FunctionTypeFlags {
+	    :target:`VarArg<doxid-enum_memberjnc_functiontypeflags_vararg>`         = 0x010000,
+	    :target:`ErrorCode<doxid-enum_memberjnc_functiontypeflags_errorcode>`      = 0x020000,
+	    :target:`ByValArgs<doxid-enum_memberjnc_functiontypeflags_byvalargs>`      = 0x040000,
+	    :target:`CoercedArgs<doxid-enum_memberjnc_functiontypeflags_coercedargs>`    = 0x080000,
+	    :target:`Unsafe<doxid-enum_memberjnc_functiontypeflags_unsafe>`         = 0x100000,
+	    :target:`Async<doxid-enum_memberjnc_functiontypeflags_async>`          = 0x200000,
+	    :target:`AsyncErrorCode<doxid-enum_memberjnc_functiontypeflags_asyncerrorcode>` = 0x400000,
+	};
+

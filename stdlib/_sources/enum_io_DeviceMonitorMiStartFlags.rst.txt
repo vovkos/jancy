@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: enum; DeviceMonitorMiStartFlags
+.. _doxid-typeio_devicemonitormistartflags:
+
+bitflag enum io.DeviceMonitorMiStartFlags
+=========================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum DeviceMonitorMiStartFlags {
+	    :target:`Windows<doxid-enum_memberio_devicemonitormistartflags_windows>`,
+	    :target:`Posix<doxid-enum_memberio_devicemonitormistartflags_posix>`,
+	    :target:`Linux<doxid-enum_memberio_devicemonitormistartflags_linux>`,
+	    :target:`Bsd<doxid-enum_memberio_devicemonitormistartflags_bsd>`,
+	    :target:`Darwin<doxid-enum_memberio_devicemonitormistartflags_darwin>`,
+	    :target:`X86<doxid-enum_memberio_devicemonitormistartflags_x86>`     = 0x0100,
+	    :target:`Amd64<doxid-enum_memberio_devicemonitormistartflags_amd64>`,
+	    :target:`Arm32<doxid-enum_memberio_devicemonitormistartflags_arm32>`,
+	    :target:`Arm64<doxid-enum_memberio_devicemonitormistartflags_arm64>`,
+	};
+

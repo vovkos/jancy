@@ -1,0 +1,36 @@
+.. include:: def.rst
+.. index:: pair: enum; DeviceMonitorNotifyCode
+.. _doxid-typeio_win_devicemonitornotifycode:
+
+enum io.win.DeviceMonitorNotifyCode
+===================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DeviceMonitorNotifyCode: typedef unsigned short uint16_t {
+	    :target:`Undefined<doxid-enum_memberio_win_devicemonitornotifycode_undefined>`          = 0,
+	    :target:`PnpStartDevice<doxid-enum_memberio_win_devicemonitornotifycode_pnpstartdevice>`,
+	    :target:`PnpStopDevice<doxid-enum_memberio_win_devicemonitornotifycode_pnpstopdevice>`,
+	    :target:`PnpRemoveDevice<doxid-enum_memberio_win_devicemonitornotifycode_pnpremovedevice>`,
+	    :target:`FastIoDetachDevice<doxid-enum_memberio_win_devicemonitornotifycode_fastiodetachdevice>`,
+	    :target:`Create<doxid-enum_memberio_win_devicemonitornotifycode_create>`,
+	    :target:`CreateNamedPipe<doxid-enum_memberio_win_devicemonitornotifycode_createnamedpipe>`,
+	    :target:`Close<doxid-enum_memberio_win_devicemonitornotifycode_close>`,
+	    :target:`Read<doxid-enum_memberio_win_devicemonitornotifycode_read>`,
+	    :target:`Write<doxid-enum_memberio_win_devicemonitornotifycode_write>`,
+	    :target:`Ioctl<doxid-enum_memberio_win_devicemonitornotifycode_ioctl>`,
+	    :target:`InternalIoctl<doxid-enum_memberio_win_devicemonitornotifycode_internalioctl>`,
+	    :target:`Fsctl<doxid-enum_memberio_win_devicemonitornotifycode_fsctl>`,
+	    :target:`CreateMailslot<doxid-enum_memberio_win_devicemonitornotifycode_createmailslot>`,
+	    :target:`KeyboardEvent<doxid-enum_memberio_win_devicemonitornotifycode_keyboardevent>`,
+	    :target:`MouseEvent<doxid-enum_memberio_win_devicemonitornotifycode_mouseevent>`,
+	    :target:`FastIoRead<doxid-enum_memberio_win_devicemonitornotifycode_fastioread>`,
+	    :target:`FastIoWrite<doxid-enum_memberio_win_devicemonitornotifycode_fastiowrite>`,
+	    :target:`FastIoIoctl<doxid-enum_memberio_win_devicemonitornotifycode_fastioioctl>`,
+	    :target:`_Count<doxid-enum_memberio_win_devicemonitornotifycode__count>`,
+	};
+

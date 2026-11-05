@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; FunctionPtrKind
+.. _doxid-typejnc_functionptrkind:
+
+enum jnc.FunctionPtrKind
+========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum FunctionPtrKind {
+	    :target:`Normal<doxid-enum_memberjnc_functionptrkind_normal>` = 0x000000,
+	    :target:`Weak<doxid-enum_memberjnc_functionptrkind_weak>`   = 0x100000,
+	    :target:`Thin<doxid-enum_memberjnc_functionptrkind_thin>`   = 0x200000,
+	    :target:`_Count<doxid-enum_memberjnc_functionptrkind__count>` = 3,
+	};
+
