@@ -266,6 +266,31 @@ Lexer::createIntegerToken(
 }
 
 Token*
+Lexer::createIntegerToken(
+	int radix,
+	size_t left
+) {
+	char* end;
+	uint64_t value = _strtoui64(ts + left, &end, radix);
+
+	TokenKind tokenKind;
+	if (end < te) {
+		ASSERT(te[-1] == 'l' || te[-1] == 'L');
+
+		char c1 = *end;
+		tokenKind = c1 == 'u' || c1 == 'U' ?
+			TokenKind_Integer64_u :
+			TokenKind_Integer64;
+
+	} else
+		tokenKind = TokenKind_Integer;
+
+	Token* token = createToken(tokenKind);
+	token->m_data.m_int64_u = value;
+	return token;
+}
+
+Token*
 Lexer::createFpToken() {
 	Token* token = createToken(TokenKind_Fp);
 	token->m_data.m_double = strtod(ts, NULL);

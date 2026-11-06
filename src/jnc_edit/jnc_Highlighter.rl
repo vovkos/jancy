@@ -24,6 +24,7 @@ hex    = [0-9a-fA-F];
 oct    = [0-7];
 bin    = [01];
 exp    = [eE][+\-]?dec+;
+int_suffix = [uU]?[lL];
 id     = [_a-zA-Z] [_a-zA-Z0-9]*;
 ws     = [ \t\r]+;
 nl     = '\n';
@@ -186,12 +187,12 @@ id                ;
 	[$fF] lit_dq |
 	'0' [xXoObBnNdD] lit_dq_raw |
 
-	dec+              |
-	'0' oct+          |
-	'0' [xX] hex+     |
-	'0' [oO] oct+     |
-	'0' [bB] bin+     |
-	'0' [nNdD] dec+   |
+	dec+ int_suffix?            |
+	'0' oct+ int_suffix?        |
+	'0' [xX] hex+ int_suffix?   |
+	'0' [oO] oct+ int_suffix?   |
+	'0' [bB] bin+ int_suffix?   |
+	'0' [nNdD] dec+ int_suffix? |
 	(dec+ '.' dec* | '.' dec+)exp? | dec+ exp
 )                 { highlightLastToken(EditTheme::Constant); };
 

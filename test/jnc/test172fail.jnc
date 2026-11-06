@@ -1,0 +1,6 @@
+// only L and UL integer suffixes are supported (long is 64-bit in jancy); LL is an error
+
+int main() {
+	long x = 1LL;
+	return 0;
+}

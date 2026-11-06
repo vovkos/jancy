@@ -23,6 +23,8 @@ enum TokenKind {
 	TokenKind_Error = -1,
 	TokenKind_Identifier = 256,
 	TokenKind_Integer,
+	TokenKind_Integer64,
+	TokenKind_Integer64_u,
 	TokenKind_Fp,
 	TokenKind_Literal,
 	TokenKind_DoxyComment1,
@@ -236,6 +238,8 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Error,        "error")
 	AXL_LEX_TOKEN_NAME(TokenKind_Identifier,   "identifier")
 	AXL_LEX_TOKEN_NAME(TokenKind_Integer,      "integer-constant")
+	AXL_LEX_TOKEN_NAME(TokenKind_Integer64,    "integer64-constant")
+	AXL_LEX_TOKEN_NAME(TokenKind_Integer64_u,  "unsigned-integer64-constant")
 	AXL_LEX_TOKEN_NAME(TokenKind_Fp,           "floating-point-constant")
 
 	AXL_LEX_TOKEN_NAME(TokenKind_DoxyComment1, "///")
@@ -613,9 +617,7 @@ protected:
 	createIntegerToken(
 		int radix = 10,
 		size_t left = 0
-	) {
-		return createIntegerToken(TokenKind_Integer, radix, left);
-	}
+	);
 
 	Token*
 	createFpToken();

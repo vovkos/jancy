@@ -885,6 +885,14 @@ primary_expr<Value* $value>
 			{
 				$value->setConstInt64_u($1.m_data.m_int64_u, m_module);
 			}
+	|	TokenKind_Integer64
+			{
+				$value->setConstInt64($1.m_data.m_int64_u, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64));
+			}
+	|	TokenKind_Integer64_u
+			{
+				$value->setConstInt64($1.m_data.m_int64_u, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64_u));
+			}
 	|	TokenKind_Fp
 			{
 				$value->setConstDouble($1.m_data.m_double, m_module);

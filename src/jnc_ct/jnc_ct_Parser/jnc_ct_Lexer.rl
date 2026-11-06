@@ -59,6 +59,8 @@ lit_sq_wo_esc = "'" [^'\n\\]* ['\\]?;
 lit_dq_raw     = '"' [^"\n]* '"'?;
 lit_sq_raw     = "'" [^'\n]* "'"?;
 
+int_suffix = [uU]?[lL];
+
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # curly-braces-enclosed body machine
@@ -426,12 +428,18 @@ lit_ml_begin     { preCreateMlLiteral(LiteralExKind_Ml, 3); fgoto lit_ml; };
 
 id               { createStringToken(TokenKind_Identifier); };
 
-'0' oct+         { createIntegerToken(8); };
-dec+             { createIntegerToken(10); };
-'0' [xX] hex+    { createIntegerToken(16, 2); };
-'0' [oO] oct+    { createIntegerToken(8, 2); };
-'0' [bB] bin+    { createIntegerToken(2, 2); };
-'0' [nNdD] dec+  { createIntegerToken(10, 2); };
+'0' oct+ int_suffix?
+                 { createIntegerToken(8); };
+dec+ int_suffix?
+                 { createIntegerToken(10); };
+'0' [xX] hex+ int_suffix?
+                 { createIntegerToken(16, 2); };
+'0' [oO] oct+ int_suffix?
+                 { createIntegerToken(8, 2); };
+'0' [bB] bin+ int_suffix?
+                 { createIntegerToken(2, 2); };
+'0' [nNdD] dec+ int_suffix?
+                 { createIntegerToken(10, 2); };
 
 (dec+ '.' dec* | '.' dec+) exp? | dec+ exp
 				 { createFpToken(); };

@@ -1,0 +1,47 @@
+//..............................................................................
+// integer constant suffixes: L (long) and UL (ulong_t)
+//
+// - suffixed constants are 64-bit regardless of the value
+// - suffix is case-insensitive and works with every radix prefix
+// - L is signed, UL is unsigned (even for values above INT64_MAX)
+
+//..............................................................................
+
+int main() {
+	// sizes
+
+	assert(sizeof(1) == 1);
+	assert(sizeof(1L) == 8);
+	assert(sizeof(1UL) == 8);
+	assert(sizeof(1l) == 8);
+	assert(sizeof(1ul) == 8);
+	assert(sizeof(1uL) == 8);
+	assert(sizeof(1Ul) == 8);
+
+	// radixes
+
+	assert(0L == 0);
+	assert(10L == 10);
+	assert(017L == 15);
+	assert(0x1fL == 31);
+	assert(0o17UL == 15);
+	assert(0b101UL == 5);
+	assert(0d10L == 10);
+	assert(0n10UL == 10);
+
+	// 64-bit arithmetic
+
+	assert(1L << 40 == 0x10000000000L);
+	assert((1L << 63) < 0);
+	assert((1UL << 63) > 0);
+
+	// signedness
+
+	assert(-1L < 0);
+	assert(0xffffffffffffffffL < 0);
+	assert(0xffffffffffffffffUL > 0);
+
+	return 0;
+}
+
+//..............................................................................
