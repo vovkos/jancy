@@ -47,7 +47,7 @@ public:
 	size_t m_entryCount;
 
 protected:
-	X509_NAME* m_name;
+	const X509_NAME* m_name;
 
 	sl::Array<DataPtr> m_entryArray;
 	String m_oneLine;
@@ -81,7 +81,7 @@ public:
 protected:
 	static
 	DataPtr
-	createEntry(X509_NAME_ENTRY* entry);
+	createEntry(const X509_NAME_ENTRY* entry);
 };
 
 //..............................................................................
@@ -165,7 +165,7 @@ public:
 
 protected:
 	SslCertName*
-	createSslCertName(X509_NAME* name);
+	createSslCertName(const X509_NAME* name);
 
 	uint64_t
 	getTimestamp(const ASN1_TIME* time);

@@ -94,7 +94,7 @@ SslCertName::getEntryTable(
 	SslCertName* self,
 	size_t i
 ) {
-	X509_NAME_ENTRY* entry = X509_NAME_get_entry(self->m_name, i);
+	const X509_NAME_ENTRY* entry = X509_NAME_get_entry(self->m_name, i);
 	if (!entry)
 		return g_nullDataPtr;
 
@@ -128,14 +128,14 @@ SslCertName::findEntry(
 	SslCertName* self,
 	int nid
 ) {
-	int i = X509_NAME_get_index_by_NID(self->m_name, nid, -1);
+	int i = X509_NAME_get_index_by_NID((X509_NAME*)self->m_name, nid, -1); // non-const before openssl-3.0
 	return i >= 0 ? getEntryTable(self, i) : g_nullDataPtr;
 }
 
 DataPtr
-SslCertName::createEntry(X509_NAME_ENTRY* srcEntry) {
-	ASN1_OBJECT* object = X509_NAME_ENTRY_get_object(srcEntry);
-	ASN1_STRING* value = X509_NAME_ENTRY_get_data(srcEntry);
+SslCertName::createEntry(const X509_NAME_ENTRY* srcEntry) {
+	const ASN1_OBJECT* object = X509_NAME_ENTRY_get_object(srcEntry);
+	const ASN1_STRING* value = X509_NAME_ENTRY_get_data(srcEntry);
 
 	Runtime* runtime = getCurrentThreadRuntime();
 	NoCollectRegion noCollectRegion(runtime);
@@ -215,7 +215,7 @@ SslCertificate::getIssuer() {
 }
 
 SslCertName*
-SslCertificate::createSslCertName(X509_NAME* srcName) {
+SslCertificate::createSslCertName(const X509_NAME* srcName) {
 	Runtime* runtime = getCurrentThreadRuntime();
 	SslCertName* dstName = createClass<SslCertName>(runtime);
 	dstName->m_name = srcName;
