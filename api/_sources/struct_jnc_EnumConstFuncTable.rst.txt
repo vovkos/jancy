@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_EnumConstFuncTable
+.. _doxid-structjnc___enum_const_func_table:
+
+struct jnc_EnumConstFuncTable
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_EnumConstFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___enum_const_func_table_1a76dc44a5a4f609046462fccc28f2da18>`;
+		jnc_EnumConst_GetValueFunc* :target:`m_getValueFunc<doxid-structjnc___enum_const_func_table_1acde330bfc32f394e6b6bdf95cad1bf1f>`;
+	};

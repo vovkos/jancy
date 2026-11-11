@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_DynamicLayoutAwaitKind
+.. _doxid-jnc___dynamic_layout_8h_1a4acd97b892ae6d547843c18234c93ac7:
+
+enum jnc_DynamicLayoutAwaitKind
+===============================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_DynamicLayout.h>
+
+	enum jnc_DynamicLayoutAwaitKind {
+	    :target:`jnc_DynamicLayoutAwaitKind_None<doxid-jnc___dynamic_layout_8h_1a4acd97b892ae6d547843c18234c93ac7ae5a30ebf24ff50f2be30bbfff9558bba>` = 0,
+	    :target:`jnc_DynamicLayoutAwaitKind_Size<doxid-jnc___dynamic_layout_8h_1a4acd97b892ae6d547843c18234c93ac7a9226b68c7ab5f7ef220f7e4720934503>`,
+	    :target:`jnc_DynamicLayoutAwaitKind_Char<doxid-jnc___dynamic_layout_8h_1a4acd97b892ae6d547843c18234c93ac7a381964b6b66a0edb64934d4f79dd914c>`,
+	};
+

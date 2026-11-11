@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; SslStdDh
+.. _doxid-typeio_sslstddh:
+
+enum io.SslStdDh
+================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum SslStdDh {
+	    :target:`Dh1024x160<doxid-enum_memberio_sslstddh_dh1024x160>`,
+	    :target:`Dh2048x224<doxid-enum_memberio_sslstddh_dh2048x224>`,
+	    :target:`Dh2048x256<doxid-enum_memberio_sslstddh_dh2048x256>`,
+	};
+

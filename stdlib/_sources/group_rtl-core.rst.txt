@@ -1,0 +1,50 @@
+.. include:: def.rst
+.. index:: pair: group; Core RTL
+.. _doxid-group_rtl_core:
+
+Core RTL
+========
+
+.. toctree::
+	:hidden:
+
+	class_jnc_DynamicLib.rst
+	class_jnc_Scheduler.rst
+
+This section describes the core RTL types and facilities.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// classes
+
+	class :ref:`jnc.DynamicLib<doxid-typejnc_dynamiclib>`;
+	class :ref:`jnc.Scheduler<doxid-typejnc_scheduler>`;
+
+	// global functions
+
+	void* :target:`jnc.createDataPtr<doxid-functionjnc_createdataptr>`(
+		void thin* p,
+		:ref:`size_t<doxid-typedefsize_t>` length = -1
+	);
+
+	void const* :target:`jnc.createDataPtr<doxid-functionjnc_createdataptr_2>`(
+		void const thin* p,
+		:ref:`size_t<doxid-typedefsize_t>` length = -1
+	);
+
+	void* :target:`jnc.limitDataPtr<doxid-functionjnc_limitdataptr>`(
+		void* p,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	void const* :target:`jnc.limitDataPtr<doxid-functionjnc_limitdataptr_2>`(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	:ref:`intptr_t<doxid-typedefintptr_t>` :target:`jnc.getDataPtrLeftRadius<doxid-functionjnc_getdataptrleftradius>`(void const* p);
+	:ref:`intptr_t<doxid-typedefintptr_t>` :target:`jnc.getDataPtrRightRadius<doxid-functionjnc_getdataptrrightradius>`(void const* p);
+

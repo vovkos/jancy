@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbControlRecipient
+.. _doxid-typeio_usbcontrolrecipient:
+
+enum io.UsbControlRecipient
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbControlRecipient: typedef unsigned char uint8_t {
+	    :target:`Device<doxid-enum_memberio_usbcontrolrecipient_device>`,
+	    :target:`Interface<doxid-enum_memberio_usbcontrolrecipient_interface>`,
+	    :target:`Endpoint<doxid-enum_memberio_usbcontrolrecipient_endpoint>`,
+	    :target:`Other<doxid-enum_memberio_usbcontrolrecipient_other>`,
+	};
+

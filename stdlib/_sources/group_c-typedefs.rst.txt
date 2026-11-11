@@ -1,0 +1,231 @@
+.. include:: def.rst
+.. index:: pair: group; Standard Typedefs
+.. _doxid-group_c_typedefs:
+
+Standard Typedefs
+=================
+
+.. toctree::
+	:hidden:
+
+	struct_String.rst
+	struct_Variant.rst
+
+Overview
+~~~~~~~~
+
+This section describes standard typedefs available in Jancy. :ref:`More...<details-group_c_typedefs>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// typedefs
+
+	typedef :ref:`String<doxid-typestring>` :ref:`string_t<doxid-typedefstring_t>`;
+	typedef :ref:`Variant<doxid-typevariant>` :ref:`variant_t<doxid-typedefvariant_t>`;
+	typedef long :ref:`intptr_t<doxid-typedefintptr_t>`;
+	typedef unsigned long :ref:`uintptr_t<doxid-typedefuintptr_t>`;
+	typedef unsigned long :ref:`size_t<doxid-typedefsize_t>`;
+	typedef char :ref:`int8_t<doxid-typedefint8_t>`;
+	typedef char :ref:`utf8_t<doxid-typedefutf8_t>`;
+	typedef unsigned char :ref:`uint8_t<doxid-typedefuint8_t>`;
+	typedef unsigned char :ref:`uchar_t<doxid-typedefuchar_t>`;
+	typedef unsigned char :ref:`byte_t<doxid-typedefbyte_t>`;
+	typedef short :ref:`int16_t<doxid-typedefint16_t>`;
+	typedef short :ref:`utf16_t<doxid-typedefutf16_t>`;
+	typedef unsigned short :ref:`uint16_t<doxid-typedefuint16_t>`;
+	typedef unsigned short :ref:`ushort_t<doxid-typedefushort_t>`;
+	typedef unsigned short :ref:`word_t<doxid-typedefword_t>`;
+	typedef int :ref:`int32_t<doxid-typedefint32_t>`;
+	typedef int :ref:`utf32_t<doxid-typedefutf32_t>`;
+	typedef unsigned int :ref:`uint32_t<doxid-typedefuint32_t>`;
+	typedef unsigned int :ref:`uint_t<doxid-typedefuint_t>`;
+	typedef unsigned int :ref:`dword_t<doxid-typedefdword_t>`;
+	typedef long :ref:`int64_t<doxid-typedefint64_t>`;
+	typedef unsigned long :ref:`uint64_t<doxid-typedefuint64_t>`;
+	typedef unsigned long :ref:`ulong_t<doxid-typedefulong_t>`;
+	typedef unsigned long :ref:`qword_t<doxid-typedefqword_t>`;
+
+	// structs
+
+	struct :ref:`String<doxid-typestring>`;
+	struct :ref:`Variant<doxid-typevariant>`;
+
+.. _details-group_c_typedefs:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes standard typedefs available in Jancy.
+
+The purpose of these typedefs is to create a familiar environment for C/C++
+programmers and make it easier to switch between Jancy and C/C++.
+
+Typedefs
+--------
+
+.. index:: pair: typedef; string_t
+.. _doxid-typedefstring_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef :ref:`String<doxid-typestring>` string_t
+
+A built-in string type -- a UTF-8 string slice, not necessarily null-terminated.
+When a null-terminated version of this slice is required, it's automatically
+generated and cached.
+
+.. index:: pair: typedef; variant_t
+.. _doxid-typedefvariant_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef :ref:`Variant<doxid-typevariant>` variant_t
+
+The built-in variant type. Variables or fields of this type can hold values of
+any other type.
+
+.. index:: pair: typedef; intptr_t
+.. _doxid-typedefintptr_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef long intptr_t
+
+Signed integer type with size equal to the size of a pointer on the given
+platform. On 32-bit platform ``intptr_t`` is identical to ``int32_t``; on
+64-bit platforns ``intptr_t`` is identical to ``int64_t``.
+
+.. index:: pair: typedef; uintptr_t
+.. _doxid-typedefuintptr_t:
+.. index:: pair: typedef; size_t
+.. _doxid-typedefsize_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned long uintptr_t
+	typedef unsigned long size_t
+
+Unsigned integer type with size equal to the size of a pointer on the given
+platform. On 32-bit platform both ``uintptr_t`` and ``size_t`` are identical
+to ``uint32_t``; on 64-bit platforns they are identical to ``uint64_t``.
+
+.. index:: pair: typedef; int8_t
+.. _doxid-typedefint8_t:
+.. index:: pair: typedef; utf8_t
+.. _doxid-typedefutf8_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef char int8_t
+	typedef char utf8_t
+
+Signed integer type with width of 8 bits.
+
+.. index:: pair: typedef; uint8_t
+.. _doxid-typedefuint8_t:
+.. index:: pair: typedef; uchar_t
+.. _doxid-typedefuchar_t:
+.. index:: pair: typedef; byte_t
+.. _doxid-typedefbyte_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned char uint8_t
+	typedef unsigned char uchar_t
+	typedef unsigned char byte_t
+
+Unsigned integer type with width of 8 bits.
+
+.. index:: pair: typedef; int16_t
+.. _doxid-typedefint16_t:
+.. index:: pair: typedef; utf16_t
+.. _doxid-typedefutf16_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef short int16_t
+	typedef short utf16_t
+
+Signed integer type with width of 16 bits.
+
+.. index:: pair: typedef; uint16_t
+.. _doxid-typedefuint16_t:
+.. index:: pair: typedef; ushort_t
+.. _doxid-typedefushort_t:
+.. index:: pair: typedef; word_t
+.. _doxid-typedefword_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned short uint16_t
+	typedef unsigned short ushort_t
+	typedef unsigned short word_t
+
+Unsigned integer type with width of 16 bits.
+
+.. index:: pair: typedef; int32_t
+.. _doxid-typedefint32_t:
+.. index:: pair: typedef; utf32_t
+.. _doxid-typedefutf32_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef int int32_t
+	typedef int utf32_t
+
+Signed integer type with width of 32 bits.
+
+.. index:: pair: typedef; uint32_t
+.. _doxid-typedefuint32_t:
+.. index:: pair: typedef; uint_t
+.. _doxid-typedefuint_t:
+.. index:: pair: typedef; dword_t
+.. _doxid-typedefdword_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned int uint32_t
+	typedef unsigned int uint_t
+	typedef unsigned int dword_t
+
+Unsigned integer type with width of 32 bits.
+
+.. index:: pair: typedef; int64_t
+.. _doxid-typedefint64_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef long int64_t
+
+Signed integer type with width of 64 bits.
+
+.. index:: pair: typedef; uint64_t
+.. _doxid-typedefuint64_t:
+.. index:: pair: typedef; ulong_t
+.. _doxid-typedefulong_t:
+.. index:: pair: typedef; qword_t
+.. _doxid-typedefqword_t:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned long uint64_t
+	typedef unsigned long ulong_t
+	typedef unsigned long qword_t
+
+Unsigned integer type with width of 64 bits.
+

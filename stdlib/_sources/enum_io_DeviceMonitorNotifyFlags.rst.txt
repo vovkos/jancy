@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; DeviceMonitorNotifyFlags
+.. _doxid-typeio_devicemonitornotifyflags:
+
+bitflag enum io.DeviceMonitorNotifyFlags
+========================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum DeviceMonitorNotifyFlags: typedef unsigned short uint16_t {
+	    :target:`DataDropped<doxid-enum_memberio_devicemonitornotifyflags_datadropped>` = 0x02,
+	};
+

@@ -1,0 +1,65 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.DynamicLayoutSink
+.. _doxid-typejnc_dynamiclayoutsink:
+
+class jnc.DynamicLayoutSink
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class DynamicLayoutSink {
+		// methods
+	
+		virtual void :target:`onStruct<doxid-functionjnc_dynamiclayoutsink_onstruct>`(
+			:ref:`jnc.StructType<doxid-typejnc_structtype>`* structType,
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			void const* p
+		);
+	
+		virtual void :target:`onArray<doxid-functionjnc_dynamiclayoutsink_onarray>`(
+			:ref:`jnc.ModuleItemDecl<doxid-typejnc_moduleitemdecl>`* decl,
+			:ref:`jnc.Type<doxid-typejnc_type>`* type,
+			:ref:`size_t<doxid-typedefsize_t>` elementCount,
+			:ref:`jnc.PtrTypeFlags<doxid-typejnc_ptrtypeflags>` ptrTypeFlags,
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			void const* p
+		);
+	
+		virtual void :target:`onField<doxid-functionjnc_dynamiclayoutsink_onfield>`(
+			:ref:`jnc.ModuleItemDecl<doxid-typejnc_moduleitemdecl>`* decl,
+			:ref:`jnc.Type<doxid-typejnc_type>`* type,
+			:ref:`jnc.PtrTypeFlags<doxid-typejnc_ptrtypeflags>` ptrTypeFlags,
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			void const* p
+		);
+	
+		virtual void :target:`onBitField<doxid-functionjnc_dynamiclayoutsink_onbitfield>`(
+			:ref:`jnc.ModuleItemDecl<doxid-typejnc_moduleitemdecl>`* decl,
+			:ref:`jnc.Type<doxid-typejnc_type>`* type,
+			:ref:`uint_t<doxid-typedefuint_t>` bitOffset,
+			:ref:`uint_t<doxid-typedefuint_t>` bitCount,
+			:ref:`jnc.PtrTypeFlags<doxid-typejnc_ptrtypeflags>` ptrTypeFlags,
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			void const* p
+		);
+	
+		virtual void :target:`onGroupOpened<doxid-functionjnc_dynamiclayoutsink_ongroupopened>`(
+			:ref:`jnc.ModuleItemDecl<doxid-typejnc_moduleitemdecl>`* decl,
+			:ref:`size_t<doxid-typedefsize_t>` offset
+		);
+	
+		virtual void :target:`onGroupClosed<doxid-functionjnc_dynamiclayoutsink_ongroupclosed>`(
+			:ref:`jnc.ModuleItemDecl<doxid-typejnc_moduleitemdecl>`* decl,
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	};

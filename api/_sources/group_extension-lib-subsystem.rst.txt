@@ -1,0 +1,24 @@
+.. index:: pair: group; Extension Libraries Subsystem
+.. _doxid-group__extension-lib-subsystem:
+
+Extension Libraries Subsystem
+=============================
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_DynamicExtensionLibHost.rst
+	struct_jnc_ExtensionLib.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// structs
+
+	struct :ref:`jnc_DynamicExtensionLibHost<doxid-structjnc___dynamic_extension_lib_host>`;
+	struct :ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`;
+

@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; DynamicLayoutAwaitKind
+.. _doxid-typejnc_dynamiclayoutawaitkind:
+
+enum jnc.DynamicLayoutAwaitKind
+===============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DynamicLayoutAwaitKind {
+	    :target:`None<doxid-enum_memberjnc_dynamiclayoutawaitkind_none>`,
+	    :target:`Size<doxid-enum_memberjnc_dynamiclayoutawaitkind_size>`,
+	    :target:`Char<doxid-enum_memberjnc_dynamiclayoutawaitkind_char>`,
+	};
+

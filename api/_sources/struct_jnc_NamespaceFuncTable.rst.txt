@@ -1,0 +1,28 @@
+.. index:: pair: struct; jnc_NamespaceFuncTable
+.. _doxid-structjnc___namespace_func_table:
+
+struct jnc_NamespaceFuncTable
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_NamespaceFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___namespace_func_table_1a2d4f6b5510c36ec7356d76280d43eaba>`;
+		jnc_Namespace_IsReadyFunc* :target:`m_isReadyFunc<doxid-structjnc___namespace_func_table_1aa8560b2e082fa7650aa4e84c98904d4d>`;
+		jnc_Namespace_GetNamespaceKindFunc* :target:`m_getNamespaceKindFunc<doxid-structjnc___namespace_func_table_1adb4a0a1066bf230275724b84947f166c>`;
+		jnc_Namespace_GetItemCountFunc* :target:`m_getItemCountFunc<doxid-structjnc___namespace_func_table_1ab5134af5388b31b864b6b308c5289bf4>`;
+		jnc_Namespace_GetItemFunc* :target:`m_getItemFunc<doxid-structjnc___namespace_func_table_1aec2b77e8fbf20cf2ffb09fb6b2bf54f9>`;
+		jnc_Namespace_FindItemFunc* :target:`m_findDirectChildItemFunc<doxid-structjnc___namespace_func_table_1a41c55149acf0dee3e850a8bd4d16bf7b>`;
+		jnc_Namespace_FindItemFunc* :target:`m_findItemFunc<doxid-structjnc___namespace_func_table_1aa55d0f8c4bddc4d4bc06865fbe059e25>`;
+		jnc_Namespace_FindItemFunc* :target:`m_findItemNoParseFunc<doxid-structjnc___namespace_func_table_1ac2485b9811804c6d41e6bcca7cb68c05>`;
+	};

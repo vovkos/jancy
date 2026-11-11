@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_StdRbTree
+.. _doxid-structjnc___std_rb_tree:
+
+struct jnc_StdRbTree
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StdRbTree {
+		// fields
+	
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>` :target:`m_ifaceHdr<doxid-structjnc___std_rb_tree_1a1c46ef1342a1a6f7db4c82e212448ea7>`;
+		:ref:`jnc_StdMap<doxid-structjnc___std_map>` :target:`m_map<doxid-structjnc___std_rb_tree_1a00d2642a58e8ba28653801fd07542fd4>`;
+	};

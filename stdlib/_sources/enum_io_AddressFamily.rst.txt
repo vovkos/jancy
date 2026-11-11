@@ -1,0 +1,73 @@
+.. include:: def.rst
+.. index:: pair: enum; AddressFamily
+.. _doxid-typeio_addressfamily:
+
+enum io.AddressFamily
+=====================
+
+Overview
+~~~~~~~~
+
+This enumeration contains possible values for socket address types
+(families). :ref:`More...<details-typeio_addressfamily>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum AddressFamily: typedef unsigned short uint16_t {
+	    :ref:`Undefined<doxid-enum_memberio_addressfamily_undefined>` = 0,
+	    :ref:`Ip4<doxid-enum_memberio_addressfamily_ip4>`       = 2,
+	    :ref:`Ip6<doxid-enum_memberio_addressfamily_ip6>`,
+	};
+
+.. _details-typeio_addressfamily:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains possible values for socket address types
+(families).
+
+``io.AddressFamily`` values map to ``AF_XXX`` platform constants. At the
+moment, only ``IP4`` and ``IP6`` address families are supported.
+
+
+
+.. rubric:: See also:
+
+`io.SocketAddress`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; Undefined
+.. _doxid-enum_memberio_addressfamily_undefined:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Undefined
+
+Used to designate an uninitialized value.
+
+.. index:: pair: enumvalue; Ip4
+.. _doxid-enum_memberio_addressfamily_ip4:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Ip4
+
+Specifies ``IP4``-address; maps to ``AF_INET`` platform constant.
+
+.. index:: pair: enumvalue; Ip6
+.. _doxid-enum_memberio_addressfamily_ip6:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Ip6
+
+Specifies ``IP6``-address; maps to ``AF_INET6`` platform constant.
+

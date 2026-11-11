@@ -1,0 +1,27 @@
+.. index:: pair: group; Garbage-Collected Heap
+.. _doxid-group__gc-heap:
+
+Garbage-Collected Heap
+======================
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_GcHeap.rst
+	struct_jnc_GcSizeTriggers.rst
+	struct_jnc_GcStats.rst
+
+This set of functions is used to allocate objects on GC Heap.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_GcHeap.h>
+	
+	// structs
+
+	struct :ref:`jnc_GcHeap<doxid-structjnc___gc_heap>`;
+	struct :ref:`jnc_GcSizeTriggers<doxid-structjnc___gc_size_triggers>`;
+	struct :ref:`jnc_GcStats<doxid-structjnc___gc_stats>`;
+

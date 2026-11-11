@@ -1,0 +1,26 @@
+.. index:: pair: struct; jnc_FieldFuncTable
+.. _doxid-structjnc___field_func_table:
+
+struct jnc_FieldFuncTable
+=========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_FieldFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___field_func_table_1a5ddb1922d61ddf910b7a5953a9486ba1>`;
+		jnc_Field_GetTypeFunc* :target:`m_getTypeFunc<doxid-structjnc___field_func_table_1a8f0633fbdebebe7e70b6156221c91f45>`;
+		jnc_Field_GetBitOffsetFunc* :target:`m_getBitOffsetFunc<doxid-structjnc___field_func_table_1aadfd36f0ceee81d8ff96cefd0144edb3>`;
+		jnc_Field_GetBitCountFunc* :target:`m_getBitCountFunc<doxid-structjnc___field_func_table_1af0f2e2d06ab384801e0b8a309e5a37a6>`;
+		jnc_Field_GetPtrTypeFlagsFunc* :target:`m_getPtrTypeFlagsFunc<doxid-structjnc___field_func_table_1a303403ecda28952b2b437804e48229fe>`;
+		jnc_Field_GetOffsetFunc* :target:`m_getOffsetFunc<doxid-structjnc___field_func_table_1a6e4174ffdfd4385405ab2931dd933a96>`;
+	};

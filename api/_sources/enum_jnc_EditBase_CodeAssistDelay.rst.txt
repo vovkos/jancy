@@ -1,0 +1,21 @@
+.. index:: pair: enum; CodeAssistDelay
+.. _doxid-classjnc_1_1_edit_base_1a209262d68fa3ded8c61e3fe4f497f809:
+
+enum jnc::EditBase::CodeAssistDelay
+===================================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EditBase.h>
+
+	enum CodeAssistDelay {
+	    :target:`AutoCompleteDelay<doxid-classjnc_1_1_edit_base_1a209262d68fa3ded8c61e3fe4f497f809a308a9954ebac2579f7f48d39eae93599>`       = 100,
+	    :target:`ArgumentTipInitialDelay<doxid-classjnc_1_1_edit_base_1a209262d68fa3ded8c61e3fe4f497f809a125fccbcfba1eeecc9bbbc17bdf58647>` = 100,
+	    :target:`ArgumentTipCommaDelay<doxid-classjnc_1_1_edit_base_1a209262d68fa3ded8c61e3fe4f497f809a1eff3c5a6f656dceba916f9da3ad99ef>`   = 250,
+	    :target:`ArgumentTipPosDelay<doxid-classjnc_1_1_edit_base_1a209262d68fa3ded8c61e3fe4f497f809a90c96dfad8e57aa1a6a2a85431776801>`     = 250,
+	    :target:`QuickInfoTipDelay<doxid-classjnc_1_1_edit_base_1a209262d68fa3ded8c61e3fe4f497f809aaeb7df1a9dd1af5f641eb00a0572f6c5>`       = 250,
+	};
+

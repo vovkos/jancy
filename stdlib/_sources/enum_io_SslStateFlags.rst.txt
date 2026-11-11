@@ -1,0 +1,31 @@
+.. include:: def.rst
+.. index:: pair: enum; SslStateFlags
+.. _doxid-typeio_sslstateflags:
+
+bitflag enum io.SslStateFlags
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SslStateFlags {
+	    :target:`Connect<doxid-enum_memberio_sslstateflags_connect>`        = 0x1000,
+	    :target:`Accept<doxid-enum_memberio_sslstateflags_accept>`         = 0x2000,
+	    :target:`Loop<doxid-enum_memberio_sslstateflags_loop>`           = 0x01,
+	    :target:`Exit<doxid-enum_memberio_sslstateflags_exit>`           = 0x02,
+	    :target:`Read<doxid-enum_memberio_sslstateflags_read>`           = 0x04,
+	    :target:`Write<doxid-enum_memberio_sslstateflags_write>`          = 0x08,
+	    :target:`Alert<doxid-enum_memberio_sslstateflags_alert>`          = 0x4000,
+	    :target:`ReadAlert<doxid-enum_memberio_sslstateflags_readalert>`      = Alert | Read,
+	    :target:`WriteAlert<doxid-enum_memberio_sslstateflags_writealert>`     = Alert | Write,
+	    :target:`AcceptLoop<doxid-enum_memberio_sslstateflags_acceptloop>`     = Accept | Loop,
+	    :target:`AcceptExit<doxid-enum_memberio_sslstateflags_acceptexit>`     = Accept | Exit,
+	    :target:`ConnectLoop<doxid-enum_memberio_sslstateflags_connectloop>`    = Connect | Loop,
+	    :target:`ConnectExit<doxid-enum_memberio_sslstateflags_connectexit>`    = Connect | Exit,
+	    :target:`HandshakeStart<doxid-enum_memberio_sslstateflags_handshakestart>` = 0x10,
+	    :target:`HandshakeDone<doxid-enum_memberio_sslstateflags_handshakedone>`  = 0x20,
+	};
+

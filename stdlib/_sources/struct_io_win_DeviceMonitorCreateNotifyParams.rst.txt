@@ -1,0 +1,27 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorCreateNotifyParams
+.. _doxid-typeio_win_devicemonitorcreatenotifyparams:
+
+struct io.win.DeviceMonitorCreateNotifyParams
+=============================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorCreateNotifyParams {
+		// fields
+	
+		typedef unsigned int uint32_t :target:`m_options<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_options>`;
+		typedef unsigned int uint32_t :target:`m_desiredAccess<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_desiredaccess>`;
+		typedef unsigned int uint32_t :target:`m_shareAccess<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_shareaccess>`;
+		typedef unsigned int uint32_t :target:`m_fileAttributes<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_fileattributes>`;
+		typedef unsigned int uint32_t :target:`m_fileNameLength<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_filenamelength>`;
+		typedef unsigned int uint32_t :target:`_m_padding<doxid-fieldio_win_devicemonitorcreatenotifyparams__m_padding>`;
+	};

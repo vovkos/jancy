@@ -1,0 +1,24 @@
+.. include:: def.rst
+.. index:: pair: enum; ConstKind
+.. _doxid-typejnc_constkind:
+
+enum jnc.ConstKind
+==================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum ConstKind {
+	    :target:`None<doxid-enum_memberjnc_constkind_none>`       = 0x000000,
+	    :target:`Const<doxid-enum_memberjnc_constkind_const>`      = 0x010000,
+	    :target:`MaybeConst<doxid-enum_memberjnc_constkind_maybeconst>` = 0x020000,
+	    :target:`AutoConstX<doxid-enum_memberjnc_constkind_autoconstx>` = 0x030000,
+	    :target:`ReadOnlyX<doxid-enum_memberjnc_constkind_readonlyx>`  = 0x040000,
+	    :target:`AutoConst<doxid-enum_memberjnc_constkind_autoconst>`  = 0x050000,
+	    :target:`ReadOnly<doxid-enum_memberjnc_constkind_readonly>`   = 0x060000,
+	    :target:`_Count<doxid-enum_memberjnc_constkind__count>`     = 7,
+	};
+

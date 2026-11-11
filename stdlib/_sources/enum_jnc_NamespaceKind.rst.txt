@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: enum; NamespaceKind
+.. _doxid-typejnc_namespacekind:
+
+enum jnc.NamespaceKind
+======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum NamespaceKind {
+	    :target:`Undefined<doxid-enum_memberjnc_namespacekind_undefined>`,
+	    :target:`Global<doxid-enum_memberjnc_namespacekind_global>`,
+	    :target:`Scope<doxid-enum_memberjnc_namespacekind_scope>`,
+	    :target:`Type<doxid-enum_memberjnc_namespacekind_type>`,
+	    :target:`Extension<doxid-enum_memberjnc_namespacekind_extension>`,
+	    :target:`Property<doxid-enum_memberjnc_namespacekind_property>`,
+	    :target:`PropertyTemplate<doxid-enum_memberjnc_namespacekind_propertytemplate>`,
+	    :target:`DynamicLib<doxid-enum_memberjnc_namespacekind_dynamiclib>`,
+	    :target:`_Count<doxid-enum_memberjnc_namespacekind__count>`,
+	};
+

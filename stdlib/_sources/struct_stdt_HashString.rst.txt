@@ -1,0 +1,12 @@
+.. include:: def.rst
+.. index:: pair: struct; stdt.HashString
+.. _doxid-typestdt_hashstring:
+
+struct stdt.HashString
+======================
+
+.. toctree::
+	:hidden:
+
+
+

@@ -1,0 +1,30 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbInterfaceDescriptor
+.. _doxid-typeio_usbinterfacedescriptor:
+
+struct io.UsbInterfaceDescriptor
+================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbInterfaceDescriptor {
+		// fields
+	
+		io.UsbInterfaceDescriptor const* :target:`m_nextAltSettingInterfaceDescriptor<doxid-fieldio_usbinterfacedescriptor_m_nextaltsettinginterfacedescriptor>`;
+		:ref:`io.UsbEndpointDescriptor<doxid-typeio_usbendpointdescriptor>` const* :target:`m_endpointDescriptorTable<doxid-fieldio_usbinterfacedescriptor_m_endpointdescriptortable>`;
+		typedef unsigned long size_t :target:`m_endpointCount<doxid-fieldio_usbinterfacedescriptor_m_endpointcount>`;
+		typedef unsigned char uint8_t :target:`m_interfaceId<doxid-fieldio_usbinterfacedescriptor_m_interfaceid>`;
+		typedef unsigned char uint8_t :target:`m_altSettingId<doxid-fieldio_usbinterfacedescriptor_m_altsettingid>`;
+		typedef unsigned char uint8_t :target:`m_class<doxid-fieldio_usbinterfacedescriptor_m_class>`;
+		typedef unsigned char uint8_t :target:`m_subClass<doxid-fieldio_usbinterfacedescriptor_m_subclass>`;
+		typedef unsigned char uint8_t :target:`m_protocol<doxid-fieldio_usbinterfacedescriptor_m_protocol>`;
+		typedef unsigned char uint8_t :target:`m_stringDescriptorId<doxid-fieldio_usbinterfacedescriptor_m_stringdescriptorid>`;
+	};

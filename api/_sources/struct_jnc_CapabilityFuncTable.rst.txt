@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_CapabilityFuncTable
+.. _doxid-structjnc___capability_func_table:
+
+struct jnc_CapabilityFuncTable
+==============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_CapabilityFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___capability_func_table_1ace180dd84e9d593944b790bb721b4135>`;
+		jnc_IsEveryCapabilityEnabledFunc* :target:`m_isEveryCapabilityEnabledFunc<doxid-structjnc___capability_func_table_1a66d04f77cee73906fe35554ec00e256b>`;
+		jnc_IsCapabilityEnabledFunc* :target:`m_isCapabilityEnabledFunc<doxid-structjnc___capability_func_table_1a4b7295ee00ef0dca7ea67d0ad790ee43>`;
+		jnc_ReadCapabilityParamFunc* :target:`m_readCapabilityParamFunc<doxid-structjnc___capability_func_table_1af39133a739cf8c9cb1318f7f953011ce>`;
+	};
