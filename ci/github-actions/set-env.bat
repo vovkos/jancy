@@ -11,10 +11,6 @@
 
 @echo off
 
-:: save CI shell script dir before we shift args
-
-set CI_SH_DIR=%~dp0
-
 :loop
 
 if "%1" == "" goto :finalize
@@ -31,6 +27,8 @@ if /i "%1" == "msvc18" goto :msvc18
 if /i "%1" == "v142" goto :toolset
 if /i "%1" == "v143" goto :toolset
 if /i "%1" == "v145" goto :toolset
+if /i "%1" == "debug" goto :debug
+if /i "%1" == "release" goto :release
 
 echo Invalid argument: '%1'
 exit -1
@@ -42,8 +40,6 @@ exit -1
 :x86
 set TARGET_CPU=x86
 set CMAKE_ARCH_OPTIONS=-A Win32
-set OPENSSL_DIR_SUFFIX=-Win32
-set OPENSSL_DLL_SUFFIX=-1_1
 set CHOCO_PLATFORM=--x86
 set PROGRAM_FILES_DIR_SUFFIX= (x86)
 shift
@@ -52,8 +48,6 @@ goto :loop
 :amd64
 set TARGET_CPU=amd64
 set CMAKE_ARCH_OPTIONS=-A x64
-set OPENSSL_DIR_SUFFIX=
-set OPENSSL_DLL_SUFFIX=-1_1-x64
 set CHOCO_PLATFORM=
 set PROGRAM_FILES_DIR_SUFFIX=
 shift
@@ -62,8 +56,6 @@ goto :loop
 :arm64
 set TARGET_CPU=arm64
 set CMAKE_ARCH_OPTIONS=-A ARM64
-set OPENSSL_DIR_SUFFIX=
-set OPENSSL_DLL_SUFFIX=-3-arm64
 set CHOCO_PLATFORM=
 set PROGRAM_FILES_DIR_SUFFIX=
 shift
@@ -92,30 +84,25 @@ goto :loop
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+:: Configuration
+
+:debug
+set CONFIGURATION=Debug
+shift
+goto :loop
+
+:release
+set CONFIGURATION=Release
+shift
+goto :loop
+
+:: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 :finalize
 
 if "%TARGET_CPU%" == "" goto :amd64
 if "%TOOLCHAIN%" == "" goto :msvc17
 if "%CONFIGURATION%" == "" (set CONFIGURATION=Release)
-set COMPARE_VERSIONS_PL=%CI_SH_DIR%\compare-versions.pl
-
-set LLVM_TOOLCHAIN=msvc17
-perl %COMPARE_VERSIONS_PL% %LLVM_VERSION% 13
-if %errorlevel% == -1 set LLVM_TOOLCHAIN=msvc15
-
-set LLVM_DEBUG_SUFFIX=
-if "%CONFIGURATION%" == "Debug" set LLVM_DEBUG_SUFFIX=-dbg
-
-set LLVM_RELEASE_NAME=%LLVM_VERSION%-windows-%TARGET_CPU%-%LLVM_TOOLCHAIN%-msvcrt%LLVM_DEBUG_SUFFIX%
-set LLVM_DOWNLOAD_FILE=%LLVM_RELEASE_NAME%.7z
-set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
-
-set LUA_VERSION=5.4.7
-set LUA_DOWNLOAD_URL=https://github.com/walterschell/Lua/archive/refs/tags/v%LUA_VERSION%.zip
-
-set OPENSSL_VERSION=1.1.1.2100
-
-set RAGEL_DOWNLOAD_URL=https://github.com/eloraiby/ragel-windows/raw/master/ragel.exe
 
 set CMAKE_CONFIGURE_FLAGS=-G "%CMAKE_GENERATOR%" %CMAKE_ARCH_OPTIONS% %CMAKE_TOOLSET_OPTIONS%
 
@@ -125,11 +112,3 @@ set CMAKE_BUILD_FLAGS= ^
 	/nologo ^
 	/verbosity:minimal ^
 	/consoleloggerparameters:Summary
-
-echo ---------------------------------------------------------------------------
-echo LLVM_VERSION:       %LLVM_VERSION%
-echo LLVM_DOWNLOAD_URL:  %LLVM_DOWNLOAD_URL%
-echo LUA_DOWNLOAD_URL:   %LUA_DOWNLOAD_URL%
-echo OPENSSL_VERSION:    %OPENSSL_VERSION%
-echo RAGEL_DOWNLOAD_URL: %RAGEL_DOWNLOAD_URL%
-echo ---------------------------------------------------------------------------

@@ -16,6 +16,30 @@ set DOWNLOAD_DIR_CMAKE=%DOWNLOAD_DIR:\=/%
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+:: Dependency versions
+
+set LUA_VERSION=5.4.7
+set LUA_DOWNLOAD_URL=https://github.com/walterschell/Lua/archive/refs/tags/v%LUA_VERSION%.zip
+
+set OPENSSL_VERSION=1.1.1.2100
+
+set RAGEL_DOWNLOAD_URL=https://github.com/eloraiby/ragel-windows/raw/master/ragel.exe
+
+set COMPARE_VERSIONS_PL=%~dp0compare-versions.pl
+
+set LLVM_TOOLCHAIN=msvc17
+perl %COMPARE_VERSIONS_PL% %LLVM_VERSION% 13
+if %errorlevel% == -1 set LLVM_TOOLCHAIN=msvc15
+
+set LLVM_DEBUG_SUFFIX=
+if "%CONFIGURATION%" == "Debug" set LLVM_DEBUG_SUFFIX=-dbg
+
+set LLVM_RELEASE_NAME=%LLVM_VERSION%-windows-%TARGET_CPU%-%LLVM_TOOLCHAIN%-msvcrt%LLVM_DEBUG_SUFFIX%
+set LLVM_DOWNLOAD_FILE=%LLVM_RELEASE_NAME%.7z
+set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
+
+:: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 :: wget
 
 echo Installing wget...
@@ -48,11 +72,23 @@ ren Lua-%LUA_VERSION% lua || exit
 
 :: OpenSSL
 
-:: choco has no arm64 openssl; on arm64 use the openssl 3 preinstalled on the
-:: runner image, whose libs sit under lib/VC/<arch>/<crt>
+if /i "%TARGET_CPU%" == "arm64" goto :openssl_arm64
+if /i "%TARGET_CPU%" == "x86" goto :openssl_x86
 
-if /i not "%TARGET_CPU%" == "arm64" goto :openssl_install
+set OPENSSL_DIR_SUFFIX=
+set OPENSSL_DLL_SUFFIX=-1_1-x64
+goto :openssl_install
 
+:openssl_x86
+set OPENSSL_DIR_SUFFIX=-Win32
+set OPENSSL_DLL_SUFFIX=-1_1
+goto :openssl_install
+
+:: choco doesn't ship arm64 builds; on arm64 we use preinstalled OpenSSL 3
+:: (libs are at lib/VC/<arch>/<crt>)
+
+:openssl_arm64
+set OPENSSL_DLL_SUFFIX=-3-arm64
 set OPENSSL_ROOT_DIR=C:/Program Files/OpenSSL
 
 if /i "%CONFIGURATION%" == "Debug" (
