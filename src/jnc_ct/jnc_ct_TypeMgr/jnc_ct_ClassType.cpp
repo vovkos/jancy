@@ -431,6 +431,15 @@ ClassType::calcLayout() {
 		}
 	}
 
+	// abstract methods may be declared here or inherited without an override
+
+	count = m_vtable.getCount();
+	for (size_t i = 0; i < count; i++)
+		if (m_vtable[i]->getStorageKind() == StorageKind_Abstract) {
+			m_flags |= ClassTypeFlag_HasAbstractMethods;
+			break;
+		}
+
 	if (m_vtableStructType) {
 		result = m_vtableStructType->ensureLayout();
 		if (!result)
@@ -454,9 +463,6 @@ ClassType::addVirtualFunction(Function* function) {
 	bool result = function->getType()->ensureLayout();
 	if (!result)
 		return false;
-
-	if (function->m_storageKind == StorageKind_Abstract)
-		m_flags |= ClassTypeFlag_HasAbstractMethods;
 
 	function->m_virtualOriginClassType = this;
 	function->m_classVtableIndex = m_vtable.getCount();
