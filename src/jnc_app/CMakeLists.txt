@@ -262,6 +262,12 @@ axl_create_setting(
 	"--legacy-jit"
 )
 
+option(
+	JANCY_TEST_DEEP_REQUIRE
+	"Deep-require the global namespace when running tests (compiles everything)"
+	OFF
+)
+
 macro(
 add_jancy_tests
 	# ...
@@ -281,6 +287,10 @@ add_jancy_tests
 	)
 
 	list(REMOVE_ITEM _BASE_FLAG_LIST " ")
+
+	if(JANCY_TEST_DEEP_REQUIRE)
+		list(APPEND _BASE_FLAG_LIST --require jnc.global --deep-require)
+	endif()
 
 	set(_COMMAND)
 	set(_NAME_PREFIX)

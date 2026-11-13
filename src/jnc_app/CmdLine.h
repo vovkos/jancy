@@ -59,6 +59,7 @@ enum CmdLineSwitch {
 	CmdLineSwitch_Compile,
 	CmdLineSwitch_DisableCodeGen,
 	CmdLineSwitch_Require,
+	CmdLineSwitch_DeepRequire,
 	CmdLineSwitch_Documentation,
 	CmdLineSwitch_Exclude,
 	CmdLineSwitch_OutputDir,
@@ -130,7 +131,12 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_Require,
 		"require", "<symbol>",
-		"Marks a symbol as required"
+		"Marks a symbol or a namespace ('jnc.global' for global) as required"
+	)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_DeepRequire,
+		"deep-require", NULL,
+		"Require all members of required namespaces, recursively"
 	)
 	AXL_SL_CMD_LINE_SWITCH_3(
 		CmdLineSwitch_Documentation,

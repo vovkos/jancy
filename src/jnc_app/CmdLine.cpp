@@ -138,6 +138,10 @@ CmdLineParser::onSwitch(
 		m_cmdLine->m_requireList.insertTail(value);
 		break;
 
+	case CmdLineSwitch_DeepRequire:
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DeepRequire;
+		break;
+
 	case CmdLineSwitch_TimeReport:
 		m_cmdLine->m_flags |= JncFlag_TimeReport;
 		break;
