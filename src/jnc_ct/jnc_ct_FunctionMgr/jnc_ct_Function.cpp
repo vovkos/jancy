@@ -207,7 +207,9 @@ Function::compile() {
 
 	if (targetFunction) { // can re-use target function directly
 		llvm::Function* llvmFunction = targetFunction->getLlvmFunction();
-		m_llvmFunction->replaceAllUsesWith(llvmFunction);
+		if (m_llvmFunction) // otherwise, required but not referenced yet
+			m_llvmFunction->replaceAllUsesWith(llvmFunction);
+
 		m_llvmFunction = llvmFunction;
 		return true;
 	}
