@@ -150,7 +150,7 @@ opaque class Regex {
 		string_t pattern
 	) {
 		init();
-		compile(flags, pattern);
+		compile(pattern, flags);
 	}
 
 	destruct();

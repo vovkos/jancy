@@ -60,7 +60,7 @@ opaque class RbTree {
 		variant_t key,
 		variant_t undefinedValue = null
 	) const {
-		MapEntry* entry = find(key);
+		MapEntry const* entry = find(key);
 		return entry ? entry.m_value : undefinedValue;
 	}
 

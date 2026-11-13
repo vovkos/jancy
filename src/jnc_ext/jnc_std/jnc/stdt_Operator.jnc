@@ -89,13 +89,13 @@ struct HashId<T> {
 
 struct HashDjb2<T> {
 	static size_t operator () (T const* key) {
-		return djb2(key, sizeof(T));
+		return memdjb2(key, sizeof(T));
 	}
 }
 
 struct HashString {
 	static size_t operator () (string_t key) {
-		return djb2(key.m_p, key.m_length);
+		return memdjb2(key.m_p, key.m_length);
 	}
 }
 
