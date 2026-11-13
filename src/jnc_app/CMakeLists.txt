@@ -289,7 +289,7 @@ add_jancy_tests
 	list(REMOVE_ITEM _BASE_FLAG_LIST " ")
 
 	if(JANCY_TEST_DEEP_REQUIRE)
-		list(APPEND _BASE_FLAG_LIST --require jnc.global --deep-require)
+		list(APPEND _BASE_FLAG_LIST --deep-require jnc.global)
 	endif()
 
 	set(_COMMAND)

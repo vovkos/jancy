@@ -44,6 +44,7 @@ struct CmdLine {
 	sl::BoxList<sl::String> m_sourceDirList;
 	sl::BoxList<sl::String> m_ignoredImportList;
 	sl::BoxList<sl::String> m_requireList;
+	sl::BoxList<sl::String> m_deepRequireList;
 
 	CmdLine();
 };
@@ -131,12 +132,12 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_Require,
 		"require", "<symbol>",
-		"Marks a symbol or a namespace ('jnc.global' for global) as required"
+		"Marks a symbol as required"
 	)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_DeepRequire,
-		"deep-require", NULL,
-		"Require all members of required namespaces, recursively"
+		"deep-require", "<symbol>",
+		"Marks a symbol or a namespace ('jnc.global' for global) as required, with all its members, recursively"
 	)
 	AXL_SL_CMD_LINE_SWITCH_3(
 		CmdLineSwitch_Documentation,

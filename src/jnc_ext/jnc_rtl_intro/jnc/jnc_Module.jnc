@@ -32,7 +32,6 @@ bitflag enum ModuleCompileFlags {
 	DisableDoxyComment2           = 0x00004000,
 	DisableDoxyComment3           = 0x00008000,
 	DisableDoxyComment4           = 0x00010000,
-	DeepRequire                   = 0x00020000,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

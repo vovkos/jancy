@@ -64,6 +64,14 @@ JncApp::JncApp(CmdLine* cmdLine) {
 	for (; requireIt; requireIt++)
 		m_module->require(jnc::ModuleItemKind_Undefined, *requireIt);
 
+	requireIt = cmdLine->m_deepRequireList.getHead();
+	for (; requireIt; requireIt++)
+		m_module->require(
+			jnc::ModuleItemKind_Undefined,
+			*requireIt,
+			jnc::ModuleRequireFlag_Essential | jnc::ModuleRequireFlag_Deep
+		);
+
 	if (cmdLine->m_flags & JncFlag_Run)
 		m_module->require(jnc::ModuleItemKind_Function, cmdLine->m_functionName);
 

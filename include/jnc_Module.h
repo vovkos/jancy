@@ -59,7 +59,6 @@ enum jnc_ModuleCompileFlag {
 	jnc_ModuleCompileFlag_DisableDoxyComment2           = 0x00004000,
 	jnc_ModuleCompileFlag_DisableDoxyComment3           = 0x00008000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4           = 0x00010000,
-	jnc_ModuleCompileFlag_DeepRequire                   = 0x00020000,
 
 	jnc_ModuleCompileFlag_StdFlags                      = 0
 };
@@ -82,6 +81,7 @@ typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
 enum jnc_ModuleRequireFlag {
 	jnc_ModuleRequireFlag_Essential = 0x01, // otherwise, optional (compile if found)
 	jnc_ModuleRequireFlag_Traverse  = 0x02, // traverse to find exact location of the item
+	jnc_ModuleRequireFlag_Deep      = 0x04, // require all members of the item, recursively
 };
 
 typedef enum jnc_ModuleRequireFlag jnc_ModuleRequireFlag;
@@ -806,7 +806,8 @@ typedef jnc_ModuleRequireFlag ModuleRequireFlag;
 
 const ModuleRequireFlag
 	ModuleRequireFlag_Essential = jnc_ModuleRequireFlag_Essential,
-	ModuleRequireFlag_Traverse  = jnc_ModuleRequireFlag_Traverse;
+	ModuleRequireFlag_Traverse  = jnc_ModuleRequireFlag_Traverse,
+	ModuleRequireFlag_Deep      = jnc_ModuleRequireFlag_Deep;
 
 typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 
@@ -826,7 +827,6 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment2           = jnc_ModuleCompileFlag_DisableDoxyComment2,
 	ModuleCompileFlag_DisableDoxyComment3           = jnc_ModuleCompileFlag_DisableDoxyComment3,
 	ModuleCompileFlag_DisableDoxyComment4           = jnc_ModuleCompileFlag_DisableDoxyComment4,
-	ModuleCompileFlag_DeepRequire                   = jnc_ModuleCompileFlag_DeepRequire,
 	ModuleCompileFlag_StdFlags                      = jnc_ModuleCompileFlag_StdFlags;
 
 typedef jnc_ModuleCompileErrorHandlerFunc ModuleCompileErrorHandlerFunc;

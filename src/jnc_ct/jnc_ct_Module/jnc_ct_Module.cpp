@@ -787,7 +787,7 @@ Module::processRequireSet() {
 		)
 			continue; // ignore unimplemented prototypes
 
-		result =  (m_compileFlags & ModuleCompileFlag_DeepRequire) ?
+		result = (requireIt->m_value.m_flags & ModuleRequireFlag_Deep) ?
 			findResult.m_item->deepRequire() :
 			findResult.m_item->require();
 
@@ -796,9 +796,6 @@ Module::processRequireSet() {
 	}
 
 	m_requireSet.clear();
-
-	if (!(m_compileFlags & ModuleCompileFlag_DeepRequire))
-		return true;
 
 	// new items are added in the process, so we need a loop
 

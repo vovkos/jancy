@@ -465,12 +465,14 @@ if(BUILD_JNC_IO_SSH)
 			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
 			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
 			../NetSnifferLog/NetSnifferLogFilter.jnc
+			../NetSnifferLog/NetSnifferLogToPcap.jnc
 			../NetSnifferLog/NetSnifferLogRecordCode.jnc
 			../NetSnifferLog/NetSnifferLogRepresenter.jnc
 			../NetSnifferLog/Protocols.jnc
 			../NetSnifferLog/Proto_Simple.jnc
 			../NetSnifferLog/Proto_Ethernet.jnc
 			../NetSnifferLog/Proto_Loopback.jnc
+			../NetSnifferLog/Proto_Raw.jnc
 			../NetSnifferLog/Proto_Arp.jnc
 			../NetSnifferLog/Proto_Ip.jnc
 			../NetSnifferLog/Proto_Ip6.jnc
@@ -599,6 +601,7 @@ if(BUILD_JNC_IO_PCAP)
 			../PcapLog/PcapLogRecordCode.jnc
 			../PcapLog/PcapLogRepresenter.jnc
 			../NetSnifferLog/NetSnifferLogFilter.jnc
+			../NetSnifferLog/NetSnifferLogToPcap.jnc
 			../NetSnifferLog/NetSnifferLogRecordCode.jnc
 			../NetSnifferLog/NetSnifferLogRepresenter.jnc
 			../NetSnifferLog/Protocols.jnc
@@ -657,6 +660,7 @@ if(BUILD_JNC_IO_PCAP)
 			detailizeNetSnifferLog
 		FILES
 			NetSnifferLogFilter.jnc
+			NetSnifferLogToPcap.jnc
 			NetSnifferLogRecordCode.jnc
 			NetSnifferLogRepresenter.jnc
 			Protocols.jnc
@@ -760,6 +764,7 @@ if(BUILD_JNC_IO_USB)
 			SerialTapProLogRepresenter.jnc
 			SerialTapProLogConverter.jnc
 			SerialTapProDispatchCode.jnc
+			../../common/uleb128.jnc
 		FINALIZE_TEST SerialTapProLog
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/EthernetTap
@@ -777,12 +782,14 @@ if(BUILD_JNC_IO_USB)
 			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
 			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
 			../NetSnifferLog/NetSnifferLogFilter.jnc
+			../NetSnifferLog/NetSnifferLogToPcap.jnc
 			../NetSnifferLog/NetSnifferLogRecordCode.jnc
 			../NetSnifferLog/NetSnifferLogRepresenter.jnc
 			../NetSnifferLog/Protocols.jnc
 			../NetSnifferLog/Proto_Simple.jnc
 			../NetSnifferLog/Proto_Ethernet.jnc
 			../NetSnifferLog/Proto_Loopback.jnc
+			../NetSnifferLog/Proto_Raw.jnc
 			../NetSnifferLog/Proto_Arp.jnc
 			../NetSnifferLog/Proto_Ip.jnc
 			../NetSnifferLog/Proto_Ip6.jnc
