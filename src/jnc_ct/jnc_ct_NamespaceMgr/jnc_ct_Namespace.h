@@ -87,7 +87,10 @@ public:
 	ensureNamespaceReady();
 
 	bool
-	ensureNamespaceReadyDeep();
+	deepEnsureNamespaceReady();
+
+	bool
+	deepRequireItems();
 
 	bool
 	parseLazyImports();
@@ -317,6 +320,16 @@ public:
 	Namespace*
 	getNamespace() {
 		return this;
+	}
+
+	virtual
+	bool
+	deepRequire() {
+		m_flags |= ModuleItemFlag_DeepRequirePending; // prevent multiple markForDeepRequire
+
+		return
+			ensureNamespaceReady() &&
+			deepRequireItems();
 	}
 
 protected:

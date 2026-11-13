@@ -203,48 +203,69 @@ jnc_FunctionOverload_getOverload(
 	return index < function->getOverloadCount() ? function->getOverload(index) : NULL;
 }
 
+#	ifdef _JNC_CORE
+
 namespace jnc {
 
 bool
-OverloadableFunction::ensureLayout() {
-	if (!m_item)
-		return true;
+OverloadableFunction::ensureLayout() const {
+	ASSERT(m_item);
 
 	ModuleItemKind itemKind = m_item->getItemKind();
 	switch (itemKind) {
 	case ModuleItemKind_Function:
-		return ((Function*)m_item)->getType()->ensureLayout();
+		return m_function->getType()->ensureLayout();
 
 	case ModuleItemKind_FunctionOverload:
-		return ((FunctionOverload*)m_item)->getTypeOverload().ensureLayout();
+		return m_functionOverload->getTypeOverload().ensureLayout();
 
 	default:
 		ASSERT(false);
-		return true;
+		return false;
 	}
 }
 
 bool
-OverloadableFunction::ensureNoImports() {
-	if (!m_item)
-		return true;
+OverloadableFunction::ensureNoImports() const {
+	ASSERT(m_item);
 
 	ModuleItemKind itemKind = m_item->getItemKind();
 	switch (itemKind) {
 	case ModuleItemKind_Function:
-		return ((Function*)m_item)->getType()->ensureNoImports();
+		return m_function->getType()->ensureNoImports();
 
 	case ModuleItemKind_FunctionOverload:
-		return ((FunctionOverload*)m_item)->getTypeOverload().ensureNoImports();
+		return m_functionOverload->getTypeOverload().ensureNoImports();
 
 	default:
 		ASSERT(false);
-		return true;
+		return false;
+	}
+}
+
+void
+OverloadableFunction::requireIfCanCompile() const {
+	ASSERT(m_item);
+
+	ModuleItemKind itemKind = m_item->getItemKind();
+	switch (itemKind) {
+	case ModuleItemKind_Function:
+		if (m_function->canCompile())
+			m_function->require();
+		break;
+
+	case ModuleItemKind_FunctionOverload:
+		m_functionOverload->requireIfCanCompile();
+		break;
+
+	default:
+		ASSERT(false);
 	}
 }
 
 } // namespace jnc
 
+#	endif // _JNC_CORE
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
 //..............................................................................

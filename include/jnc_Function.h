@@ -310,23 +310,23 @@ public:
 		m_item = src.m_item;
 	}
 
-	explicit operator bool() {
+	explicit operator bool() const {
 		return m_item != NULL;
 	}
 
-	operator jnc_OverloadableFunction() {
+	operator jnc_OverloadableFunction() const {
 		jnc_OverloadableFunction result = { m_item };
 		return result;
 	}
 
 	ModuleItem*
-	operator -> () {
+	operator -> () const {
 		JNC_ASSERT(m_item);
 		return m_item;
 	}
 
 	size_t
-	getOverloadCount() {
+	getOverloadCount() const {
 		JNC_ASSERT(m_item);
 		return jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_FunctionOverload ?
 			jnc_FunctionOverload_getOverloadCount(m_functionOverload) :
@@ -334,22 +334,27 @@ public:
 	}
 
 	Function*
-	getFunction() {
+	getFunction() const {
 		JNC_ASSERT(m_item && jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_Function);
 		return m_function;
 	}
 
 	FunctionOverload*
-	getFunctionOverload() {
+	getFunctionOverload() const {
 		JNC_ASSERT(m_item && jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_FunctionOverload);
 		return m_functionOverload;
 	}
 
+#ifdef _JNC_CORE
 	bool
-	ensureLayout();
+	ensureLayout() const;
 
 	bool
-	ensureNoImports();
+	ensureNoImports() const;
+
+	void
+	requireIfCanCompile() const;
+#endif
 };
 
 //..............................................................................

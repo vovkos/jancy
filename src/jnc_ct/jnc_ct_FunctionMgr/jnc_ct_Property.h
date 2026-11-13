@@ -262,6 +262,10 @@ public:
 
 	virtual
 	bool
+	deepRequire();
+
+	virtual
+	bool
 	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,

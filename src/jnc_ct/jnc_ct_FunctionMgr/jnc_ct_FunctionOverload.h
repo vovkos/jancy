@@ -153,6 +153,9 @@ public:
 	bool
 	require();
 
+	void
+	requireIfCanCompile();
+
 	virtual
 	bool
 	generateDocumentation(
@@ -166,6 +169,15 @@ protected:
 	sl::StringRef
 	createItemString(size_t index);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+requireIfCanCompile(FunctionOverload* functionOverload) {
+	if (functionOverload)
+		functionOverload->requireIfCanCompile();
+}
 
 //..............................................................................
 

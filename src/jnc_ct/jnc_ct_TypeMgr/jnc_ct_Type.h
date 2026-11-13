@@ -538,6 +538,14 @@ public:
 		Type* referenceType
 	);
 
+	virtual
+	bool
+	deepRequire() {
+		return
+			ensureLayout() &&
+			ModuleItemWithNamespace<Type>::deepRequire();
+	}
+
 protected:
 	virtual
 	sl::StringRef

@@ -119,6 +119,7 @@ protected:
 	volatile int32_t m_asyncFlags;
 
 	sl::Array<Function*> m_compileArray;
+	sl::Array<ModuleItem*> m_deepRequireArray;
 	sl::BoxList<sl::String> m_sourceList; // need to keep all sources in-memory during compilation
 	sl::StringHashTable<bool> m_filePathSet;
 	sl::StringHashTable<RequiredItem> m_requireSet;
@@ -288,6 +289,9 @@ public:
 
 	void
 	markForCompile(Function* function);
+
+	void
+	markForDeepRequire(ModuleItem* item); // item must have a namespace
 
 	void
 	clear();
@@ -467,6 +471,18 @@ Module::markForCompile(Function* function) {
 
 	function->m_flags |= FunctionFlag_CompilePending;
 	m_compileArray.append(function);
+}
+
+inline
+void
+Module::markForDeepRequire(ModuleItem* item) {
+	ASSERT(item->getNamespace());
+
+	if (item->m_flags & ModuleItemFlag_DeepRequirePending)
+		return;
+
+	item->m_flags |= ModuleItemFlag_DeepRequirePending;
+	m_deepRequireArray.append(item);
 }
 
 //..............................................................................

@@ -59,6 +59,7 @@ enum jnc_ModuleCompileFlag {
 	jnc_ModuleCompileFlag_DisableDoxyComment2           = 0x00004000,
 	jnc_ModuleCompileFlag_DisableDoxyComment3           = 0x00008000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4           = 0x00010000,
+	jnc_ModuleCompileFlag_DeepRequire                   = 0x00020000,
 
 	jnc_ModuleCompileFlag_StdFlags                      = 0
 };
@@ -825,6 +826,7 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment2           = jnc_ModuleCompileFlag_DisableDoxyComment2,
 	ModuleCompileFlag_DisableDoxyComment3           = jnc_ModuleCompileFlag_DisableDoxyComment3,
 	ModuleCompileFlag_DisableDoxyComment4           = jnc_ModuleCompileFlag_DisableDoxyComment4,
+	ModuleCompileFlag_DeepRequire                   = jnc_ModuleCompileFlag_DeepRequire,
 	ModuleCompileFlag_StdFlags                      = jnc_ModuleCompileFlag_StdFlags;
 
 typedef jnc_ModuleCompileErrorHandlerFunc ModuleCompileErrorHandlerFunc;

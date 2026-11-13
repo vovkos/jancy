@@ -343,6 +343,10 @@ public:
 	}
 
 	virtual
+	bool
+	deepRequire();
+
+	virtual
 	sl::StringRef
 	getValueString(
 		const void* p,

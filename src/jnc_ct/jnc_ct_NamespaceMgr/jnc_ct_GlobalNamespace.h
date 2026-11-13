@@ -39,10 +39,7 @@ public:
 	}
 
 	void
-	clear() {
-		Namespace::clear();
-		m_extraBodyList.clear();
-	}
+	clear();
 
 	void
 	clearUsingSet() {
@@ -90,6 +87,16 @@ protected:
 		const sl::StringRef& body
 	);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+GlobalNamespace::clear() {
+	Namespace::clear();
+	m_extraBodyList.clear();
+	m_flags &= ~ModuleItemFlag_DeepRequirePending; // std namespaces are reused
+}
 
 //..............................................................................
 

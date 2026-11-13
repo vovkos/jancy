@@ -352,7 +352,7 @@ DerivableType::resolveImports() {
 		ensureArrayNoImports(m_fieldArray) &&
 		ensureArrayNoImports(m_methodArray) &&
 		ensureArrayNoImports(m_propertyArray) &&
-		m_constructor.ensureNoImports() &&
+		(!m_constructor || m_constructor.ensureNoImports()) &&
 		(!m_staticConstructor || m_staticConstructor->getType()->ensureNoImports()) &&
 		(!m_destructor || m_destructor->getType()->ensureNoImports());
 }
@@ -531,6 +531,39 @@ DerivableType::callBaseTypeDestructors(const Value& thisValue) {
 		if (!result)
 			return false;
 	}
+
+	return true;
+}
+
+bool
+DerivableType::deepRequire() {
+	bool result = NamedType::deepRequire();
+	if (!result)
+		return false;
+
+	requireIfCanCompile(m_staticConstructor);
+	requireIfCanCompile(m_constructor);
+	requireIfCanCompile(m_destructor);
+	requireIfCanCompile(m_callOperator);
+	requireIfCanCompile(m_operatorVararg);
+	requireIfCanCompile(m_operatorCdeclVararg);
+
+	size_t count = m_unaryOperatorArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		requireIfCanCompile(m_unaryOperatorArray[i]); // sparse array
+
+	count = m_binaryOperatorArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		requireIfCanCompile(m_binaryOperatorArray[i]); // sparse array
+
+	sl::StringHashTableIterator<Function*> it = m_castOperatorMap.getHead();
+	for (; it; it++)
+		if (it->m_value->canCompile())
+			it->m_value->require();
+
+	sl::Iterator<BaseTypeSlot> baseIt = m_baseTypeList.getHead();
+	for (; baseIt; baseIt++)
+		m_module->markForDeepRequire(baseIt->m_type);
 
 	return true;
 }

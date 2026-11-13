@@ -245,7 +245,7 @@ Namespace::ensureNamespaceReady() {
 }
 
 bool
-Namespace::ensureNamespaceReadyDeep() {
+Namespace::deepEnsureNamespaceReady() {
 	bool result = ensureNamespaceReady();
 	if (!result)
 		return false;
@@ -254,13 +254,50 @@ Namespace::ensureNamespaceReadyDeep() {
 	for (size_t i = 0; i < count; i++) {
 		Namespace* nspace = m_itemArray[i]->getNamespace();
 		if (nspace) {
-			result = nspace->ensureNamespaceReadyDeep();
+			result = nspace->deepEnsureNamespaceReady();
 			if (!result)
 				return false;
 		}
 	}
 
 	return true;
+}
+
+bool
+Namespace::deepRequireItems() {
+	ASSERT(m_namespaceStatus == NamespaceStatus_Ready);
+
+	bool result = true;
+	Module* module = getDeclItem()->getModule();
+
+	for (size_t i = 0; i < m_itemArray.getCount(); i++) { // requiring may add items (e.g., template instances)
+		ModuleItem* item = m_itemArray[i];
+		switch (item->getItemKind()) {
+		case ModuleItemKind_Function:
+			requireIfCanCompile((Function*)item);
+			break;
+
+		case ModuleItemKind_Property:
+			item->deepRequire(); // never fails
+			break;
+
+		case ModuleItemKind_Type: {
+			Type* type = (Type*)item;
+			if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
+				module->markForDeepRequire(item);
+			else
+				result = type->ensureLayout() && result;
+
+			break;
+			}
+
+		case ModuleItemKind_Namespace:
+			module->markForDeepRequire(item);
+			break;
+		}
+	}
+
+	return result;
 }
 
 bool

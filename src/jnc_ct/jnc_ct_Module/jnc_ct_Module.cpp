@@ -113,6 +113,7 @@ void
 Module::clear() {
 	m_name.clear();
 	m_compileArray.clear();
+	m_deepRequireArray.clear();
 	m_filePathSet.clear();
 	m_requireSet.clear();
 
@@ -782,15 +783,37 @@ Module::processRequireSet() {
 
 		if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Essential) &&
 			findResult.m_item->getItemKind() == ModuleItemKind_Function &&
-			((Function*)findResult.m_item)->isPrototype())
+			((Function*)findResult.m_item)->isPrototype()
+		)
 			continue; // ignore unimplemented prototypes
 
-		result = findResult.m_item->require();
+		result =  (m_compileFlags & ModuleCompileFlag_DeepRequire) ?
+			findResult.m_item->deepRequire() :
+			findResult.m_item->require();
+
 		if (!result)
 			return false;
 	}
 
 	m_requireSet.clear();
+
+	if (!(m_compileFlags & ModuleCompileFlag_DeepRequire))
+		return true;
+
+	// new items are added in the process, so we need a loop
+
+	while (!m_deepRequireArray.isEmpty()) {
+		sl::Array<ModuleItem*> deepRequireArray;
+		sl::takeOver(&deepRequireArray, &m_deepRequireArray);
+
+		size_t count = deepRequireArray.getCount();
+		for (size_t i = 0; i < count; i++) {
+			bool result = deepRequireArray[i]->deepRequire();
+			if (!result)
+				return false;
+		}
+	}
+
 	return true;
 }
 

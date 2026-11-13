@@ -90,9 +90,10 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind);
 //..............................................................................
 
 enum jnc_ModuleItemFlag {
-	jnc_ModuleItemFlag_User        = 0x01,  // all user-declared items
-	jnc_ModuleItemFlag_Constructed = 0x02,  // base type slots, fields, variables, properties
-	jnc_ModuleItemFlag_LinkIdReady = 0x04,
+	jnc_ModuleItemFlag_User               = 0x01,  // all user-declared items
+	jnc_ModuleItemFlag_Constructed        = 0x02,  // base type slots, fields, vars, props
+	jnc_ModuleItemFlag_LinkIdReady        = 0x04,
+	jnc_ModuleItemFlag_DeepRequirePending = 0x80000000,
 };
 
 typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
@@ -424,9 +425,10 @@ getModuleItemKindString(ModuleItemKind itemKind) {
 typedef jnc_ModuleItemFlag ModuleItemFlag;
 
 const ModuleItemFlag
-	ModuleItemFlag_User        = jnc_ModuleItemFlag_User,
-	ModuleItemFlag_Constructed = jnc_ModuleItemFlag_Constructed,
-	ModuleItemFlag_LinkIdReady = jnc_ModuleItemFlag_LinkIdReady;
+	ModuleItemFlag_User               = jnc_ModuleItemFlag_User,
+	ModuleItemFlag_Constructed        = jnc_ModuleItemFlag_Constructed,
+	ModuleItemFlag_LinkIdReady        = jnc_ModuleItemFlag_LinkIdReady,
+	ModuleItemFlag_DeepRequirePending = jnc_ModuleItemFlag_DeepRequirePending;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

@@ -643,7 +643,7 @@ jnc_Module_generateDocumentation(
 	const char* outputDir
 ) {
 	return
-		module->m_namespaceMgr.getGlobalNamespace()->ensureNamespaceReadyDeep() &&
+		module->m_namespaceMgr.getGlobalNamespace()->deepEnsureNamespaceReady() &&
 		module->m_doxyModule.generateDocumentation(
 			outputDir,
 			"index.xml",

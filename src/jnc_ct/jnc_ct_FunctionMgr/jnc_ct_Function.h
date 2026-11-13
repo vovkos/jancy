@@ -336,6 +336,21 @@ Function::addReactorVariable(Variable* variable) {
 	m_reactorVariableArray.append(FieldVariable(variable, llvmAlloca));
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+requireIfCanCompile(Function* function) {
+	if (function && function->canCompile())
+		function->require();
+}
+
+inline
+void
+requireIfCanCompile(const OverloadableFunction& function) {
+	if (function)
+		function.requireIfCanCompile();
+}
 
 //..............................................................................
 

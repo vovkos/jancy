@@ -88,6 +88,14 @@ FunctionOverload::createItemString(size_t index) {
 		));
 }
 
+void
+FunctionOverload::requireIfCanCompile() {
+	size_t count = m_overloadArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		if (m_overloadArray[i]->canCompile())
+			m_overloadArray[i]->require();
+}
+
 //..............................................................................
 
 } // namespace ct

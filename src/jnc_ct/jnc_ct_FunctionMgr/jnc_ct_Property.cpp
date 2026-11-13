@@ -525,6 +525,21 @@ Property::finalize() {
 	return true;
 }
 
+bool
+Property::deepRequire() {
+	bool result = ModuleItemWithNamespace<>::deepRequire();
+	if (!result)
+		return false;
+
+	requireIfCanCompile(m_staticConstructor);
+	requireIfCanCompile(m_constructor);
+	requireIfCanCompile(m_destructor);
+	requireIfCanCompile(m_getter);
+	requireIfCanCompile(m_setter);
+	requireIfCanCompile(m_binder);
+	return true;
+}
+
 PropertyType*
 Property::createType() {
 	ASSERT(!m_type);
