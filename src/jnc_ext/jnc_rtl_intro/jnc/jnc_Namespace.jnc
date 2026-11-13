@@ -25,6 +25,8 @@ enum NamespaceKind {
 	Property,
 	PropertyTemplate,
 	DynamicLib,
+	TemplateDeclaration,
+	TemplateInstantiation,
 	_Count,
 }
 

@@ -25,6 +25,7 @@ enum ClassTypeKind {
 	FunctionClosure,
 	PropertyClosure,
 	DataClosure,
+	DynamicLib,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -34,6 +35,7 @@ bitflag enum ClassTypeFlags {
 	Closure            = 0x020000,
 	Opaque             = 0x040000,
 	OpaqueNonCreatable = 0x080000,
+	Creatable          = 0x100000,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

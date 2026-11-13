@@ -106,12 +106,13 @@ enum TypeKind {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum TypeKindFlags {
-	Integer      = 0x00000001,
-	Signed       = 0x00000002,
-	Unsigned     = 0x00000004,
-	Fp           = 0x00000008,
-	Numeric      = 0x00000010,
-	Aggregate    = 0x00000020,
+	Bool         = 0x00000001,
+	Integer      = 0x00000002,
+	Signed       = 0x00000004,
+	Unsigned     = 0x00000008,
+	Fp           = 0x00000010,
+	Numeric      = 0x00000020,
+	Aggregate    = 0x00000040,
 	Named        = 0x00000100,
 	Derivable    = 0x00000200,
 	DataPtr      = 0x00000400,
@@ -130,10 +131,18 @@ bitflag enum TypeKindFlags {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum TypeFlags {
-	Pod       = 0x0100, // plain-old-data
-	GcRoot    = 0x0200, // is or contains gc-traceable pointers
-	StructRet = 0x0400, // return through hidden 1st arg (gcc32 callconv)
-	NoStack   = 0x0800, // try to avoid allocation on stack
+	Import         = 0x0008, // contains imports (supersedes NoImports)
+	SignatureReady = 0x0010, // signature is ready (but can change due to imports)
+	SignatureFinal = 0x0020, // signature is ready and final (won't change)
+	InCalcLayout   = 0x0040, // detect layout recursion loops
+	LayoutReady    = 0x0080,
+	Pod            = 0x0100, // plain-old-data
+	GcRoot         = 0x0200, // is or contains gc-traceable pointers
+	StructRet      = 0x0400, // return through hidden 1st arg (gcc32 callconv)
+	NoStack        = 0x1000, // try to avoid allocation on stack
+	NoImports      = 0x2000, // all imports resolved (when generating documentation)
+	DualByAccess   = 0x4000, // readonly/event
+	DualByConst    = 0x8000, // autoconst
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -147,7 +156,7 @@ bitflag enum PtrTypeFlags {
 	AutoGet    = 0x08000000, // data ptr only
 	BigEndian  = 0x10000000, // data ptr only
 	BitField   = 0x20000000, // data ptr only
-	ThinThis   = 0x40000000, // function only (converts to DataPtrKind_Thin)
+	ThinThis   = 0x40000000, // 'this' arg only
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -18,10 +18,12 @@ namespace jnc {
 
 bitflag enum ModuleCompileFlags {
 	DebugInfo                     = 0x00000001,
-	McJit                         = 0x00000002,
+	Assert                        = 0x00000002,
 	SimpleGcSafePoint             = 0x00000004,
 	GcSafePointInPrologue         = 0x00000010,
 	GcSafePointInInternalPrologue = 0x00000020,
+	ExternalExtensionBin          = 0x00000040,
+	DisableCodeGen                = 0x00000080,
 	Documentation                 = 0x00000200,
 	IgnoreOpaqueClassTypeInfo     = 0x00000400,
 	KeepTypedefShadow             = 0x00000800,
@@ -30,16 +32,16 @@ bitflag enum ModuleCompileFlags {
 	DisableDoxyComment2           = 0x00004000,
 	DisableDoxyComment3           = 0x00008000,
 	DisableDoxyComment4           = 0x00010000,
+	DeepRequire                   = 0x00020000,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum ModuleCompileState {
 	Idle,
-	Linked,
-	LayoutCalculated,
-	Compiled,
-	Jitted,
+	Parsed,    // all files are parsed; global namespace is ready
+	Compiled,  // all required functions are compiled into LLVM IR
+	Jitted,    // machine code for all required functions is ready
 }
 
 //..............................................................................

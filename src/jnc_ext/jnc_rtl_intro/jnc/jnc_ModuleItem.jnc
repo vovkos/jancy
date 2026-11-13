@@ -20,51 +20,56 @@ enum ModuleItemKind {
 	Undefined = 0,
 	Namespace,
 	Scope,
+	Attribute,
+	AttributeBlock,
 	Type,
 	Typedef,
 	Alias,
 	Const,
 	Variable,
-	FunctionArg,
 	Function,
+	FunctionArg,
+	FunctionOverload,
 	Property,
 	PropertyTemplate,
 	EnumConst,
 	Field,
 	BaseTypeSlot,
 	Orphan,
-	Lazy,
+	LazyImport,
+	DynamicLayoutSection,
+	Template,
+	TemplateNamespace,
 	_Count,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum ModuleItemFlags {
-	User         = 0x01,
-	NeedLayout   = 0x02,
-	NeedCompile  = 0x04,
-	InCalcLayout = 0x10,
-	LayoutReady  = 0x20,
-	Constructed  = 0x40, // fields, properties, base type slots
-	Sealed       = 0x80,
+	User               = 0x01,
+	Constructed        = 0x02,       // base type slots, fields, variables, properties
+	LinkIdReady        = 0x04,
+	DeepRequirePending = 0x80000000, // namespace items only
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum StorageKind {
 	Undefined = 0,
-	Alias,
 	Typedef,
 	Static,
 	Tls,
 	Stack,
 	Heap,
+	Alias,
 	Member,
 	Abstract,
 	Virtual,
 	Override,
 	Mutable,
 	Disposable,
+	DynamicField,
+	Reactor,
 	This,
 	_Count,
 }

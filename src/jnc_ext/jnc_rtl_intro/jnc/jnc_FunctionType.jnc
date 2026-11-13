@@ -24,6 +24,7 @@ bitflag enum FunctionTypeFlags {
 	Unsafe         = 0x100000,
 	Async          = 0x200000,
 	AsyncErrorCode = 0x400000,
+	IntExtArgs     = 0x800000,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -24,8 +24,8 @@ enum UnOpKind {
 	Indir,
 	Addr,
 	LogNot,
-	PreInc,
-	PreDec,
+	Inc,
+	Dec,
 	PostInc,
 	PostDec,
 	Ptr,
@@ -59,6 +59,8 @@ enum BinOpKind {
 	Le,
 	Gt,
 	Ge,
+	Match,
+	NotMatch,
 
 	// indexing
 

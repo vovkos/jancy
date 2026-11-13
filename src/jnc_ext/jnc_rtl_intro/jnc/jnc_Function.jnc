@@ -22,10 +22,9 @@ enum FunctionKind {
 	Getter,
 	Setter,
 	Binder,
+	StaticConstructor,
 	Constructor,
 	Destructor,
-	StaticConstructor,
-	StaticDestructor,
 	CallOperator,
 	CastOperator,
 	UnaryOperator,
@@ -37,6 +36,8 @@ enum FunctionKind {
 	SchedLauncher,
 	AsyncSchedLauncher,
 	AsyncSequencer,
+	Reactor,
+	Lambda,
 	_Count
 }
 

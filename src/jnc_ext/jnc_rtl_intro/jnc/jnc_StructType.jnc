@@ -18,6 +18,8 @@ namespace jnc {
 
 enum StructTypeKind {
 	Normal,
+	Adapter, // same layout, same LLVM, modified API
+	AbstractData,
 	IfaceStruct,
 	ClassStruct,
 	UnionStruct,
