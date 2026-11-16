@@ -267,9 +267,9 @@ protected:
 
 public:
 	ClassBox<StdBuffer> m_buffer;
+	PromiseImpl* m_promise;
 	PromiseImpl* m_auxPromise;
 	DynamicLayoutSink* m_sink;
-	PromiseImpl* m_promise;
 	DataPtr m_ptr;
 	size_t m_size;
 	size_t m_bufferSize;

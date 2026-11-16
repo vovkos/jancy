@@ -91,11 +91,11 @@ protected:
 	// only for DynamicLayoutMode.Stream
 
 	std.Buffer m_buffer;
+	Promise* m_promise;  // when async-waiting for resume()
 	Promise* m_auxPromise; // to avoid extra allocations
 
 public:
 	DynamicLayoutSink* readonly m_sink;
-	Promise const* readonly m_promise;  // when async-waiting for resume()
 	void const* readonly m_p;
 	size_t readonly m_size;       // layout size (can be larger than buffer size)
 	size_t readonly m_bufferSize; // size of the buffer being parsed
