@@ -21,6 +21,7 @@ session-class = RdvSerialTapSession
 
 [required-capabilities]
 
+com.ioninja.rendezvous
 org.jancy.io.net
 
 [optional-capabilities]

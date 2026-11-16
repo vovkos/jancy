@@ -29,6 +29,7 @@ public:
 	}
 
 	void reset();
+	void stop(); // writes "capture stopped" if START was received
 
 	bool errorcode write(
 		void const* p,
@@ -51,6 +52,13 @@ void SerialMonitor_mi.reset() {
 	m_buffer.clear();
 	m_processor = null;
 	m_msgCount = 0;
+}
+
+void SerialMonitor_mi.stop() {
+	if (m_processor) {
+		m_logWriter.write(DeviceMonLogRecordCode.CaptureStopped);
+		m_processor = null;
+	}
 }
 
 bool errorcode SerialMonitor_mi.write(
@@ -129,7 +137,7 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr) 
 		size_t nameLength = nameEnd ? nameEnd - name : nameSize;
 
 		m_processor.m_deviceName = string_t(strdup(name, nameLength), nameLength);
-		m_logWriter.write(DeviceMonLogRecordCode.CaptureStarted_name, m_processor.m_deviceName);
+		m_logWriter.write(DeviceMonLogRecordCode.CaptureStarted_name, name, nameSize);
 		break;
 
 	case io.DeviceMonitorMiMsgCode.Notification:

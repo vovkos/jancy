@@ -23,6 +23,7 @@ session-class = RdvEthernetTapSession
 
 [required-capabilities]
 
+com.ioninja.rendezvous
 org.jancy.io.net
 
 [optional-capabilities]

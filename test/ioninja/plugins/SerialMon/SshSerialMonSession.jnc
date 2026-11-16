@@ -132,6 +132,7 @@ SshSerialMonSession.construct(doc.PluginHost* pluginHost) {
 			m_logWriter.writeLastError(log.StdRecordCode.Error);
 		}
 
+		m_monitor.stop();
 		m_stdSessionInfoSet.endSession();
 	}
 
@@ -251,6 +252,7 @@ void SshSerialMonSession.disconnect() {
 	if (!m_ssh.m_state)
 		return;
 
+	m_monitor.stop(); // capture stopped goes before disconnected
 	m_ssh.close();
 	m_stdSessionInfoSet.endSession();
 }

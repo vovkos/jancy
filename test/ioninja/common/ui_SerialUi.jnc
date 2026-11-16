@@ -134,7 +134,7 @@ class SerialUi {
 			if (m_stopBitsCombo)
 				m_stopBitsCombo.m_currentData = value;
 			else if (m_stopBitsProp)
-				m_stopBitsProp.m_currentIndex = value;
+				m_stopBitsProp.m_value = value;
 		}
 	}
 
@@ -175,7 +175,7 @@ class SerialUi {
 			return
 				m_rtsAction ? m_rtsAction.m_isChecked :
 				m_rtsProp ? m_rtsProp.m_value :
-				Defaults.Dtr;
+				Defaults.Rts;
 		}
 
 		void set(bool value) {
@@ -191,7 +191,7 @@ class SerialUi {
 			return
 				m_breakConditionAction ? m_breakConditionAction.m_isChecked :
 				m_breakConditionProp ? m_breakConditionProp.m_value :
-				Defaults.Dtr;
+				Defaults.BreakCondition;
 		}
 
 		void set(bool value) {
@@ -432,8 +432,8 @@ void SerialUi.load(doc.Storage* storage) {
 	m_parity = (io.SerialParity)storage.readInt("parityVal", Defaults.Parity);
 	m_stopBits = (io.SerialStopBits)storage.readInt("stopBitsVal", Defaults.StopBits);
 	m_flowControl = (io.SerialFlowControl)storage.readInt("flowControlVal", Defaults.FlowControl);
-	m_dtr = (io.SerialFlowControl)storage.readBool("dtr", Defaults.Dtr);
-	m_rts = (io.SerialFlowControl)storage.readBool("rts", Defaults.Rts);
+	m_dtr = storage.readBool("dtr", Defaults.Dtr);
+	m_rts = storage.readBool("rts", Defaults.Rts);
 }
 
 void SerialUi.save(doc.Storage* storage) {

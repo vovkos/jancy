@@ -7,7 +7,8 @@
 
 class ModbusBinParserBase: ModbusParserBase {
 protected:
-	jnc.DynamicLayout m_packet;
+	jnc.DynamicLayout m_layout;
+	jnc.Promise* m_promise;
 
 public:
 	construct(
@@ -17,10 +18,7 @@ public:
 		basetype.construct(protocol, infoSet);
 	}
 
-	override void reset() {
-		basetype.reset();
-		m_packet.clear();
-	}
+	override void reset();
 
 	override void parse(
 		log.Writer* writer,
@@ -44,6 +42,12 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+override void ModbusBinParserBase.reset() {
+	basetype.reset();
+	m_layout.clear();
+	m_promise = null;
+}
+
 void ModbusBinParserBase.parse(
 	log.Writer* writer,
 	uint64_t timestamp,
@@ -56,32 +60,30 @@ void ModbusBinParserBase.parse(
 	void const* end = p + size;
 	while (p < end) {
 		size = end - p;
-		jnc.Promise const* promise;
 
-		if (m_packet.m_isIncomplete) { // resume the incomplete packet
-			size = m_packet.resume(p, size);
-			promise = m_packet.m_promise;
-		} else { // start a new one
-			m_packet.reset(jnc.DynamicLayoutMode.Stream, null, p, size);
-			promise = layoutPacket();
-			if (!m_packet.m_isIncomplete)
-				size = m_packet.m_size;
+		if (m_layout.m_isIncomplete) // resume the incomplete packet
+			size = m_layout.resume(p, size);
+		else { // start a new one
+			m_layout.reset(jnc.DynamicLayoutMode.Stream, null, p, size);
+			m_promise = layoutPacket();
+			if (!m_layout.m_isIncomplete)
+				size = m_layout.m_size;
 		}
 
 		writer.write(timestamp, originalRecordCode, p, size);
 		p += size;
 
-		if (promise.m_error) { // exception during layout
-			writer.write(timestamp, ModbusLogRecordCode.ParseError, promise.m_error);
+		if (m_promise.m_error) { // exception during layout
+			writer.write(timestamp, ModbusLogRecordCode.ParseError, m_promise.m_error);
 			m_infoSet.addError();
 			reset();
 			continue;
 		}
 
-		if (m_packet.m_isIncomplete)
+		if (m_layout.m_isIncomplete)
 			break;
 
-		writer.write(timestamp, getPacketRecordCode(), m_packet.m_p, m_packet.m_size);
+		writer.write(timestamp, getPacketRecordCode(), m_layout.m_p, m_layout.m_size);
 		m_infoSet.addAdu(m_modbusRole);
 		postPacket();
 	}

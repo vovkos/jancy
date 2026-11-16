@@ -378,7 +378,7 @@ ui.ComboBox* EzTapProSession.createSerialSettingComboBox(
 		comboBox.addItem(optionTable[i].m_text, optionTable[i].m_value);
 
 	comboBox.adjustSizeToContents();
-	comboBox.m_onChanged += onChanged;
+	bindingof(comboBox.m_currentIndex) += onChanged;
 
 	return comboBox;
 }

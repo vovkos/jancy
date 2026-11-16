@@ -16,22 +16,33 @@ bool representDeviceMonLog  (
 ) {
 	switch (recordCode) {
 	case DeviceMonLogRecordCode.CaptureStarted_name:
+		// device name, optionally followed by '\0' and driver (module) name
 		string_t name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText($"Capture started on \e[34m$name");
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+
+		if (name.m_length + 1 >= size)
+			representation.addHyperText($"Capture started on \e[34m$name");
+		else {
+			string_t driverName((char const*)p + name.m_length + 1, size - name.m_length - 1);
+			representation.addHyperText(
+				$"Capture started on \e[34m$name\e[m\n"
+				$"\e[90mDriver:\t\e[34m$driverName"
+			);
+		}
+
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStarted_filter:
 		string_t nameFilter = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Capture started with filter \e[34m$nameFilter");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStopped:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 		representation.addHyperText("Capture stopped");
 		break;
 

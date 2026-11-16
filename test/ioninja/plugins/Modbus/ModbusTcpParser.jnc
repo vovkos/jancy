@@ -11,7 +11,7 @@ public:
 
 protected:
 	override jnc.Promise* layoutPacket() {
-		return io.layoutModbusAdu(m_packet, io.ModbusProtocol.Tcp, m_modbusRole);
+		return io.layoutModbusAdu(m_layout, io.ModbusProtocol.Tcp, m_modbusRole);
 	}
 
 	override uint64_t getPacketRecordCode() {

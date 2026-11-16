@@ -20,8 +20,9 @@ enum FpgaUploaderLogRecordCode: uint64_t {
 	FirmwareUploadCompleted = 0x01d487bb6423b819,
 	FirmwareBootFailed      = 0x01d487bb6423b81a,
 	UnsupportedUsbSpeed     = 0x01d487bb6423b81b,
-	SendingFirmware         = 0x01d487bb6423b81c,
+	// 0x01d487bb6423b81c - I2cSpiTapLogRecordCode.CypressBufferCleared
 	FirmwareUpToDate        = 0x01d487bb6423b81d, // uint16_t version
+	SendingFirmware         = 0x01d487bb6423b81e,
 }
 
 //..............................................................................

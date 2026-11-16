@@ -42,12 +42,26 @@ protected:
 		FpgaBusy        = 0x1000,
 	}
 
+	enum TimerKind {
+		Status,
+		Erase,
+		Load,
+	}
+
+	enum CheckStatusResult {
+		Error   = -1,
+		Busy    = 0,
+		Success = 1,
+	}
+
 	enum {
-		AtomSize           = 4,
-		BlockSize          = 64,
-		TimerInterval      = 100,
-		StatusCheckCount   = 5,  // check n times before waiting
-		StillWaitingFactor = 1000 / TimerInterval, // once a second
+		AtomSize             = 4,
+		BlockSize            = 64,
+		StatusBusyLoopTime   = 5,    // don't busy-loop for more than 5ms
+		StatusCheckInterval  = 50,   // 50ms between status checks after busy loop
+		StillWaitingInterval = 1000, // 1s between "Still waiting..." records
+		EraseWaitTime        = 500,  // unconditionally wait 0.5s before checking
+		LoadWaitTime         = 1500, // unconditionally wait 1.5s before checking
 	}
 
 protected:
@@ -59,7 +73,8 @@ protected:
 	size_t m_fileSize;
 	size_t m_fileOffset;
 	size_t m_baseIndex;
-	size_t m_statusCheckIdx;
+	Status m_errorMask;
+	uint64_t m_stillWaitingTime;
 	uint_t m_syncId;
 
 public:
@@ -93,11 +108,16 @@ protected:
 	void sendFirstBlock(bool isCheckRequired);
 	void sendNextBlock(bool isCheckRequired);
 	void load(bool isCheckRequired);
-	void finalizeLoad();
+	void finalizeLoad(bool isCheckRequired);
 	void complete(bool result);
 
+	CheckStatusResult checkStatusOnce(Status errorMask);
 	bool checkStatus(Status errorMask);
-	void onTimer(uint_t syncId);
+
+	void onTimer(
+		TimerKind timerKind,
+		uint_t syncId
+	);
 
 	void onTransferCompleted(
 		uint_t syncId,
@@ -223,8 +243,10 @@ void FpgaUploader.erase(bool isCheckRequired) {
 		0
 	);
 
-	if (checkStatus(Status.FlashWriteError))
-		sendFirstBlock(false);
+	m_timer.startSingleShotTimer(
+		onTimer~(TimerKind.Erase, ++m_syncId) @ m_mainThreadScheduler,
+		EraseWaitTime
+	);
 }
 
 void FpgaUploader.load(bool isCheckRequired) {
@@ -243,8 +265,10 @@ void FpgaUploader.load(bool isCheckRequired) {
 		0
 	);
 
-	if (checkStatus(Status.AppLoadError))
-		finalizeLoad();
+	m_timer.startSingleShotTimer(
+		onTimer~(TimerKind.Load, ++m_syncId) @ m_mainThreadScheduler,
+		LoadWaitTime
+	);
 }
 
 void FpgaUploader.sendFirstBlock(bool isCheckRequired) {
@@ -295,8 +319,8 @@ void FpgaUploader.sendNextBlock(bool isCheckRequired) {
 	m_fileOffset += size;
 }
 
-void FpgaUploader.finalizeLoad() {
-	if (!checkStatus(Status.InvalidApp | Status.FlashWriteError | Status.AppLoadError))
+void FpgaUploader.finalizeLoad(bool isCheckRequired) {
+	if (isCheckRequired && !checkStatus(Status.InvalidApp | Status.FlashWriteError | Status.AppLoadError))
 		return;
 
 	io.RpdVersion version = getVersion();
@@ -323,42 +347,70 @@ void FpgaUploader.complete(bool result) {
 	m_onUpdateCompleted(result);
 }
 
+CheckStatusResult FpgaUploader.checkStatusOnce(Status errorMask) {
+	Status status = getStatus();
+	if (m_state == FpgaUploaderState.Loading && status == 0xffff) // bogus intermittent state during load
+		return CheckStatusResult.Busy;
+	else if (status & errorMask) {
+		std.setError($"FPGA loader error at index 0x%x: %2"(
+			m_baseIndex + (m_fileOffset - sizeof(io.RpdHdr)) / AtomSize,
+			typeof(Status).getValueString(status))
+		);
+
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+		complete(false);
+		return CheckStatusResult.Error;
+	} else
+		return (status & (Status.FlashBusy | Status.FpgaBusy)) ?
+			CheckStatusResult.Busy :
+			CheckStatusResult.Success;
+}
+
 bool FpgaUploader.checkStatus(Status errorMask) {
-	for (size_t i = 0; i < StatusCheckCount; i++) {
-		Status status = getStatus();
-		if (status & errorMask) {
-			std.setError($"FPGA loader error at index 0x%x: %2"(
-				m_baseIndex + (m_fileOffset - sizeof(io.RpdHdr)) / AtomSize,
-				typeof(Status).getValueString(status))
-			);
+	uint64_t deadline = sys.getPreciseTimestamp() + StatusBusyLoopTime * 10000UL;
+	do {
+		CheckStatusResult result = checkStatusOnce(errorMask);
+		if (result)
+			return result > 0;
+	} while (sys.getPreciseTimestamp() < deadline);
 
-			m_logWriter.writeLastError(log.StdRecordCode.Error);
-			complete(false);
-			return false;
-		}
-
-		if (!(status & (Status.FlashBusy | Status.FpgaBusy)))
-			return true;
-	}
-
-	m_statusCheckIdx = 0;
+	m_stillWaitingTime = sys.getTimestamp() + StillWaitingInterval * 10000UL;
+	m_errorMask = errorMask;
 
 	m_timer.startPeriodicTimer(
-		onTimer~(++m_syncId) @ m_mainThreadScheduler,
-		TimerInterval
+		onTimer~(TimerKind.Status, ++m_syncId) @ m_mainThreadScheduler,
+		StatusCheckInterval
 	);
 
 	return false;
 }
 
-void FpgaUploader.onTimer(uint_t syncId) {
+void FpgaUploader.onTimer(
+	TimerKind timerKind,
+	uint_t syncId
+) {
 	if (syncId != m_syncId)
 		return;
 
-	Status status = getStatus();
-	if (status & (Status.FlashBusy | Status.FpgaBusy)) {
-		if (++m_statusCheckIdx % StillWaitingFactor == 0)
+	switch (timerKind) {
+	case TimerKind.Erase:
+		return sendFirstBlock(true);
+
+	case TimerKind.Load:
+		return finalizeLoad(true);
+	}
+
+	CheckStatusResult result = checkStatusOnce(m_errorMask);
+	switch (result) {
+	case CheckStatusResult.Error:
+		return;
+
+	case CheckStatusResult.Busy:
+		uint64_t timestamp = sys.getTimestamp();
+		if (timestamp > m_stillWaitingTime) {
 			m_logWriter.write(FpgaUploaderLogRecordCode.StillWaiting);
+			m_stillWaitingTime = timestamp + StillWaitingInterval * 10000UL;
+		}
 
 		return; // not yet
 	}
@@ -380,7 +432,7 @@ void FpgaUploader.onTimer(uint_t syncId) {
 		break;
 
 	case FpgaUploaderState.Loading:
-		finalizeLoad();
+		finalizeLoad(false);
 		break;
 	}
 

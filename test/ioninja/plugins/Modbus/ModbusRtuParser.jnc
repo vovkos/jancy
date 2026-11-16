@@ -26,7 +26,7 @@ protected:
 	override void postPacket();
 
 	override jnc.Promise* layoutPacket() {
-		return io.layoutModbusAdu(m_packet, io.ModbusProtocol.Rtu, m_modbusRole);
+		return io.layoutModbusAdu(m_layout, io.ModbusProtocol.Rtu, m_modbusRole);
 	}
 
 	override uint64_t getPacketRecordCode() {
@@ -42,11 +42,11 @@ void ModbusRtuParser.preParse(
 	log.Writer* writer,
 	uint64_t timestamp
 ) {
-	if (m_packet.m_isIncomplete && timestamp - m_lastTimestamp > MinInterFrameDelay) {
+	if (m_layout.m_isIncomplete && timestamp - m_lastTimestamp > MinInterFrameDelay) {
 		std.setError(
 			$"Incomplete Modbus RTU packet: %1 of %2 bytes" (
-			m_packet.m_bufferSize,
-			m_packet.m_size
+			m_layout.m_bufferSize,
+			m_layout.m_size
 		));
 
 		writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
@@ -62,7 +62,7 @@ void ModbusRtuParser.postPacket() {
 	if (m_mode != ModbusParserMode.Alternate)
 		return;
 
-	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)m_packet.m_p;
+	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)m_layout.m_p;
 	m_modbusRole = aduHdr.m_deviceAddress == 0 ? // write-only broadcast from master
 		io.ModbusRole.Master :
 		(io.ModbusRole)!m_modbusRole; // alternate

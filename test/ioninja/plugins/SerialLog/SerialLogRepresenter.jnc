@@ -193,7 +193,7 @@ bool representSerialLog(
 		string_t name = (char const*)p;
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 
 		if (!(foldFlags & 1))
 			representation.addHyperText($"[\e^+1\e[34m+\e[m] Capture started on \e[34m$name");

@@ -23,14 +23,14 @@ bool representHwSerialMonLog(
 	switch (recordCode) {
 	case HwSerialMonRecordCode.CaptureStarted:
 		string_t ifaceName = (char const*)p;
-		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Capture started on \e[34m$ifaceName\e[m interface");
 		break;
 
 	case HwSerialMonRecordCode.CaptureStopped:
-		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 		representation.addHyperText("Capture stopped");
 		break;
 

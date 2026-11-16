@@ -33,11 +33,7 @@ protected:
 	variant_t dispatchGet(
 		uint_t code,
 		variant_t in = null
-	) {
-		variant_t result;
-		dispatch(code, in, &result);
-		return result;
-	}
+	) const;
 }
 
 //..............................................................................
