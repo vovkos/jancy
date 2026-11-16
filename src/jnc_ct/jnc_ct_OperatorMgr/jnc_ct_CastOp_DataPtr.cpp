@@ -311,14 +311,6 @@ Cast_DataPtr_FromClassPtr::llvmCast(
 	DataPtrType* dstType = (DataPtrType*)type;
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
 
-	bool isSrcConst = srcType->getConstKind() == ConstKind_Const;
-	bool isDstConst = dstType->getConstKind() == ConstKind_Const;
-
-	if (isSrcConst && !isDstConst) {
-		setCastError(opValue, type);
-		return false;
-	}
-
 	if (dstType->getPtrKind() != DataPtrKind_Thin)
 		return err::fail("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
 
@@ -496,11 +488,8 @@ Cast_DataPtr_Base::getOffset(
 	DataPtrType* dstType,
 	BaseTypeCoord* coord
 ) {
-	CastKind constCastKind = calcCastKindFromConstCast(srcType->getConstKind(), dstType->getConstKind());
-	if (!constCastKind) {
-		setCastError(srcType, dstType);
+	if (!checkConstCast(srcType, dstType))
 		return -1;
-	}
 
 	Type* srcDataType = srcType->getTargetType();
 	Type* dstDataType = dstType->getTargetType();

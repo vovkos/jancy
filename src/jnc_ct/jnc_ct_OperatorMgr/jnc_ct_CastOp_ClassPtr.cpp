@@ -90,6 +90,9 @@ Cast_ClassPtr::constCast(
 	ClassPtrType* dstType = (ClassPtrType*)type;
 	ClassType* dstClassType = dstType->getTargetType();
 
+	if (!checkConstCast(srcType, dstType))
+		return false;
+
 	if (dstType->getFlags() & PtrTypeFlag_Safe)
 		m_module->m_operatorMgr.checkNullPtr(opValue);
 
@@ -130,6 +133,9 @@ Cast_ClassPtr::llvmCast(
 
 	ClassPtrType* srcType = (ClassPtrType*)rawOpValue.getType();
 	ClassPtrType* dstType = (ClassPtrType*)type;
+
+	if (!checkConstCast(srcType, dstType))
+		return false;
 
 	if (srcType->getPtrKind() == ClassPtrKind_Weak &&
 		dstType->getPtrKind() != ClassPtrKind_Weak) {

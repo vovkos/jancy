@@ -143,6 +143,13 @@ protected:
 		Type* type,
 		Value* resultValue
 	);
+
+	// const -> non-const pointer casts are only permitted in unsafe regions
+	bool
+	checkConstCast(
+		Type* srcType,
+		Type* dstType
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

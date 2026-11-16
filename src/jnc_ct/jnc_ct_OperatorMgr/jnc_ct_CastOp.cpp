@@ -178,6 +178,26 @@ CastOperator::cast(
 	return constCastImpl(opValue, type, resultValue);
 }
 
+bool
+CastOperator::checkConstCast(
+	Type* srcType,
+	Type* dstType
+) {
+	uint_t typeKindFlags = srcType->getTypeKindFlags() & dstType->getTypeKindFlags();
+	ASSERT((typeKindFlags & TypeKindFlag_DataPtr) || (typeKindFlags & TypeKindFlag_ClassPtr));
+
+	ConstKind srcConstKind = getConstKindFromFlags(srcType->getFlags());
+	ConstKind dstConstKind = getConstKindFromFlags(dstType->getFlags());
+
+	if (calcCastKindFromConstCast(srcConstKind, dstConstKind) ||
+		m_module->m_operatorMgr.isUnsafeRgn()
+	)
+		return true;
+
+	setUnsafeCastError(srcType, dstType);
+	return false;
+}
+
 //..............................................................................
 
 CastKind
