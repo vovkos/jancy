@@ -1767,6 +1767,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 		if (prop->m_parentType)
 			getter->m_thisArgTypeFlags = thisArgTypeFlags | ConstKind_Const;
 
+		setItemPos(getter, prop->getPos());
 		result = prop->addMethod(getter);
 		if (!result)
 			return false;
@@ -1800,6 +1801,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 		if (prop->m_parentType)
 			setter->m_thisArgTypeFlags = thisArgTypeFlags;
 
+		setItemPos(setter, prop->getPos());
 		result = prop->addMethod(setter);
 		if (!result)
 			return false;
