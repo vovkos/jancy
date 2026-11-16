@@ -1,0 +1,30 @@
+//..............................................................................
+//
+// variant_t -> bool for a string_t value: true only for a non-empty string
+//
+
+//..............................................................................
+
+bool toBool(variant_t v) {
+	return v;
+}
+
+int main() {
+	string_t nullStr = null;
+	string_t emptyStr = "";
+	string_t str = "abc";
+
+	assert(!toBool(nullStr));
+	assert(!toBool(emptyStr));
+	assert(toBool(str));
+
+	variant_t v = str;
+	assert(v);
+	assert((bool)v);
+
+	v = emptyStr;
+	assert(!v);
+	assert(!(bool)v);
+
+	return 0;
+}

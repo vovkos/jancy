@@ -73,7 +73,7 @@ public:
 		Type* type,
 		void* dst
 	) {
-		*(bool*)dst = ((String*)opValue.getConstData())->m_length == 0;
+		*(bool*)dst = ((String*)opValue.getConstData())->m_length != 0;
 		return true;
 	}
 
