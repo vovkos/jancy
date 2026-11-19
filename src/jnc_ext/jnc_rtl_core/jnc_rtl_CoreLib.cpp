@@ -140,7 +140,7 @@ dynamicCastClassPtr(
 	ASSERT(iface->m_box->m_type->getTypeKind() == TypeKind_Class);
 	ClassType* classType = (ClassType*)iface->m_box->m_type;
 	if (classType->isEqual(type))
-		return iface;
+		return (IfaceHdr*)(iface->m_box + 1); // iface may point to a non-primary base
 
 	size_t offset = classType->findBaseTypeOffset(type);
 	if (offset == -1)

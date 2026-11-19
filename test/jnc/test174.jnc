@@ -1,0 +1,61 @@
+//..............................................................................
+//
+// dynamic downcast from a non-primary base must return the full object
+// (previously returned the base subobject pointer unchanged)
+//
+
+//..............................................................................
+
+class A {
+	int m_a = 1;
+}
+
+class B {
+	int m_b = 2;
+}
+
+class C: A, B {
+	int m_c = 3;
+}
+
+class D: C {
+	int m_d = 4;
+}
+
+class Mixin<T> {
+	T* m_self;
+
+	construct() {
+		m_self = dynamic (T*) this;
+	}
+}
+
+class E: A, Mixin<E> {
+	int m_e = 5;
+}
+
+int main() {
+	C c;
+	B* b = &c;
+	C* c2 = dynamic (C*) b;
+	assert(c2 == &c);
+	assert(c2.m_c == 3);
+
+	D d;
+	b = &d;
+	D* d2 = dynamic (D*) b;
+	assert(d2 == &d);
+	assert(d2.m_d == 4);
+
+	c2 = dynamic (C*) b; // to an intermediate class (base offset path)
+	assert(c2 == &d);
+	assert(c2.m_c == 3);
+
+	E e;
+	assert(e.m_self == &e);
+	assert(e.m_self.m_e == 5);
+
+	return 0;
+}
+
+//..............................................................................
