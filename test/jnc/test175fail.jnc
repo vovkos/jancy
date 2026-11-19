@@ -1,0 +1,17 @@
+// a typedef can't have an initializer ('typedef X = T;' used to be accepted
+// silently, producing garbage and crashing with a template instance on the
+// right side); use 'typedef T X;' or 'alias X = T;' instead
+
+class Base {
+	int m_x;
+}
+
+class Mixin<B>: B {
+	int m_y;
+}
+
+typedef MixinBase = Mixin<Base>;
+
+int main() {
+	return 0;
+}

@@ -1271,7 +1271,10 @@ Parser::declareTypedef(
 ) {
 	ASSERT(m_storageKind == StorageKind_Typedef);
 
-	if (!declarator->isSimple())
+	if (!declarator->isSimple() ||
+		!declarator->m_constructor.isEmpty() ||
+		!declarator->m_initializer.isEmpty()
+	)
 		return err::fail("invalid typedef declarator");
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -1310,13 +1313,10 @@ Parser::declareAlias(
 ) {
 	bool result;
 
-	if (!declarator->m_constructor.isEmpty())
-		return err::fail("alias cannot have constructor");
-
-	if (declarator->m_initializer.isEmpty())
-		return err::fail("missing alias initializer");
-
-	if (!declarator->isSimple())
+	if (!declarator->isSimple() ||
+		!declarator->m_constructor.isEmpty() ||
+		declarator->m_initializer.isEmpty()
+	)
 		return err::fail("invalid alias declarator");
 
 	if (type->getTypeKind() != TypeKind_Void)
