@@ -1,0 +1,24 @@
+// null is not deducible to a type -- it must not participate in template
+// argument deduction (used to deduce 'void' and conflict with an explicitly
+// specified argument)
+
+class C {
+	int m_x;
+}
+
+T pick<T, U>(
+	T a,
+	U b
+) {
+	return a;
+}
+
+int main() {
+	C* c = pick<C*>(null, 10); // T explicit, U deduced from 10
+	assert(c == null);
+
+	C* c2 = new C;
+	C* c3 = pick<C*, C*>(c2, null); // fully explicit, null converts to C*
+	assert(c3 == c2);
+	return 0;
+}

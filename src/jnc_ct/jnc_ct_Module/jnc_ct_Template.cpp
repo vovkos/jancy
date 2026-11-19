@@ -290,6 +290,9 @@ Template::deduceArgs(
 	bool result = true;
 	sl::ConstBoxIterator<Value> it = argValueList.getHead();
 	for (size_t i = 0; i < functionArgCount; i++, it++) {
+		if (it->getValueKind() == ValueKind_Null) // null is not deducible to a type
+			continue;
+
 		Value argTypeValue;
 
 		result =
