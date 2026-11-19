@@ -754,42 +754,57 @@ Module::processRequireSet() {
 		if (!findResult.m_result)
 			return false;
 
-		if (!findResult.m_item) {
+		ModuleItem* item = findResult.m_item;
+		if (!item) {
 			if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Essential)) // not essential
 				continue;
 
 			return err::fail("required module item '%s' not found", requireIt->getKey().sz());
 		}
 
-		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined) {
-			if (findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind)
+		switch (requireIt->m_value.m_itemKind) {
+		case ModuleItemKind_Undefined:
+			break;
+
+		case ModuleItemKind_Type:
+			if (item->getItemKind() == ModuleItemKind_Typedef) { // peel typedef
+				item = ((Typedef*)item)->getType()->getActualTypeIfImport();
+				if (!item)
+					return false;
+			}
+
+			// and fall through
+
+		default:
+			if (item->getItemKind() != requireIt->m_value.m_itemKind)
 				return err::fail(
 					"required module item '%s' item kind mismatch: %s vs %s",
 					requireIt->getKey().sz(),
 					getModuleItemKindString(requireIt->m_value.m_itemKind),
-					getModuleItemKindString(findResult.m_item->getItemKind())
+					getModuleItemKindString(item->getItemKind())
 				);
 
 			if (requireIt->m_value.m_itemKind == ModuleItemKind_Type &&
 				requireIt->m_value.m_typeKind != TypeKind_Void &&
-				requireIt->m_value.m_typeKind != ((Type*)findResult.m_item)->getTypeKind()) {
+				requireIt->m_value.m_typeKind != ((Type*)item)->getTypeKind()
+			) {
 				return err::fail(
 					"required type '%s' type mismatch: '%s'",
 					requireIt->getKey().sz(),
-					((Type*)findResult.m_item)->getTypeString().sz()
+					((Type*)item)->getTypeString().sz()
 				);
 			}
 		}
 
 		if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Essential) &&
-			findResult.m_item->getItemKind() == ModuleItemKind_Function &&
-			((Function*)findResult.m_item)->isPrototype()
+			item->getItemKind() == ModuleItemKind_Function &&
+			((Function*)item)->isPrototype()
 		)
 			continue; // ignore unimplemented prototypes
 
 		result = (requireIt->m_value.m_flags & ModuleRequireFlag_Deep) ?
-			findResult.m_item->deepRequire() :
-			findResult.m_item->require();
+			item->deepRequire() :
+			item->require();
 
 		if (!result)
 			return false;

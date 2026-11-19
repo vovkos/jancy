@@ -58,6 +58,18 @@ public:
 
 	virtual
 	bool
+	require() {
+		return m_type->ensureNoImports() && m_type->require();
+	}
+
+	virtual
+	bool
+	deepRequire() {
+		return m_type->ensureNoImports() && m_type->deepRequire();
+	}
+
+	virtual
+	bool
 	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
