@@ -57,6 +57,8 @@ ExtensionLibMgr::closeDynamicLibZipReaders() {
 
 void
 ExtensionLibMgr::unloadDynamicLibs() {
+	err::Error error = err::getLastError(); // save error across proc lookups and file io
+
 	sl::Iterator<DynamicLibEntry> it = m_dynamicLibList.getHead();
 	for (; it; it++) {
 		DynamicLibEntry* entry = *it;
@@ -73,6 +75,8 @@ ExtensionLibMgr::unloadDynamicLibs() {
 			entry->m_dynamicLibFilePath.clear();
 		}
 	}
+
+	err::setError(error); // restore error
 }
 
 void
