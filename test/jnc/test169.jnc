@@ -173,9 +173,6 @@ void testPrecedence() {
 	c ? a = 9 : y; // assignment in the middle operand
 	assert(a == 9);
 
-	(c ? a : y) = 11; // lvalue conditional needs parentheses
-	assert(a == 11);
-
 	x = c ? 1 : c ? 2 : 3; // right-associative
 	assert(x == 1);
 

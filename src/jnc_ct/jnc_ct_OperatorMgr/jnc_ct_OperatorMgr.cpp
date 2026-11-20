@@ -303,12 +303,14 @@ getConditionalNumericOperatorResultType(
 ) {
 	if (trueType->getTypeKind() == TypeKind_Enum &&
 		(trueType->getFlags() & EnumTypeFlag_BitFlag) &&
-		falseValue.isZero())
+		falseValue.isZero()
+	)
 		return trueType;
 
 	if (falseType->getTypeKind() == TypeKind_Enum &&
 		(falseType->getFlags() & EnumTypeFlag_BitFlag) &&
-		trueValue.isZero())
+		trueValue.isZero()
+	)
 		return falseType;
 
 	return getArithmeticOperatorResultType(trueType, falseType);
@@ -339,45 +341,26 @@ OperatorMgr::getConditionalOperatorResultType(
 	const Value& trueValue,
 	const Value& falseValue
 ) {
-	bool result;
+	Value trueTypeValue = getConditionalOperandType(trueValue);
+	Value falseTypeValue = getConditionalOperandType(falseValue);
 
-	Type* resultType;
-	Type* trueType = getConditionalOperandType(trueValue);
-	Type* falseType = getConditionalOperandType(falseValue);
+	bool result =
+		prepareOperandType(&trueTypeValue, OpFlag_KeepEnum | OpFlag_ArrayRefToPtr) &&
+		prepareOperandType(&falseTypeValue, OpFlag_KeepEnum | OpFlag_ArrayRefToPtr);
 
-	if (trueType->isEqual(falseType))
-		resultType = trueType;
-	else {
-		uint_t trueFlags = OpFlag_KeepEnum;
-		uint_t falseFlags = OpFlag_KeepEnum;
+	if (!result)
+		return NULL;
 
-		if (isArrayRefType(trueType))
-			trueFlags |= OpFlag_ArrayRefToPtr;
+	Type* trueType = trueTypeValue.getType();
+	Type* falseType = falseTypeValue.getType();
 
-		if (isArrayRefType(falseType))
-			falseFlags |= OpFlag_ArrayRefToPtr;
-
-		Value trueTypeValue;
-		Value falseTypeValue;
-
-		result =
-			prepareOperandType(trueType, &trueTypeValue, trueFlags) &&
-			prepareOperandType(falseType, &falseTypeValue, falseFlags);
-
-		if (!result)
-			return NULL;
-
-		trueType = trueTypeValue.getType();
-		falseType = falseTypeValue.getType();
-
-		resultType =
-			trueType->isEqual(falseType) ? trueType :
-			(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & TypeKindFlag_Numeric) ?
-				getConditionalNumericOperatorResultType(trueValue, trueType, falseValue, falseType) :
-				getCastKind(falseValue, trueType) ? // prefer true-type unless can't cast to true-type
-					trueType :
-					falseType;
-	}
+	Type* resultType =
+		trueType->isEqual(falseType) ? trueType :
+		(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & TypeKindFlag_Numeric) ?
+			getConditionalNumericOperatorResultType(trueValue, trueType, falseValue, falseType) :
+			getCastKind(falseValue, trueType) ? // prefer true-type unless can't cast to true-type
+				trueType :
+				falseType;
 
 	return decayPtrType(resultType);
 }
