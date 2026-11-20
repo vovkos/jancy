@@ -326,27 +326,27 @@ FunctionType::deduceTemplateArgs(
 
 	FunctionType* type = (FunctionType*)referenceType;
 
-	bool result = m_returnType->deduceTemplateArgs(templateArgTypeArray, type->m_returnType);
-
-	size_t selfArgCount = m_argArray.getCount();
-	size_t referenceArgCount = type->m_argArray.getCount();
-	size_t argCount = AXL_MIN(selfArgCount, referenceArgCount);
-
-	for (size_t i = 0; i < argCount; i++) {
-		FunctionArg* selfArg = m_argArray[i];
-		FunctionArg* referenceArg = type->m_argArray[i];
-		result = selfArg->getType()->deduceTemplateArgs(
-			templateArgTypeArray,
-			referenceArg->getType()
-		) && result;
-	}
-
-	if (selfArgCount != referenceArgCount) {
+	size_t argCount = m_argArray.getCount();
+	if (type->m_argArray.getCount() != argCount) {
 		setTemplateArgDeductionError(referenceType);
 		return false;
 	}
 
-	return result;
+	bool result = m_returnType->deduceTemplateArgs(templateArgTypeArray, type->m_returnType);
+	if (!result)
+		return false;
+
+	for (size_t i = 0; i < argCount; i++) {
+		result = m_argArray[i]->getType()->deduceTemplateArgs(
+			templateArgTypeArray,
+			type->m_argArray[i]->getType()
+		);
+
+		if (!result)
+			return false;
+	}
+
+	return true;
 }
 
 bool

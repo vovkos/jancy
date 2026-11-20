@@ -379,22 +379,7 @@ OperatorMgr::getConditionalOperatorResultType(
 					falseType;
 	}
 
-	// for pointers, remove `safe` flag
-	// if it's a lean data pointer, turn it into a normal one
-
-	if (resultType->getTypeKindFlags() & TypeKindFlag_ClassPtr)
-		resultType = ((ClassPtrType*)resultType)->getUnsafePtrType();
-	else if (resultType->getTypeKindFlags() & TypeKindFlag_DataPtr) {
-		DataPtrType* ptrType = (DataPtrType*)resultType;
-		resultType = ptrType->getPtrKind() == DataPtrKind_Lean ?
-			ptrType->getTargetType()->getDataPtrType(
-				resultType->getTypeKind(),
-				resultType->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask & ~PtrTypeFlag_Safe
-			) :
-			ptrType->getUnsafePtrType();
-	}
-
-	return resultType;
+	return decayPtrType(resultType);
 }
 
 bool

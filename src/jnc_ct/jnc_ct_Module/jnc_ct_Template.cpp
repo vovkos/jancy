@@ -287,30 +287,34 @@ Template::deduceArgs(
 		}
 	}
 
-	bool result = true;
 	sl::ConstBoxIterator<Value> it = argValueList.getHead();
 	for (size_t i = 0; i < functionArgCount; i++, it++) {
 		if (it->getValueKind() == ValueKind_Null) // null is not deducible to a type
 			continue;
 
 		Value argTypeValue;
+		bool result = m_module->m_operatorMgr.prepareOperandType(*it, &argTypeValue);
+		if (!result)
+			return false;
 
-		result =
-			m_module->m_operatorMgr.prepareOperandType(*it, &argTypeValue) &&
-			functionArgArray[i]->getType()->deduceTemplateArgs(templateArgArray, argTypeValue.getType()) &&
-			result;
+		result = functionArgArray[i]->getType()->deduceTemplateArgs(
+			templateArgArray,
+			decayPtrType(argTypeValue.getType())
+		);
+
+		if (!result)
+			return false;
 	}
 
-	for (size_t i = 0; i < templateArgCount; i++) {
+	for (size_t i = 0; i < templateArgCount; i++)
 		if (!(*templateArgArray)[i])
 			return err::fail(
 				"cannot deduce argument '%s' of template '%s'",
 				m_argArray[i]->getName().sz(),
 				getItemName().sz()
 			);
-	}
 
-	return result;
+	return true;
 }
 
 sl::StringRef

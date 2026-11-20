@@ -707,13 +707,16 @@ NamedType::deduceTemplateArgs(
 		return false;
 	}
 
-	bool result = true;
 	size_t argCount = m_templateInstance->m_argArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
-		result = m_templateInstance->m_argArray[i]->deduceTemplateArgs(
+	for (size_t i = 0; i < argCount; i++) {
+		bool result = m_templateInstance->m_argArray[i]->deduceTemplateArgs(
 			templateArgTypeArray,
 			referenceInstance->m_argArray[i]
-		) && result;
+		);
+
+		if (!result)
+			return false;
+	}
 
 	return true;
 }
