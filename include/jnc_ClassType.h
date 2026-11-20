@@ -73,8 +73,8 @@ typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;
 //..............................................................................
 
 enum jnc_ClassPtrKind {
-	jnc_ClassPtrKind_Normal = 0x000000,
-	jnc_ClassPtrKind_Weak   = 0x100000,
+	jnc_ClassPtrKind_Normal = jnc_PtrKind_Normal,
+	jnc_ClassPtrKind_Weak   = jnc_PtrKind_Weak,
 	jnc_ClassPtrKind__Count = 2,
 };
 

@@ -58,9 +58,9 @@ jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag);
 //..............................................................................
 
 enum jnc_PropertyPtrKind {
-	jnc_PropertyPtrKind_Normal = 0x000000,
-	jnc_PropertyPtrKind_Weak   = 0x100000,
-	jnc_PropertyPtrKind_Thin   = 0x200000,
+	jnc_PropertyPtrKind_Normal = jnc_PtrKind_Normal,
+	jnc_PropertyPtrKind_Weak   = jnc_PtrKind_Weak,
+	jnc_PropertyPtrKind_Thin   = jnc_PtrKind_Thin,
 	jnc_PropertyPtrKind__Count = 3,
 };
 

@@ -240,12 +240,6 @@ JNC_EXTERN_C
 const char*
 jnc_getPtrTypeFlagString_v(uint_t flags);
 
-JNC_INLINE
-uint_t
-jnc_getPtrKindFromFlags(uint_t flags) {
-	return flags & jnc_PtrTypeFlag_PtrKindMask;
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_ConstKind {
@@ -271,6 +265,24 @@ JNC_INLINE
 jnc_ConstKind
 jnc_getConstKindFromFlags(uint_t flags) {
 	return (jnc_ConstKind)(flags & jnc_PtrTypeFlag_ConstKindMask);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_PtrKind {
+	jnc_PtrKind_Normal = 0x000000,
+	jnc_PtrKind_Weak   = 0x100000, // ClassPtr, FunctionPtr, PropertyPtr
+	jnc_PtrKind_Thin   = 0x200000, // DataPtr, FunctionPtr, PropertyPtr
+};
+
+typedef enum jnc_PtrKind jnc_PtrKind;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_INLINE
+uint_t
+jnc_getPtrKindFromFlags(uint_t flags) {
+	return flags & jnc_PtrTypeFlag_PtrKindMask;
 }
 
 //..............................................................................
@@ -395,9 +407,9 @@ typedef enum jnc_StdType jnc_StdType;
 // data ptr
 
 enum jnc_DataPtrKind {
-	jnc_DataPtrKind_Normal = 0x000000,
+	jnc_DataPtrKind_Normal = jnc_PtrKind_Normal,
 	jnc_DataPtrKind_Lean   = 0x100000,
-	jnc_DataPtrKind_Thin   = 0x200000,
+	jnc_DataPtrKind_Thin   = jnc_PtrKind_Thin,
 	jnc_DataPtrKind__Count = 3,
 };
 
@@ -835,12 +847,6 @@ getPtrTypeFlagString_v(uint_t flags) {
 	return jnc_getPtrTypeFlagString_v(flags);
 }
 
-inline
-uint_t
-getPtrKindFromFlags(uint_t flags) {
-	return jnc_getPtrKindFromFlags(flags);
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef jnc_ConstKind ConstKind;
@@ -865,6 +871,23 @@ inline
 ConstKind
 getConstKindFromFlags(uint_t flags) {
 	return jnc_getConstKindFromFlags(flags);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef jnc_PtrKind PtrKind;
+
+const PtrKind
+	PtrKind_Normal = jnc_PtrKind_Normal,
+	PtrKind_Weak   = jnc_PtrKind_Weak,
+	PtrKind_Thin   = jnc_PtrKind_Thin;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+uint_t
+getPtrKindFromFlags(uint_t flags) {
+	return jnc_getPtrKindFromFlags(flags);
 }
 
 //..............................................................................

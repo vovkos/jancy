@@ -68,9 +68,9 @@ jnc_getFunctionTypeFlagString(jnc_FunctionTypeFlag flag);
 //..............................................................................
 
 enum jnc_FunctionPtrKind {
-	jnc_FunctionPtrKind_Normal = 0x000000,
-	jnc_FunctionPtrKind_Weak   = 0x100000,
-	jnc_FunctionPtrKind_Thin   = 0x200000,
+	jnc_FunctionPtrKind_Normal = jnc_PtrKind_Normal,
+	jnc_FunctionPtrKind_Weak   = jnc_PtrKind_Weak,
+	jnc_FunctionPtrKind_Thin   = jnc_PtrKind_Thin,
 	jnc_FunctionPtrKind__Count = 3,
 };
 

@@ -884,24 +884,6 @@ isStringableType(DerivableType* type) {
 		functionType->isMemberMethodType();
 }
 
-bool
-isWeakPtrType(Type* type) {
-	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind) {
-	case TypeKind_ClassPtr:
-		return ((ClassPtrType*)type)->getPtrKind() == ClassPtrKind_Weak;
-
-	case TypeKind_FunctionPtr:
-		return ((FunctionPtrType*)type)->getPtrKind() == FunctionPtrKind_Weak;
-
-	case TypeKind_PropertyPtr:
-		return ((PropertyPtrType*)type)->getPtrKind() == PropertyPtrKind_Weak;
-
-	default:
-		return false;
-	}
-}
-
 Type*
 getWeakPtrType(Type* type) {
 	TypeKind typeKind = type->getTypeKind();
@@ -914,6 +896,30 @@ getWeakPtrType(Type* type) {
 
 	case TypeKind_PropertyPtr:
 		return ((PropertyPtrType*)type)->getWeakPtrType();
+
+	default:
+		return type;
+	}
+}
+
+Type*
+decayPtrType(Type* type) {
+	TypeKind typeKind = type->getTypeKind();
+	switch (typeKind) {
+	case TypeKind_ClassRef:
+	case TypeKind_ClassPtr:
+		return ((ClassPtrType*)type)->getUnsafePtrType();
+
+	case TypeKind_DataPtr:
+	case TypeKind_DataRef: {
+		DataPtrType* ptrType = (DataPtrType*)type;
+		return ptrType->getPtrKind() == DataPtrKind_Lean ?
+			ptrType->getTargetType()->getDataPtrType(
+				type->getTypeKind(),
+				type->getFlags() & PtrTypeFlag_All & ~PtrTypeFlag_PtrKindMask & ~PtrTypeFlag_Safe
+			) :
+			ptrType->getUnsafePtrType();
+		}
 
 	default:
 		return type;

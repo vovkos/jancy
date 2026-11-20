@@ -679,9 +679,6 @@ isStringableType(DerivableType* type);
 bool
 isStringableType(Type* type);
 
-bool
-isWeakPtrType(Type* type);
-
 inline
 bool
 isSafePtrType(Type* type) {
@@ -690,11 +687,25 @@ isSafePtrType(Type* type) {
 		(type->getFlags() & PtrTypeFlag_Safe);
 }
 
+inline
 bool
-isWeakPtrType(Type* type);
+isWeakPtrType(Type* type) {
+	return
+		(type->getTypeKindFlags() & (
+			TypeKindFlag_ClassPtr |
+			TypeKindFlag_FunctionPtr |
+			TypeKindFlag_PropertyPtr
+		)) &&
+		getPtrKindFromFlags(type->getFlags()) == PtrKind_Weak;
+}
 
 Type*
 getWeakPtrType(Type* type);
+
+// drops value-only pointer attributes (lean, safe) to get a type for storing the value
+
+Type*
+decayPtrType(Type* type);
 
 uint_t
 calcDualConstPtrTypeFlags(
