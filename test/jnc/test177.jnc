@@ -1,0 +1,46 @@
+// std.fail / std.failEx (mirror axl::err::fail)
+
+class C {
+	int m_x;
+}
+
+bool errorcode failBool(int x) {
+	return std.fail($"failBool: $x");
+}
+
+bool errorcode failBoolError() {
+	std.setError("saved");
+	std.Error const* error = std.getLastError();
+	std.setError("overwritten");
+	return std.fail(error);
+}
+
+size_t errorcode failSize() {
+	return std.failEx(-1, "failSize");
+}
+
+size_t errorcode failFmt(int x) {
+	return std.failEx(-1, $"failFmt: $x");
+}
+
+C* errorcode failPtr() {
+	return std.failEx<C*>(null, "failPtr");
+}
+
+int main() {
+	bool b = try failBool(5);
+	assert(!b && std.getLastError().m_description == "failBool: 5");
+
+	b = try failBoolError();
+	assert(!b && std.getLastError().m_description == "saved");
+
+	size_t n = try failSize();
+	assert(n == -1 && std.getLastError().m_description == "failSize");
+
+	n = try failFmt(7);
+	assert(n == -1 && std.getLastError().m_description == "failFmt: 7");
+
+	C* c = try failPtr();
+	assert(!c && std.getLastError().m_description == "failPtr");
+	return 0;
+}

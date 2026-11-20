@@ -131,6 +131,46 @@ void pushErrno(int errno);
 void setError(string_t string);
 void pushError(string_t string);
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	Sets the last error of the current thread and returns ``false`` (mirrors
+	``axl::err::fail``):
+
+	.. ref-code-block::
+
+		return std.fail($"device '$name' not found");
+*/
+
+bool fail(string_t string) {
+	setError(string);
+	return false;
+}
+
+bool fail(Error const* error) {
+	setError(error);
+	return false;
+}
+
+/**
+	Sets the last error of the current thread and returns ``failResult``
+	(mirrors ``axl::err::fail<T>``); ``null`` is not deducible, so specify
+	the pointer type explicitly:
+
+	.. ref-code-block::
+
+		return std.failEx(-1, "invalid size");
+		return std.failEx<Foo*>(null, error);
+*/
+
+T failEx<T, E>(
+	T failResult,
+	E error
+) {
+	setError(error);
+	return failResult;
+}
+
 //..............................................................................
 
 //! @}
