@@ -282,7 +282,7 @@ EnumType::calcEnumConstValues(EnumConst* baseConst) {
 bool
 EnumType::calcBitflagEnumConstValues(EnumConst* baseConst) {
 	bool finalResult = true;
-	int64_t value = baseConst ? 2 << sl::getHiBitIdx64(baseConst->m_value) : 1;
+	int64_t value = baseConst && baseConst->m_value ? sl::getHiBit64(baseConst->m_value) << 1 : 1;
 
 	sl::Iterator<EnumConst> constIt = m_constList.getHead();
 	for (; constIt; constIt++) {
@@ -300,7 +300,7 @@ EnumType::calcBitflagEnumConstValues(EnumConst* baseConst) {
 		constIt->m_flags |= EnumConstFlag_ValueReady;
 		m_constMap[value] = *constIt;
 
-		value = value ? 2 << sl::getHiBitIdx64(value) : 1;
+		value = value ? sl::getHiBit64(value) << 1 : 1;
 	}
 
 	return finalResult;

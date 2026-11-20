@@ -1,0 +1,22 @@
+// bitflag enum values: 64-bit progression, base enum ending in 0
+
+bitflag enum E64: uint64_t {
+	A = 0x40000000,
+	B,
+	C,
+}
+
+enum Base {
+	Zero,
+}
+
+bitflag enum Derived: Base {
+	One,
+	Two,
+}
+
+int main() {
+	assert(E64.B == 0x80000000 && E64.C == 0x100000000);
+	assert(Derived.One == 1 && Derived.Two == 2);
+	return 0;
+}
