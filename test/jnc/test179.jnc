@@ -1,0 +1,29 @@
+// try on a property must materialize it before the phi
+
+int g_value;
+
+property g_prop {
+	int get() {
+		return g_value;
+	}
+
+	bool errorcode set(int x) {
+		if (x < 0)
+			return std.fail("negative");
+
+		g_value = x;
+		return true;
+	}
+}
+
+int main() {
+	try (g_prop = 5); // used to assert: try phi'd an unmaterialized property
+	assert(g_value == 5);
+
+	try (g_prop = -1); // the failing setter is caught by try
+	assert(g_value == 5 && std.getLastError().m_description == "negative");
+
+	int v = try g_prop;
+	assert(v == 5);
+	return 0;
+}

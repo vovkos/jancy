@@ -214,10 +214,17 @@ ControlFlowMgr::endTryOperator(
 		value->setConstBool1(true, m_module);
 		errorValue.setConstBool1(false, m_module);
 		hasStaticThrowPhi = false;
-	} else if (isErrorCodeType(type))
+	} else {
+		bool result = m_module->m_operatorMgr.prepareOperand(value, OpFlag_KeepEnum);
+		if (!result)
+			return false;
+
+		type = value->getType();
+		if (!isErrorCodeType(type))
+			return err::fail("'%s' cannot be used as error code", type->getTypeString().sz());
+
 		hasStaticThrowPhi = !tryExpr->m_phiEdgeList.isEmpty();
-	else
-		return err::fail("'%s' cannot be used as error code", type->getTypeString().sz());
+	}
 
 	if (!m_module->hasCodeGen())
 		return true;
