@@ -446,6 +446,10 @@ jnc_Type_getSize(jnc_Type* type);
 
 JNC_EXTERN_C
 const char*
+jnc_Type_getSignature(jnc_Type* type);
+
+JNC_EXTERN_C
+const char*
 jnc_Type_getTypeString(jnc_Type* type);
 
 JNC_EXTERN_C
@@ -522,6 +526,11 @@ struct jnc_Type: jnc_ModuleItem {
 	size_t
 	getSize() {
 		return jnc_Type_getSize(this);
+	}
+
+	const char*
+	getSignature() {
+		return jnc_Type_getSignature(this);
 	}
 
 	const char*

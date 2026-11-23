@@ -459,6 +459,10 @@ jnc_Type_GetSizeFunc(jnc_Type* type);
 
 typedef
 const char*
+jnc_Type_GetSignatureFunc(jnc_Type* type);
+
+typedef
+const char*
 jnc_Type_GetTypeStringFunc(jnc_Type* type);
 
 typedef
@@ -515,6 +519,7 @@ struct jnc_TypeFuncTable {
 	size_t m_size;
 	jnc_Type_GetTypeKindFunc* m_getTypeKindFunc;
 	jnc_Type_GetSizeFunc* m_getSizeFunc;
+	jnc_Type_GetSignatureFunc* m_getSignatureFunc;
 	jnc_Type_GetTypeStringFunc* m_getTypeStringFunc;
 	jnc_Type_IsEqualFunc* m_isEqualFunc;
 	jnc_Type_GetArrayTypeFunc* m_getArrayTypeFunc;

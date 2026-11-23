@@ -70,6 +70,7 @@ EXPORTS
 	jnc_Type_getArrayType
 	jnc_Type_getBitFieldDataPtrType
 	jnc_Type_getDataPtrType
+	jnc_Type_getSignature
 	jnc_Type_getSize
 	jnc_Type_getTypeKind
 	jnc_Type_getTypeString

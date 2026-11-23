@@ -136,6 +136,7 @@ static jnc_TypeFuncTable g_typeFuncTable = {
 	sizeof(jnc_TypeFuncTable),
 	jnc_Type_getTypeKind,
 	jnc_Type_getSize,
+	jnc_Type_getSignature,
 	jnc_Type_getTypeString,
 	jnc_Type_isEqual,
 	jnc_Type_getArrayType,

@@ -238,6 +238,12 @@ jnc_Type_getSize(jnc_Type* type) {
 
 JNC_EXTERN_C
 const char*
+jnc_Type_getSignature(jnc_Type* type) {
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getSignatureFunc(type);
+}
+
+JNC_EXTERN_C
+const char*
 jnc_Type_getTypeString(jnc_Type* type) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getTypeStringFunc(type);
 }
@@ -349,6 +355,13 @@ JNC_EXPORT_O
 size_t
 jnc_Type_getSize(jnc_Type* type) {
 	return type->getSize();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Type_getSignature(jnc_Type* type) {
+	return type->getSignature().sz();
 }
 
 JNC_EXTERN_C
