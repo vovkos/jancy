@@ -325,7 +325,7 @@ public:
 	virtual
 	bool
 	deepRequire() {
-		m_flags |= ModuleItemFlag_DeepRequirePending; // prevent multiple markForDeepRequire
+		this->m_flags |= ModuleItemFlag_DeepRequirePending; // prevent multiple markForDeepRequire
 
 		return
 			ensureNamespaceReady() &&
