@@ -396,6 +396,7 @@ jnc_Type_isEqual(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ArrayType*
 jnc_Type_getArrayType(
 	jnc_Type* type,

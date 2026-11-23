@@ -258,6 +258,7 @@ jnc_Module_setDynamicExtensionAuthenticatorConfig(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_Module_getName(jnc_Module* module) {
 	return module->getName().sz();
@@ -398,6 +399,7 @@ jnc_Module_findExtensionLibItem(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_Module_getExtensionLibFilePath(
 	jnc_Module* module,

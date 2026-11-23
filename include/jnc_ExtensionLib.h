@@ -494,11 +494,11 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p); \
 
 #define JNC_MAP_CALL_OPERATOR(p) \
-	overloadableFunction = jnc_DerivableType_getCallOperator(); \
+	overloadableFunction = jnc_DerivableType_getCallOperator(type); \
 	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p); \
 
-#define JNC_MAP_CAST_OPERATOR(i, p) \
-	function = jnc_DerivableType_getCastOperator(i); \
+#define JNC_MAP_CAST_OPERATOR(targetType, p) \
+	function = jnc_DerivableType_findCastOperator(type, targetType); \
 	JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_FIND_ITEM_IMPL(name, findMethod, itemKind, ItemType, item) \

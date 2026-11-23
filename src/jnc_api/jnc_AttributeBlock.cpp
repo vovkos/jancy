@@ -90,6 +90,7 @@ jnc_AttributeBlock_findAttribute(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 bool_t
 jnc_AttributeBlock_ensureAttributeValuesReady(jnc_AttributeBlock* block) {
 	return block->ensureAttributeValuesReady();
