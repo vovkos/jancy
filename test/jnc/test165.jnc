@@ -4,6 +4,7 @@
 //   to the heap, so a lambda can outlive the frame it was created in)
 // - names listed in [] are captured by value (snapshots taken when the lambda
 //   is created; writes go to the closure's own copy and persist across calls)
+// - [=] captures all outer locals by value, as if listed in []
 // - the outer 'this' is captured on first use
 
 //..............................................................................
@@ -70,6 +71,86 @@ void testByValue() {
 	assert(next() == 1);
 	assert(next() == 2);
 	assert(n == 0);
+
+	int arr[3] = { 1, 2, 3 };
+	Point pt = { 10, 20 };
+	int function* g() = [arr, pt] int () {
+		return arr[1] * 100 + pt.m_y;
+	};
+
+	arr[1] = 9;
+	pt.m_y = 90;
+	assert(g() == 220);
+}
+
+struct Point {
+	int m_x;
+	int m_y;
+}
+
+void testByValueAll() {
+	int a = 1;
+	int arr[3] = { 1, 2, 3 };
+	Point pt = { 10, 20 };
+	string_t s = "abc";
+	int const k = 5;
+	D d; // a class variable is the object itself (captured as a pointer)
+	d.m_x = 100;
+
+	int function* f() = [=] int () {
+		return a * 10000 + arr[1] * 1000 + pt.m_y + k + d.m_x;
+	};
+
+	string_t function* fs() = [=] string_t () {
+		return s + "def";
+	};
+
+	a = 9;
+	arr[1] = 9;
+	pt.m_y = 90;
+	s = "xyz";
+	d.m_x = 7;
+	assert(f() == 12032);
+	assert(fs() == "abcdef");
+
+	int n = 0;
+	int function* next() = [=] int () {
+		return n++; // the closure's own state
+	};
+
+	assert(next() == 0);
+	assert(next() == 1);
+	assert(n == 0);
+
+	g_x = 1;
+	int function* g() = [=] int () {
+		return g_x; // non-locals are not captured
+	};
+
+	g_x = 2;
+	assert(g() == 2);
+}
+
+void testByValueAllArg(int x) {
+	int function* f() = [=] int () {
+		return x;
+	};
+
+	x = 0;
+	assert(f() == 42);
+}
+
+Counter createSnapCounter(int start) {
+	return [=] int () {
+		return start++; // snapshot of the arg; the frame is not lifted
+	};
+}
+
+void testByValueAllOutliveFrame() {
+	Counter c = createSnapCounter(10);
+	jnc.collectGarbage();
+	assert(c() == 10);
+	assert(c() == 11);
 }
 
 threadlocal int g_t;
@@ -264,6 +345,9 @@ int main() {
 	testNoCapture();
 	testByRef();
 	testByValue();
+	testByValueAll();
+	testByValueAllArg(42);
+	testByValueAllOutliveFrame();
 	testByValueNonLocal();
 	testOutliveFrame();
 	testArg(3);

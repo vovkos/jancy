@@ -64,6 +64,57 @@ void testNestedRefToSnapshot() {
 	assert(n == 0);
 }
 
+void testNestedByValueAllInByRef() {
+	int a = 1;
+
+	IntFunc function* outer() = [] IntFunc () { // a: by-ref
+		return [=] int () {
+			return a; // snapshot of the current outer-outer a
+		};
+	};
+
+	IntFunc f1 = outer();
+	a = 2;
+	IntFunc f2 = outer();
+	a = 3;
+	assert(f1() == 1);
+	assert(f2() == 2);
+}
+
+void testNestedByRefInByValueAll() {
+	int a = 1;
+
+	IntFunc function* outer() = [=] IntFunc () { // a: snapshot
+		return [] int () {
+			return ++a; // by-ref to the middle closure's snapshot
+		};
+	};
+
+	a = 100;
+	IntFunc f = outer();
+	f();
+	IntFunc g = outer();
+	assert(f() == 3);
+	assert(g() == 4);
+	assert(a == 100);
+}
+
+void testNestedByValueAllInByValueAll() {
+	int a = 1;
+
+	IntFunc function* outer() = [=] IntFunc () {
+		return [=] int () {
+			return a++; // snapshot of a snapshot
+		};
+	};
+
+	a = 2;
+	IntFunc f = outer();
+	assert(f() == 1);
+	assert(f() == 2);
+	assert(outer()() == 1); // the middle snapshot is untouched
+}
+
 IntFunc createNested(int start) {
 	int counter = start;
 	IntFunc function* make() = [] IntFunc () {
@@ -107,6 +158,9 @@ int main() {
 	testNestedByRef();
 	testNestedByValue();
 	testNestedRefToSnapshot();
+	testNestedByValueAllInByRef();
+	testNestedByRefInByValueAll();
+	testNestedByValueAllInByValueAll();
 	testNestedOutlive();
 	testNestedThis();
 
