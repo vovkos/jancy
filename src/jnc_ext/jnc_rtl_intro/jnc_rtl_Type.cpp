@@ -84,6 +84,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DataPtrType)
 	JNC_MAP_CONST_PROPERTY("m_targetType", &DataPtrType::getTargetType)
 	JNC_MAP_CONST_PROPERTY("m_bitOffset", &DataPtrType::getBitOffset)
 	JNC_MAP_CONST_PROPERTY("m_bitCount", &DataPtrType::getBitCount)
+	JNC_MAP_FUNCTION("load", &DataPtrType::load)
 	JNC_MAP_FUNCTION("getTargetValueString", &DataPtrType::getTargetValueString)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -225,6 +226,28 @@ Type::tryGetStringableValueString(
 }
 
 //..............................................................................
+
+Variant
+JNC_CDECL
+DataPtrType::load(
+	DataPtrType* self,
+	DataPtr valuePtr
+) {
+	if (!valuePtr.m_p)
+		return g_nullVariant;
+
+	Variant variant;
+	if (self->m_item->getFlags() & (PtrTypeFlag_BigEndian | PtrTypeFlag_BitField)) {
+		variant.m_int64 = self->m_item->loadBigEndianOrBitFieldValue(valuePtr.m_p);
+		variant.m_type = self->m_item->getTargetType();
+	} else {
+		bool result = variant.create(valuePtr.m_p, self->m_item->getTargetType());
+		if (!result)
+			return g_nullVariant;
+	}
+
+	return variant;
+}
 
 String
 JNC_CDECL

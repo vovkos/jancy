@@ -215,6 +215,14 @@ public:
 	}
 
 	static
+	Variant
+	JNC_CDECL
+	load(
+		DataPtrType* self,
+		DataPtr valuePtr
+	);
+
+	static
 	String
 	JNC_CDECL
 	getTargetValueString(

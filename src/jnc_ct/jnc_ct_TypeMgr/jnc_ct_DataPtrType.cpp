@@ -169,28 +169,24 @@ DataPtrType::calcDualConstType(
 	return m_targetType->getDataPtrType(m_typeKind, ptrFlags);
 }
 
-sl::StringRef
-DataPtrType::getTargetValueString(
-	const void* p,
-	const char* formatSpec
-) {
-	if (!(m_flags & (PtrTypeFlag_BigEndian | PtrTypeFlag_BitField)))
-		return m_targetType->getValueString(p, formatSpec);
+uint64_t
+DataPtrType::loadBigEndianOrBitFieldValue(const void* p) {
+	ASSERT(m_flags & (PtrTypeFlag_BigEndian | PtrTypeFlag_BitField));
 
-	uint64_t n = 0;
+	uint64_t x = 0;
 	if (m_flags & PtrTypeFlag_BigEndian)
-		sl::swapByteOrder(&n, p, m_targetType->getSize());
+		sl::swapByteOrder(&x, p, m_targetType->getSize());
 	else
-		memcpy(&n, p, m_targetType->getSize());
+		memcpy(&x, p, m_targetType->getSize());
 
 	if (m_flags & PtrTypeFlag_BitField) {
-		n >>= m_bitOffset;
-		n &= (1 << m_bitCount) - 1;
+		x >>= m_bitOffset;
+		x &= -1ULL >> (64 - m_bitCount);
 		if (!(m_targetType->getTypeKindFlags() & TypeKindFlag_Unsigned)) // extend with sign bit
-			n |= ~((n & ((int64_t)1 << (m_bitCount - 1))) - 1);
+			x |= ~((x & ((uint64_t)1 << (m_bitCount - 1))) - 1);
 	}
 
-	return m_targetType->getValueString(&n, formatSpec);
+	return x;
 }
 
 bool

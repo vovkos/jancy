@@ -92,6 +92,9 @@ public:
 		rt::GcHeap* gcHeap
 	);
 
+	uint64_t
+	loadBigEndianOrBitFieldValue(const void* p);
+
 	sl::StringRef
 	getTargetValueString(
 		const void* p,
@@ -165,6 +168,19 @@ DataPtrType::DataPtrType() {
 	m_alignment = sizeof(void*);
 	m_bitOffset = 0;
 	m_bitCount = 0;
+}
+
+inline
+sl::StringRef
+DataPtrType::getTargetValueString(
+	const void* p,
+	const char* formatSpec
+) {
+	if (!(m_flags & (PtrTypeFlag_BigEndian | PtrTypeFlag_BitField)))
+		return m_targetType->getValueString(p, formatSpec);
+
+	uint64_t x = loadBigEndianOrBitFieldValue(p);
+	return m_targetType->getValueString(&x, formatSpec);
 }
 
 //..............................................................................

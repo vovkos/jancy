@@ -243,7 +243,11 @@ opaque class DataPtrType: Type {
 
 	construct(intptr p);
 
-	string_t getTargetValueString( // respect bigendian & bit field flags
+	// respect bigendian & bit field flags
+
+	variant_t load(void const* p) const;
+
+	string_t getTargetValueString(
 		void const* p,
 		string_t formatSpec = null
 	) const;
