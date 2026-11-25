@@ -1,0 +1,352 @@
+.. include:: def.rst
+.. _global:
+.. index:: pair: namespace; global
+
+Global Namespace
+================
+
+.. toctree::
+	:hidden:
+
+	namespace_io.rst
+	namespace_jnc.rst
+	namespace_std.rst
+	namespace_stdt.rst
+	namespace_sys.rst
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// namespaces
+
+	namespace :ref:`io<doxid-namespace_io>`;
+		namespace :ref:`io.HidUsagePageEnumStrings<doxid-namespace_io_hidusagepageenumstrings>`;
+		namespace :ref:`io.lnx<doxid-namespace_io_lnx>`;
+		namespace :ref:`io.psx<doxid-namespace_io_psx>`;
+		namespace :ref:`io.win<doxid-namespace_io_win>`;
+	namespace :ref:`jnc<doxid-namespace_jnc>`;
+	namespace :ref:`std<doxid-namespace_std>`;
+	namespace :ref:`stdt<doxid-namespace_stdt>`;
+	namespace :ref:`sys<doxid-namespace_sys>`;
+
+	// typedefs
+
+	typedef :ref:`String<doxid-typestring>` :ref:`string_t<doxid-typedefstring_t>`;
+	typedef :ref:`Variant<doxid-typevariant>` :ref:`variant_t<doxid-typedefvariant_t>`;
+	typedef long :ref:`intptr_t<doxid-typedefintptr_t>`;
+	typedef unsigned long :ref:`uintptr_t<doxid-typedefuintptr_t>`;
+	typedef unsigned long :ref:`size_t<doxid-typedefsize_t>`;
+	typedef char :ref:`int8_t<doxid-typedefint8_t>`;
+	typedef char :ref:`utf8_t<doxid-typedefutf8_t>`;
+	typedef unsigned char :ref:`uint8_t<doxid-typedefuint8_t>`;
+	typedef unsigned char :ref:`uchar_t<doxid-typedefuchar_t>`;
+	typedef unsigned char :ref:`byte_t<doxid-typedefbyte_t>`;
+	typedef short :ref:`int16_t<doxid-typedefint16_t>`;
+	typedef short :ref:`utf16_t<doxid-typedefutf16_t>`;
+	typedef unsigned short :ref:`uint16_t<doxid-typedefuint16_t>`;
+	typedef unsigned short :ref:`ushort_t<doxid-typedefushort_t>`;
+	typedef unsigned short :ref:`word_t<doxid-typedefword_t>`;
+	typedef int :ref:`int32_t<doxid-typedefint32_t>`;
+	typedef int :ref:`utf32_t<doxid-typedefutf32_t>`;
+	typedef unsigned int :ref:`uint32_t<doxid-typedefuint32_t>`;
+	typedef unsigned int :ref:`uint_t<doxid-typedefuint_t>`;
+	typedef unsigned int :ref:`dword_t<doxid-typedefdword_t>`;
+	typedef long :ref:`int64_t<doxid-typedefint64_t>`;
+	typedef unsigned long :ref:`uint64_t<doxid-typedefuint64_t>`;
+	typedef unsigned long :ref:`ulong_t<doxid-typedefulong_t>`;
+	typedef unsigned long :ref:`qword_t<doxid-typedefqword_t>`;
+
+	// structs
+
+	struct :ref:`String<doxid-typestring>`;
+	struct :ref:`Variant<doxid-typevariant>`;
+
+	// global functions
+
+	bool :target:`isspace<doxid-functionisspace>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isprint<doxid-functionisprint>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`ispunct<doxid-functionispunct>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isalpha<doxid-functionisalpha>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isalnum<doxid-functionisalnum>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isdigit<doxid-functionisdigit>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isupper<doxid-functionisupper>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`islower<doxid-functionislower>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`strlen<doxid-functionstrlen>`(char const* p);
+
+	int :ref:`strcmp<doxid-functionstrcmp>`(
+		char const* p1,
+		char const* p2
+	);
+
+	int :target:`strncmp<doxid-functionstrncmp>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	int :ref:`stricmp<doxid-functionstricmp>`(
+		char const* p1,
+		char const* p2
+	);
+
+	int :target:`strnicmp<doxid-functionstrnicmp>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	bool :ref:`streq<doxid-functionstreq>`(
+		char const* p1,
+		char const* p2
+	);
+
+	bool :target:`strneq<doxid-functionstrneq>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	bool :ref:`strieq<doxid-functionstrieq>`(
+		char const* p1,
+		char const* p2
+	);
+
+	bool :target:`strnieq<doxid-functionstrnieq>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	char const* :target:`strchr<doxid-functionstrchr>`(
+		char const* p,
+		char c
+	);
+
+	char* :target:`strchr<doxid-functionstrchr_2>`(
+		char* p,
+		char c
+	);
+
+	char const* :target:`strrchr<doxid-functionstrrchr>`(
+		char const* p,
+		char c
+	);
+
+	char* :target:`strrchr<doxid-functionstrrchr_2>`(
+		char* p,
+		char c
+	);
+
+	char const* :target:`strichr<doxid-functionstrichr>`(
+		char const* p,
+		char c
+	);
+
+	char* :target:`strichr<doxid-functionstrichr_2>`(
+		char* p,
+		char c
+	);
+
+	char const* :target:`strpbrk<doxid-functionstrpbrk>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :target:`strpbrk<doxid-functionstrpbrk_2>`(
+		char* p1,
+		char const* p2
+	);
+
+	char const* :ref:`strstr<doxid-functionstrstr>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :target:`strstr<doxid-functionstrstr_2>`(
+		char* p1,
+		char const* p2
+	);
+
+	char const* :target:`stristr<doxid-functionstristr>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :target:`stristr<doxid-functionstristr_2>`(
+		char* p1,
+		char const* p2
+	);
+
+	void :ref:`strcpy<doxid-functionstrcpy>`(
+		char* dst,
+		char const* src
+	);
+
+	char* :ref:`strcat<doxid-functionstrcat>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :ref:`strdup<doxid-functionstrdup>`(
+		char const* p,
+		:ref:`size_t<doxid-typedefsize_t>` length = -1
+	);
+
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`strdjb2<doxid-functionstrdjb2>`(char const* p);
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`stridjb2<doxid-functionstridjb2>`(char const* p);
+
+	int :ref:`memcmp<doxid-functionmemcmp>`(
+		void const* p1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void const* :ref:`memchr<doxid-functionmemchr>`(
+		void const* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void* :target:`memchr<doxid-functionmemchr_2>`(
+		void* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void const* :ref:`memmem<doxid-functionmemmem>`(
+		void const* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	);
+
+	void* :target:`memmem<doxid-functionmemmem_2>`(
+		void* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	);
+
+	void :ref:`memcpy<doxid-functionmemcpy>`(
+		void* dst,
+		void const* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void unsafe :target:`memcpy_u<doxid-functionmemcpy_u>`(
+		void thin* dst,
+		void const thin* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void :ref:`memmove<doxid-functionmemmove>`(
+		void* dst,
+		void const* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void unsafe :target:`memmove_u<doxid-functionmemmove_u>`(
+		void thin* dst,
+		void const thin* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void :ref:`memset<doxid-functionmemset>`(
+		void* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void unsafe :target:`memset_u<doxid-functionmemset_u>`(
+		void thin* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void* :ref:`memcat<doxid-functionmemcat>`(
+		void const* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	);
+
+	void* :ref:`memdup<doxid-functionmemdup>`(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`memdjb2<doxid-functionmemdjb2>`(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	int :ref:`rand<doxid-functionrand>`();
+	:ref:`uint32_t<doxid-typedefuint32_t>` :ref:`toupper<doxid-functiontoupper>`(:ref:`uint32_t<doxid-typedefuint32_t>` c);
+	:ref:`uint32_t<doxid-typedefuint32_t>` :ref:`tolower<doxid-functiontolower>`(:ref:`uint32_t<doxid-typedefuint32_t>` c);
+	int :ref:`atoi<doxid-functionatoi>`(:ref:`string_t<doxid-typedefstring_t>` s);
+	long :ref:`atol<doxid-functionatol>`(:ref:`string_t<doxid-typedefstring_t>` s);
+	float :ref:`atof<doxid-functionatof>`(:ref:`string_t<doxid-typedefstring_t>` s);
+	double :ref:`atod<doxid-functionatod>`(:ref:`string_t<doxid-typedefstring_t>` s);
+
+	long :ref:`strtol<doxid-functionstrtol>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	long :ref:`strtol<doxid-functionstrtol_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	:ref:`ulong_t<doxid-typedefulong_t>` :ref:`strtoul<doxid-functionstrtoul>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	:ref:`ulong_t<doxid-typedefulong_t>` :ref:`strtoul<doxid-functionstrtoul_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	float :ref:`strtof<doxid-functionstrtof>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	float :ref:`strtof<doxid-functionstrtof_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	double :ref:`strtod<doxid-functionstrtod>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	double :ref:`strtod<doxid-functionstrtod_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	char* :ref:`gets<doxid-functiongets>`();
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`print<doxid-functionprint>`(char const* text);
+	:ref:`size_t<doxid-typedefsize_t>` :target:`print_u<doxid-functionprint_u>`(char const thin* text);
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`perror<doxid-functionperror>`(char const* text);
+
+	:ref:`intptr_t<doxid-typedefintptr_t>` cdecl :ref:`printf<doxid-functionprintf>`(
+		char const thin* fmtSpecifier,
+		...
+	);
+

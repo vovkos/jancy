@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; DynamicLayoutMode
+.. _doxid-typejnc_dynamiclayoutmode:
+
+enum jnc.DynamicLayoutMode
+==========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DynamicLayoutMode {
+	    :target:`Block<doxid-enum_memberjnc_dynamiclayoutmode_block>`,
+	    :target:`Stream<doxid-enum_memberjnc_dynamiclayoutmode_stream>`,
+	    :target:`Default<doxid-enum_memberjnc_dynamiclayoutmode_default>` = Block,
+	};
+

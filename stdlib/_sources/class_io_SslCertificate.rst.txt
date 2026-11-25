@@ -1,0 +1,58 @@
+.. include:: def.rst
+.. index:: pair: class; io.SslCertificate
+.. _doxid-typeio_sslcertificate:
+
+class io.SslCertificate
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class SslCertificate {
+		// properties
+	
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_serialNumber<doxid-propertyio_sslcertificate_m_serialnumber>`;
+		:ref:`uint64_t<doxid-typedefuint64_t>` const property :target:`m_validFromDate<doxid-propertyio_sslcertificate_m_validfromdate>`;
+		:ref:`uint64_t<doxid-typedefuint64_t>` const property :target:`m_validToDate<doxid-propertyio_sslcertificate_m_validtodate>`;
+		:ref:`io.SslCertName<doxid-typeio_sslcertname>` const* const property :target:`m_subject<doxid-propertyio_sslcertificate_m_subject>`;
+		:ref:`io.SslCertName<doxid-typeio_sslcertname>` const* const property :target:`m_issuer<doxid-propertyio_sslcertificate_m_issuer>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_sslcertificate_construct>`();
+		:target:`destruct<doxid-functionio_sslcertificate_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`encode<doxid-functionio_sslcertificate_encode>`(
+			:ref:`std.Buffer<doxid-typestd_buffer>`* buffer,
+			:ref:`io.SslCertFormat<doxid-typeio_sslcertformat>` format = SslCertFormat.Pem
+		) const;
+	
+		:ref:`string_t<doxid-typedefstring_t>` errorcode :target:`encode<doxid-functionio_sslcertificate_encode_2>`() const;
+	
+		bool errorcode :target:`decode<doxid-functionio_sslcertificate_decode>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size,
+			:ref:`io.SslCertFormat<doxid-typeio_sslcertformat>` format = SslCertFormat.Pem
+		);
+	
+		bool errorcode :target:`decode<doxid-functionio_sslcertificate_decode_2>`(:ref:`string_t<doxid-typedefstring_t>` p);
+	
+		bool errorcode :target:`load<doxid-functionio_sslcertificate_load>`(
+			:ref:`string_t<doxid-typedefstring_t>` fileName,
+			:ref:`io.SslCertFormat<doxid-typeio_sslcertformat>` format = SslCertFormat.Pem
+		);
+	
+		bool errorcode :target:`save<doxid-functionio_sslcertificate_save>`(
+			:ref:`string_t<doxid-typedefstring_t>` fileName,
+			:ref:`io.SslCertFormat<doxid-typeio_sslcertformat>` format = SslCertFormat.Pem
+		) const;
+	};

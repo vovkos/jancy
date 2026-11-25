@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: enum; SerialPortDescFlags
+.. _doxid-typeio_serialportdescflags:
+
+bitflag enum io.SerialPortDescFlags
+===================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SerialPortDescFlags {
+	    :target:`Description<doxid-enum_memberio_serialportdescflags_description>`,
+	    :target:`Manufacturer<doxid-enum_memberio_serialportdescflags_manufacturer>`,
+	    :target:`HardwareIds<doxid-enum_memberio_serialportdescflags_hardwareids>`,
+	    :target:`Driver<doxid-enum_memberio_serialportdescflags_driver>`,
+	    :target:`Location<doxid-enum_memberio_serialportdescflags_location>`,
+	    :target:`All<doxid-enum_memberio_serialportdescflags_all>`          = Description | Manufacturer | HardwareIds | Driver | Location,
+	};
+

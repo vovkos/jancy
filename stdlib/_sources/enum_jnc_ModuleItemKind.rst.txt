@@ -1,0 +1,40 @@
+.. include:: def.rst
+.. index:: pair: enum; ModuleItemKind
+.. _doxid-typejnc_moduleitemkind:
+
+enum jnc.ModuleItemKind
+=======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum ModuleItemKind {
+	    :target:`Undefined<doxid-enum_memberjnc_moduleitemkind_undefined>`            = 0,
+	    :target:`Namespace<doxid-enum_memberjnc_moduleitemkind_namespace>`,
+	    :target:`Scope<doxid-enum_memberjnc_moduleitemkind_scope>`,
+	    :target:`Attribute<doxid-enum_memberjnc_moduleitemkind_attribute>`,
+	    :target:`AttributeBlock<doxid-enum_memberjnc_moduleitemkind_attributeblock>`,
+	    :target:`Type<doxid-enum_memberjnc_moduleitemkind_type>`,
+	    :target:`Typedef<doxid-enum_memberjnc_moduleitemkind_typedef>`,
+	    :target:`Alias<doxid-enum_memberjnc_moduleitemkind_alias>`,
+	    :target:`Const<doxid-enum_memberjnc_moduleitemkind_const>`,
+	    :target:`Variable<doxid-enum_memberjnc_moduleitemkind_variable>`,
+	    :target:`Function<doxid-enum_memberjnc_moduleitemkind_function>`,
+	    :target:`FunctionArg<doxid-enum_memberjnc_moduleitemkind_functionarg>`,
+	    :target:`FunctionOverload<doxid-enum_memberjnc_moduleitemkind_functionoverload>`,
+	    :target:`Property<doxid-enum_memberjnc_moduleitemkind_property>`,
+	    :target:`PropertyTemplate<doxid-enum_memberjnc_moduleitemkind_propertytemplate>`,
+	    :target:`EnumConst<doxid-enum_memberjnc_moduleitemkind_enumconst>`,
+	    :target:`Field<doxid-enum_memberjnc_moduleitemkind_field>`,
+	    :target:`BaseTypeSlot<doxid-enum_memberjnc_moduleitemkind_basetypeslot>`,
+	    :target:`Orphan<doxid-enum_memberjnc_moduleitemkind_orphan>`,
+	    :target:`LazyImport<doxid-enum_memberjnc_moduleitemkind_lazyimport>`,
+	    :target:`DynamicLayoutSection<doxid-enum_memberjnc_moduleitemkind_dynamiclayoutsection>`,
+	    :target:`Template<doxid-enum_memberjnc_moduleitemkind_template>`,
+	    :target:`TemplateNamespace<doxid-enum_memberjnc_moduleitemkind_templatenamespace>`,
+	    :target:`_Count<doxid-enum_memberjnc_moduleitemkind__count>`,
+	};
+

@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: struct; io.psx.DeviceMonitorIoctlDesc
+.. _doxid-typeio_psx_devicemonitorioctldesc:
+
+struct io.psx.DeviceMonitorIoctlDesc
+====================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorIoctlDesc {
+		// fields
+	
+		typedef unsigned int uint32_t :target:`m_code<doxid-fieldio_psx_devicemonitorioctldesc_m_code>`;
+		typedef unsigned int uint32_t :target:`m_argFixedSize<doxid-fieldio_psx_devicemonitorioctldesc_m_argfixedsize>`;
+		typedef unsigned int uint32_t :target:`m_argSizeFieldOffset<doxid-fieldio_psx_devicemonitorioctldesc_m_argsizefieldoffset>`;
+		:ref:`io.psx.DeviceMonitorIoctlFlags<doxid-typeio_psx_devicemonitorioctlflags>` :target:`m_flags<doxid-fieldio_psx_devicemonitorioctldesc_m_flags>`;
+	};

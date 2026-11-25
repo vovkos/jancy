@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidDb
+.. _doxid-typeio_hiddb:
+
+class io.HidDb
+==============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidDb {
+		// construction
+	
+		:target:`construct<doxid-functionio_hiddb_construct>`();
+		:target:`destruct<doxid-functionio_hiddb_destruct>`();
+
+		// methods
+	
+		:ref:`io.HidUsagePage<doxid-typeio_hidusagepage>` const* :target:`getUsagePage<doxid-functionio_hiddb_getusagepage>`(:ref:`uint_t<doxid-typedefuint_t>` page) const;
+		bool errorcode :target:`load<doxid-functionio_hiddb_load>`(:ref:`string_t<doxid-typedefstring_t>` fileName = null);
+		void :target:`clear<doxid-functionio_hiddb_clear>`();
+	};

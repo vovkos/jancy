@@ -1,0 +1,75 @@
+.. index:: pair: group; Runtime Structures
+.. _doxid-group__runtime-structs:
+
+Runtime Structures
+==================
+
+.. toctree::
+	:hidden:
+
+	group_promise.rst
+	group_string.rst
+	group_variant.rst
+	struct_jnc_Box.rst
+	struct_jnc_CallSite.rst
+	struct_jnc_DataBox.rst
+	struct_jnc_DataPtr.rst
+	struct_jnc_DataPtrValidator.rst
+	struct_jnc_DetachedDataBox.rst
+	struct_jnc_FmtLiteral.rst
+	struct_jnc_FunctionPtr.rst
+	struct_jnc_GcMutatorThread.rst
+	struct_jnc_GcShadowStackFrame.rst
+	struct_jnc_GcShadowStackFrameMapBuffer.rst
+	struct_jnc_IfaceHdr.rst
+	struct_jnc_McSnapshot.rst
+	struct_jnc_Multicast.rst
+	struct_jnc_OpaqueClassTypeInfo.rst
+	struct_jnc_PropertyPtr.rst
+	struct_jnc_Reactor.rst
+	struct_jnc_ReactorClosure.rst
+	struct_jnc_Scheduler.rst
+	struct_jnc_SchedulerVtable.rst
+	struct_jnc_SjljFrame.rst
+	struct_jnc_Tls.rst
+	struct_jnc_TlsVariableTable.rst
+
+
+
+|	:ref:`Promise<doxid-group__promise>`
+|	:ref:`String<doxid-group__string>`
+|	:ref:`Variant<doxid-group__variant>`
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_RuntimeStructs.h>
+	
+	// structs
+
+	struct :ref:`jnc_Box<doxid-structjnc___box>`;
+	struct :ref:`jnc_CallSite<doxid-structjnc___call_site>`;
+	struct :ref:`jnc_DataBox<doxid-structjnc___data_box>`;
+	struct :ref:`jnc_DataPtr<doxid-structjnc___data_ptr>`;
+	struct :ref:`jnc_DataPtrValidator<doxid-structjnc___data_ptr_validator>`;
+	struct :ref:`jnc_DetachedDataBox<doxid-structjnc___detached_data_box>`;
+	struct :ref:`jnc_FmtLiteral<doxid-structjnc___fmt_literal>`;
+	struct :ref:`jnc_FunctionPtr<doxid-structjnc___function_ptr>`;
+	struct :ref:`jnc_GcMutatorThread<doxid-structjnc___gc_mutator_thread>`;
+	struct :ref:`jnc_GcShadowStackFrame<doxid-structjnc___gc_shadow_stack_frame>`;
+	struct :ref:`jnc_GcShadowStackFrameMapBuffer<doxid-structjnc___gc_shadow_stack_frame_map_buffer>`;
+	struct :ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>`;
+	struct :ref:`jnc_McSnapshot<doxid-structjnc___mc_snapshot>`;
+	struct :ref:`jnc_Multicast<doxid-structjnc___multicast>`;
+	struct :ref:`jnc_OpaqueClassTypeInfo<doxid-structjnc___opaque_class_type_info>`;
+	struct :ref:`jnc_PropertyPtr<doxid-structjnc___property_ptr>`;
+	struct :ref:`jnc_Reactor<doxid-structjnc___reactor>`;
+	struct :ref:`jnc_ReactorClosure<doxid-structjnc___reactor_closure>`;
+	struct :ref:`jnc_Scheduler<doxid-structjnc___scheduler>`;
+	struct :ref:`jnc_SchedulerVtable<doxid-structjnc___scheduler_vtable>`;
+	struct :ref:`jnc_SjljFrame<doxid-structjnc___sjlj_frame>`;
+	struct :ref:`jnc_Tls<doxid-structjnc___tls>`;
+	struct :ref:`jnc_TlsVariableTable<doxid-structjnc___tls_variable_table>`;
+

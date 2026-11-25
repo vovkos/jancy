@@ -1,0 +1,30 @@
+.. index:: pair: enum; CompleterIcon
+.. _doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7:
+
+enum jnc::EditBase::CompleterIcon
+=================================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EditBase.h>
+
+	enum CompleterIcon {
+	    :target:`FileIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7a2acdfaf009edbb362f62b91770aa1a1c>`           = 0,
+	    :target:`ObjectIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7adb9b6c95ef17d576826c47936cc2908a>`,
+	    :target:`NamespaceIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7ae91baa8065f917b91a26b304252f7e84>`,
+	    :target:`EventIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7a14097f96a11b4d0e22a367506e13185e>`,
+	    :target:`FunctionIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7a3d85bb3cbd4371e1e9bc8abe4657ac0f>`,
+	    :target:`PropertyIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7a3341a53867a17eb86aea0f189f70841b>`,
+	    :target:`VariableIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7aba820d6363e61825c1bd58b5f3487c8d>`,
+	    :target:`FieldIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7acd31c4bd598ade015f4f491ae2bb61cd>`,
+	    :target:`ConstIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7afb51103f6fb378d3a9bcd29d2b1d3485>`,
+	    :target:`TypeIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7af16c304d182914e9761df04b679d364c>`,
+	    :target:`TypedefIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7a5a65639cf8898ac83d4b4cc65ab9d14d>`,
+	    :target:`KeywordIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7acf5f7c4b87a684635aee48ff6fb14514>`,
+	    :target:`StatementIcon<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7afdaa54ccc6c0144617a064f657a62789>`,
+	    :target:`CompleterIconCount<doxid-classjnc_1_1_edit_base_1a46f6fd8115d8e72d411e3b0b7e7138d7a9c39cc4e6b216ec064d3b9be00446716>`,
+	};
+

@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; ChildProcessStartFlags
+.. _doxid-typeio_childprocessstartflags:
+
+bitflag enum io.ChildProcessStartFlags
+======================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum ChildProcessStartFlags {
+	    :target:`Pty<doxid-enum_memberio_childprocessstartflags_pty>`,
+	    :target:`SeparateStderr<doxid-enum_memberio_childprocessstartflags_separatestderr>`,
+	    :target:`CleanEnvironment<doxid-enum_memberio_childprocessstartflags_cleanenvironment>`,
+	};
+

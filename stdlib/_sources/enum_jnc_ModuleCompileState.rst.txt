@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; ModuleCompileState
+.. _doxid-typejnc_modulecompilestate:
+
+enum jnc.ModuleCompileState
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum ModuleCompileState {
+	    :target:`Idle<doxid-enum_memberjnc_modulecompilestate_idle>`,
+	    :target:`Parsed<doxid-enum_memberjnc_modulecompilestate_parsed>`,
+	    :target:`Compiled<doxid-enum_memberjnc_modulecompilestate_compiled>`,
+	    :target:`Jitted<doxid-enum_memberjnc_modulecompilestate_jitted>`,
+	};
+

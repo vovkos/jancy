@@ -1,0 +1,22 @@
+.. index:: pair: group; Enum Type
+.. _doxid-group__enum-type:
+
+Enum Type
+=========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_EnumType.rst
+
+Enum type defines a mnemonic identification for a set of integer values.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// structs
+
+	struct :ref:`jnc_EnumType<doxid-structjnc___enum_type>`;
+

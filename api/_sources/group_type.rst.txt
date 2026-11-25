@@ -1,0 +1,23 @@
+.. index:: pair: group; Type
+.. _doxid-group__type:
+
+Type
+====
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Type.rst
+
+This type is the root of type hierarchy in Jancy. All the other types are *inherited* from it.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Type.h>
+	
+	// structs
+
+	struct :ref:`jnc_Type<doxid-structjnc___type>`;
+

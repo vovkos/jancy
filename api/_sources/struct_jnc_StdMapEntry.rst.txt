@@ -1,0 +1,26 @@
+.. index:: pair: struct; jnc_StdMapEntry
+.. _doxid-structjnc___std_map_entry:
+
+struct jnc_StdMapEntry
+======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StdMapEntry {
+		// fields
+	
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_nextPtr<doxid-structjnc___std_map_entry_1a3cbdb58f5717961b1f3dd869ff87f011>`;
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_prevPtr<doxid-structjnc___std_map_entry_1a0fc4c08a2f944f32a55b34a30b836244>`;
+		:ref:`jnc_Variant<doxid-structjnc___variant>` :target:`m_key<doxid-structjnc___std_map_entry_1a2930044009404836cc0945002aa8625a>`;
+		:ref:`jnc_Variant<doxid-structjnc___variant>` :target:`m_value<doxid-structjnc___std_map_entry_1a346c7dcff91fa2983db14598f5f6266c>`;
+		:ref:`jnc_StdMap<doxid-structjnc___std_map>`* :target:`m_map<doxid-structjnc___std_map_entry_1a3bbcb206ae8ccac84fb47e0892b4424f>`;
+		void* :target:`m_mapEntry<doxid-structjnc___std_map_entry_1a4a06cb892717624aefa85ba58963271a>`;
+	};

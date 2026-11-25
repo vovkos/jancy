@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; FileStreamOptions
+.. _doxid-typeio_filestreamoptions:
+
+bitflag enum io.FileStreamOptions
+=================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum FileStreamOptions: :ref:`io.StreamOptions<doxid-typeio_streamoptions>` {
+	    :target:`MessageNamedPipe<doxid-enum_memberio_filestreamoptions_messagenamedpipe>`,
+	};
+

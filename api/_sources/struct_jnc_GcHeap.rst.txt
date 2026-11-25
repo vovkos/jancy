@@ -1,0 +1,13 @@
+.. index:: pair: struct; jnc_GcHeap
+.. _doxid-structjnc___gc_heap:
+
+struct jnc_GcHeap
+=================
+
+.. toctree::
+	:hidden:
+
+Opaque structure used as a handle to Jancy garbage-collected heap.
+
+    Use functions from the `Garbage-Collected Heap` group to access and manage the contents of this structure.
+

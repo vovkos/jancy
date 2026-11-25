@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorKeyboardInput
+.. _doxid-typeio_win_devicemonitorkeyboardinput:
+
+struct io.win.DeviceMonitorKeyboardInput
+========================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorKeyboardInput {
+		// fields
+	
+		typedef unsigned short uint16_t :target:`m_unitId<doxid-fieldio_win_devicemonitorkeyboardinput_m_unitid>`;
+		typedef unsigned short uint16_t :target:`m_scanCode<doxid-fieldio_win_devicemonitorkeyboardinput_m_scancode>`;
+		typedef unsigned short uint16_t :target:`m_flags<doxid-fieldio_win_devicemonitorkeyboardinput_m_flags>`;
+		typedef unsigned short uint16_t :target:`m_reserved<doxid-fieldio_win_devicemonitorkeyboardinput_m_reserved>`;
+		typedef unsigned int uint32_t :target:`m_extraInformation<doxid-fieldio_win_devicemonitorkeyboardinput_m_extrainformation>`;
+	};

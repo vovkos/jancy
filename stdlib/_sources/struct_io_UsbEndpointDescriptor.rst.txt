@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbEndpointDescriptor
+.. _doxid-typeio_usbendpointdescriptor:
+
+struct io.UsbEndpointDescriptor
+===============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbEndpointDescriptor {
+		// fields
+	
+		typedef unsigned char uint8_t :target:`m_endpointId<doxid-fieldio_usbendpointdescriptor_m_endpointid>`;
+		:ref:`io.UsbTransferType<doxid-typeio_usbtransfertype>` :target:`m_transferType<doxid-fieldio_usbendpointdescriptor_m_transfertype>`;
+		:ref:`io.UsbIsoSyncType<doxid-typeio_usbisosynctype>` :target:`m_isoSyncType<doxid-fieldio_usbendpointdescriptor_m_isosynctype>`;
+		:ref:`io.UsbIsoUsage<doxid-typeio_usbisousage>` :target:`m_isoUsage<doxid-fieldio_usbendpointdescriptor_m_isousage>`;
+		typedef unsigned short uint16_t :target:`m_maxPacketSize<doxid-fieldio_usbendpointdescriptor_m_maxpacketsize>`;
+		typedef unsigned char uint8_t :target:`m_interval<doxid-fieldio_usbendpointdescriptor_m_interval>`;
+		typedef unsigned char uint8_t :target:`m_refresh<doxid-fieldio_usbendpointdescriptor_m_refresh>`;
+		typedef unsigned char uint8_t :target:`m_synchAddress<doxid-fieldio_usbendpointdescriptor_m_synchaddress>`;
+	};

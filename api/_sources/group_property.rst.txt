@@ -1,0 +1,23 @@
+.. index:: pair: group; Property
+.. _doxid-group__property:
+
+Property
+========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Property.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Property.h>
+	
+	// structs
+
+	struct :ref:`jnc_Property<doxid-structjnc___property>`;
+

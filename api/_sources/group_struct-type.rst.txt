@@ -1,0 +1,23 @@
+.. index:: pair: group; Struct Type
+.. _doxid-group__struct-type:
+
+Struct Type
+===========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_StructType.rst
+
+Struct type represents a sequence of zero or more fields.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_StructType.h>
+	
+	// structs
+
+	struct :ref:`jnc_StructType<doxid-structjnc___struct_type>`;
+

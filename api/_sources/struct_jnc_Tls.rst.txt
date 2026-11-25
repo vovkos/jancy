@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_Tls
+.. _doxid-structjnc___tls:
+
+struct jnc_Tls
+==============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_Tls {
+		// fields
+	
+		:ref:`jnc_ListLink<doxid-structjnc___list_link>` :target:`m_link<doxid-structjnc___tls_1ac39ba9a570de893e7792d9091c1fd13d>`;
+		:ref:`jnc_Runtime<doxid-structjnc___runtime>`* :target:`m_runtime<doxid-structjnc___tls_1ad2b4aef105c7ed24e6cac0833a3352b6>`;
+		:ref:`jnc_GcMutatorThread<doxid-structjnc___gc_mutator_thread>` :target:`m_gcMutatorThread<doxid-structjnc___tls_1a15539b9d1e11cb619de350f6a7130622>`;
+	};

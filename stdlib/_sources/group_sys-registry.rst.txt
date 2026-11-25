@@ -1,0 +1,33 @@
+.. include:: def.rst
+.. index:: pair: group; Windows Registry Management
+.. _doxid-group_sys_registry:
+
+Windows Registry Management
+===========================
+
+.. toctree::
+	:hidden:
+
+	enum_sys_RegKeyAccess.rst
+	enum_sys_RegStdKey.rst
+	enum_sys_RegValueType.rst
+	class_sys_RegKey.rst
+
+This section describes types and facilities for accessing the Windows system registry.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "sys_Registry.jnc"
+	
+	// enums
+
+	enum :ref:`sys.RegKeyAccess<doxid-typesys_regkeyaccess>`;
+	enum :ref:`sys.RegStdKey<doxid-typesys_regstdkey>`;
+	enum :ref:`sys.RegValueType<doxid-typesys_regvaluetype>`;
+
+	// classes
+
+	class :ref:`sys.RegKey<doxid-typesys_regkey>`;
+

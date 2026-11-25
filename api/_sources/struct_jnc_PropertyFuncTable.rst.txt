@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_PropertyFuncTable
+.. _doxid-structjnc___property_func_table:
+
+struct jnc_PropertyFuncTable
+============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_PropertyFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___property_func_table_1ad548be7768e975a7a8bf891c23e82728>`;
+		jnc_Property_GetGetterFunc* :target:`m_getGetterFunc<doxid-structjnc___property_func_table_1af02b6a4344ca2a8b64cd78d5f971298e>`;
+		jnc_Property_GetSetterFunc* :target:`m_getSetterFunc<doxid-structjnc___property_func_table_1a2240e87552daf4b22dfe148f50f08e56>`;
+	};

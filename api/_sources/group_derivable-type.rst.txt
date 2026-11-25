@@ -1,0 +1,23 @@
+.. index:: pair: group; Derivable Type
+.. _doxid-group__derivable-type:
+
+Derivable Type
+==============
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_DerivableType.rst
+
+Derivable type is the base type for structs, unions and classes.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_DerivableType.h>
+	
+	// structs
+
+	struct :ref:`jnc_DerivableType<doxid-structjnc___derivable_type>`;
+

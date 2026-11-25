@@ -1,0 +1,109 @@
+.. include:: def.rst
+.. index:: pair: class; sys.Lock
+.. _doxid-typesys_lock:
+
+class sys.Lock
+==============
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class is used to ensure exclusive access to some shared
+resource. :ref:`More...<details-typesys_lock>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "sys_Lock.jnc"
+	
+	class Lock {
+		// construction
+	
+		:target:`construct<doxid-functionsys_lock_construct>`();
+		:target:`destruct<doxid-functionsys_lock_destruct>`();
+
+		// methods
+	
+		void :ref:`lock<doxid-functionsys_lock_lock>`();
+		void :ref:`unlock<doxid-functionsys_lock_unlock>`();
+	};
+.. _details-typesys_lock:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class is used to ensure exclusive access to some shared
+resource.
+
+Only one thread at a time can *acquire* the ``sys.Lock`` object and hence,
+get exclusive access to some resource this ``sys.Lock`` object is being a
+guardian of. To do that, a thread calls ``lock`` method. Once it returns,
+the ``sys.Lock`` object is in *locked* state and this thread can exclusively
+access the associated resource.
+
+Any other thread trying to *acquire* it will wait until the original thread
+*releases* the lock with ``unlock`` method.
+
+Code sample::
+
+	import "sys_Lock.jnc"
+
+	sys.Lock g_event;
+	int g_resource;
+
+	thread1() {
+		// ...
+
+		g_lock.lock();   // acquire the lock
+		g_resource++;     // we can safely access the resource now
+		g_lock.unlock(); // let others get access, too
+
+		// continue...
+	}
+
+	thread2() {
+		// ...
+
+		g_lock.lock();   // acquire the lock
+		g_resource--;     // we can safely access the resource now
+		g_lock.unlock(); // let others get access, too
+
+		// continue...
+	}
+
+
+
+.. rubric:: See also:
+
+`sys.Thread`
+
+Methods
+-------
+
+.. index:: pair: function; lock
+.. _doxid-functionsys_lock_lock:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void lock()
+
+*Acquires* the lock. If the lock is already acquired by another thread,
+the current thread enters the wait queue for the lock. When the lock is
+released by other thread(s), the current thread acquires it.
+
+.. index:: pair: function; unlock
+.. _doxid-functionsys_lock_unlock:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void unlock()
+
+*Releases* the lock. If other threads are waiting for the lock at the
+moment, the first one in the wait queue *acquires* the lock.
+

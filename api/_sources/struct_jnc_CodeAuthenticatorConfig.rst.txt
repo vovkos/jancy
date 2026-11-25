@@ -1,0 +1,11 @@
+.. index:: pair: struct; jnc_CodeAuthenticatorConfig
+.. _doxid-structjnc___code_authenticator_config:
+
+struct jnc_CodeAuthenticatorConfig
+==================================
+
+.. toctree::
+	:hidden:
+
+
+

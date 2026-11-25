@@ -1,0 +1,50 @@
+.. include:: def.rst
+.. index:: pair: class; io.PcapFilter
+.. _doxid-typeio_pcapfilter:
+
+class io.PcapFilter
+===================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class PcapFilter {
+		// properties
+	
+		bool const property :target:`m_isEmpty<doxid-propertyio_pcapfilter_m_isempty>`;
+
+		// methods
+	
+		bool errorcode :target:`compile<doxid-functionio_pcapfilter_compile>`(
+			:ref:`io.Pcap<doxid-typeio_pcap>`* pcap,
+			:ref:`string_t<doxid-typedefstring_t>` filter,
+			bool isOptimized = true,
+			:ref:`uint32_t<doxid-typedefuint32_t>` netMask = -1
+		);
+	
+		bool errorcode :target:`compile<doxid-functionio_pcapfilter_compile_2>`(
+			:ref:`io.PcapLinkType<doxid-typeio_pcaplinktype>` linkType,
+			:ref:`size_t<doxid-typedefsize_t>` snapshotSize,
+			:ref:`string_t<doxid-typedefstring_t>` filter,
+			bool isOptimized = true,
+			:ref:`uint32_t<doxid-typedefuint32_t>` netMask = -1
+		);
+	
+		bool errorcode :target:`compile<doxid-functionio_pcapfilter_compile_3>`(
+			:ref:`string_t<doxid-typedefstring_t>` filter,
+			bool isOptimized = true,
+			:ref:`uint32_t<doxid-typedefuint32_t>` netMask = -1
+		);
+	
+		bool :target:`match<doxid-functionio_pcapfilter_match>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	};

@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbIsoUsage
+.. _doxid-typeio_usbisousage:
+
+enum io.UsbIsoUsage
+===================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbIsoUsage: typedef unsigned char uint8_t {
+	    :target:`Data<doxid-enum_memberio_usbisousage_data>`     = 0,
+	    :target:`Feedback<doxid-enum_memberio_usbisousage_feedback>` = 1,
+	    :target:`Implicit<doxid-enum_memberio_usbisousage_implicit>` = 2,
+	};
+

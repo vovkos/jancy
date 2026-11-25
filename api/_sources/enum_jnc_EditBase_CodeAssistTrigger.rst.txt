@@ -1,0 +1,30 @@
+.. index:: pair: enum; CodeAssistTrigger
+.. _doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4c:
+
+enum jnc::EditBase::CodeAssistTrigger
+=====================================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EditBase.h>
+
+	enum CodeAssistTrigger {
+	    :target:`QuickInfoTipOnMouseOverIdentifier<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca93ecff63e92bb8d8ff647701d16d9d42>`      = 0x0001,
+	    :target:`QuickInfoTipOnCursorOverIdentifier<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4cae74bdf2dd22967b58688bb3281c64691>`     = 0x0002,
+	    :target:`ArgumentTipOnCtrlShiftSpace<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca9a02bc6cc80fef824322e65e935bac28>`            = 0x0004,
+	    :target:`ArgumentTipOnTypeLeftParenthesis<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca32a634f4224cbf5ecd1e24043d7a08da>`       = 0x0008,
+	    :target:`ArgumentTipOnTypeComma<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca31e669b057d14c37208395b742975fa3>`                 = 0x0010,
+	    :target:`ArgumentTipOnMouseOverLeftParenthesis<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4caeea47a9517dad72768fed2d3a88c7ca2>`  = 0x0020,
+	    :target:`ArgumentTipOnCursorOverLeftParenthesis<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4cae951a479b70bbc8227f1fa6e411d43e2>` = 0x0040,
+	    :target:`ArgumentTipOnMouseOverComma<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca7daeb76c2d1a067c3410619dc2e80e6a>`            = 0x0080,
+	    :target:`ArgumentTipOnCursorOverComma<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4cad665c7f17c1545f6b44ffbbd00e34335>`           = 0x0100,
+	    :target:`AutoCompleteOnCtrlSpace<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca30bbd8192641ad690cf7351ec53c7c79>`                = 0x0200,
+	    :target:`AutoCompleteOnTypeDot<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca9ad658d143df78aac14e2bb036be52d8>`                  = 0x0400,
+	    :target:`AutoCompleteOnTypeIdentifier<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4caf6634622997bb14ccfc3e8eca4c51bdc>`           = 0x0800,
+	    :target:`ImportAutoCompleteOnTypeQuotationMark<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca4e8a5675c381ac043d2750fb908ed6db>`  = 0x1000,
+	    :target:`GotoDefinitionOnCtrlClick<doxid-classjnc_1_1_edit_base_1a36227b01be603365afeba548eaa9cf4ca0015d5f78f3b685a4b3a3406316aa654>`              = 0x2000,
+	};
+

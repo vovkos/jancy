@@ -1,0 +1,48 @@
+.. index:: pair: struct; jnc_ModuleFuncTable
+.. _doxid-structjnc___module_func_table:
+
+struct jnc_ModuleFuncTable
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ModuleFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___module_func_table_1ab83a3f6f3038a853bf771343038b12f2>`;
+		jnc_Module_GetNameFunc* :target:`m_getNameFunc<doxid-structjnc___module_func_table_1a148095ee2d3d6895eebffc5cbc33425e>`;
+		jnc_Module_GetGlobalNamespaceFunc* :target:`m_getGlobalNamespaceFunc<doxid-structjnc___module_func_table_1ada275b744060b1201283f3baaec4b4a4>`;
+		jnc_Module_GetStdNamespaceFunc* :target:`m_getStdNamespaceFunc<doxid-structjnc___module_func_table_1abb21d780428e77c27efbec4614f7265f>`;
+		jnc_Module_GetPrimitiveTypeFunc* :target:`m_getPrimitiveTypeFunc<doxid-structjnc___module_func_table_1a6e9d011d12d212bd3aed47ccdfe2996b>`;
+		jnc_Module_GetStdTypeFunc* :target:`m_getStdTypeFunc<doxid-structjnc___module_func_table_1a75ed4cd905559f1dca09d147415b3dc3>`;
+		jnc_Module_GetExtensionSourceFileIteratorFunc* :target:`m_getExtensionSourceFileIteratorFunc<doxid-structjnc___module_func_table_1a8993de8ad629786850900b67e0d480bf>`;
+		jnc_Module_GetNextExtensionSourceFileFunc* :target:`m_getNextExtensionSourceFileFunc<doxid-structjnc___module_func_table_1a9e497afd16f9517c610bcd0119df732a>`;
+		jnc_Module_FindExtensionLibItemFunc* :target:`m_findExtensionLibItemFunc<doxid-structjnc___module_func_table_1a60fb627788421c41223d6a939ec6d563>`;
+		jnc_Module_GetExtensionLibZipFilePathFunc* :target:`m_getExtensionLibFilePathFunc<doxid-structjnc___module_func_table_1a7274c09d7914e1b6a96c1c6560aec1a6>`;
+		jnc_Module_MapVariableFunc* :target:`m_mapVariableFunc<doxid-structjnc___module_func_table_1a0233a7ddf69147b964612303cf6707b9>`;
+		jnc_Module_MapFunctionFunc* :target:`m_mapFunctionFunc<doxid-structjnc___module_func_table_1ac93f003df3c37a0f98200e085fd16c37>`;
+		jnc_Module_AddSourceFunc* :target:`m_addSourceFunc<doxid-structjnc___module_func_table_1a2d7ae76c01d8c094a89b616d4a2a09a5>`;
+		jnc_Module_GetImportDirIteratorFunc* :target:`m_getImportDirIteratorFunc<doxid-structjnc___module_func_table_1aad5ed084876dbf7ed2ed6c8a9029c01c>`;
+		jnc_Module_GetNextImportDirFunc* :target:`m_getNextImportDirFunc<doxid-structjnc___module_func_table_1abc5f32576f44a610d8e221ba3f50fce8>`;
+		jnc_Module_AddImportDirFunc* :target:`m_addImportDirFunc<doxid-structjnc___module_func_table_1a4664c2b88670bdd33ef19cb66bf592d4>`;
+		jnc_Module_AddImportFunc* :target:`m_addImportFunc<doxid-structjnc___module_func_table_1aa7bf1e5cbb99cb22d3147bea94ae9636>`;
+		jnc_Module_AddSourceImportFunc* :target:`m_addSourceImportFunc<doxid-structjnc___module_func_table_1a28628b491e57d5d82dae3fa3629b749b>`;
+		jnc_Module_AddOpaqueClassTypeInfoFunc* :target:`m_addOpaqueClassTypeInfoFunc<doxid-structjnc___module_func_table_1a017eed3a2698307da3435894f1413cdb>`;
+		jnc_Module_AddStaticLibFunc* :target:`m_addStaticLibFunc<doxid-structjnc___module_func_table_1ac222d70729ac8cc7fcc7d4fb2f721cdf>`;
+		jnc_Module_RequireFunc* :target:`m_requireFunc<doxid-structjnc___module_func_table_1a0478e9c191c9ef8f448d8ab68d3901c6>`;
+		jnc_Module_RequireTypeFunc* :target:`m_requireTypeFunc<doxid-structjnc___module_func_table_1ad12468b539cd8a7db9f47c311266a72b>`;
+		jnc_Module_ParseFunc* :target:`m_parseFunc<doxid-structjnc___module_func_table_1a64f987f76176342a66198267795c7092>`;
+		jnc_Module_ParseFileFunc* :target:`m_parseFileFunc<doxid-structjnc___module_func_table_1a2f0517460e3eb88e24cf0771b4ddc6f6>`;
+		jnc_Module_ParseImportsFunc* :target:`m_parseImportsFunc<doxid-structjnc___module_func_table_1a466277e89350515e72830eeeed197577>`;
+		jnc_Module_CompileFunc* :target:`m_compileFunc<doxid-structjnc___module_func_table_1a2ec86cb2140810a758fb4a0c4e700dc3>`;
+		jnc_Module_JitFunc* :target:`m_jitFunc<doxid-structjnc___module_func_table_1a162775e4bb92b927c0e5902b5bb14806>`;
+		jnc_Module_getLlvmIrStringFunc* :target:`m_getLlvmIrStringFunc<doxid-structjnc___module_func_table_1ae3f0d79d2f477a2fd2397b1204e3c3ca>`;
+	};

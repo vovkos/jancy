@@ -1,0 +1,50 @@
+.. include:: def.rst
+.. index:: pair: enum; PcapEvents
+.. _doxid-typeio_pcapevents:
+
+bitflag enum io.PcapEvents
+==========================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.Pcap` object. The set of *active* events is accessible
+via `io.Pcap.m_activeEvents`. :ref:`More...<details-typeio_pcapevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum PcapEvents: :ref:`io.ReadOnlyStreamEvents<doxid-typeio_readonlystreamevents>` {
+	    :ref:`Eof<doxid-enum_memberio_pcapevents_eof>` = 0x10,
+	};
+
+.. _details-typeio_pcapevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.Pcap` object. The set of *active* events is accessible
+via `io.Pcap.m_activeEvents`.
+
+
+
+.. rubric:: See also:
+
+`io.Pcap`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; Eof
+.. _doxid-enum_memberio_pcapevents_eof:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Eof
+
+End-of-file was reached on the Pcap file.
+

@@ -1,0 +1,21 @@
+.. index:: pair: struct; jnc_PropertyPtrTypeFuncTable
+.. _doxid-structjnc___property_ptr_type_func_table:
+
+struct jnc_PropertyPtrTypeFuncTable
+===================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_PropertyPtrTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___property_ptr_type_func_table_1ac9644b3ed755debba806f3853e4f8bed>`;
+	};

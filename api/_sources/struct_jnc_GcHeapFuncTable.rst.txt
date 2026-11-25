@@ -1,0 +1,47 @@
+.. index:: pair: struct; jnc_GcHeapFuncTable
+.. _doxid-structjnc___gc_heap_func_table:
+
+struct jnc_GcHeapFuncTable
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_GcHeapFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___gc_heap_func_table_1a713198bd7904d2072829382b8bd15ba7>`;
+		jnc_GcHeap_GetRuntimeFunc* :target:`m_getRuntimeFunc<doxid-structjnc___gc_heap_func_table_1a7e58ff55311735ee73f8d1f9fd701b77>`;
+		jnc_GcHeap_GetStatsFunc* :target:`m_getStatsFunc<doxid-structjnc___gc_heap_func_table_1ab4a03d7c9df0bd2275100c4eba23a4a9>`;
+		jnc_GcHeap_GetSizeTriggersFunc* :target:`m_getSizeTriggersFunc<doxid-structjnc___gc_heap_func_table_1a82b8fe6e1b94e8885212c12ca8e66768>`;
+		jnc_GcHeap_SetSizeTriggersFunc* :target:`m_setSizeTriggersFunc<doxid-structjnc___gc_heap_func_table_1a1c21d302014057debc2695e1d4e538da>`;
+		jnc_GcHeap_CollectFunc* :target:`m_collectFunc<doxid-structjnc___gc_heap_func_table_1ab111d2ce3c2e70205afab618ce81cd99>`;
+		jnc_GcHeap_EnterNoCollectRegionFunc* :target:`m_enterNoCollectRegionFunc<doxid-structjnc___gc_heap_func_table_1a9db44dde585ba2a67ddf1746eb204abd>`;
+		jnc_GcHeap_LeaveNoCollectRegionFunc* :target:`m_leaveNoCollectRegionFunc<doxid-structjnc___gc_heap_func_table_1aabc1b028af39eb53afcd46e3401902f4>`;
+		jnc_GcHeap_EnterWaitRegionFunc* :target:`m_enterWaitRegionFunc<doxid-structjnc___gc_heap_func_table_1a5f6fe5ba5f2c45fe8a9885eaa4999528>`;
+		jnc_GcHeap_LeaveWaitRegionFunc* :target:`m_leaveWaitRegionFunc<doxid-structjnc___gc_heap_func_table_1abaa39a00e24a9047b4fa1921e6a14633>`;
+		jnc_GcHeap_AllocateClassFunc* :target:`m_allocateClassFunc<doxid-structjnc___gc_heap_func_table_1a8e1a4d7b6d594e2a8b3bee4c605fd743>`;
+		jnc_GcHeap_AllocateClassFunc* :target:`m_tryAllocateClassFunc<doxid-structjnc___gc_heap_func_table_1a2daee157ddd253dcf2db6a0e9164c068>`;
+		jnc_GcHeap_AllocateDataFunc* :target:`m_allocateDataFunc<doxid-structjnc___gc_heap_func_table_1aa2241805c0b137a034a828512249c83a>`;
+		jnc_GcHeap_AllocateDataFunc* :target:`m_tryAllocateDataFunc<doxid-structjnc___gc_heap_func_table_1a5d7c24dd2a4c4f712b6afb9f3c6f7b67>`;
+		jnc_GcHeap_AllocateArrayFunc* :target:`m_allocateArrayFunc<doxid-structjnc___gc_heap_func_table_1ab54e34f3a5e7282028094a2b7e3bc146>`;
+		jnc_GcHeap_AllocateArrayFunc* :target:`m_tryAllocateArrayFunc<doxid-structjnc___gc_heap_func_table_1a77d28b48f075ccf9bb6a6f580bf3dfb5>`;
+		jnc_GcHeap_AllocateBufferFunc* :target:`m_allocateBufferFunc<doxid-structjnc___gc_heap_func_table_1acd7f9fd08b65555fb0df0327b95d0556>`;
+		jnc_GcHeap_AllocateBufferFunc* :target:`m_tryAllocateBufferFunc<doxid-structjnc___gc_heap_func_table_1a950c09be0cb5fec9979f985d8c5994dc>`;
+		jnc_GcHeap_CreateDataPtrValidatorFunc* :target:`m_createDataPtrValidatorFunc<doxid-structjnc___gc_heap_func_table_1ac29aba5c69e7ed2631ae3e9718304e76>`;
+		jnc_GcHeap_CreateForeignDataBoxFunc* :target:`m_createForeignDataBoxFunc<doxid-structjnc___gc_heap_func_table_1a9d9d16d943228f9efceafd98f1e94482>`;
+		jnc_GcHeap_CreateForeignBufferPtrFunc* :target:`m_createForeignBufferPtrFunc<doxid-structjnc___gc_heap_func_table_1a716650aa3c73d5e78b545140c4845283>`;
+		jnc_GcHeap_InvalidateDataPtrValidatorFunc* :target:`m_invalidateDataPtrValidatorFunc<doxid-structjnc___gc_heap_func_table_1a34389a459e75a231f5cd82469a124590>`;
+		jnc_GcHeap_WeakMarkFunc* :target:`m_weakMarkFunc<doxid-structjnc___gc_heap_func_table_1a4cc6f8822508ca9411aa5038efc1aa0e>`;
+		jnc_GcHeap_MarkDataFunc* :target:`m_markDataFunc<doxid-structjnc___gc_heap_func_table_1aecb31d66aa51679766cf4db37df0bed2>`;
+		jnc_GcHeap_MarkClassFunc* :target:`m_markClassFunc<doxid-structjnc___gc_heap_func_table_1a061bcaa15401d1535be35ddab283a435>`;
+		jnc_GcHeap_MarkVariantFunc* :target:`m_markVariantFunc<doxid-structjnc___gc_heap_func_table_1a33efa225943c6028bb2d41420ec6ec5e>`;
+		jnc_GcHeap_AddBoxToCallSiteFunc* :target:`m_addBoxToCallSiteFunc<doxid-structjnc___gc_heap_func_table_1a6aa15e8fdfce3cdd4f9d2c68bcb1569c>`;
+	};

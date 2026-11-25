@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_DataBox
+.. _doxid-structjnc___data_box:
+
+struct jnc_DataBox
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_DataBox {
+		// fields
+	
+		:ref:`jnc_Box<doxid-structjnc___box>` :target:`m_box<doxid-structjnc___data_box_1a3e392c3ae45cc945b1f7b5b4ea4eecf7>`;
+		:ref:`jnc_DataPtrValidator<doxid-structjnc___data_ptr_validator>` :target:`m_validator<doxid-structjnc___data_box_1a5860ca1b6c4ccf0369d62fb87bd8cc8b>`;
+	};

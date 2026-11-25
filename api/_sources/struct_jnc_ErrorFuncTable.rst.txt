@@ -1,0 +1,26 @@
+.. index:: pair: struct; jnc_ErrorFuncTable
+.. _doxid-structjnc___error_func_table:
+
+struct jnc_ErrorFuncTable
+=========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ErrorFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___error_func_table_1a958fdb6f9850f831d37a410e61960773>`;
+		jnc_GetLastErrorFunc* :target:`m_getLastErrorFunc<doxid-structjnc___error_func_table_1a8ecc23327a997765b5d81e486e1f1335>`;
+		jnc_SetErrorFunc* :target:`m_setErrorFunc<doxid-structjnc___error_func_table_1afa456a5afd82d091cb3a0d66982226b5>`;
+		jnc_SetErrnoFunc* :target:`m_setErrnoFunc<doxid-structjnc___error_func_table_1a0d31683edaa5eecccb4ef324d2fb4196>`;
+		jnc_SetStringErrorFunc* :target:`m_setStringErrorFunc<doxid-structjnc___error_func_table_1a7dcf4ff201d7be245847eb1a0c247e54>`;
+		jnc_GetErrorDescriptionFunc* :target:`m_getErrorDescriptionFunc<doxid-structjnc___error_func_table_1a239a82572e7e4f87f16b75e06b90779c>`;
+	};

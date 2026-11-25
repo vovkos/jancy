@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; Defaults
+.. _doxid-typeio_pcap_defaults:
+
+enum io.Pcap.Defaults
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum Defaults {
+	    :target:`IsPromiscious<doxid-enum_memberio_pcap_defaults_ispromiscious>` = false,
+	    :target:`ReadTimeout<doxid-enum_memberio_pcap_defaults_readtimeout>`   = 200,
+	    :target:`SnapshotSize<doxid-enum_memberio_pcap_defaults_snapshotsize>`  = 64* 1024,
+	};
+

@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdUnitNibbleRole
+.. _doxid-typeio_hidrdunitnibblerole:
+
+enum io.HidRdUnitNibbleRole
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum HidRdUnitNibbleRole {
+	    :target:`System<doxid-enum_memberio_hidrdunitnibblerole_system>`,
+	    :target:`Length<doxid-enum_memberio_hidrdunitnibblerole_length>`,
+	    :target:`Mass<doxid-enum_memberio_hidrdunitnibblerole_mass>`,
+	    :target:`Time<doxid-enum_memberio_hidrdunitnibblerole_time>`,
+	    :target:`Temperature<doxid-enum_memberio_hidrdunitnibblerole_temperature>`,
+	    :target:`Current<doxid-enum_memberio_hidrdunitnibblerole_current>`,
+	    :target:`LuminousIntensity<doxid-enum_memberio_hidrdunitnibblerole_luminousintensity>`,
+	};
+

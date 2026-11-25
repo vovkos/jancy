@@ -1,0 +1,55 @@
+.. include:: def.rst
+.. index:: pair: class; io.WebSocketHandshakeHeaders
+.. _doxid-typeio_websockethandshakeheaders:
+
+class io.WebSocketHandshakeHeaders
+==================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class WebSocketHandshakeHeaders {
+		// fields
+	
+		typedef unsigned long size_t readonly :target:`m_nameCount<doxid-fieldio_websockethandshakeheaders_m_namecount>`;
+
+		// properties
+	
+		:ref:`string_t<doxid-typedefstring_t>` const indexed property :target:`m_name<doxid-propertyio_websockethandshakeheaders_m_name>`(:ref:`size_t<doxid-typedefsize_t>` i);
+		:ref:`string_t<doxid-typedefstring_t>` const indexed property :target:`m_value<doxid-propertyio_websockethandshakeheaders_m_value>`(:ref:`size_t<doxid-typedefsize_t>` i);
+		:ref:`size_t<doxid-typedefsize_t>` const indexed property :target:`m_valueCount<doxid-propertyio_websockethandshakeheaders_m_valuecount>`(:ref:`size_t<doxid-typedefsize_t>` i);
+
+		// construction
+	
+		:target:`construct<doxid-functionio_websockethandshakeheaders_construct>`();
+		:target:`destruct<doxid-functionio_websockethandshakeheaders_destruct>`();
+
+		// methods
+	
+		:ref:`size_t<doxid-typedefsize_t>` :target:`findName<doxid-functionio_websockethandshakeheaders_findname>`(:ref:`string_t<doxid-typedefstring_t>` name) const;
+		:ref:`string_t<doxid-typedefstring_t>` :target:`findValue<doxid-functionio_websockethandshakeheaders_findvalue>`(:ref:`string_t<doxid-typedefstring_t>` name) const;
+	
+		:ref:`string_t<doxid-typedefstring_t>` :target:`getValue<doxid-functionio_websockethandshakeheaders_getvalue>`(
+			:ref:`size_t<doxid-typedefsize_t>` nameIdx,
+			:ref:`size_t<doxid-typedefsize_t>` valueIdx
+		) const;
+	
+		void :target:`clear<doxid-functionio_websockethandshakeheaders_clear>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` :target:`add<doxid-functionio_websockethandshakeheaders_add>`(
+			:ref:`string_t<doxid-typedefstring_t>` name,
+			:ref:`string_t<doxid-typedefstring_t>` value
+		);
+	
+		:ref:`string_t<doxid-typedefstring_t>` :target:`format<doxid-functionio_websockethandshakeheaders_format>`(
+			:ref:`string_t<doxid-typedefstring_t>` delimiter = ": ",
+			:ref:`string_t<doxid-typedefstring_t>` eol = "\r\n"
+		) const;
+	};

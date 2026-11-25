@@ -1,0 +1,18 @@
+.. index:: pair: enum; jnc_DynamicLayoutMode
+.. _doxid-jnc___dynamic_layout_8h_1a81280ddde444f34ec1c245edbaa081fe:
+
+enum jnc_DynamicLayoutMode
+==========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_DynamicLayout.h>
+
+	enum jnc_DynamicLayoutMode {
+	    :target:`jnc_DynamicLayoutMode_Block<doxid-jnc___dynamic_layout_8h_1a81280ddde444f34ec1c245edbaa081fea0c85ed0be908500fac42838cd9f14c84>`  = 0,
+	    :target:`jnc_DynamicLayoutMode_Stream<doxid-jnc___dynamic_layout_8h_1a81280ddde444f34ec1c245edbaa081fea23d7d94b452daa854f72f7f30793b0a4>`,
+	};
+

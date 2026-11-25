@@ -1,0 +1,21 @@
+.. include:: def.rst
+.. index:: pair: enum; HidBusType
+.. _doxid-typeio_hidbustype:
+
+enum io.HidBusType
+==================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum HidBusType: typedef unsigned char uint8_t {
+	    :target:`Unknown<doxid-enum_memberio_hidbustype_unknown>`   = 0,
+	    :target:`Usb<doxid-enum_memberio_hidbustype_usb>`,
+	    :target:`Bluetooth<doxid-enum_memberio_hidbustype_bluetooth>`,
+	    :target:`I2c<doxid-enum_memberio_hidbustype_i2c>`,
+	    :target:`Spi<doxid-enum_memberio_hidbustype_spi>`,
+	};
+

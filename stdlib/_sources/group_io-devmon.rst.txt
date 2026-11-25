@@ -1,0 +1,86 @@
+.. include:: def.rst
+.. index:: pair: group; Device Monitoring
+.. _doxid-group_io_devmon:
+
+Device Monitoring
+=================
+
+.. toctree::
+	:hidden:
+
+	enum_io_win_DeviceMonitorKeyboardEventFlag.rst
+	enum_io_DeviceMonitorMiMsgCode.rst
+	enum_io_DeviceMonitorMiStartFlags.rst
+	enum_io_win_DeviceMonitorMouseEventFlag.rst
+	enum_io_lnx_DeviceMonitorNotifyCode.rst
+	enum_io_win_DeviceMonitorNotifyCode.rst
+	enum_io_DeviceMonitorNotifyFlags.rst
+	struct_io_win_DeviceMonitorCloseNotifyParams.rst
+	struct_io_lnx_DeviceMonitorCloseNotifyParams.rst
+	struct_io_win_DeviceMonitorCreateMailslotNotifyParams.rst
+	struct_io_win_DeviceMonitorCreateNamedPipeNotifyParams.rst
+	struct_io_win_DeviceMonitorCreateNotifyParams.rst
+	struct_io_lnx_DeviceMonitorIoctlNotifyParams.rst
+	struct_io_win_DeviceMonitorIoctlNotifyParams.rst
+	struct_io_win_DeviceMonitorKeyboardEventParams.rst
+	struct_io_win_DeviceMonitorKeyboardInput.rst
+	struct_io_DeviceMonitorMiMsgHdr.rst
+	struct_io_DeviceMonitorMiStartParams.rst
+	struct_io_win_DeviceMonitorMouseEventParams.rst
+	struct_io_win_DeviceMonitorMouseInput.rst
+	struct_io_DeviceMonitorNotifyHdr.rst
+	struct_io_lnx_DeviceMonitorOpenNotifyParams.rst
+	struct_io_lnx_DeviceMonitorReadWriteNotifyParams.rst
+	struct_io_win_DeviceMonitorReadWriteNotifyParams.rst
+	class_io_DeviceMonitor.rst
+
+This section describes types and facilities used for hook-based device monitoring (via *Tibbo Device Monitor*).
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_devmon.jncx"
+	
+	// typedefs
+
+	typedef :ref:`io.ReadOnlyStreamEvents<doxid-typeio_readonlystreamevents>` :target:`io.DeviceMonitorEvents<doxid-typedefio_devicemonitorevents>`;
+
+	// enums
+
+	enum :ref:`io.win.DeviceMonitorKeyboardEventFlag<doxid-typeio_win_devicemonitorkeyboardeventflag>`;
+	enum :ref:`io.DeviceMonitorMiMsgCode<doxid-typeio_devicemonitormimsgcode>`;
+	bitflag enum :ref:`io.DeviceMonitorMiStartFlags<doxid-typeio_devicemonitormistartflags>`;
+	enum :ref:`io.win.DeviceMonitorMouseEventFlag<doxid-typeio_win_devicemonitormouseeventflag>`;
+	enum :ref:`io.lnx.DeviceMonitorNotifyCode<doxid-typeio_lnx_devicemonitornotifycode>`;
+	enum :ref:`io.win.DeviceMonitorNotifyCode<doxid-typeio_win_devicemonitornotifycode>`;
+	bitflag enum :ref:`io.DeviceMonitorNotifyFlags<doxid-typeio_devicemonitornotifyflags>`;
+
+	// structs
+
+	struct :ref:`io.win.DeviceMonitorCloseNotifyParams<doxid-typeio_win_devicemonitorclosenotifyparams>`;
+	struct :ref:`io.lnx.DeviceMonitorCloseNotifyParams<doxid-typeio_lnx_devicemonitorclosenotifyparams>`;
+	struct :ref:`io.win.DeviceMonitorCreateMailslotNotifyParams<doxid-typeio_win_devicemonitorcreatemailslotnotifyparams>`;
+	struct :ref:`io.win.DeviceMonitorCreateNamedPipeNotifyParams<doxid-typeio_win_devicemonitorcreatenamedpipenotifyparams>`;
+	struct :ref:`io.win.DeviceMonitorCreateNotifyParams<doxid-typeio_win_devicemonitorcreatenotifyparams>`;
+	struct :ref:`io.lnx.DeviceMonitorIoctlNotifyParams<doxid-typeio_lnx_devicemonitorioctlnotifyparams>`;
+	struct :ref:`io.win.DeviceMonitorIoctlNotifyParams<doxid-typeio_win_devicemonitorioctlnotifyparams>`;
+	struct :ref:`io.win.DeviceMonitorKeyboardEventParams<doxid-typeio_win_devicemonitorkeyboardeventparams>`;
+	struct :ref:`io.win.DeviceMonitorKeyboardInput<doxid-typeio_win_devicemonitorkeyboardinput>`;
+	struct :ref:`io.DeviceMonitorMiMsgHdr<doxid-typeio_devicemonitormimsghdr>`;
+	struct :ref:`io.DeviceMonitorMiStartParams<doxid-typeio_devicemonitormistartparams>`;
+	struct :ref:`io.win.DeviceMonitorMouseEventParams<doxid-typeio_win_devicemonitormouseeventparams>`;
+	struct :ref:`io.win.DeviceMonitorMouseInput<doxid-typeio_win_devicemonitormouseinput>`;
+	struct :ref:`io.DeviceMonitorNotifyHdr<doxid-typeio_devicemonitornotifyhdr>`;
+	struct :ref:`io.lnx.DeviceMonitorOpenNotifyParams<doxid-typeio_lnx_devicemonitoropennotifyparams>`;
+	struct :ref:`io.lnx.DeviceMonitorReadWriteNotifyParams<doxid-typeio_lnx_devicemonitorreadwritenotifyparams>`;
+	struct :ref:`io.win.DeviceMonitorReadWriteNotifyParams<doxid-typeio_win_devicemonitorreadwritenotifyparams>`;
+
+	// classes
+
+	class :ref:`io.DeviceMonitor<doxid-typeio_devicemonitor>`;
+
+	// global functions
+
+	bool :target:`io.detectDeviceMonitor<doxid-functionio_detectdevicemonitor>`();
+

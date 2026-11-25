@@ -1,0 +1,42 @@
+.. include:: def.rst
+.. index:: pair: enum; ReadOnlyStreamOptions
+.. _doxid-typeio_readonlystreamoptions:
+
+bitflag enum io.ReadOnlyStreamOptions
+=====================================
+
+Overview
+~~~~~~~~
+
+This enumeration contains standard buffering options for a buffered
+stream object. :ref:`More...<details-typeio_readonlystreamoptions>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum ReadOnlyStreamOptions {
+	    :ref:`KeepReadBlockSize<doxid-enum_memberio_readonlystreamoptions_keepreadblocksize>`,
+	};
+
+.. _details-typeio_readonlystreamoptions:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains standard buffering options for a buffered
+stream object.
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; KeepReadBlockSize
+.. _doxid-enum_memberio_readonlystreamoptions_keepreadblocksize:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	KeepReadBlockSize
+
+Don't merge incoming blocks inside the *read* buffer.
+

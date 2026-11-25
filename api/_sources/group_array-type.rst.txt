@@ -1,0 +1,35 @@
+.. index:: pair: group; Array Type
+.. _doxid-group__array-type:
+
+Array Type
+==========
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_ArrayType.rst
+
+Overview
+~~~~~~~~
+
+Array type is used to represents a one-dimensional sequence of elements of the same type. :ref:`More...<details-group__array-type>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ArrayType.h>
+	
+	// structs
+
+	struct :ref:`jnc_ArrayType<doxid-structjnc___array_type>`;
+
+.. _details-group__array-type:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+Array type is used to represents a one-dimensional sequence of elements of the same type.
+
+Just like in C, Jancy arrays are not dynamic. Compiler has to know the number of elements in array during compile-time.
+

@@ -1,0 +1,171 @@
+.. include:: def.rst
+.. index:: pair: group; Time & Timers
+.. _doxid-group_sys_time:
+
+Time & Timers
+=============
+
+.. toctree::
+	:hidden:
+
+	class_sys_Timer.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities for date, time and timer management. :ref:`More...<details-group_sys_time>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "sys_Timer.jnc"
+	
+	// classes
+
+	class :ref:`sys.Timer<doxid-typesys_timer>`;
+
+	// global functions
+
+	void :ref:`sys.sleep<doxid-functionsys_sleep>`(:ref:`uint32_t<doxid-typedefuint32_t>` timeout);
+	:ref:`uint64_t<doxid-typedefuint64_t>` :ref:`sys.getTimestamp<doxid-functionsys_gettimestamp>`();
+	:ref:`uint64_t<doxid-typedefuint64_t>` :ref:`sys.getPreciseTimestamp<doxid-functionsys_getprecisetimestamp>`();
+
+	:ref:`string_t<doxid-typedefstring_t>` :ref:`sys.formatTimestamp<doxid-functionsys_formattimestamp>`(
+		:ref:`uint64_t<doxid-typedefuint64_t>` timestamp,
+		:ref:`string_t<doxid-typedefstring_t>` format
+	);
+
+	:ref:`string_t<doxid-typedefstring_t>` :ref:`sys.formatTimestamp<doxid-functionsys_formattimestamp_2>`(
+		:ref:`uint64_t<doxid-typedefuint64_t>` timestamp,
+		int timeZone,
+		:ref:`string_t<doxid-typedefstring_t>` format
+	);
+
+.. _details-group_sys_time:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities for date, time and timer management.
+
+Global Functions
+----------------
+
+.. index:: pair: function; sleep
+.. _doxid-functionsys_sleep:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void sys.sleep(:ref:`uint32_t<doxid-typedefuint32_t>` timeout)
+
+Suspends the execution of the calling thread until ``timeout`` interval
+elapses. ``timeout`` is expressed in milliseconds.
+
+.. index:: pair: function; getTimestamp
+.. _doxid-functionsys_gettimestamp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint64_t<doxid-typedefuint64_t>` sys.getTimestamp()
+
+Returns current system timestamp. Timestamp is expressed as a 64-bit value
+representing the number of 100-nanosecond intervals since
+January 1, 1601 (UTC).
+
+This format is the same as used in Windows ``FILETIME`` struct.
+
+Even though nominally this timestamp is expressed as the number of
+100-nanosecond intervals, a sub-microsecond precision is not guaranteed.
+For a guaranteed sub-microsecond precision, use `sys.getPreciseTimestamp`.
+
+
+
+.. rubric:: See also:
+
+`sys.getPreciseTimestamp`
+
+.. index:: pair: function; getPreciseTimestamp
+.. _doxid-functionsys_getprecisetimestamp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint64_t<doxid-typedefuint64_t>` sys.getPreciseTimestamp()
+
+Returns current system high-precision timestamp. Timestamp is expressed as a
+64-bit value representing the number of 100-nanosecond intervals since
+January 1, 1601 (UTC).
+
+This format is the same as used in Windows ``FILETIME`` struct.
+
+This timestamp is guaranteed to have sub-microsecond precision. If you don't
+need sub-microsecond precision, use a slightly faster `sys.getTimestamp`.
+
+
+
+.. rubric:: See also:
+
+`sys.getTimestamp`
+
+.. index:: pair: function; formatTimestamp
+.. _doxid-functionsys_formattimestamp:
+.. index:: pair: function; formatTimestamp
+.. _doxid-functionsys_formattimestamp_2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedefstring_t>` sys.formatTimestamp(
+		:ref:`uint64_t<doxid-typedefuint64_t>` timestamp,
+		:ref:`string_t<doxid-typedefstring_t>` format
+	)
+
+	:ref:`string_t<doxid-typedefstring_t>` sys.formatTimestamp(
+		:ref:`uint64_t<doxid-typedefuint64_t>` timestamp,
+		int timeZone,
+		:ref:`string_t<doxid-typedefstring_t>` format
+	)
+
+Returns string representation of the timestamp.
+
+.. rubric:: Format Specifiers:
+
+.. csv-table::
+	:header: "Specifier", "Output"
+	:widths: auto
+
+	"%h", "hour in 24-hour format (00..24)"
+	"%H", "hour in 12-hour format (1..12)"
+	"%m", "minutes (00..59)"
+	"%s", "seconds (00..59)"
+	"%l", "milliseconds (0..999)"
+	"%c", "microseconds (0..999)"
+	"%p", "AM / PM designition lower case (a / p)"
+	"%p", "AM / PM designition upper case (A / P)"
+	"%y", "year, last 2-digit format (0..99)"
+	"%Y", "year, all digits"
+	"%D", "day of month, leading zero (01..31)"
+	"%d", "day of month, no leading zero (1..31)"
+	"%M", "month index, leading zero (01..12)"
+	"%o", "month index, no leading zero (1..12)"
+	"%n", "month short name (Jan..Dec)"
+	"%N", "month full name (January..December)"
+	"%w", "week day short name (Sun..Sat)"
+	"%W", "week day full name (Sunday..Saturday)"
+
+.. rubric:: Example:
+
+.. ref-code-block::
+
+	uint64_t ts = `sys.getTimestamp`();
+	print($"time: %1\n"(sys.formatTypestamp(ts, "%h:%m:%s.%l")));
+
+
+
+.. rubric:: See also:
+
+`sys.getTimestamp`, `sys.getPreciseTimestamp`
+

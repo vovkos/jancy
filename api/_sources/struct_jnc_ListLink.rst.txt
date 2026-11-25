@@ -1,0 +1,79 @@
+.. index:: pair: struct; jnc_ListLink
+.. _doxid-structjnc___list_link:
+
+struct jnc_ListLink
+===================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about a single entry of a doubly linked list. :ref:`More...<details-structjnc___list_link>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Def.h>
+	
+	struct jnc_ListLink {
+		// fields
+	
+		jnc_ListLink* :ref:`m_next<doxid-structjnc___list_link_1a05cf154a0dfa3ba9bfc2f387d96a200f>`;
+		jnc_ListLink* :ref:`m_prev<doxid-structjnc___list_link_1a436c6b8b17f4e4a5de024d6e732996cf>`;
+	};
+.. _details-structjnc___list_link:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about a single entry of a doubly linked list.
+
+Whenever something needs to be put on a Jancy list, it must be represented as a struct with ``jnc_ListLink`` memeber field in it. If a list contains entries of non-aggregate type(such as ``int``, or ``void*``), then we have to *box* entry in a struct as such:
+
+.. code-block:: c
+
+    struct IntEntry {
+        jnc_ListLink m_link; // <-- list link
+        int m_value;
+    };
+
+However, often times what you want to put on a list -- is already an aggregate. In this case just embed a ``jnc_ListLink`` member field into the struct as such:
+
+.. code-block:: c
+
+    struct MyItem {
+        jnc_ListLink m_link; // <-- list link
+
+        const char* m_name;
+        const char* m_description;
+        int m_state;
+
+        // ... more fields
+    };
+
+Fields
+------
+
+.. index:: pair: variable; m_next
+.. _doxid-structjnc___list_link_1a05cf154a0dfa3ba9bfc2f387d96a200f:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	jnc_ListLink* m_next
+
+Holds a pointer to the *next* list entry on the list or ``NULL`` if this is the *last* entry.
+
+.. index:: pair: variable; m_prev
+.. _doxid-structjnc___list_link_1a436c6b8b17f4e4a5de024d6e732996cf:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	jnc_ListLink* m_prev
+
+Holds a pointer to the *previous* list entry on the list or ``NULL`` if this is the *first* entry.
+

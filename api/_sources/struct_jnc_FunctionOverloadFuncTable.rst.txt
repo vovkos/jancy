@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_FunctionOverloadFuncTable
+.. _doxid-structjnc___function_overload_func_table:
+
+struct jnc_FunctionOverloadFuncTable
+====================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_FunctionOverloadFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___function_overload_func_table_1a2e2b646547405719cd99ac9d4a88e881>`;
+		jnc_FunctionOverload_GetFunctionKindFunc* :target:`m_getFunctionKindFunc<doxid-structjnc___function_overload_func_table_1a6ca1a38c8e7de64091b424a21b3dfb29>`;
+		jnc_FunctionOverload_GetOverloadCountFunc* :target:`m_getOverloadCountFunc<doxid-structjnc___function_overload_func_table_1aaee7127c55a22c56c59e4b5104498795>`;
+		jnc_FunctionOverload_GetOverloadFunc* :target:`m_getOverloadFunc<doxid-structjnc___function_overload_func_table_1ac227ef6df4ba09b0984ef7b9b75c1ff6>`;
+	};

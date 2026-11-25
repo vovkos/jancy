@@ -1,0 +1,186 @@
+.. include:: def.rst
+.. index:: pair: struct; io.SocketAddress_ip4
+.. _doxid-typeio_socketaddress_ip4:
+
+struct io.SocketAddress_ip4
+===========================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about ``IP4`` address in the form
+suitable for socket communications. :ref:`More...<details-typeio_socketaddress_ip4>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_SocketAddress.jnc"
+	
+	struct SocketAddress_ip4 {
+		// fields
+	
+		:ref:`io.AddressFamily<doxid-typeio_addressfamily>` :ref:`m_family<doxid-fieldio_socketaddress_ip4_m_family>`;
+		typedef unsigned short uint16_t bigendian :ref:`m_port<doxid-fieldio_socketaddress_ip4_m_port>`;
+		:ref:`io.Address_ip4<doxid-typeio_address_ip4>` :ref:`m_address<doxid-fieldio_socketaddress_ip4_m_address>`;
+		char :ref:`_m_padding<doxid-fieldio_socketaddress_ip4__m_padding>`[];
+
+		// methods
+	
+		bool :ref:`isEqual<doxid-functionio_socketaddress_ip4_isequal>`(io.SocketAddress_ip4 const* address) const;
+		bool :ref:`isMatch<doxid-functionio_socketaddress_ip4_ismatch>`(io.SocketAddress_ip4 const* filterAddress) const;
+		bool errorcode :ref:`parse<doxid-functionio_socketaddress_ip4_parse>`(:ref:`string_t<doxid-typedefstring_t>` string);
+		:ref:`string_t<doxid-typedefstring_t>` :ref:`getString<doxid-functionio_socketaddress_ip4_getstring>`() const;
+
+		// aliases
+	
+		alias :ref:`toString<doxid-aliasio_socketaddress_ip4_tostring>` = getString;
+		alias :target:`fromString<doxid-aliasio_socketaddress_ip4_fromstring>` = parse;
+	};
+.. _details-typeio_socketaddress_ip4:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about ``IP4`` address in the form
+suitable for socket communications.
+
+On the binary level this structure directly maps to ``sockaddr_in``.
+
+
+
+.. rubric:: See also:
+
+`io.Address_ip4`, `io.Socket`, `io.HostNameResolver`
+
+Fields
+------
+
+.. index:: pair: variable; m_family
+.. _doxid-fieldio_socketaddress_ip4_m_family:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.AddressFamily<doxid-typeio_addressfamily>` m_family
+
+Holds the address family of the socket address; should be set to
+`io.AddressFamily.Ip4`.
+
+.. index:: pair: variable; m_port
+.. _doxid-fieldio_socketaddress_ip4_m_port:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef unsigned short uint16_t bigendian m_port
+
+Holds the number of ``TCP`` or ``UDP`` port. There is no need to change
+the byte order of the port before assignment -- this field is already
+declared as ``bigendian`` so all the necessary conversions will happen
+automatically.
+
+.. index:: pair: variable; m_address
+.. _doxid-fieldio_socketaddress_ip4_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.Address_ip4<doxid-typeio_address_ip4>` m_address
+
+Holds ``IP4`` address as `io.Address_ip4`.
+
+.. index:: pair: variable; _m_padding
+.. _doxid-fieldio_socketaddress_ip4__m_padding:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	char _m_padding[]
+
+Extra padding to ensure binary compatibility with ``sockaddr_in``.
+
+Methods
+-------
+
+.. index:: pair: function; isEqual
+.. _doxid-functionio_socketaddress_ip4_isequal:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool isEqual(io.SocketAddress_ip4 const* address) const
+
+Checks two ``IP4`` socket addresses for *equality*; returns ``true`` if
+addresses are equal and ``false`` otherwise.
+
+.. index:: pair: function; isMatch
+.. _doxid-functionio_socketaddress_ip4_ismatch:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool isMatch(io.SocketAddress_ip4 const* filterAddress) const
+
+Checks two ``IP4`` socket addresses for *matching*. The term matching
+requires some explanation.
+
+Matching could be described as a non-strict equality check. We may
+decide to only check *port* for equality and ignore the address. To do
+so, set ``m_address`` field of ``filter`` argument to ``0``.
+
+Or the other way around -- only check *address* and ignore port -- set
+``m_port`` field of ``filter`` argument to ``0``.
+
+Returns ``true`` if addresses *match* and ``false`` otherwise.
+
+.. index:: pair: function; parse
+.. _doxid-functionio_socketaddress_ip4_parse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode parse(:ref:`string_t<doxid-typedefstring_t>` string)
+
+Constructs the address from a string representation in ``string``
+argument.
+
+Returns ``true`` if address string was parsed successfully. Otherwise,
+sets the description of parsing error and returns ``false`` [#f1]_.
+
+.. index:: pair: function; getString
+.. _doxid-functionio_socketaddress_ip4_getstring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedefstring_t>` getString() const
+
+Creates and returns a string representation of the address.
+
+Aliases
+-------
+
+.. index:: pair: alias; toString
+.. _doxid-aliasio_socketaddress_ip4_tostring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias toString = getString
+
+Effectively makes ``io.SocketAddress_ip4`` a *stringable* class.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+

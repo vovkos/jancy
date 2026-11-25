@@ -1,0 +1,47 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbMonDeviceDescBase
+.. _doxid-typeio_usbmondevicedescbase:
+
+struct io.UsbMonDeviceDescBase
+==============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbMonDeviceDescBase: :ref:`io.UsbDeviceStrings<doxid-typeio_usbdevicestrings>` {
+		// fields
+	
+		typedef String string_t :target:`m_captureDeviceName<doxid-fieldio_usbmondevicedescbase_m_capturedevicename>`;
+		typedef unsigned int uint_t :target:`m_captureDeviceId<doxid-fieldio_usbmondevicedescbase_m_capturedeviceid>`;
+		typedef unsigned short uint16_t :target:`m_vendorId<doxid-fieldio_usbmondevicedescbase_m_vendorid>`;
+		typedef unsigned short uint16_t :target:`m_productId<doxid-fieldio_usbmondevicedescbase_m_productid>`;
+		typedef unsigned char uint8_t :target:`m_address<doxid-fieldio_usbmondevicedescbase_m_address>`;
+		typedef unsigned char uint8_t :target:`m_port<doxid-fieldio_usbmondevicedescbase_m_port>`;
+		typedef unsigned char uint8_t :target:`m_class<doxid-fieldio_usbmondevicedescbase_m_class>`;
+		typedef unsigned char uint8_t :target:`m_subClass<doxid-fieldio_usbmondevicedescbase_m_subclass>`;
+		:ref:`io.UsbSpeed<doxid-typeio_usbspeed>` :target:`m_speed<doxid-fieldio_usbmondevicedescbase_m_speed>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef String string_t :ref:`m_description<doxid-fieldio_usbdevicestrings_m_description>`;
+		typedef String string_t :ref:`m_manufacturer<doxid-fieldio_usbdevicestrings_m_manufacturer>`;
+		typedef String string_t :ref:`m_driver<doxid-fieldio_usbdevicestrings_m_driver>`;
+		typedef String string_t :ref:`m_manufacturerDescriptor<doxid-fieldio_usbdevicestrings_m_manufacturerdescriptor>`;
+		typedef String string_t :ref:`m_productDescriptor<doxid-fieldio_usbdevicestrings_m_productdescriptor>`;
+		typedef String string_t :ref:`m_serialNumberDescriptor<doxid-fieldio_usbdevicestrings_m_serialnumberdescriptor>`;
+

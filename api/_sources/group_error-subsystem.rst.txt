@@ -1,0 +1,23 @@
+.. index:: pair: group; Error Subsystem
+.. _doxid-group__error-subsystem:
+
+Error Subsystem
+===============
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Error.rst
+
+This section describes types and facilities for setting and retrieving error information.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Error.h>
+	
+	// structs
+
+	struct :ref:`jnc_Error<doxid-structjnc___error>`;
+

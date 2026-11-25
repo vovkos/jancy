@@ -1,0 +1,39 @@
+.. include:: def.rst
+.. index:: pair: group; IO (Input/Output) Library
+.. _doxid-group_io:
+
+IO (Input/Output) Library
+=========================
+
+.. toctree::
+	:hidden:
+
+	group_io-file.rst
+	group_io-socket.rst
+	group_io-serial.rst
+	group_io-network-adapter.rst
+	group_io-ssl.rst
+	group_io-ssh.rst
+	group_io-websock.rst
+	group_io-pcap.rst
+	group_io-usb.rst
+	group_io-usbmon.rst
+	group_io-hid.rst
+	group_io-devmon.rst
+
+This section describes IO-related classes, auxiliary types and functions.
+
+|	:ref:`Generic File IO<doxid-group_io_file>`
+|	:ref:`Socket Communications<doxid-group_io_socket>`
+|	:ref:`Serial Communications<doxid-group_io_serial>`
+|	:ref:`Network Adapter Management<doxid-group_io_network_adapter>`
+|	:ref:`SSL Communications<doxid-group_io_ssl>`
+|	:ref:`SSH Communications<doxid-group_io_ssh>`
+|	:ref:`WebSockets<doxid-group_io_websock>`
+|	:ref:`Pcap (Packet Capturing Library)<doxid-group_io_pcap>`
+|	:ref:`USB Communications<doxid-group_io_usb>`
+|	:ref:`USB Monitoring<doxid-group_io_usbmon>`
+|	:ref:`HID Communications<doxid-group_io_hid>`
+|	:ref:`Device Monitoring<doxid-group_io_devmon>`
+
+
