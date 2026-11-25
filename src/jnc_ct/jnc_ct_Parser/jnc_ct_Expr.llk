@@ -967,7 +967,7 @@ lambda_expr<Value* $value>
 	leave {
 		postDeclarator(&$declarator);
 	}
-	:	'[' (identifier_list $c)? ']'
+	:	'[' ('=' $e | identifier_list $c)? ']'
 		(	type_name_declarator $t // full type name, e.g.: int (int a)[10]
 		|	function_suffix<&$declarator> // void shorthand
 		)
@@ -978,7 +978,8 @@ lambda_expr<Value* $value>
 					&$c ? &$c.m_tokenList : NULL,
 					&$t ? &$t.m_declarator : &$declarator,
 					&$b.m_tokenList,
-					$value
+					$value,
+					&$e ? FunctionFlag_LambdaByValCaptures : 0
 				);
 			}
 	;

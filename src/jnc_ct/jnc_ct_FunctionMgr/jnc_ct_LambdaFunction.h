@@ -38,13 +38,13 @@ LambdaCapture::LambdaCapture() {
 
 //..............................................................................
 
-struct LambdaByValCapture: LambdaCapture {
+struct LambdaExplicitCapture: LambdaCapture {
 	Value m_value; // evaluated inside the [...] block
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct LambdaByRefCapture: LambdaCapture {
+struct LambdaImplicitCapture: LambdaCapture {
 	Variable* m_outerVariable; // after we create the capture, we add it to scope
 };
 
@@ -62,8 +62,8 @@ protected:
 	ClassType* m_closureType; // NULL if no captures or only a class 'this' (passed as the closure itself)
 	Type* m_outerThisType;
 	LambdaCapture m_outerThisCapture;
-	sl::StringHashTable<LambdaByValCapture> m_byValCaptureMap; // [...] entries
-	sl::Array<LambdaByRefCapture> m_byRefCaptureArray; // local vars captured by reference
+	sl::StringHashTable<LambdaExplicitCapture> m_explicitCaptureMap; // [...] entries
+	sl::Array<LambdaImplicitCapture> m_implicitCaptureArray; // other outer locals (by-ref, or by-val with [=])
 
 public:
 	LambdaFunction();
@@ -79,7 +79,7 @@ public:
 	}
 
 	Variable*
-	createByRefCaptureVariable(Variable* variable);
+	createImplicitCaptureVariable(Variable* variable);
 
 	virtual
 	bool
@@ -93,7 +93,7 @@ protected:
 	createOuterThisVariable();
 
 	void
-	addByValCapturesToScope(); // called from the prologue
+	addExplicitCapturesToScope(); // called from the prologue
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

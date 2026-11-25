@@ -90,8 +90,9 @@ jnc_getFunctionKindFlags(jnc_FunctionKind functionKind);
 //..............................................................................
 
 enum jnc_FunctionFlag {
-	jnc_FunctionFlag_Compilable     = 0x0100,
-	jnc_FunctionFlag_CompilePending = 0x0200,
+	jnc_FunctionFlag_Compilable          = 0x0100,
+	jnc_FunctionFlag_CompilePending      = 0x0200,
+	jnc_FunctionFlag_LambdaByValCaptures = 0x0400, // [=]: outer locals are captured by value
 };
 
 typedef enum jnc_FunctionFlag jnc_FunctionFlag;
@@ -273,8 +274,9 @@ getFunctionKindFlags(FunctionKind functionKind) {
 typedef jnc_FunctionFlag FunctionFlag;
 
 const FunctionFlag
-	FunctionFlag_Compilable     = jnc_FunctionFlag_Compilable,
-	FunctionFlag_CompilePending = jnc_FunctionFlag_CompilePending;
+	FunctionFlag_Compilable          = jnc_FunctionFlag_Compilable,
+	FunctionFlag_CompilePending      = jnc_FunctionFlag_CompilePending,
+	FunctionFlag_LambdaByValCaptures = jnc_FunctionFlag_LambdaByValCaptures;
 
 //..............................................................................
 

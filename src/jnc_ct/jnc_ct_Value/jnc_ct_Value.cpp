@@ -469,8 +469,11 @@ Value::trySetVariable(Variable* variable) {
 			isLocal = false; // static & TLS variables are accessed directly
 		}
 
-		if (isLocal && variable->getScope() && variable->getScope()->getFunction() != function)
-			variable = ((LambdaFunction*)function)->createByRefCaptureVariable(variable); // replace
+		if (isLocal && variable->getScope() && variable->getScope()->getFunction() != function) {
+			variable = ((LambdaFunction*)function)->createImplicitCaptureVariable(variable); // replace
+			if (!variable)
+				return false;
+		}
 	}
 
 	bool result = variable->getType()->ensureLayout();

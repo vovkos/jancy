@@ -231,7 +231,7 @@ FunctionMgr::prologue(
 	// lambda's 'this' arg is the closure; 'this' inside the body is the captured outer 'this'
 
 	if (function->m_functionKind == FunctionKind_Lambda)
-		((LambdaFunction*)function)->addByValCapturesToScope();
+		((LambdaFunction*)function)->addExplicitCapturesToScope();
 }
 
 void

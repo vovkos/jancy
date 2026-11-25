@@ -763,7 +763,8 @@ protected:
 		sl::List<Token>* captureTokenList,
 		Declarator* declarator,
 		sl::List<Token>* bodyTokenList,
-		Value* resultValue
+		Value* resultValue,
+		uint_t lambdaFunctionFlags
 	);
 
 	bool

@@ -3873,7 +3873,8 @@ Parser::lambdaExpression(
 	sl::List<Token>* captureTokenList,
 	Declarator* declarator,
 	sl::List<Token>* bodyTokenList,
-	Value* resultValue
+	Value* resultValue,
+	uint_t lambdaFunctionFlags
 ) {
 	// same as declarations: apply all prefixes/suffixes, then check the resulting type
 
@@ -3898,6 +3899,7 @@ Parser::lambdaExpression(
 	// closure class is only known after the body is compiled (see LambdaFunction::compile)
 
 	LambdaFunction* function = m_module->m_functionMgr.createFunction<LambdaFunction>(sl::StringRef(), functionType);
+	function->m_flags |= lambdaFunctionFlags;
 	function->m_storageKind = StorageKind_Member;
 	function->convertToMemberMethod((ClassType*)m_module->m_typeMgr.getStdType(StdType_AbstractClass));
 
@@ -3932,7 +3934,7 @@ Parser::lambdaExpression(
 
 		sl::ConstIterator<Token> it = captureTokenList->getHead();
 		for (; it; it++) {
-			LambdaByValCapture* capture = &function->m_byValCaptureMap[it->m_data.m_string];
+			LambdaExplicitCapture* capture = &function->m_explicitCaptureMap[it->m_data.m_string];
 			if (capture->m_variable) {
 				setRedefinitionError(it->m_data.m_string);
 				pushSrcPosError(it->m_pos);
@@ -3948,7 +3950,7 @@ Parser::lambdaExpression(
 				(((DataPtrType*)type)->getFlags() & PtrTypeFlag_ConstKindMask) :
 				0;
 
-			result = m_module->m_operatorMgr.prepareOperand(&capture->m_value);
+			result = m_module->m_operatorMgr.prepareOperand(&capture->m_value, OpFlag_LoadArrayRef);
 			if (!result)
 				return false;
 
@@ -3961,12 +3963,12 @@ Parser::lambdaExpression(
 			assignDeclarationAttributes(capture->m_variable, capture->m_variable, it->m_pos);
 		}
 
-		// captures are declared next to the args (see LambdaFunction::addByValCapturesToScope)
+		// captures are declared next to the args (see LambdaFunction::addExplicitCapturesToScope)
 
 		sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 		size_t argCount = argArray.getCount();
 		for (size_t i = 0; i < argCount; i++) {
-			sl::StringHashTableIterator<LambdaByValCapture> captureIt = function->m_byValCaptureMap.find(argArray[i]->getName());
+			sl::StringHashTableIterator<LambdaExplicitCapture> captureIt = function->m_explicitCaptureMap.find(argArray[i]->getName());
 			if (captureIt) {
 				setRedefinitionError(captureIt->getKey());
 				pushSrcPosError(captureIt->m_value.m_variable->getPos());

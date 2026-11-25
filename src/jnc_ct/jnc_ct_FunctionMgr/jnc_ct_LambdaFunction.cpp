@@ -21,11 +21,12 @@ namespace ct {
 // lambdas are compiled in-place (nested into the compilation of the outer function)
 // which allows discovering captures while compiling the lambda body:
 //
-// - by-value captures ([a, b]) are snapshots taken at the creation site and stored
+// - explicit captures ([a, b]) are by-value snapshots taken at the creation site and stored
 //   directly in the closure (writes persist across calls);
-// - every other outer local referenced from the body is captured by-ref -- a safe
+// - every other outer local referenced from the body is captured implicitly: by-ref -- a safe
 //   pointer to the outer variable (taking the address of an outer stack variable
-//   lifts it to the heap, so the closure can outlive the frame);
+//   lifts it to the heap, so the closure can outlive the frame); with [=], it's
+//   captured by-value instead, as if listed in [...];
 // - the outer 'this' is captured by-value on the first use (for struct methods, as
 //   a safe fat pointer);
 // - the body accesses each capture via a variable in the lambda's scope; until the
@@ -57,24 +58,52 @@ LambdaCapture::finalize(const Value& closurePtrValue) {
 //..............................................................................
 
 Variable*
-LambdaFunction::createByRefCaptureVariable(Variable* variable) {
+LambdaFunction::createImplicitCaptureVariable(Variable* variable) {
 	Type* type = variable->getType();
-	Type* ptrType;
-	if (variable->getFlags() & VariableFlag_LambdaByRefCapture)
-		ptrType = type; // already is a pointer
-	else {
-		uint_t ptrTypeFlags = PtrTypeFlag_Safe | (variable->getPtrTypeFlags() & PtrTypeFlag_ConstKindMask);
-		ptrType = type->getTypeKind() == TypeKind_Class ? // a class variable is the object itself
-			(Type*)((ClassType*)type)->getClassPtrType(ptrTypeFlags) :
-			type->getDataPtrType(ptrTypeFlags);
-	}
+	uint_t ptrTypeFlags = variable->getPtrTypeFlags() & PtrTypeFlag_ConstKindMask;
 
-	LambdaByRefCapture capture;
+	LambdaImplicitCapture capture;
 	capture.m_outerVariable = variable;
-	capture.m_variable = m_module->m_variableMgr.createLambdaCaptureVariable<VariableFlag_LambdaByRefCapture>(
-		variable->getName(),
-		ptrType
-	);
+
+	if (m_flags & FunctionFlag_LambdaByValCaptures) {
+		// same type as an explicit [] snapshot (see Parser::lambdaExpression)
+
+		if (variable->getFlags() & VariableFlag_LambdaByRefCapture) { // a pointer to the outer variable
+			if (type->getTypeKind() == TypeKind_ClassPtr) {
+				ptrTypeFlags = ((ClassPtrType*)type)->getFlags() & PtrTypeFlag_ConstKindMask;
+				type = ((ClassPtrType*)type)->getTargetType();
+			} else {
+				ptrTypeFlags = ((DataPtrType*)type)->getFlags() & PtrTypeFlag_ConstKindMask;
+				type = ((DataPtrType*)type)->getTargetType();
+			}
+		}
+
+		Value value = getDirectRefType(type, ptrTypeFlags | PtrTypeFlag_Safe);
+		bool result = m_module->m_operatorMgr.prepareOperandType(&value, OpFlag_LoadArrayRef);
+		if (!result)
+			return NULL;
+
+		capture.m_variable = m_module->m_variableMgr.createLambdaCaptureVariable<VariableFlag_LambdaByValCapture>(
+			variable->getName(),
+			value.getType(),
+			ptrTypeFlags
+		);
+	} else {
+		Type* ptrType;
+		if (variable->getFlags() & VariableFlag_LambdaByRefCapture)
+			ptrType = type; // already is a pointer
+		else {
+			ptrTypeFlags |= PtrTypeFlag_Safe;
+			ptrType = type->getTypeKind() == TypeKind_Class ? // a class variable is the object itself
+				(Type*)((ClassType*)type)->getClassPtrType(ptrTypeFlags) :
+				type->getDataPtrType(ptrTypeFlags);
+		}
+
+		capture.m_variable = m_module->m_variableMgr.createLambdaCaptureVariable<VariableFlag_LambdaByRefCapture>(
+			variable->getName(),
+			ptrType
+		);
+	}
 
 	capture.m_variable->copySrcPos(variable);
 
@@ -84,7 +113,7 @@ LambdaFunction::createByRefCaptureVariable(Variable* variable) {
 	bool result = m_scope->addItem(capture.m_variable);
 	ASSERT(result);
 
-	m_byRefCaptureArray.append(capture);
+	m_implicitCaptureArray.append(capture);
 	return capture.m_variable;
 }
 
@@ -102,13 +131,13 @@ LambdaFunction::createOuterThisVariable() {
 }
 
 void
-LambdaFunction::addByValCapturesToScope() {
+LambdaFunction::addExplicitCapturesToScope() {
 	ASSERT(m_module->hasCodeGen()); // see Parser::createLambda
 
 	// [] variables are created in the outer scope -- re-parent them (otherwise, they look like
 	// foreign locals and get captured by-ref); name clashes are checked in Parser::createLambda
 
-	sl::StringHashTableIterator<LambdaByValCapture> it = m_byValCaptureMap.getHead();
+	sl::StringHashTableIterator<LambdaExplicitCapture> it = m_explicitCaptureMap.getHead();
 	for (; it; it++) {
 		Variable* variable = it->m_value.m_variable;
 		variable->m_scope = m_scope;
@@ -145,23 +174,23 @@ LambdaFunction::compile() {
 
 	// variables get their llvm allocas on the first use
 
-	sl::StringHashTableIterator<LambdaByValCapture> byValIt = m_byValCaptureMap.getHead();
-	for (; byValIt; byValIt++)
-		if (!byValIt->m_value.m_variable->hasLlvmValue()) {
-			err::setError("'%s' is captured but never used", byValIt->getKey().sz());
-			lex::pushSrcPosError(m_parentUnit->getFilePath(), byValIt->m_value.m_variable->getPos());
+	sl::StringHashTableIterator<LambdaExplicitCapture> it = m_explicitCaptureMap.getHead();
+	for (; it; it++)
+		if (!it->m_value.m_variable->hasLlvmValue()) {
+			err::setError("'%s' is captured but never used", it->getKey().sz());
+			lex::pushSrcPosError(m_parentUnit->getFilePath(), it->m_value.m_variable->getPos());
 			return false;
 		}
 
 	Variable* outerThisVariable = m_outerThisCapture.m_variable;
-	size_t byRefCaptureCount = m_byRefCaptureArray.getCount();
-	size_t captureCount = m_byValCaptureMap.getCount() + byRefCaptureCount + (outerThisVariable ? 1 : 0);
+	size_t implicitCaptureCount = m_implicitCaptureArray.getCount();
+	size_t captureCount = m_explicitCaptureMap.getCount() + implicitCaptureCount + (outerThisVariable ? 1 : 0);
 	if (!captureCount)
 		return true;
 
 	// a closure class is only needed for multiple captures (or a struct 'this')
 
-	LambdaByRefCapture* byRefCaptureArray = m_byRefCaptureArray.p();
+	LambdaImplicitCapture* implicitCaptureArray = m_implicitCaptureArray.p();
 	bool isThisOnly = captureCount == 1 && outerThisVariable && m_outerThisType->getTypeKind() == TypeKind_ClassPtr;
 	if (!isThisOnly) {
 		m_closureType = m_module->m_typeMgr.createInternalClassType(m_module->createUniqueName("Lambda"));
@@ -169,12 +198,12 @@ LambdaFunction::compile() {
 		if (outerThisVariable)
 			m_outerThisCapture.m_field = m_closureType->createField("this", outerThisVariable->getType());
 
-		for (byValIt = m_byValCaptureMap.getHead(); byValIt; byValIt++)
-			byValIt->m_value.m_field = m_closureType->createField(byValIt->getKey(), byValIt->m_value.m_variable->getType());
+		for (it = m_explicitCaptureMap.getHead(); it; it++)
+			it->m_value.m_field = m_closureType->createField(it->getKey(), it->m_value.m_variable->getType());
 
-		for (size_t i = 0; i < byRefCaptureCount; i++) {
-			Variable* variable = byRefCaptureArray[i].m_variable;
-			byRefCaptureArray[i].m_field = m_closureType->createField(variable->getName(), variable->getType());
+		for (size_t i = 0; i < implicitCaptureCount; i++) {
+			Variable* variable = implicitCaptureArray[i].m_variable;
+			implicitCaptureArray[i].m_field = m_closureType->createField(variable->getName(), variable->getType());
 		}
 
 		result = m_closureType->require();
@@ -207,11 +236,11 @@ LambdaFunction::compile() {
 		if (outerThisVariable)
 			m_outerThisCapture.finalize(closurePtrValue);
 
-		for (byValIt = m_byValCaptureMap.getHead(); byValIt; byValIt++)
-			byValIt->m_value.finalize(closurePtrValue);
+		for (it = m_explicitCaptureMap.getHead(); it; it++)
+			it->m_value.finalize(closurePtrValue);
 
-		for (size_t i = 0; i < byRefCaptureCount; i++)
-			byRefCaptureArray[i].finalize(closurePtrValue);
+		for (size_t i = 0; i < implicitCaptureCount; i++)
+			implicitCaptureArray[i].finalize(closurePtrValue);
 	}
 
 	m_module->m_llvmIrBuilder.restoreInsertPoint(prevInsertPoint);
@@ -248,28 +277,31 @@ LambdaFunction::createFunctionPtrValue(Value* resultValue) {
 				return false;
 		}
 
-		sl::StringHashTableIterator<LambdaByValCapture> byValIt = m_byValCaptureMap.getHead();
-		for (; byValIt; byValIt++) {
+		sl::StringHashTableIterator<LambdaExplicitCapture> it = m_explicitCaptureMap.getHead();
+		for (; it; it++) {
 			Value fieldValue;
 			result =
-				m_module->m_operatorMgr.getClassField(closureValue, m_closureType, byValIt->m_value.m_field, NULL, &fieldValue) &&
-				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, fieldValue, byValIt->m_value.m_value);
+				m_module->m_operatorMgr.getClassField(closureValue, m_closureType, it->m_value.m_field, NULL, &fieldValue) &&
+				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, fieldValue, it->m_value.m_value);
 
 			if (!result)
 				return false;
 		}
 
-		size_t byRefCaptureCount = m_byRefCaptureArray.getCount();
-		for (size_t i = 0; i < byRefCaptureCount; i++) {
-			const LambdaByRefCapture* capture = &m_byRefCaptureArray[i];
+		size_t implicitCaptureCount = m_implicitCaptureArray.getCount();
+		for (size_t i = 0; i < implicitCaptureCount; i++) {
+			const LambdaImplicitCapture* capture = &m_implicitCaptureArray[i];
 
-			Value ptrValue;
+			Value value;
 			Value fieldValue;
 			result =
-				ptrValue.trySetVariable(capture->m_outerVariable) && // a nested lambda gets captured here
-				m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, &ptrValue) &&
+				value.trySetVariable(capture->m_outerVariable) && // a nested lambda gets captured here
+				((m_flags & FunctionFlag_LambdaByValCaptures) ?
+					m_module->m_operatorMgr.prepareOperand(&value, OpFlag_LoadArrayRef) :
+					m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, &value)
+				) &&
 				m_module->m_operatorMgr.getClassField(closureValue, m_closureType, capture->m_field, NULL, &fieldValue) &&
-				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, fieldValue, ptrValue);
+				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, fieldValue, value);
 
 			if (!result)
 				return false;
